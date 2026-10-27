@@ -62,10 +62,11 @@ source completions/harness.bash                    # tab-completion (add to ~/.b
 
 The guide walks you through env check → choose suites → run → report → review →
 teach → promote, asking before each step. Interactive menus — the **demo/real**
-choice, **suite**, **testcase**, **CANN package**, and **output mode** — use
-arrow keys (`↑`/`↓` + Enter, highlighted selection; `q` to skip) and fall back
-to numbered prompts when piped. If `ASCEND_HOME_PATH` is unset, the CANN picker
-lists each installed package with which arches it can compile vs simulate.
+choice, **suite**, **testcase**, **gtest filter**, **CANN package**, and
+**output mode** — use arrow keys (`↑`/`↓` + Enter, highlighted selection; `q` to
+skip) and fall back to numbered prompts when piped. If `ASCEND_HOME_PATH` is
+unset, the CANN picker lists each installed package with which arches it can
+compile vs simulate.
 
 ---
 

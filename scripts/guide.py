@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import select
 import shutil
 import subprocess
@@ -148,9 +149,9 @@ def select_menu(title: str, options: list, default_index: int = 0, height: int =
             j = top + i
             lab = labels[j]
             if j == idx:
-                lines.append("  \033[7m ▶ " + lab + " \033[0m")
+                lines.append("  \033[7m ▶ " + lab + " \033[0m\033[K")
             else:
-                lines.append("    " + lab + " ")
+                lines.append("    " + lab + " \033[K")
         return "\n".join(lines)
 
     sys.stdout.write(c(title, BOLD) + "\n")
@@ -222,6 +223,26 @@ def choose_testcase(suite: str) -> str:
     return sel if sel is not None else ""
 
 
+GTEST_RE = re.compile(r"TEST(?:_F|_P)?\s*\(\s*(\w+)\s*,\s*(\w+)\s*\)")
+
+
+def choose_filter(suite: str, testcase: str) -> str:
+    """Dropdown of gtest cases in the chosen testcase; '' = no filter."""
+    repo = Path(os.environ.get("PTO_ISA_REPO", "~/pto-isa")).expanduser()
+    rel = TESTCASE_DIRS.get(suite)
+    d = repo / rel / testcase if rel else None
+    main = d / "main.cpp" if d else None
+    if not main or not main.exists():
+        return ask("gtest filter (blank = none)").strip()
+    text = main.read_text(encoding="utf-8", errors="replace")
+    cases = sorted({f"{m.group(1)}.{m.group(2)}" for m in GTEST_RE.finditer(text)})
+    if not cases:
+        return ask("gtest filter (blank = none)").strip()
+    options = [("all cases (no filter)", "")] + [(c, c) for c in cases]
+    sel = select_menu(f"Choose a filter for {testcase} (↑/↓ + Enter, q = all):", options)
+    return sel if sel is not None else ""
+
+
 def check_env() -> None:
     banner("0 · Environment check")
     checks = [
@@ -283,7 +304,7 @@ def choose_target_and_suites() -> tuple[str, list[str], list[str]]:
         testcase = choose_testcase(choice)
         if testcase:
             testcase_flags = ["--testcase", testcase]
-            gfilter = ask("gtest filter (blank = none)")
+            gfilter = choose_filter(choice, testcase)
             if gfilter:
                 filter_flags = ["--filter", gfilter]
 
