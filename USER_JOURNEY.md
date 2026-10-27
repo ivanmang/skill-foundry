@@ -82,10 +82,11 @@ happens in `/tmp` + the gitignored `reports/`, so the repo stays clean.
 
 The interactive `./harness guide` (without `--demo`) walks the **real** pto-isa
 flow the same way: env check → choose suites → run → report → review → teach →
-promote. Its lists are arrow-key menus (`↑`/`↓` + Enter, highlighted selection;
-fell back to numbered prompts when piped). When `ASCEND_HOME_PATH` isn't set,
-it lists the CANN packages on the machine — which arches each can **compile**
-(headers) vs **simulate** — and lets you pick the right one.
+promote. Its interactive menus — **demo/real**, **suite**, **testcase**, **CANN
+package**, and **output mode** — use arrow keys (`↑`/`↓` + Enter, highlighted
+selection; fell back to numbered prompts when piped). When `ASCEND_HOME_PATH`
+isn't set, the CANN picker lists each installed package and which arches it can
+compile (headers) vs simulate.
 
 ---
 

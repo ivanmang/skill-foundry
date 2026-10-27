@@ -78,43 +78,40 @@ def _read_key() -> str:
     old = termios.tcgetattr(fd)
     try:
         tty.setraw(fd, termios.TCSADRAIN)  # don't flush keys that arrived just before the read
-        b = os.read(fd, 32)
-        if not b:
+        first = os.read(fd, 1)  # exactly one byte — never over-read buffered keys
+        if not first:
             return ""
-        ch = b[:1]
-        if ch == b"\x1b":
-            seq = b[1:].decode("latin-1")
-            if not seq:
-                # lone ESC so far — wait briefly for the rest of the sequence
-                deadline = time.time() + 0.08
-                while len(seq) < 2 and time.time() < deadline:
-                    r, _, _ = select.select([fd], [], [], 0.02)
-                    if not r:
-                        continue
-                    seq += os.read(fd, 1).decode("latin-1")
+        if first == b"\x1b":
+            seq = b""
+            deadline = time.time() + 0.08
+            while len(seq) < 2 and time.time() < deadline:
+                r, _, _ = select.select([fd], [], [], 0.02)
+                if not r:
+                    break
+                seq += os.read(fd, 1)
             mapping = {
                 "[A": "UP", "[B": "DOWN", "[C": "RIGHT", "[D": "LEFT",
                 "OA": "UP", "OB": "DOWN", "OC": "RIGHT", "OD": "LEFT",
             }
-            return mapping.get(seq, "ESC")
-        if ch in (b"\r", b"\n"):
+            return mapping.get(seq.decode("latin-1"), "ESC")
+        if first in (b"\r", b"\n"):
             return "ENTER"
-        if ch in (b"q", b"Q"):
+        if first in (b"q", b"Q"):
             return "q"
-        if ch == b"\x03":
+        if first == b"\x03":
             return "CTRL_C"
-        return ch.decode("latin-1")
+        return first.decode("latin-1")
     finally:
         termios.tcsetattr(fd, termios.TCSADRAIN, old)
 
 
-def select_menu(title: str, options: list, default_index: int = 0):
-    """Arrow-key menu with highlighted selection.
+def select_menu(title: str, options: list, default_index: int = 0, height: int = 12):
+    """Arrow-key menu with highlighted selection + a scrollable window.
 
     options is a list of str labels or (label, value) tuples. Returns the value
-    (or the label when a bare string). Enter selects, Up/Down navigate, number
-    selects directly, q/Esc cancels (None). Falls back to a numbered prompt on
-    non-TTY stdin.
+    (or the label when a bare string). Enter selects, Up/Down navigate (window
+    scrolls), number jumps, q/Esc cancels (None). Falls back to a numbered
+    prompt on non-TTY stdin.
     """
     if not options:
         return None
@@ -136,11 +133,21 @@ def select_menu(title: str, options: list, default_index: int = 0):
 
     idx = max(0, min(default_index, len(labels) - 1))
     n = len(labels)
+    visible = min(n, height)
+    top = 0
 
     def render() -> str:
+        nonlocal top
+        if idx < top:
+            top = idx
+        elif idx >= top + visible:
+            top = idx - visible + 1
+        top = max(0, min(top, n - visible))
         lines = []
-        for i, lab in enumerate(labels):
-            if i == idx:
+        for i in range(visible):
+            j = top + i
+            lab = labels[j]
+            if j == idx:
                 lines.append("  \033[7m ▶ " + lab + " \033[0m")
             else:
                 lines.append("    " + lab + " ")
@@ -168,7 +175,7 @@ def select_menu(title: str, options: list, default_index: int = 0):
                 continue
         else:
             continue
-        sys.stdout.write(f"\033[{n}A\r")
+        sys.stdout.write(f"\033[{visible}A\r")
         sys.stdout.write(render() + "\n")
 
 
@@ -187,6 +194,32 @@ def choose_cann() -> str | None:
         options.append((label, info["path"]))
     title = c("  No ASCEND_HOME_PATH set. Choose a CANN package (↑/↓ + Enter, q = skip):", YELLOW)
     return select_menu(title, options)
+
+
+TESTCASE_DIRS = {
+    "cpu-st": "tests/cpu/st/testcase",
+    "npu-sim-a3": "tests/npu/a2a3/src/st/testcase",
+    "npu-hw-a3": "tests/npu/a2a3/src/st/testcase",
+    "npu-sim-a5": "tests/npu/a5/src/st/testcase",
+    "npu-hw-a5": "tests/npu/a5/src/st/testcase",
+    "npu-sim-a6": "tests/npu/a6/src/st/testcase",
+    "npu-hw-a6": "tests/npu/a6/src/st/testcase",
+}
+
+
+def choose_testcase(suite: str) -> str:
+    """Dropdown of testcases in the chosen suite; '' means run all in the suite."""
+    repo = Path(os.environ.get("PTO_ISA_REPO", "~/pto-isa")).expanduser()
+    rel = TESTCASE_DIRS.get(suite)
+    d = repo / rel if rel else None
+    if not d or not d.exists():
+        return ask("Testcase (blank = all in suite)").strip()
+    names = sorted(p.name for p in d.iterdir() if p.is_dir())
+    if not names:
+        return ""
+    options = [("all testcases", "")] + [(name, name) for name in names]
+    sel = select_menu("Choose a testcase (↑/↓ + Enter, q = all):", options)
+    return sel if sel is not None else ""
 
 
 def check_env() -> None:
@@ -247,7 +280,7 @@ def choose_target_and_suites() -> tuple[str, list[str], list[str]]:
     testcase_flags: list[str] = []
     filter_flags: list[str] = []
     if choice.lower() not in ("all", ""):
-        testcase = ask("Testcase (blank = all in suite)")
+        testcase = choose_testcase(choice)
         if testcase:
             testcase_flags = ["--testcase", testcase]
             gfilter = ask("gtest filter (blank = none)")
@@ -313,8 +346,11 @@ def main(argv: list[str] | None = None) -> int:
     if "--demo" in args:
         return subprocess.run([str(HARNESS / "demo" / "run_demo.sh")]).returncode
     print(c("\n regression-harness · guided tour ", BOLD))
-    mode = ask("Start with the sandboxed demo (no hardware) or the real pto-isa tour?", "demo").lower()
-    if mode in ("demo", "d"):
+    mode = select_menu(
+        "Start with:",
+        [("Sandboxed demo (no hardware)", "demo"), ("Real pto-isa tour", "real")],
+    ) or "demo"
+    if mode == "demo":
         return subprocess.run([str(HARNESS / "demo" / "run_demo.sh")]).returncode
     return run_real_tour()
 
