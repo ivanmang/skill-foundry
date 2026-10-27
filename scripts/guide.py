@@ -15,6 +15,7 @@ import shutil
 import subprocess
 import sys
 import termios
+import time
 import tty
 from pathlib import Path
 
@@ -68,25 +69,41 @@ def ask_yesno(prompt: str, default: str = "n") -> bool:
 
 
 def _read_key() -> str:
-    """Read one keypress (raw mode). Arrow keys return UP/DOWN/LEFT/RIGHT."""
+    """Read one keypress in raw mode.
+
+    Uses os.read on the fd directly (not the buffered TextIOWrapper), reads the
+    full escape sequence, and accepts both 'ESC [ A' and 'ESC O A' arrow forms.
+    """
     fd = sys.stdin.fileno()
     old = termios.tcgetattr(fd)
     try:
-        tty.setraw(fd)
-        ch = sys.stdin.read(1)
-        if ch == "\x1b":
-            ready, _, _ = select.select([fd], [], [], 0.03)
-            if ready:
-                seq = sys.stdin.read(2)
-                return {"[A": "UP", "[B": "DOWN", "[C": "RIGHT", "[D": "LEFT"}.get(seq, "ESC")
-            return "ESC"
-        if ch in ("\r", "\n"):
+        tty.setraw(fd, termios.TCSADRAIN)  # don't flush keys that arrived just before the read
+        b = os.read(fd, 32)
+        if not b:
+            return ""
+        ch = b[:1]
+        if ch == b"\x1b":
+            seq = b[1:].decode("latin-1")
+            if not seq:
+                # lone ESC so far — wait briefly for the rest of the sequence
+                deadline = time.time() + 0.08
+                while len(seq) < 2 and time.time() < deadline:
+                    r, _, _ = select.select([fd], [], [], 0.02)
+                    if not r:
+                        continue
+                    seq += os.read(fd, 1).decode("latin-1")
+            mapping = {
+                "[A": "UP", "[B": "DOWN", "[C": "RIGHT", "[D": "LEFT",
+                "OA": "UP", "OB": "DOWN", "OC": "RIGHT", "OD": "LEFT",
+            }
+            return mapping.get(seq, "ESC")
+        if ch in (b"\r", b"\n"):
             return "ENTER"
-        if ch in ("q", "Q"):
+        if ch in (b"q", b"Q"):
             return "q"
-        if ch == "\x03":
+        if ch == b"\x03":
             return "CTRL_C"
-        return ch
+        return ch.decode("latin-1")
     finally:
         termios.tcsetattr(fd, termios.TCSADRAIN, old)
 
