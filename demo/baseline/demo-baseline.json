@@ -1,0 +1,35 @@
+{
+  "run_id": "demo-baseline",
+  "generated_at": "2026-10-27T00:00:00+00:00",
+  "generated": true,
+  "harness_commit": null,
+  "target": "demo",
+  "target_repo": "demo/mockrepo",
+  "target_commit": null,
+  "target_dirty": false,
+  "host": "demo",
+  "env_snapshot": {},
+  "suites": [
+    {
+      "name": "demo-suite",
+      "mode": "cpu",
+      "status": "PASS",
+      "exit_code": 0,
+      "timed_out": false,
+      "duration_s": 1.0,
+      "command": ["bash", "runner.sh"],
+      "log_file": null,
+      "description": "Mock gtest suite — pinned 'all green' baseline for the demo.",
+      "results": {
+        "suite": "demo-suite",
+        "summary": {"passed": 3, "failed": 0, "skipped": 0, "total": 3, "status": "PASS"},
+        "cases": [
+          {"name": "VecOpTest.case_add_128x128", "status": "PASS", "duration_s": 0.004},
+          {"name": "VecOpTest.case_vcvt_bf16fp16_128x128", "status": "PASS", "duration_s": 0.002},
+          {"name": "ReduceTest.case_vcgmax_256", "status": "PASS", "duration_s": 0.006}
+        ],
+        "evidence": ["[  PASSED  ] 3 tests."]
+      }
+    }
+  ]
+}

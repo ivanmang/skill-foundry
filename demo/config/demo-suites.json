@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "targets": {
+    "demo": {
+      "repo_env": "DEMO_REPO",
+      "repo_default": "demo/mockrepo",
+      "env_setup": "",
+      "env": {},
+      "suites": [
+        {
+          "name": "demo-suite",
+          "mode": "cpu",
+          "arch": null,
+          "enabled": true,
+          "milestone": "demo",
+          "command": ["bash", "runner.sh"],
+          "timeout_s": 60,
+          "description": "Mock gtest suite — deterministic 2-pass / 1-fail output for the demo."
+        }
+      ]
+    }
+  }
+}
