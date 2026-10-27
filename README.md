@@ -8,6 +8,9 @@ First target: **pto-isa** regression (CPU simulator ST + NPU simulator ST).
 Teams in scope (later): pto-vmi (CCE / DSL), costmodel, comm, and any new target
 that can be expressed as a suite matrix.
 
+> **New here?** Start with the [User Journey](USER_JOURNEY.md), or run the
+> 2-minute sandboxed walkthrough: `./demo/run_demo.sh`.
+
 ---
 
 ## Layout
