@@ -11,7 +11,7 @@ _harness_complete() {
     cur="${COMP_WORDS[COMP_CWORD]}"
     prev="${COMP_WORDS[COMP_CWORD-1]}"
 
-    local cmds="run report review teach promote baseline guide demo list selfcheck help version"
+    local cmds="run report review teach promote baseline guide demo list cann selfcheck help version"
     local opts_run="--target --suite --all-suites --quiet --tui --json --list --format --run-id --config --arches"
     local opts_promote="--propose --apply --branch --pr --root --learnings"
     local opts_report="--run --known --out"

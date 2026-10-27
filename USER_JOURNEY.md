@@ -51,6 +51,7 @@ cp env.example.sh env.sh && source ./env.sh
 # see everything the harness can do
 ./harness help
 ./harness guide          # interactive step-by-step tour
+./harness cann           # which installed CANN supports which arch
 
 # optional: tab-completion
 source completions/harness.bash   # add to ~/.bashrc

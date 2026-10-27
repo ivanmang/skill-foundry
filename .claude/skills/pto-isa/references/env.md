@@ -1,5 +1,10 @@
 # PTO-ISA env & version pins
 
+See also `cann-matrix.md` for the full CANN→arch support matrix (which CANN
+package can compile/simulate which arch), and run `./harness cann` to detect it
+on any machine.
+
+
 ## Arch → soc (NPU ST via `run_st.py -v`)
 
 | -v | chip | simulator soc | march | notes |

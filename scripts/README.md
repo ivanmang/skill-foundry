@@ -22,6 +22,7 @@ directly.
 | `demo` | `demo/run_demo.sh` | Sandboxed walkthrough |
 | `guide` | `guide.py` | Interactive step-by-step tour |
 | `list` | `run_suite.py --list` | List suites + arches |
+| `cann` | `detect_cann.py` | Which CANN supports which arch |
 | `selfcheck` | `selfcheck` | Compile-check + demo smoke |
 
 ## Internals (imported / used by the commands above — not for direct use)

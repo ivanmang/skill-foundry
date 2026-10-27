@@ -69,6 +69,7 @@ Full table: `references/env.md`.
 - `references/suite-matrix.md` — full regression surface + entry points
 - `references/known-failures.md` — triage corpus
 - `references/env.md` — arch/soc/env/version pins
+- `references/cann-matrix.md` — which CANN supports which arch (compile + simulate)
 
 ## Gotchas
 

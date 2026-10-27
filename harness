@@ -35,6 +35,7 @@ Commands:
   guide     Interactive step-by-step tour (or --demo)
   demo      Run the sandboxed 2-minute walkthrough
   list      List suites + arches (default pto-isa)   [--target, --format, --config, --arches]
+  cann      Which installed CANN supports which arch  [--home, --scan, --json]
   selfcheck Compile-check + demo smoke test
   help      Show this help
   version   Show the harness version
@@ -63,6 +64,7 @@ case "$CMD" in
   list)
     exec python3 "$HARNESS/scripts/run_suite.py" --list "$@"
     ;;
+  cann)     exec python3 "$HARNESS/scripts/detect_cann.py" "$@" ;;
   selfcheck) exec "$HARNESS/scripts/selfcheck" ;;
   help|-h|--help) usage ;;
   version|--version|-V) version ;;

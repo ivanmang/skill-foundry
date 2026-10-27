@@ -28,6 +28,7 @@ that can be expressed as a suite matrix.
 ./harness baseline  re-pin baseline.json  [--force] [target]
 ./harness demo      2-minute walkthrough
 ./harness list      suites + arches       [--target, --format text|markdown|html]
+./harness cann      which CANN → which arch  [--home, --scan, --json]
 ./harness selfcheck compile-check + demo smoke
 ./harness help      show this            ./harness version
 ```

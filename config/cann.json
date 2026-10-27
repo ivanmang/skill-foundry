@@ -1,0 +1,41 @@
+{
+  "soc_to_arch": {
+    "Ascend910B1": "a3",
+    "Ascend910B2": "a3",
+    "Ascend910B2C": "a3",
+    "Ascend910B3": "a3",
+    "Ascend910B4": "a3",
+    "Ascend950PR_9599": "a5",
+    "Ascend910_9599": "a5",
+    "dav_9201": "a6",
+    "v926": "v200",
+    "davinci_model": "v200",
+    "Kirin9030": "kirin9030",
+    "KirinX90": "kirinX90",
+    "KirinDev0000": "kirinDev0000"
+  },
+  "header_dir_to_arch": {
+    "a2a3": "a3",
+    "a5": "a5",
+    "a6": "a6",
+    "kirin9030": "kirin9030",
+    "kirinX90": "kirinX90",
+    "kirinDev0000": "kirinDev0000"
+  },
+  "arch_min_cann": {
+    "a3": "CANN ~8.x+ (A2/A3 since 910B/C)",
+    "a5": "CANN 9.0.0+",
+    "a6": "sim in 9.0.0-beta.2 / 9.1.0+; headers in 9.0.0-alpha.1",
+    "v200": "CANN 9.2.0 (dav-926; v926 ISA-identical to A6)",
+    "kirin9030": "CANN 9.0.0+",
+    "kirinX90": "CANN 9.0.0+",
+    "kirinDev0000": "CANN 9.0.0+"
+  },
+  "known_toolkits": [
+    {"version": "9.0.0-alpha.1", "machines": ["blue"], "note": "A6 headers present; no A6 sim"},
+    {"version": "9.0.0-beta.2", "machines": ["blue"], "note": "A6 sim present; A6 headers absent (Ascend_new = full, Ascend_full = partial)"},
+    {"version": "9.1.0-beta.1", "machines": ["blue"], "note": "A6 sim present; no A6 headers"},
+    {"version": "9.1.0", "machines": ["yellow"], "note": "A6 sim dav_9201; A6 headers from pto-isa"},
+    {"version": "9.2.0", "machines": ["v200"], "note": "v200/v926 (dav-926); v926 ISA-identical to A6"}
+  ]
+}
