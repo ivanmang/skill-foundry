@@ -61,7 +61,9 @@ source completions/harness.bash                    # tab-completion (add to ~/.b
 ```
 
 The guide walks you through env check → choose suites → run → report → review →
-teach → promote, asking before each step.
+teach → promote, asking before each step. If `ASCEND_HOME_PATH` is unset, it
+lists the CANN packages installed on the machine (headers = which arches each
+can compile, simulator = which it can run) and lets you pick one interactively.
 
 ---
 

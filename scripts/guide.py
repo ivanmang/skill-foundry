@@ -15,6 +15,8 @@ import sys
 from pathlib import Path
 
 HARNESS = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import detect_cann  # noqa: E402
 
 GREEN = "\033[32m"
 RED = "\033[31m"
@@ -61,6 +63,25 @@ def ask_yesno(prompt: str, default: str = "n") -> bool:
             return False
 
 
+def choose_cann() -> str | None:
+    """List installed CANN toolkits with their arch support and let the user pick one."""
+    cfg = detect_cann.load_config()
+    roots = [r for r in detect_cann.candidates() if detect_cann.looks_like_toolkit(r)]
+    if not roots:
+        return None
+    infos = [detect_cann.analyze(r, cfg) for r in roots]
+    print(c("  No ASCEND_HOME_PATH set. Available CANN packages (headers = compile, simulator = run):", YELLOW))
+    for i, info in enumerate(infos, 1):
+        hdr = " ".join(info["headers"]) if info["headers"] else "-"
+        sim = " ".join(info["simulators"]) if info["simulators"] else "-"
+        print(f"    {i}) {info['path']}")
+        print(f"       version {info['version']} · headers {hdr} · simulator {sim}")
+    choice = ask("Choose a CANN package [1-%d] (Enter = skip)" % len(infos))
+    if choice.isdigit() and 1 <= int(choice) <= len(infos):
+        return infos[int(choice) - 1]["path"]
+    return None
+
+
 def check_env() -> None:
     banner("0 · Environment check")
     checks = [
@@ -73,7 +94,12 @@ def check_env() -> None:
         mark = c("✓", GREEN) if ok else c("✗", RED)
         print(f"  {mark}  {name}")
     if not checks[2][1]:
-        print(c("  → npu/costmodel/comm suites need ASCEND_HOME_PATH — source ./env.sh first.", YELLOW))
+        chosen = choose_cann()
+        if chosen:
+            os.environ["ASCEND_HOME_PATH"] = chosen
+            print(c(f"  ✓  using {chosen}", GREEN))
+        else:
+            print(c("  → npu/costmodel/comm suites need ASCEND_HOME_PATH — pick a CANN above or source ./env.sh.", YELLOW))
     if not checks[3][1]:
         print(c("  → pto-isa checkout not found — export PTO_ISA_REPO=... or clone ~/pto-isa.", YELLOW))
     print()
