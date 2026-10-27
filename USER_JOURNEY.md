@@ -50,6 +50,7 @@ cp env.example.sh env.sh && source ./env.sh
 
 # see everything the harness can do
 ./harness help
+./harness guide          # interactive step-by-step tour
 
 # optional: tab-completion
 source completions/harness.bash   # add to ~/.bashrc
@@ -69,12 +70,18 @@ have their own needs:
 ## Step 1 — Try it in 2 minutes (no hardware)
 
 ```bash
-./harness demo                 # or PAUSE=1 ./demo/run_demo.sh to step through
+./harness guide --demo        # guided demo tour (asks before each step)
+./harness demo                # or: run the demo straight through
+PAUSE=1 ./demo/run_demo.sh    # or: step scene-by-scene (for presenting)
 ```
 
 This runs the **real** harness scripts against a mock gtest runner and walks the
 entire journey (run → report → review → correct → promote → re-run). Everything
 happens in `/tmp` + the gitignored `reports/`, so the repo stays clean.
+
+The interactive `./harness guide` (without `--demo`) walks the **real** pto-isa
+flow the same way: env check → choose suites → run → report → review → teach →
+promote, asking before each step.
 
 ---
 
@@ -322,3 +329,16 @@ auto-editing your `CLAUDE.md`, the harness auto-logs but only *proposes* edits.
 - Keep `description` frontmatter stable unless triggers genuinely change.
 - No secrets / credentials / sensitive data in skills or learnings.
 - Small, reviewable diffs beat sweeping rewrites.
+
+---
+
+## Troubleshooting
+
+| Symptom | Fix |
+|---|---|
+| `ASCEND_HOME_PATH not set` on npu/costmodel/comm | `cp env.example.sh env.sh && source ./env.sh` |
+| cpu-st `Could not find a suitable compiler` | run on ecs / yellow / b10 (clang++>=15 or g++>=13) |
+| `target repo not found` | `export PTO_ISA_REPO=~/pto-isa` |
+| bare `./harness run` exits 2 | pass `--suite <name>` or `--all-suites` |
+| `./harness baseline` refuses to pin | a suite didn't PASS — fix it, or `--force` |
+| `./harness list demo` says unknown target | demo uses its own config: `./harness list --target demo --config demo/config/demo-suites.json --arches demo/config/demo-arches.json` |

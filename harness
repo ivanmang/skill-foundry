@@ -32,6 +32,7 @@ Commands:
   teach     Log a correction (wizard / shorthand)    ["wrong -> correct -> action", --edit]
   promote   Propose or apply pending learnings       [--propose, --apply, --branch, --pr]
   baseline  Re-pin reports/baseline/baseline.json    [--force, target]
+  guide     Interactive step-by-step tour (or --demo)
   demo      Run the sandboxed 2-minute walkthrough
   list      List suites + arches (default pto-isa)   [--target, --format, --config, --arches]
   selfcheck Compile-check + demo smoke test
@@ -57,6 +58,7 @@ case "$CMD" in
   teach)    exec "$HARNESS/scripts/teach" "$@" ;;
   promote)  exec python3 "$HARNESS/scripts/promote_recent.py" "$@" ;;
   baseline) exec "$HARNESS/scripts/make_baseline.sh" "$@" ;;
+  guide)    exec python3 "$HARNESS/scripts/guide.py" "$@" ;;
   demo)     exec "$HARNESS/demo/run_demo.sh" "$@" ;;
   list)
     exec python3 "$HARNESS/scripts/run_suite.py" --list "$@"

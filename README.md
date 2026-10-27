@@ -8,8 +8,9 @@ First target: **pto-isa** regression (CPU simulator ST + NPU simulator ST).
 Teams in scope (later): pto-vmi (CCE / DSL), costmodel, comm, and any new target
 that can be expressed as a suite matrix.
 
-> **New here?** Start with the [User Journey](USER_JOURNEY.md), or run the
-> 2-minute sandboxed walkthrough: `./demo/run_demo.sh`.
+> **New here?** Start with the [User Journey](USER_JOURNEY.md), run
+> `./harness guide` for an interactive tour, or jump straight to the
+> 2-minute sandboxed demo: `./harness demo`.
 > One entry point for everything: `./harness help`.
 
 ---
@@ -48,6 +49,16 @@ source completions/harness.bash                    # tab-completion (add to ~/.b
 - `run` requires an explicit `--suite` **or** `--all-suites`; a bare `run` prints
   the enabled suites and exits 2.
 - Exit codes: **0** clean, **1** ran-with-failures, **2** usage error.
+
+### Guided tour
+
+```bash
+./harness guide           # interactive step-by-step tour of the real flow
+./harness guide --demo    # sandboxed demo tour (no hardware)
+```
+
+The guide walks you through env check → choose suites → run → report → review →
+teach → promote, asking before each step.
 
 ---
 
@@ -128,3 +139,13 @@ Capture is automated; promotion is a reviewable, git-tracked edit.
 
 See `.claude/skills/skill-maintainer/SKILL.md` and run the live walkthrough:
 `./harness demo` (narration in `demo/NARRATION.md`).
+
+## Troubleshooting
+
+| Symptom | Fix |
+|---|---|
+| `ASCEND_HOME_PATH not set` on npu/costmodel/comm suites | `cp env.example.sh env.sh && source ./env.sh` |
+| cpu-st: `Could not find a suitable compiler` | run on ecs / yellow / b10 (needs clang++>=15 or g++>=13) |
+| `target repo not found` | `export PTO_ISA_REPO=~/pto-isa` |
+| bare `./harness run` returns exit 2 | pass `--suite <name>` or `--all-suites` |
+| `baseline` refuses to pin | some suite did not PASS — fix it, or use `--force` |

@@ -20,6 +20,7 @@ directly.
 | `promote` | `promote_recent.py` | Propose or apply learnings into skills |
 | `baseline` | `make_baseline.sh` | Re-pin `reports/baseline/baseline.json` |
 | `demo` | `demo/run_demo.sh` | Sandboxed walkthrough |
+| `guide` | `guide.py` | Interactive step-by-step tour |
 | `list` | `run_suite.py --list` | List suites + arches |
 | `selfcheck` | `selfcheck` | Compile-check + demo smoke |
 
