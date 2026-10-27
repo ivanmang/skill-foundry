@@ -114,6 +114,8 @@ only deliberately (new suites, arch changes), never casually.
 ./harness run --all-suites --tui              # live spinner + per-suite pass/fail
 ./harness run --all-suites --json             # machine-readable summary
 ./harness run --suite cpu-st                  # one suite
+./harness run --suite npu-sim-a5 --testcase tpartargmax        # one testcase
+./harness run --suite cpu-st --testcase tadd --filter 'TADDTest.case_*'  # one gtest case
 
 # one testcase (raw pto-isa runner)
 python3 tests/script/run_st.py -r sim -v a5 -t tadd -g 'TADDTest.case_*'
@@ -297,6 +299,8 @@ loop, and every teammate gets it via git.
 | Pin / refresh baseline | `./harness baseline [--force] pto-isa` |
 | Run all suites | `./harness run --all-suites [--quiet\|--tui\|--json]` |
 | Run one suite | `./harness run --suite cpu-st` |
+| Run one testcase | `./harness run --suite npu-sim-a5 --testcase tpartargmax` |
+| Run a gtest filter | `./harness run --suite cpu-st --testcase tadd --filter 'TADDTest.case_*'` |
 | Report | `./harness report --run <id>/run.json --known <kf> --out <base>` |
 | Diff vs baseline | `./harness review --run <id>/run.json` |
 | Capture correction | `./harness teach "… -> … -> …"` (or wizard) |

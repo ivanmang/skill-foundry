@@ -26,7 +26,7 @@ usage() {
 usage: ./harness <command> [args]
 
 Commands:
-  run       Run a declared suite (run_suite.py)      [--quiet, --tui, --json, --all-suites, --suite, --target]
+  run       Run a declared suite (run_suite.py)      [--quiet, --tui, --json, --all-suites, --suite, --target, --testcase, --filter]
   report    Render a run to Markdown + HTML          [--run, --known, --out]
   review    Diff a run vs the pinned baseline        [--run, --baseline, --out]
   teach     Log a correction (wizard / shorthand)    ["wrong -> correct -> action", --edit]

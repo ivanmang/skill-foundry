@@ -84,7 +84,20 @@ def fmt_dur(sec: float | None) -> str:
     return f"{sec:.2f}s"
 
 
-def build_command(suite: dict, arches: dict, repo: Path) -> list[str]:
+def _set_flag(cmd: list[str], flag: str, value: str) -> list[str]:
+    if flag in cmd:
+        i = cmd.index(flag)
+        if i + 1 < len(cmd):
+            cmd[i + 1] = value
+        else:
+            cmd.append(value)
+    else:
+        cmd += [flag, value]
+    return cmd
+
+
+def build_command(suite: dict, arches: dict, repo: Path,
+                  testcase: str | None = None, gtest_filter: str | None = None) -> list[str]:
     arch = suite.get("arch") or ""
     arch_info = arches.get(arch) or {}
     subst = {
@@ -94,7 +107,20 @@ def build_command(suite: dict, arches: dict, repo: Path) -> list[str]:
         "repo": str(repo),
         "testcase": suite.get("testcase", "all"),
     }
-    return [tok.format(**subst) for tok in suite.get("command", [])]
+    cmd = [tok.format(**subst) for tok in suite.get("command", [])]
+
+    # Inject a single-testcase / gtest-filter selection per runner convention.
+    mode = suite.get("mode") or ""
+    if mode == "cpu":
+        if testcase:
+            cmd += ["--testcase", testcase]
+        if gtest_filter:
+            cmd += ["--gtest_filter", gtest_filter]
+    elif mode in ("npu-sim", "npu", "comm"):
+        cmd = _set_flag(cmd, "-t", testcase or "all")
+        if gtest_filter:
+            cmd = _set_flag(cmd, "-g", gtest_filter)
+    return cmd
 
 
 def _empty_results(name: str, status: str, evidence: list[str]) -> dict:
@@ -118,7 +144,7 @@ def extract_error(log_text: str) -> str | None:
     return None
 
 
-def _error_result(suite: dict, message: str) -> dict:
+def _error_result(suite: dict, cmd: list[str], message: str) -> dict:
     return {
         "name": suite["name"],
         "mode": suite.get("mode"),
@@ -126,7 +152,7 @@ def _error_result(suite: dict, message: str) -> dict:
         "exit_code": None,
         "timed_out": False,
         "duration_s": None,
-        "command": suite.get("command", []),
+        "command": cmd,
         "log_file": None,
         "description": suite.get("description", ""),
         "error": message,
@@ -162,12 +188,13 @@ def _popen_run(script: str, repo: Path, log_file: Path, timeout_s: int,
 
 
 def run_one(repo: Path, suite: dict, arches: dict, target_cfg: dict,
-            run_dir: Path, quiet: bool, tui: bool) -> dict:
+            run_dir: Path, quiet: bool, tui: bool,
+            testcase: str | None = None, gtest_filter: str | None = None) -> dict:
     mode = suite.get("mode") or ""
+    cmd = build_command(suite, arches, repo, testcase, gtest_filter)
     if mode in NEEDS_ASCEND and not os.environ.get("ASCEND_HOME_PATH"):
-        return _error_result(suite, "ASCEND_HOME_PATH not set — source ./env.sh (or export it) before running npu/costmodel/comm suites.")
+        return _error_result(suite, cmd, "ASCEND_HOME_PATH not set — source ./env.sh (or export it) before running npu/costmodel/comm suites.")
 
-    cmd = build_command(suite, arches, repo)
     env_setup = target_cfg.get("env_setup", "") or ""
     env = target_cfg.get("env", {}) or {}
 
@@ -373,6 +400,8 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--target", default="pto-isa", help="Target key in config/suites.json (default pto-isa).")
     ap.add_argument("--suite", default=None, help="Suite name, or omit with --all-suites.")
     ap.add_argument("--all-suites", action="store_true", help="Run all enabled suites for the target.")
+    ap.add_argument("--testcase", default=None, help="Run a single testcase inside the selected suite (e.g. tpartargmax).")
+    ap.add_argument("--filter", default=None, help="gtest filter applied to the suite (e.g. 'TADDTest.case_*').")
     ap.add_argument("--quiet", "-q", action="store_true", help="Suppress per-suite output; print only the summary.")
     ap.add_argument("--tui", action="store_true", help="Live per-suite spinner + pass/fail line (no raw output).")
     ap.add_argument("--json", action="store_true", help="Print the summary as JSON instead of a table.")
@@ -409,6 +438,9 @@ def main(argv: list[str] | None = None) -> int:
             f"Enabled suites for '{args.target}': {enabled or 'none'}"
         )
 
+    if args.all_suites and (args.testcase or args.filter):
+        usage_error("--testcase / --filter can only be used with a single --suite, not --all-suites.")
+
     suites = select_suites(target_cfg, None if args.all_suites else args.suite)
     if not suites:
         usage_error("no enabled suites matched; check config/suites.json")
@@ -433,7 +465,9 @@ def main(argv: list[str] | None = None) -> int:
     run_quiet = args.quiet or args.json
     tui = args.tui and not args.json and sys.stdout.isatty()
     for suite in suites:
-        record["suites"].append(run_one(repo, suite, arches, target_cfg, run_dir, run_quiet, tui))
+        record["suites"].append(
+            run_one(repo, suite, arches, target_cfg, run_dir, run_quiet, tui, args.testcase, args.filter)
+        )
 
     run_json = run_dir / "run.json"
     run_json.write_text(json.dumps(record, indent=2) + "\n", encoding="utf-8")

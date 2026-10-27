@@ -40,6 +40,9 @@ directly.
 
 - `./harness run --tui` — live per-suite spinner + pass/fail line (auto-falls back
   to quiet when stdout isn't a TTY).
+- `./harness run --suite X --testcase T [--filter G]` — run a single testcase / gtest
+  filter instead of the whole suite (maps to `-t`/`-g` for npu, `--testcase`/
+  `--gtest_filter` for cpu).
 - `./harness list --format markdown|html` — suite catalog for docs/dashboards.
 - `./harness promote --pr` — apply + branch + commit + push + merge-request URL.
 - Tab completion: `source completions/harness.bash` (then `./harness <TAB>`).

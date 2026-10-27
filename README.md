@@ -20,7 +20,7 @@ that can be expressed as a suite matrix.
 `./harness` is the single entry point:
 
 ```text
-./harness run       Run suites            [--suite X | --all-suites] [--quiet | --tui | --json]
+./harness run       Run suites            [--suite X | --all-suites] [--quiet | --tui | --json] [--testcase T | --filter G]
 ./harness report    run.json → MD + HTML  [--run, --known, --out]
 ./harness review    diff vs baseline      [--run, --baseline, --out]
 ./harness teach     log a correction      ["wrong -> correct -> action" | wizard | --edit]
@@ -39,6 +39,8 @@ Quick start:
 ./harness list                                     # what can I run?
 ./harness run --all-suites --quiet                 # run everything, summary only
 ./harness run --suite cpu-st                       # one suite
+./harness run --suite npu-sim-a5 --testcase tpartargmax       # one testcase
+./harness run --suite cpu-st --testcase tadd --filter 'TADDTest.case_*'   # one gtest case
 ./harness report --run reports/<id>/run.json \
   --known .claude/skills/pto-isa/references/known-failures.md --out reports/<id>/report
 ./harness review --run reports/<id>/run.json       # diff vs the pinned baseline

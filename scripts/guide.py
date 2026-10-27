@@ -96,9 +96,20 @@ def choose_target_and_suites() -> tuple[str, list[str], list[str]]:
 
     mode = ask("Output mode — normal / quiet / tui", "normal").strip().lower()
     mode_flags = {"normal": [], "quiet": ["--quiet"], "tui": ["--tui"]}.get(mode, [])
+
+    testcase_flags: list[str] = []
+    filter_flags: list[str] = []
+    if choice.lower() not in ("all", ""):
+        testcase = ask("Testcase (blank = all in suite)")
+        if testcase:
+            testcase_flags = ["--testcase", testcase]
+            gfilter = ask("gtest filter (blank = none)")
+            if gfilter:
+                filter_flags = ["--filter", gfilter]
+
     run_id = ask("Run id (blank = auto)")
     run_id_flags = ["--run-id", run_id] if run_id else []
-    return "pto-isa", suite_flags, mode_flags + run_id_flags
+    return "pto-isa", suite_flags, mode_flags + run_id_flags + testcase_flags + filter_flags
 
 
 def run_real_tour() -> int:
