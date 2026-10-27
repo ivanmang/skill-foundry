@@ -136,10 +136,10 @@ def extract_error(log_text: str) -> str | None:
     """Pull the most likely root-cause line out of a failing run's log."""
     lines = [l.strip() for l in log_text.splitlines() if l.strip()]
     for l in lines:
-        if re.search(r"segmentation fault|fatal error:|error: unable to execute command", l, re.I):
+        if re.search(r"segmentation fault|\bfatal error:", l, re.I):
             return l[:200]
     for l in lines:
-        if re.search(r"run failed:|^\S*error:", l, re.I):
+        if re.search(r"\berror:|run failed:", l, re.I):
             return l[:200]
     return None
 
