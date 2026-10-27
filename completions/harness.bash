@@ -34,7 +34,7 @@ _harness_complete() {
         teach)   COMPREPLY=( $(compgen -W "$opts_teach" -- "$cur") ) ;;
         list)
             if [[ "$prev" == "--format" ]]; then COMPREPLY=( $(compgen -W "$fmts" -- "$cur") ); return 0; fi
-            COMPREPLY=( $(compgen -W "--format" -- "$cur") ) ;;
+            COMPREPLY=( $(compgen -W "--target --format --config --arches" -- "$cur") ) ;;
         *) COMPREPLY=() ;;
     esac
     return 0

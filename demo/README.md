@@ -24,7 +24,7 @@ Presenter talking points: [`NARRATION.md`](NARRATION.md).
 3. `scripts/diff_runs.py` diffs against `demo/baseline/demo-baseline.json`
    → flags a PASS→FAIL regression.
 4. The (now scripted) learning loop, in a `/tmp` sandbox:
-   - `scripts/log_correction.py` auto-captures the correction as a strict
+   - `scripts/teach` auto-captures the correction as a strict
      `LRN-…` entry in `learnings/recent.md`.
    - `scripts/session_digest.py` drafts the same entry straight from run.json.
    - `scripts/promote_recent.py --propose` turns it into a reviewable diff,

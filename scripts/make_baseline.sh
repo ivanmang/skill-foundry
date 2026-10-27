@@ -58,5 +58,5 @@ Committed baseline points at $DST.
 
 Review, then commit:
   git -C "$HARNESS_DIR" add reports/baseline/baseline.json
-  git -C "$HARNESS_DIR" commit -m "chore: pin pto-isa regression baseline ($STAMP)"
+  git -C "$HARNESS_DIR" commit -m "chore: pin $TARGET regression baseline ($STAMP)"
 EOF

@@ -378,6 +378,13 @@ def main(argv: list[str] | None = None) -> int:
     run_dir = HARNESS / "reports" / run_id
     run_dir.mkdir(parents=True, exist_ok=True)
 
+    if not args.all_suites and args.suite is None:
+        enabled = [s["name"] for s in target_cfg.get("suites", []) if s.get("enabled")]
+        usage_error(
+            "specify --suite <name> or --all-suites.\n"
+            f"Enabled suites for '{args.target}': {enabled or 'none'}"
+        )
+
     suites = select_suites(target_cfg, None if args.all_suites else args.suite)
     if not suites:
         usage_error("no enabled suites matched; check config/suites.json")

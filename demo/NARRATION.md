@@ -41,7 +41,7 @@ no hardware, works on any machine.
 
 - "Now the important part. A person says: *that's a known vcvt round-field
   issue, not a new bug.*"
-- "Capture is automatic: `log_correction.py` writes a strict `LRN-…` entry to
+- "Capture is automatic: `scripts/teach` writes a strict `LRN-…` entry to
   `recent.md` — one command, no freeform editing. `session_digest.py` can even
   draft the same entry straight from the run's failures."
 - "`promote_recent.py --propose` turns that pending entry into a **reviewable
@@ -66,7 +66,7 @@ no hardware, works on any machine.
 - **"Why not just a CI script?"** CI runs tests; this captures *how we triage*,
   *what we learned*, and *how to present it* — the part agents (and people)
   keep re-deriving. It sits on top of the existing `.gitcode` CI, doesn't replace it.
-- **"Is the learning manual?"** Capture is automated (`log_correction.py` /
+- **"Is the learning manual?"** Capture is automated (`scripts/teach` /
   `session_digest.py`); promotion is a scripted *proposal* that a human approves
   and a git PR commits — reviewable, revertable.
 - **"What's auto vs gated?"** Append-only capture: auto. Editing shared skills:

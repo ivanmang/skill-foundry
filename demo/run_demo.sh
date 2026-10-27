@@ -116,7 +116,7 @@ Run artifacts:  $RUN_DIR/run.json, report.md, report-known.md, demo-suite.log
 Sandbox (loop): $SANDBOX
 
 - USE:      run_suite.py → parse_gtest → build_report → diff_runs
-- IMPROVE:  log_correction.py / session_digest.py (capture) →
+- IMPROVE:  teach / session_digest.py (capture) →
             promote_recent.py --propose (draft diff) → --apply → annotated next report
 
 The real pto-isa target uses the same flow with config/suites.json + arches.json.

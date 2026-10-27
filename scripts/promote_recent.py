@@ -6,6 +6,7 @@ Proposal (default, no writes):
 
 Apply (writes files, moves entries to promoted.md, logs to corrections.md):
   python3 scripts/promote_recent.py --apply [--branch feat/learnings-YYYYMMDD]
+  python3 scripts/promote_recent.py --pr            # apply + push + merge-request URL
 
 Target resolution:
   - action/correct mentions "known-failure(s)"/"triage corpus"  ->  known-failures.md

@@ -33,13 +33,14 @@ Commands:
   promote   Propose or apply pending learnings       [--propose, --apply, --branch, --pr]
   baseline  Re-pin reports/baseline/baseline.json    [--force, target]
   demo      Run the sandboxed 2-minute walkthrough
-  list      List suites + arches for a target        [target] [--format text|markdown|html]
+  list      List suites + arches (default pto-isa)   [--target, --format, --config, --arches]
   selfcheck Compile-check + demo smoke test
   help      Show this help
   version   Show the harness version
 
 Examples:
   ./harness list
+  ./harness list --target demo --config demo/config/demo-suites.json --arches demo/config/demo-arches.json
   ./harness run --all-suites --quiet
   ./harness report --run reports/<id>/run.json --out reports/<id>/report
   ./harness teach "vcvt mismatch -> annotate as known -> add to known-failures"
@@ -58,10 +59,6 @@ case "$CMD" in
   baseline) exec "$HARNESS/scripts/make_baseline.sh" "$@" ;;
   demo)     exec "$HARNESS/demo/run_demo.sh" "$@" ;;
   list)
-    if [[ $# -gt 0 && "$1" != -* ]]; then
-      _tgt="$1"; shift
-      exec python3 "$HARNESS/scripts/run_suite.py" --list --target "$_tgt" "$@"
-    fi
     exec python3 "$HARNESS/scripts/run_suite.py" --list "$@"
     ;;
   selfcheck) exec "$HARNESS/scripts/selfcheck" ;;
