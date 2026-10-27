@@ -18,7 +18,7 @@ git-tracked edit.** This skill never rewrites skills blindly.
 
 | Action | Command |
 |---|---|
-| Log a correction (capture) | `./scripts/teach` (wizard) · `./scripts/teach "… → … → …"` (shorthand) · `./scripts/teach --edit` (editor) |
+| Log a correction (capture) | `./scripts/teach` (wizard) · `./scripts/teach "… -> … -> …"` (shorthand) · `./scripts/teach --edit` (editor) |
 | Draft from a run (auto-capture) | `python3 scripts/session_digest.py --run reports/<id>/run.json [--apply]` |
 | Propose promotion (diff, no write) | `python3 scripts/promote_recent.py --propose` |
 | Apply promotion | `python3 scripts/promote_recent.py --apply [--branch feat/learnings-<date>]` |

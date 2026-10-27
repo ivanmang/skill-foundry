@@ -4,7 +4,7 @@
     "pto-isa": {
       "repo_env": "PTO_ISA_REPO",
       "repo_default": "~/pto-isa",
-      "env_setup": "source ${ASCEND_HOME_PATH:-$HOME/Ascend/cann-9.0.0-alpha.1}/set_env.sh >/dev/null 2>&1 || true",
+      "env_setup": "source \"$ASCEND_HOME_PATH/set_env.sh\" >/dev/null 2>&1 || true",
       "env": {},
       "suites": [
         {

@@ -12,3 +12,6 @@ __pycache__/
 # OS / editors
 .DS_Store
 *.swp
+
+# machine-local env (copy env.example.sh -> env.sh)
+/env.sh

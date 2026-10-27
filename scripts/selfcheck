@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+# Self-check: compile-check the scripts and run the demo as a smoke test.
+set -euo pipefail
+
+HARNESS="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+cd "$HARNESS"
+
+echo "== py_compile =="
+python3 -m py_compile scripts/*.py scripts/teach
+
+echo "== bash syntax =="
+bash -n harness scripts/make_baseline.sh scripts/run_suite.sh scripts/selfcheck demo/run_demo.sh
+
+echo "== demo smoke =="
+rm -rf reports/demo-live-*
+if ./demo/run_demo.sh >/dev/null 2>&1; then
+  echo "demo: PASS"
+else
+  echo "demo: FAIL" >&2
+  exit 1
+fi
+
+rm -rf reports/demo-live-*
+echo "selfcheck: OK"

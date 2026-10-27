@@ -3,8 +3,8 @@
 
 Usage:
   ./scripts/teach                                    # interactive wizard
-  ./scripts/teach "symptom → correct → action"       # free-text shorthand
-  ./scripts/teach "symptom → fix"                    # 2 parts: wrong + action
+  ./scripts/teach "symptom -> correct -> action"       # free-text shorthand
+  ./scripts/teach "symptom -> fix"                    # 2 parts: wrong + action
   ./scripts/teach --edit                             # open $EDITOR with a template
   ./scripts/teach --wrong "…" --correct "…" --action "…"   # explicit flags
 

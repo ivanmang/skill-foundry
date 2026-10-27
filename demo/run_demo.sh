@@ -13,6 +13,9 @@ set -euo pipefail
 HARNESS="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$HARNESS"
 
+# Keep at most one demo-live run on disk (previous runs are gitignored anyway).
+rm -rf "$HARNESS"/reports/demo-live-*
+
 STAMP="$(date +%Y%m%d-%H%M%S)"
 RUN_ID="demo-live-$STAMP"
 RUN_DIR="$HARNESS/reports/$RUN_ID"
@@ -77,7 +80,7 @@ pause
 
 section "4 · IMPROVE — auto-capture → auto-propose → apply"
 echo "  (auto-capture) scripts/teach records the correction in strict format:"
-./scripts/teach "device vcvt round-field mismatch in VecOpTest.case_vcvt_bf16fp16_128x128 → known vcvt round-field pattern; annotate instead of re-triage → promote vcvt round-field swap into known-failures" \
+./scripts/teach "device vcvt round-field mismatch in VecOpTest.case_vcvt_bf16fp16_128x128 -> known vcvt round-field pattern; annotate instead of re-triage -> promote vcvt round-field swap into known-failures" \
     --file "$SB2/learnings/recent.md"
 echo
 echo "  (auto-draft alternative) session_digest.py drafts pending entries from the run:"

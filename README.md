@@ -10,6 +10,7 @@ that can be expressed as a suite matrix.
 
 > **New here?** Start with the [User Journey](USER_JOURNEY.md), or run the
 > 2-minute sandboxed walkthrough: `./demo/run_demo.sh`.
+> One entry point for everything: `./harness help`.
 
 ---
 
@@ -77,6 +78,9 @@ python3 scripts/build_report.py --run reports/<run-id>/run.json --out reports/<r
 
 ## Canonical environment
 
+Set machine-local paths in `env.sh` (copy `env.example.sh`) and
+`source ./env.sh` before npu suites; cpu-st / static suites run without it.
+
 | Tier | Where | Notes |
 |---|---|---|
 | CPU-ST | machine with clang++>=15 **or** g++>=13 | e.g. ecs / yellow / b10 |
@@ -90,7 +94,7 @@ Capture is automated; promotion is a reviewable, git-tracked edit.
 
 ```bash
 # 1. capture a correction (strict LRN-… entry in learnings/recent.md)
-./scripts/teach "symptom → what it should do → where to add"   # shorthand
+./scripts/teach "symptom -> what it should do -> where to add"   # shorthand
 ./scripts/teach                                               # or interactive wizard
 
 # 1b. or auto-draft pending entries straight from a run

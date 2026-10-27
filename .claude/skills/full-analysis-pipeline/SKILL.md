@@ -35,7 +35,7 @@ skill is the wiring and the handoff.
 
 ## Handoff to maintainer
 
-Log with `./scripts/teach "wrong → correct → action"` (it writes the strict
+Log with `./scripts/teach "wrong -> correct -> action"` (it writes the strict
 `LRN-…` entry automatically), then hand to `skill-maintainer` to propose.
 
 ```markdown

@@ -190,8 +190,8 @@ promote it — capture is automatic, promotion is reviewed.
 Use the friendly `teach` entry point (wizard, shorthand, or editor):
 
 ```bash
-# shorthand — one string, split on " → " into wrong / correct / action
-./scripts/teach "device vcvt round-field mismatch → known pattern, annotate it → promote to known-failures"
+# shorthand — one string, split on " -> " (or " → ") into wrong / correct / action
+./scripts/teach "device vcvt round-field mismatch -> known pattern, annotate it -> promote to known-failures"
 
 # interactive wizard — no flags to remember
 ./scripts/teach
@@ -281,7 +281,7 @@ loop, and every teammate gets it via git.
 | Run one suite | `./scripts/run_suite.sh --target pto-isa --suite cpu-st` |
 | Report | `python3 scripts/build_report.py --run reports/<id>/run.json --known <kf> --out <base>` |
 | Diff vs baseline | `python3 scripts/diff_runs.py --run reports/<id>/run.json` |
-| Capture correction | `./scripts/teach "… → … → …"` (or `./scripts/teach` wizard) |
+| Capture correction | `./scripts/teach "… -> … -> …"` (or `./scripts/teach` wizard) |
 | Auto-draft from run | `python3 scripts/session_digest.py --run reports/<id>/run.json --apply` |
 | Propose promotion | `python3 scripts/promote_recent.py --propose` |
 | Apply + branch | `python3 scripts/promote_recent.py --apply --branch feat/learnings-<date>` |

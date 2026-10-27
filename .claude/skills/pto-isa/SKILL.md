@@ -62,7 +62,7 @@ Full table: `references/env.md`.
    / env-leak / timeout.
 3. Match against `references/known-failures.md` before treating as new.
 4. If the user corrects the triage, or the cause is new and reusable, log it
-   so it can be promoted: `./scripts/teach "symptom → fix → where"`.
+   so it can be promoted: `./scripts/teach "symptom -> fix -> where"`.
 
 ## References
 

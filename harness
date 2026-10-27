@@ -1,0 +1,70 @@
+#!/usr/bin/env bash
+# regression-harness — single entry point.
+#
+#   ./harness run [--quiet] [--all-suites|--suite X] [--target T]
+#   ./harness report --run <id>/run.json [--known <file>] --out <base>
+#   ./harness review --run <id>/run.json
+#   ./harness teach "symptom -> correct -> action" | (wizard) | --edit
+#   ./harness promote --propose | --apply [--branch B]
+#   ./harness baseline [--force] [target]
+#   ./harness demo
+#   ./harness list [target]
+#   ./harness selfcheck
+#   ./harness help | --version
+set -euo pipefail
+
+HARNESS="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+version() {
+  local sha
+  sha="$(git -C "$HARNESS" describe --tags --always 2>/dev/null || echo dev)"
+  echo "regression-harness $sha"
+}
+
+usage() {
+  cat <<'EOF'
+usage: ./harness <command> [args]
+
+Commands:
+  run       Run a declared suite (run_suite.py)      [--quiet, --all-suites, --suite, --target]
+  report    Render a run to Markdown + HTML          [--run, --known, --out]
+  review    Diff a run vs the pinned baseline        [--run, --baseline, --out]
+  teach     Log a correction (wizard / shorthand)    ["wrong -> correct -> action", --edit]
+  promote   Propose or apply pending learnings       [--propose, --apply, --branch]
+  baseline  Re-pin reports/baseline/baseline.json    [--force, target]
+  demo      Run the sandboxed 2-minute walkthrough
+  list      List suites + arches for a target        [target]
+  selfcheck Compile-check + demo smoke test
+  help      Show this help
+  version   Show the harness version
+
+Examples:
+  ./harness list
+  ./harness run --all-suites --quiet
+  ./harness report --run reports/<id>/run.json --out reports/<id>/report
+  ./harness teach "vcvt mismatch -> annotate as known -> add to known-failures"
+EOF
+}
+
+CMD="${1:-help}"
+shift || true
+
+case "$CMD" in
+  run)      exec python3 "$HARNESS/scripts/run_suite.py" "$@" ;;
+  report)   exec python3 "$HARNESS/scripts/build_report.py" "$@" ;;
+  review)   exec python3 "$HARNESS/scripts/diff_runs.py" "$@" ;;
+  teach)    exec "$HARNESS/scripts/teach" "$@" ;;
+  promote)  exec python3 "$HARNESS/scripts/promote_recent.py" "$@" ;;
+  baseline) exec "$HARNESS/scripts/make_baseline.sh" "$@" ;;
+  demo)     exec "$HARNESS/demo/run_demo.sh" "$@" ;;
+  list)
+    if [[ $# -gt 0 && "$1" != -* ]]; then
+      exec python3 "$HARNESS/scripts/run_suite.py" --list --target "$1"
+    fi
+    exec python3 "$HARNESS/scripts/run_suite.py" --list "$@"
+    ;;
+  selfcheck) exec "$HARNESS/scripts/selfcheck" ;;
+  help|-h|--help) usage ;;
+  version|--version|-V) version ;;
+  *) echo "unknown command: $CMD" >&2; usage >&2; exit 2 ;;
+esac
