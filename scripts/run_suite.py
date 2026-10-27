@@ -18,6 +18,7 @@ import argparse
 import datetime as _dt
 import json
 import os
+import re
 import shlex
 import socket
 import subprocess
@@ -103,6 +104,18 @@ def _empty_results(name: str, status: str, evidence: list[str]) -> dict:
         "cases": [],
         "evidence": evidence,
     }
+
+
+def extract_error(log_text: str) -> str | None:
+    """Pull the most likely root-cause line out of a failing run's log."""
+    lines = [l.strip() for l in log_text.splitlines() if l.strip()]
+    for l in lines:
+        if re.search(r"segmentation fault|fatal error:|error: unable to execute command", l, re.I):
+            return l[:200]
+    for l in lines:
+        if re.search(r"run failed:|^\S*error:", l, re.I):
+            return l[:200]
+    return None
 
 
 def _error_result(suite: dict, message: str) -> dict:
@@ -197,8 +210,14 @@ def run_one(repo: Path, suite: dict, arches: dict, target_cfg: dict,
         on_line = None if quiet else sys.stdout.write
         exit_code, timed_out, duration_s = _popen_run(script, repo, log_file, timeout_s, on_line)
 
-    results = parse_gtest.parse_text(log_file.read_text(encoding="utf-8", errors="replace"), suite["name"])
+    log_text = log_file.read_text(encoding="utf-8", errors="replace")
+    results = parse_gtest.parse_text(log_text, suite["name"])
     status = "TIMEOUT" if timed_out else ("PASS" if exit_code == 0 else "FAIL")
+    error = None
+    if status == "FAIL":
+        error = extract_error(log_text)
+    elif status == "TIMEOUT":
+        error = f"TIMEOUT after {timeout_s}s"
 
     return {
         "name": suite["name"],
@@ -210,6 +229,7 @@ def run_one(repo: Path, suite: dict, arches: dict, target_cfg: dict,
         "command": cmd,
         "log_file": str(log_file.relative_to(HARNESS)),
         "description": suite.get("description", ""),
+        "error": error,
         "results": results,
     }
 
