@@ -11,11 +11,12 @@ without hardware.
 The harness turns *"run the regression"* from a repeated instruction into:
 
 - **Skills** (`.claude/skills/`) that tell any agent *how* to run/triage/report.
-- **Scripts** (`scripts/`) that actually do the run → extract → report → review.
+- **Scripts** behind a **single entry point** (`./harness …`) that do the
+  run → extract → report → review.
 - A **pinned baseline** (`reports/baseline/baseline.json`) so "regression" =
   *diff vs baseline*.
-- A **learning loop** (`learnings/` + `scripts/teach` to capture and
-  `scripts/promote_recent.py` to promote) that turns corrections into skills.
+- A **learning loop** (`./harness teach` to capture, `./harness promote` to
+  promote) that turns corrections into skills.
 
 Two loops, always:
 
@@ -44,8 +45,14 @@ You'll usually wear the first hat, sometimes the last two.
 git clone git@gitcode.com:ivanmang/regression-harness.git
 cd regression-harness
 
-# optional: point at your pto-isa checkout (default ~/pto-isa)
-export PTO_ISA_REPO=~/pto-isa
+# machine-local env (CANN path, pto-isa checkout) — copy + edit
+cp env.example.sh env.sh && source ./env.sh
+
+# see everything the harness can do
+./harness help
+
+# optional: tab-completion
+source completions/harness.bash   # add to ~/.bashrc
 ```
 
 Requirements are only `python3` + `git` for the harness itself. The *targets*
@@ -62,7 +69,7 @@ have their own needs:
 ## Step 1 — Try it in 2 minutes (no hardware)
 
 ```bash
-./demo/run_demo.sh            # or PAUSE=1 ./demo/run_demo.sh to step through
+./harness demo                 # or PAUSE=1 ./demo/run_demo.sh to step through
 ```
 
 This runs the **real** harness scripts against a mock gtest runner and walks the
@@ -76,8 +83,9 @@ happens in `/tmp` + the gitignored `reports/`, so the repo stays clean.
 On a canonical machine (see table above):
 
 ```bash
-./scripts/make_baseline.sh pto-isa
+./harness baseline pto-isa
 # runs all enabled suites, copies the result to reports/baseline/baseline.json
+# (refuses to pin if any suite did not PASS — use --force to override)
 
 git add reports/baseline/baseline.json
 git commit -m "chore: pin pto-isa regression baseline"
@@ -92,15 +100,19 @@ only deliberately (new suites, arch changes), never casually.
 ## Step 3 — Everyday: run a regression
 
 ```bash
-# all enabled M1 suites (cpu-st + npu-sim a5/a3/a6)
-./scripts/run_suite.sh --target pto-isa --all-suites
+./harness list                                # what can I run?
 
-# one suite
-./scripts/run_suite.sh --target pto-isa --suite cpu-st
+./harness run --all-suites --quiet            # everything, summary only
+./harness run --all-suites --tui              # live spinner + per-suite pass/fail
+./harness run --all-suites --json             # machine-readable summary
+./harness run --suite cpu-st                  # one suite
 
-# one testcase
+# one testcase (raw pto-isa runner)
 python3 tests/script/run_st.py -r sim -v a5 -t tadd -g 'TADDTest.case_*'
 ```
+
+`run` requires an explicit `--suite` or `--all-suites` — a bare `./harness run`
+prints the enabled suites and exits 2 (no accidental full run).
 
 Each run produces, under `reports/<run-id>/`:
 
@@ -112,13 +124,14 @@ report.md/.html # generated report (see Step 4)
 
 The driver records **context** (repo commit, host, CANN/ASCEND path) so any
 result is reproducible — a FAIL on one machine can be re-investigated elsewhere.
+Exit codes: **0** clean, **1** ran-with-failures, **2** usage.
 
 ---
 
 ## Step 4 — Read the report
 
 ```bash
-python3 scripts/build_report.py --run reports/<run-id>/run.json \
+./harness report --run reports/<run-id>/run.json \
   --known .claude/skills/pto-isa/references/known-failures.md \
   --out reports/<run-id>/report
 ```
@@ -143,7 +156,7 @@ saving you the triage time.
 ## Step 5 — Review vs the baseline (the regression signal)
 
 ```bash
-python3 scripts/diff_runs.py --run reports/<run-id>/run.json
+./harness review --run reports/<run-id>/run.json
 ```
 
 ```text
@@ -187,31 +200,25 @@ promote it — capture is automatic, promotion is reviewed.
 
 ### 7a. Capture (automatic, append-only)
 
-Use the friendly `teach` entry point (wizard, shorthand, or editor):
-
 ```bash
 # shorthand — one string, split on " -> " (or " → ") into wrong / correct / action
-./scripts/teach "device vcvt round-field mismatch -> known pattern, annotate it -> promote to known-failures"
+./harness teach "device vcvt round-field mismatch -> known pattern, annotate it -> promote to known-failures"
 
 # interactive wizard — no flags to remember
-./scripts/teach
+./harness teach
 
 # editor — opens $EDITOR with a prefilled template
-./scripts/teach --edit
-
-# or auto-draft pending entries straight from a run
-python3 scripts/session_digest.py --run reports/<run-id>/run.json --apply
+./harness teach --edit
 ```
 
-This appends a strict, parseable entry to `learnings/recent.md`:  
-*(If the agent logged it for you, it already did this — same result.)*
+This appends a strict, parseable entry to `learnings/recent.md`:
 
 ```markdown
 ## LRN-20261027-003
 - category: correction
 - context: reports/<run-id>
 - skill: pto-isa
-- wrong: device vcvt round-field mismatch
+<｜begin▁of▁sentence｜>- wrong: device vcvt round-field mismatch
 - correct: known vcvt round-field pattern; annotate instead of re-triage
 - action: promote vcvt round-field swap into known-failures
 - status: pending
@@ -220,23 +227,23 @@ This appends a strict, parseable entry to `learnings/recent.md`:
 ### 7b. Propose (auto-draft a diff, no write)
 
 ```bash
-python3 scripts/promote_recent.py --propose
+./harness promote --propose
 ```
 
 It renders a **reviewable git-style diff** into the right place (a new
-`known-failures.md` entry, or a `## Gotchas` bullet in the target skill).
+`known-failures.md` entry, or a `## Gotchas` bullet in the target skill), and
+skips duplicates / entries already present in the target file.
 
 ### 7c. Apply + PR (scripted, human-gated)
 
 ```bash
-python3 scripts/promote_recent.py --apply --branch feat/learnings-20261027
-git push -u origin feat/learnings-20261027
-# open the PR; a reviewer merges
+./harness promote --pr     # apply + branch + commit + push + merge-request URL
 ```
 
-`--apply` writes the edit, moves the entry from `recent.md` → `promoted.md`,
-logs it in `corrections.md`, and commits on the branch. Nothing is ever
-auto-merged.
+One command finishes the loop: it writes the edit, moves the entry from
+`recent.md` → `promoted.md`, logs it in `corrections.md`, commits on a
+`feat/learnings-<date>` branch, pushes, and prints the merge-request URL. A
+reviewer merges — nothing is ever auto-merged.
 
 ---
 
@@ -245,8 +252,9 @@ auto-merged.
 Re-run the *same* `run.json` through the report with the improved corpus:
 
 ```bash
-python3 scripts/build_report.py --run reports/<run-id>/run.json \
-  --known .claude/skills/pto-isa/references/known-failures.md --out reports/<run-id>/report
+./harness report --run reports/<run-id>/run.json \
+  --known .claude/skills/pto-isa/references/known-failures.md \
+  --out reports/<run-id>/report
 ```
 
 The failure that was a raw FAIL is now:
@@ -265,8 +273,9 @@ loop, and every teammate gets it via git.
 | Cadence | Action |
 |---|---|
 | Nightly | `.gitcode/workflows/promote-learnings.yml` surfaces pending learnings |
+| On push/PR | `.gitcode/workflows/selfcheck.yml` runs `./harness selfcheck` |
 | Weekly / on demand | reviewer merges `feat/learnings-*` PRs |
-| After suite changes | `./scripts/make_baseline.sh pto-isa` to re-pin the baseline |
+| After suite changes | `./harness baseline pto-isa` to re-pin the baseline |
 | After a correction | re-run one representative case to verify it improved triage |
 
 ---
@@ -275,16 +284,17 @@ loop, and every teammate gets it via git.
 
 | Goal | Command |
 |---|---|
-| Sandboxed walkthrough | `./demo/run_demo.sh` |
-| Pin / refresh baseline | `./scripts/make_baseline.sh pto-isa` |
-| Run all suites | `./scripts/run_suite.sh --target pto-isa --all-suites` |
-| Run one suite | `./scripts/run_suite.sh --target pto-isa --suite cpu-st` |
-| Report | `python3 scripts/build_report.py --run reports/<id>/run.json --known <kf> --out <base>` |
-| Diff vs baseline | `python3 scripts/diff_runs.py --run reports/<id>/run.json` |
-| Capture correction | `./scripts/teach "… -> … -> …"` (or `./scripts/teach` wizard) |
-| Auto-draft from run | `python3 scripts/session_digest.py --run reports/<id>/run.json --apply` |
-| Propose promotion | `python3 scripts/promote_recent.py --propose` |
-| Apply + branch | `python3 scripts/promote_recent.py --apply --branch feat/learnings-<date>` |
+| Sandboxed walkthrough | `./harness demo` |
+| List suites + arches | `./harness list [--format markdown\|html]` |
+| Pin / refresh baseline | `./harness baseline [--force] pto-isa` |
+| Run all suites | `./harness run --all-suites [--quiet\|--tui\|--json]` |
+| Run one suite | `./harness run --suite cpu-st` |
+| Report | `./harness report --run <id>/run.json --known <kf> --out <base>` |
+| Diff vs baseline | `./harness review --run <id>/run.json` |
+| Capture correction | `./harness teach "… -> … -> …"` (or wizard) |
+| Propose promotion | `./harness promote --propose` |
+| Apply + PR | `./harness promote --pr` |
+| Self-check | `./harness selfcheck` |
 
 ---
 
@@ -294,10 +304,10 @@ loop, and every teammate gets it via git.
 |---|---|
 | Capture a correction (`recent.md`, append-only) | 🟢 automatic |
 | Draft promotion (diff, no write) | 🟢 automatic |
-| Apply + commit | 🟡 scripted, PR-gated |
+| Apply + commit + push + MR | 🟡 scripted, PR-gated |
 | Remove / change an existing check | 🔴 never automatic |
 
-Capture is triggered by `./scripts/teach` or by the agent reacting to your
+Capture is triggered by `./harness teach` or by the agent reacting to your
 corrections; until a note is promoted it changes nothing in the skills.
 
 This mirrors the industry norm: like Claude Code auto-writing memory but not

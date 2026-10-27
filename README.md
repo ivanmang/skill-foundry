@@ -14,6 +14,43 @@ that can be expressed as a suite matrix.
 
 ---
 
+## Use it
+
+`./harness` is the single entry point:
+
+```text
+./harness run       Run suites            [--suite X | --all-suites] [--quiet | --tui | --json]
+./harness report    run.json → MD + HTML  [--run, --known, --out]
+./harness review    diff vs baseline      [--run, --baseline, --out]
+./harness teach     log a correction      ["wrong -> correct -> action" | wizard | --edit]
+./harness promote   learnings → skills    [--propose | --apply | --pr]
+./harness baseline  re-pin baseline.json  [--force] [target]
+./harness demo      2-minute walkthrough
+./harness list      suites + arches       [--target, --format text|markdown|html]
+./harness selfcheck compile-check + demo smoke
+./harness help      show this            ./harness version
+```
+
+Quick start:
+
+```bash
+./harness list                                     # what can I run?
+./harness run --all-suites --quiet                 # run everything, summary only
+./harness run --suite cpu-st                       # one suite
+./harness report --run reports/<id>/run.json \
+  --known .claude/skills/pto-isa/references/known-failures.md --out reports/<id>/report
+./harness review --run reports/<id>/run.json       # diff vs the pinned baseline
+./harness baseline pto-isa                         # re-pin the baseline (refuses if any suite FAILs)
+
+source completions/harness.bash                    # tab-completion (add to ~/.bashrc)
+```
+
+- `run` requires an explicit `--suite` **or** `--all-suites`; a bare `run` prints
+  the enabled suites and exits 2.
+- Exit codes: **0** clean, **1** ran-with-failures, **2** usage error.
+
+---
+
 ## Layout
 
 ```text
@@ -26,9 +63,11 @@ that can be expressed as a suite matrix.
   skill-maintainer/       Learning/correction loop
   pto-isa/                Target adapter: pto-isa commands, suites, gotchas
 config/                   suites.json + arches.json (source of truth)
-scripts/                  Zero-dependency Python + shell drivers
+scripts/                  drivers (see scripts/README.md: user verbs vs internals)
+completions/              bash tab-completion for ./harness
 learnings/                corrections.md / recent.md / promoted.md
 reports/baseline/         pinned baseline.json (committed); other reports gitignored
+env.example.sh            copy to env.sh for machine-local CANN / pto-isa paths
 ```
 
 ## Decisions (as agreed)
@@ -54,31 +93,6 @@ reports/baseline/         pinned baseline.json (committed); other reports gitign
 - If individual portability is ever needed, promote the shared drivers into a
   dedicated skill's `scripts/` folder (or a `harness-runner` skill).
 
-## Quickstart
-
-```bash
-# Run one suite (produces reports/<run-id>/run.json + raw log)
-./scripts/run_suite.sh --target pto-isa --suite cpu-st
-
-# Run all enabled M1 suites for pto-isa
-./scripts/run_suite.sh --target pto-isa --all-suites
-
-# Extract/normalize an existing log
-python3 scripts/parse_gtest.py --log path/to/run.log --suite cpu-st --out results.json
-
-# Compare a run against the pinned baseline
-python3 scripts/diff_runs.py --run reports/<run-id>/run.json
-
-# Generate a Markdown + HTML report
-python3 scripts/build_report.py --run reports/<run-id>/run.json --out reports/<run-id>/report
-
-# (Re)generate + commit the pinned baseline on the canonical machine
-./scripts/make_baseline.sh
-
-# Tab-completion for the harness (add to ~/.bashrc)
-source completions/harness.bash
-```
-
 ## Canonical environment
 
 Set machine-local paths in `env.sh` (copy `env.example.sh`) and
@@ -96,21 +110,21 @@ See `.claude/skills/pto-isa/references/env.md` for the arch/soc/env table.
 Capture is automated; promotion is a reviewable, git-tracked edit.
 
 ```bash
-# 1. capture a correction (strict LRN-… entry in learnings/recent.md)
-./scripts/teach "symptom -> what it should do -> where to add"   # shorthand
-./scripts/teach                                               # or interactive wizard
-
-# 1b. or auto-draft pending entries straight from a run
-python3 scripts/session_digest.py --run reports/<run-id>/run.json [--apply]
+# 1. capture (strict LRN-… entry in learnings/recent.md)
+./harness teach "symptom -> what it should do -> where to add"   # shorthand
+./harness teach                                                 # or wizard
+./harness teach --edit                                          # or $EDITOR
+# (the agent also auto-captures when you correct it — no command needed)
 
 # 2. propose a minimal diff into the right skill / known-failures (no write)
-python3 scripts/promote_recent.py --propose
+./harness promote --propose
 
-# 3. apply it (moves entry to promoted.md, logs to corrections.md)
-python3 scripts/promote_recent.py --apply [--branch feat/learnings-<date>]
+# 3. apply + push + open a merge request, all in one command
+./harness promote --pr
 ```
 
-`.gitcode/workflows/promote-learnings.yml` surfaces pending learnings nightly.
+`.gitcode/workflows/promote-learnings.yml` surfaces pending learnings nightly;
+`.gitcode/workflows/selfcheck.yml` runs `./harness selfcheck` on push/PR.
 
 See `.claude/skills/skill-maintainer/SKILL.md` and run the live walkthrough:
-`./demo/run_demo.sh` (narration in `demo/NARRATION.md`).
+`./harness demo` (narration in `demo/NARRATION.md`).
