@@ -83,9 +83,24 @@ See `.claude/skills/pto-isa/references/env.md` for the arch/soc/env table.
 
 ## Learning loop
 
-After a run, a user correction is logged to `learnings/recent.md`. The
-`skill-maintainer` skill reviews recent entries and **proposes** (default) or
-**applies** (small, high-confidence) minimal edits to the relevant `SKILL.md`,
-then commits to git so the whole team benefits.
+Capture is automated; promotion is a reviewable, git-tracked edit.
 
-See `.claude/skills/skill-maintainer/SKILL.md`.
+```bash
+# 1. capture a correction (strict LRN-… entry in learnings/recent.md)
+python3 scripts/log_correction.py --category correction --context <run-id> \
+  --skill pto-isa --wrong "…" --correct "…" --action "…"
+
+# 1b. or auto-draft pending entries straight from a run
+python3 scripts/session_digest.py --run reports/<run-id>/run.json [--apply]
+
+# 2. propose a minimal diff into the right skill / known-failures (no write)
+python3 scripts/promote_recent.py --propose
+
+# 3. apply it (moves entry to promoted.md, logs to corrections.md)
+python3 scripts/promote_recent.py --apply [--branch feat/learnings-<date>]
+```
+
+`.gitcode/workflows/promote-learnings.yml` surfaces pending learnings nightly.
+
+See `.claude/skills/skill-maintainer/SKILL.md` and run the live walkthrough:
+`./demo/run_demo.sh` (narration in `demo/NARRATION.md`).

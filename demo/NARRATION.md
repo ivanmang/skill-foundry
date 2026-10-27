@@ -37,21 +37,28 @@ no hardware, works on any machine.
   (PASS → FAIL). Avg and p99 are both tracked; p99 +15% trips a perf flag even
   when avg is flat."
 
-## Scene 4 — Improve: the learning loop
+## Scene 4 — Improve: auto-capture → auto-propose → apply
 
 - "Now the important part. A person says: *that's a known vcvt round-field
   issue, not a new bug.*"
-- "`skill-maintainer` logs it to `learnings/recent.md`, then promotes it into
-  `known-failures.md` — and this is a **git diff**, so the whole team gets it."
-- "Watch the mechanical effect: the signature goes from 0 matches to 1, and
+- "Capture is automatic: `log_correction.py` writes a strict `LRN-…` entry to
+  `recent.md` — one command, no freeform editing. `session_digest.py` can even
+  draft the same entry straight from the run's failures."
+- "`promote_recent.py --propose` turns that pending entry into a **reviewable
+  git-style diff** into the right file — no write yet. Then `--apply` writes it
+  and moves the entry to `promoted.md` + `corrections.md`."
+- "Watch the mechanical effect: known-failure signatures go 0 → 1, and
   re-rendering the *same* run.json now annotates the failure as **known**."
 - Key line: "The agent didn't get smarter — the *harness* did. That's the
   self-improving loop."
 
 ## Scene 5 — Takeaway
 
+- "Capture is automated; promotion is always a reviewed diff — mirroring how
+  Claude Code auto-writes memory but doesn't auto-edit your CLAUDE.md."
 - "Same flow, real target: `pto-isa` with `config/suites.json` + `arches.json`
-  for CPU-ST and NPU-sim A5/A3/A6."
+  for CPU-ST and NPU-sim A5/A3/A6. A `gitcode` workflow can surface pending
+  learnings nightly."
 - "Small, git-tracked, reviewable improvements — no auto-rewriting, no black box."
 
 ## Anticipated Q&A
@@ -59,7 +66,11 @@ no hardware, works on any machine.
 - **"Why not just a CI script?"** CI runs tests; this captures *how we triage*,
   *what we learned*, and *how to present it* — the part agents (and people)
   keep re-deriving. It sits on top of the existing `.gitcode` CI, doesn't replace it.
-- **"Is the learning manual?"** Yes, by design. Corrections are logged, then a
-  maintainer proposes/commits minimal edits — reviewable, revertable.
+- **"Is the learning manual?"** Capture is automated (`log_correction.py` /
+  `session_digest.py`); promotion is a scripted *proposal* that a human approves
+  and a git PR commits — reviewable, revertable.
+- **"What's auto vs gated?"** Append-only capture: auto. Editing shared skills:
+  proposed automatically, applied on approval — never auto-rewritten, never
+  removing an existing check silently.
 - **"Does it need the A6 sim?"** No. The demo is mock; the real pto-isa NPU-sim
   A6 target runs on yellow (`dav_9201`), CPU-ST on any box with clang++≥15/g++≥13.

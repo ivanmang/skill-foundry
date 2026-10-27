@@ -6,50 +6,55 @@ description: >
   remember a correction, or review learnings/recent.md and promote reusable
   patterns.
 license: CANN Open Software License Agreement Version 2.0
-compatibility: Requires git.
+compatibility: Requires python3 and git.
 ---
 
 # Skill Maintainer
 
-The learning loop. This harness does **not** auto-update; this skill makes
-improvements deliberate, minimal, and git-tracked.
+The learning loop. **Capture is automated; promotion is a reviewable,
+git-tracked edit.** This skill never rewrites skills blindly.
+
+## Scripts
+
+| Action | Command |
+|---|---|
+| Log a correction (capture) | `python3 scripts/log_correction.py --category correction --context <run-id> --skill <name> --wrong "…" --correct "…" --action "…"` |
+| Draft from a run (auto-capture) | `python3 scripts/session_digest.py --run reports/<id>/run.json [--apply]` |
+| Propose promotion (diff, no write) | `python3 scripts/promote_recent.py --propose` |
+| Apply promotion | `python3 scripts/promote_recent.py --apply [--branch feat/learnings-<date>]` |
 
 ## Modes
 
 | Mode | Behavior | When |
 |---|---|---|
-| Propose | Write a proposed edit + rationale, no file change | default for team harness |
-| Apply (small) | Directly edit a skill for minor fixes | high-confidence, small change |
+| Propose | `promote_recent.py --propose` prints a diff, no file change | default |
+| Apply (small) | `--apply` writes the edit, moves the entry to promoted.md | high-confidence, small change |
 | Manual | User explicitly asks to update a skill | sensitive changes |
 
 ## Flow
 
-1. Read `learnings/recent.md` and the latest run's review output.
-2. Identify reusable patterns, missing checks, better steps, or outdated
-   instructions.
-3. **Propose** (default) a minimal edit:
-   - prefer adding to an existing section (Gotchas / Checklists / Common
-     Patterns) over rewriting a whole skill
-   - never remove an existing check without strong evidence
-4. On approval, apply and move the entry from `recent.md` to `promoted.md`.
-5. Log the change in `learnings/corrections.md` with date, skill, and rationale.
-6. Commit to git so the team benefits; use PRs for non-trivial changes.
+1. **Capture** — whenever corrected, run `log_correction.py` (or
+   `session_digest.py` after a run). Never freeform-edit `learnings/recent.md`.
+2. **Propose** — `promote_recent.py --propose` renders a minimal diff per
+   pending entry into the right skill / known-failures file.
+3. **Apply** — `--apply` writes it, marks the entry promoted, logs to
+   `corrections.md`, and (with `--branch`) commits for a PR.
+4. **Verify** — re-run a representative case to confirm the improvement.
 
-## Correction log format
+## Auto-capture triggers
 
-```markdown
-## 2026-10-27 — review-inconsistencies
-- Context: latency regression report for kernel A
-- Wrong: only compared average latency
-- Correct: also flag cases where p99 increased >15% even if average was stable
-- Action: add p99 check to the inconsistency checklist
-```
+Log to `learnings/recent.md` when any of these happen (promotion stays reviewed):
+
+- The user corrects you ("no / wrong / actually / don't / remember …").
+- A suite fails and the cause is reusable or repeats.
+- Review flags a gap (missing check, wrong threshold, un-triaged failure).
+- An external tool/API or command behaves unexpectedly.
 
 ## Promotion rules
 
 - Promote only corrections that are reusable **or** occurred more than once.
+- Never remove an existing check without strong evidence.
 - Keep `description` frontmatter stable unless trigger conditions genuinely change.
-- After updating a skill, re-run a representative case to verify the improvement.
 
 ## Gotchas
 
