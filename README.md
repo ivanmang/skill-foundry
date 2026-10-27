@@ -90,8 +90,8 @@ Capture is automated; promotion is a reviewable, git-tracked edit.
 
 ```bash
 # 1. capture a correction (strict LRN-… entry in learnings/recent.md)
-python3 scripts/log_correction.py --category correction --context <run-id> \
-  --skill pto-isa --wrong "…" --correct "…" --action "…"
+./scripts/teach "symptom → what it should do → where to add"   # shorthand
+./scripts/teach                                               # or interactive wizard
 
 # 1b. or auto-draft pending entries straight from a run
 python3 scripts/session_digest.py --run reports/<run-id>/run.json [--apply]

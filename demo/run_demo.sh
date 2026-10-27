@@ -76,12 +76,8 @@ python3 scripts/diff_runs.py --run "$RUN_DIR/run.json" --baseline "$BASELINE"
 pause
 
 section "4 · IMPROVE — auto-capture → auto-propose → apply"
-echo "  (auto-capture) log_correction.py records the correction in strict format:"
-python3 scripts/log_correction.py \
-    --category correction --context "$RUN_ID" --skill pto-isa \
-    --wrong "device vcvt round-field mismatch in VecOpTest.case_vcvt_bf16fp16_128x128" \
-    --correct "known vcvt round-field pattern; annotate instead of re-triage" \
-    --action "promote vcvt round-field swap into known-failures" \
+echo "  (auto-capture) scripts/teach records the correction in strict format:"
+./scripts/teach "device vcvt round-field mismatch in VecOpTest.case_vcvt_bf16fp16_128x128 → known vcvt round-field pattern; annotate instead of re-triage → promote vcvt round-field swap into known-failures" \
     --file "$SB2/learnings/recent.md"
 echo
 echo "  (auto-draft alternative) session_digest.py drafts pending entries from the run:"

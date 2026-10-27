@@ -183,15 +183,19 @@ promote it — capture is automatic, promotion is reviewed.
 
 ### 7a. Capture (automatic, append-only)
 
-```bash
-# a) one-command correction
-python3 scripts/log_correction.py \
-  --category correction --context reports/<run-id> --skill pto-isa \
-  --wrong "device vcvt round-field mismatch" \
-  --correct "known vcvt round-field pattern; annotate instead of re-triage" \
-  --action "promote vcvt round-field swap into known-failures"
+Use the friendly `teach` entry point (wizard, shorthand, or editor):
 
-# b) or auto-draft pending entries straight from a run
+```bash
+# shorthand — one string, split on " → " into wrong / correct / action
+./scripts/teach "device vcvt round-field mismatch → known pattern, annotate it → promote to known-failures"
+
+# interactive wizard — no flags to remember
+./scripts/teach
+
+# editor — opens $EDITOR with a prefilled template
+./scripts/teach --edit
+
+# or auto-draft pending entries straight from a run
 python3 scripts/session_digest.py --run reports/<run-id>/run.json --apply
 ```
 

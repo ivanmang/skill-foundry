@@ -18,7 +18,7 @@ git-tracked edit.** This skill never rewrites skills blindly.
 
 | Action | Command |
 |---|---|
-| Log a correction (capture) | `python3 scripts/log_correction.py --category correction --context <run-id> --skill <name> --wrong "…" --correct "…" --action "…"` |
+| Log a correction (capture) | `./scripts/teach` (wizard) · `./scripts/teach "… → … → …"` (shorthand) · `./scripts/teach --edit` (editor) |
 | Draft from a run (auto-capture) | `python3 scripts/session_digest.py --run reports/<id>/run.json [--apply]` |
 | Propose promotion (diff, no write) | `python3 scripts/promote_recent.py --propose` |
 | Apply promotion | `python3 scripts/promote_recent.py --apply [--branch feat/learnings-<date>]` |
@@ -33,8 +33,9 @@ git-tracked edit.** This skill never rewrites skills blindly.
 
 ## Flow
 
-1. **Capture** — whenever corrected, run `log_correction.py` (or
-   `session_digest.py` after a run). Never freeform-edit `learnings/recent.md`.
+1. **Capture** — whenever corrected, run `scripts/teach` (wizard, or
+   `teach "…"` shorthand), or `session_digest.py` after a run. Never
+   freeform-edit `learnings/recent.md`.
 2. **Propose** — `promote_recent.py --propose` renders a minimal diff per
    pending entry into the right skill / known-failures file.
 3. **Apply** — `--apply` writes it, marks the entry promoted, logs to
@@ -43,7 +44,9 @@ git-tracked edit.** This skill never rewrites skills blindly.
 
 ## Auto-capture triggers
 
-Log to `learnings/recent.md` when any of these happen (promotion stays reviewed):
+Log to `learnings/recent.md` via `scripts/teach` when any of these happen
+(promotion stays reviewed). When the user says "remember …" or corrects you,
+run it automatically and reply with the LRN id:
 
 - The user corrects you ("no / wrong / actually / don't / remember …").
 - A suite fails and the cause is reusable or repeats.

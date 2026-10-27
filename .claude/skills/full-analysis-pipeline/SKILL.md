@@ -23,7 +23,7 @@ skill is the wiring and the handoff.
 3. **Report** — `generate-report` to `report.md` + `report.html`.
 4. **Review** — `review-inconsistencies` against the pinned baseline.
 5. **Handoff** — if the review surfaced (a) a user correction, (b) a repeated
-   failure pattern, or (c) a missing check, write a `learnings/recent.md` entry
+   failure pattern, or (c) a missing check, log it with `./scripts/teach "…"`
    and hand to `skill-maintainer`.
 
 ## Pipeline contract
@@ -35,8 +35,11 @@ skill is the wiring and the handoff.
 
 ## Handoff to maintainer
 
+Log with `./scripts/teach "wrong → correct → action"` (it writes the strict
+`LRN-…` entry automatically), then hand to `skill-maintainer` to propose.
+
 ```markdown
-## <date> — pto-isa cpu-st
+## LRN-20261027-003
 - Context: <run-id>
 - Wrong: <what the current flow missed>
 - Correct: <what should happen instead>
