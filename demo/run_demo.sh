@@ -62,7 +62,7 @@ echo "  python3 scripts/run_suite.py --config demo/config/demo-suites.json \\"
 echo "      --arches demo/config/demo-arches.json --target demo --all-suites --run-id $RUN_ID"
 echo
 python3 scripts/run_suite.py --config "$DEMO_CONFIG" --arches "$DEMO_ARCHES" \
-  --target demo --all-suites --run-id "$RUN_ID"
+  --target demo --all-suites --run-id "$RUN_ID" || true   # exit 1 is expected (mock suite fails on purpose)
 echo
 echo "  ✔ produced $RUN_DIR/run.json  +  $RUN_DIR/demo-suite.log (normalized by extract-logs)"
 pause

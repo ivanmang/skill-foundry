@@ -30,7 +30,7 @@ Commands:
   report    Render a run to Markdown + HTML          [--run, --known, --out]
   review    Diff a run vs the pinned baseline        [--run, --baseline, --out]
   teach     Log a correction (wizard / shorthand)    ["wrong -> correct -> action", --edit]
-  promote   Propose or apply pending learnings       [--propose, --apply, --branch]
+  promote   Propose or apply pending learnings       [--propose, --apply, --branch, --pr]
   baseline  Re-pin reports/baseline/baseline.json    [--force, target]
   demo      Run the sandboxed 2-minute walkthrough
   list      List suites + arches for a target        [target]

@@ -67,6 +67,11 @@ def load_json(path: Path) -> dict:
         return json.load(f)
 
 
+def usage_error(message: str) -> None:
+    print(message, file=sys.stderr)
+    sys.exit(2)
+
+
 def fmt_dur(sec: float | None) -> str:
     if sec is None:
         return "-"
@@ -183,7 +188,8 @@ def select_suites(target_cfg: dict, suite_arg: str | None) -> list[dict]:
     for s in suites:
         if s["name"] == suite_arg:
             return [s]
-    raise SystemExit(f"unknown suite '{suite_arg}'. Known: {[s['name'] for s in suites]}")
+    usage_error(f"unknown suite '{suite_arg}'. Known: {[s['name'] for s in suites]}")
+    raise AssertionError("unreachable")
 
 
 def print_summary(record: dict) -> None:
@@ -211,12 +217,28 @@ def print_summary(record: dict) -> None:
     print(sep)
 
 
+def summary_object(record: dict) -> dict:
+    suites = []
+    for s in record["suites"]:
+        sm = (s.get("results") or {}).get("summary") or {}
+        suites.append({
+            "name": s["name"],
+            "status": s.get("status"),
+            "passed": sm.get("passed", 0),
+            "failed": sm.get("failed", 0),
+            "skipped": sm.get("skipped", 0),
+            "total": sm.get("total", 0),
+            "duration_s": s.get("duration_s"),
+        })
+    return {"run_id": record["run_id"], "target": record["target"], "suites": suites}
+
+
 def list_all(cfg_path: Path, arches_path: Path, target: str) -> int:
     cfg = load_json(cfg_path)
     arches = load_json(arches_path)
     targets = cfg.get("targets", {})
     if target not in targets:
-        raise SystemExit(f"unknown target '{target}'. Known: {list(targets)}")
+        usage_error(f"unknown target '{target}'. Known: {list(targets)}")
 
     print(f"\nSuites for '{target}':")
     for s in targets[target].get("suites", []):
@@ -237,6 +259,7 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--suite", default=None, help="Suite name, or omit with --all-suites.")
     ap.add_argument("--all-suites", action="store_true", help="Run all enabled suites for the target.")
     ap.add_argument("--quiet", "-q", action="store_true", help="Suppress per-suite output; print only the summary.")
+    ap.add_argument("--json", action="store_true", help="Print the summary as JSON instead of a table.")
     ap.add_argument("--list", action="store_true", help="List suites + arches and exit.")
     ap.add_argument("--run-id", default=None, help="Run id; defaults to <ts>-<target>.")
     ap.add_argument("--config", default=str(HARNESS / "config" / "suites.json"))
@@ -250,12 +273,12 @@ def main(argv: list[str] | None = None) -> int:
     arches = load_json(Path(args.arches))
     targets = cfg.get("targets", {})
     if args.target not in targets:
-        raise SystemExit(f"unknown target '{args.target}'. Known: {list(targets)}")
+        usage_error(f"unknown target '{args.target}'. Known: {list(targets)}")
     target_cfg = targets[args.target]
 
     repo = resolve_repo(target_cfg)
     if not repo.exists():
-        raise SystemExit(f"target repo not found: {repo} (set {target_cfg.get('repo_env', 'PTO_ISA_REPO')})")
+        usage_error(f"target repo not found: {repo} (set {target_cfg.get('repo_env', 'PTO_ISA_REPO')} or source ./env.sh)")
 
     run_id = args.run_id or f"{_dt.datetime.now():%Y%m%d-%H%M%S}-{args.target}"
     run_dir = HARNESS / "reports" / run_id
@@ -263,7 +286,7 @@ def main(argv: list[str] | None = None) -> int:
 
     suites = select_suites(target_cfg, None if args.all_suites else args.suite)
     if not suites:
-        raise SystemExit("no enabled suites matched; check config/suites.json")
+        usage_error("no enabled suites matched; check config/suites.json")
 
     record = {
         "run_id": run_id,
@@ -287,9 +310,14 @@ def main(argv: list[str] | None = None) -> int:
 
     run_json = run_dir / "run.json"
     run_json.write_text(json.dumps(record, indent=2) + "\n", encoding="utf-8")
-    print_summary(record)
+    if args.json:
+        print(json.dumps(summary_object(record), indent=2))
+    else:
+        print_summary(record)
     print(f"\nWrote {run_json}")
-    return 0
+
+    failed = any(s.get("status") != "PASS" for s in record["suites"])
+    return 1 if failed else 0
 
 
 if __name__ == "__main__":

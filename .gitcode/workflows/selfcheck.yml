@@ -1,0 +1,20 @@
+# Self-check on push / merge request: compile the scripts and run the demo smoke.
+# TEMPLATE: adjust runs-on / image to your gitcode runner pool (self-hosted).
+name: selfcheck
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  JOB_selfcheck:
+    name: Self-check
+    runs-on: [self-hosted]   # e.g. [self-hosted, arch=x64, spec=small]
+    steps:
+      - name: Checkout
+        identifier: process_checkout
+        uses: checkout
+        with:
+          token: ${{secrets.GIT_TOKEN}}
+      - name: Self-check
+        run: ./scripts/selfcheck

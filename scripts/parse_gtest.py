@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """Normalize gtest / ctest / run_cpu.py / run_st.py logs into a results object.
 
+Internal — used by run_suite.py. Prefer `./harness run` over running this directly.
+
 Output shape:
 {
   "suite": "<name>",

@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """Append a human/agent correction to learnings/recent.md in strict format.
 
+Internal — prefer `./harness teach` (wizard / shorthand / editor).
+
 Usage:
   python3 scripts/log_correction.py \
     --category correction --context demo-live-... --skill pto-isa \

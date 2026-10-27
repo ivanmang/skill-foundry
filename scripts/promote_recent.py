@@ -148,6 +148,27 @@ def _promote_log_lines(root: Path, e: dict) -> None:
     )
 
 
+def remote_web_url(root: Path) -> str | None:
+    try:
+        out = subprocess.run(["git", "-C", str(root), "remote", "get-url", "origin"],
+                             capture_output=True, text=True, timeout=30)
+        url = out.stdout.strip()
+        if not url:
+            return None
+        if url.startswith("git@"):
+            host, _, path = url.partition(":")
+            url = f"https://{host.split('@')[-1]}/{path}"
+        return url.rstrip("/").removesuffix(".git")
+    except Exception:
+        return None
+
+
+def mr_url(web: str, branch: str, base: str = "main") -> str:
+    return (f"{web}/-/merge_requests/new"
+            f"?merge_request%5Bsource_branch%5D={branch}"
+            f"&merge_request%5Btarget_branch%5D={base}")
+
+
 def propose_all(root: Path, lp: Path, pending: list[dict]) -> int:
     any_diff = False
     for e in pending:
@@ -166,10 +187,11 @@ def propose_all(root: Path, lp: Path, pending: list[dict]) -> int:
             old.splitlines(), new.splitlines(),
             fromfile=f"a/{t.relative_to(root)}", tofile=f"b/{t.relative_to(root)}", lineterm="",
         )))
-    return 0 if any_diff else 2
+    return 0
 
 
-def apply_all(root: Path, lp: Path, entries: list[dict], pending: list[dict], branch: str | None) -> int:
+def apply_all(root: Path, lp: Path, entries: list[dict], pending: list[dict],
+              branch: str | None, push: bool) -> int:
     changed: list[Path] = []
     for e in pending:
         t = resolve_target(e, root)
@@ -190,13 +212,24 @@ def apply_all(root: Path, lp: Path, entries: list[dict], pending: list[dict], br
     lp.write_text(header.rstrip() + "\n\n" + serialize_entries(entries) + "\n", encoding="utf-8")
 
     if branch:
+        add_paths = [str(t.relative_to(root)) for t in changed]
+        add_paths += [str(lp.relative_to(root)), "learnings/promoted.md", "learnings/corrections.md"]
         subprocess.run(["git", "-C", str(root), "-c", "user.name=regression-harness",
                         "-c", "user.email=harness@example.com", "checkout", "-b", branch], check=True)
-        subprocess.run(["git", "-C", str(root), "add", "-A"], check=True)
+        subprocess.run(["git", "-C", str(root), "add", *add_paths], check=True)
         subprocess.run(["git", "-C", str(root), "-c", "user.name=regression-harness",
                         "-c", "user.email=harness@example.com", "commit",
                         "-m", f"chore: promote learnings ({len(changed)} entries)"], check=True)
-        print(f"Committed on branch '{branch}' — push and open a PR for review.")
+        print(f"Committed on branch '{branch}' ({len(changed)} file(s) changed).")
+        if push:
+            pushed = subprocess.run(["git", "-C", str(root), "push", "-u", "origin", branch])
+            if pushed.returncode == 0:
+                web = remote_web_url(root)
+                if web:
+                    print(f"\nOpen a merge request:\n  {mr_url(web, branch)}")
+            else:
+                print(f"\nPush failed (exit {pushed.returncode}) — push manually:"
+                      f"\n  git -C {root} push -u origin {branch}", file=sys.stderr)
 
     print(f"\nPromoted {len(changed)} of {len(pending)} pending entries.")
     return 0
@@ -209,7 +242,13 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--propose", action="store_true", help="Print proposed diffs (default).")
     ap.add_argument("--apply", action="store_true", help="Apply edits and mark entries promoted.")
     ap.add_argument("--branch", default=None, help="With --apply: create + commit on this branch.")
+    ap.add_argument("--pr", action="store_true", help="With --apply: push the branch and print a merge-request URL.")
     args = ap.parse_args(argv)
+
+    if args.pr:
+        args.apply = True
+        if not args.branch:
+            args.branch = f"feat/learnings-{_dt.datetime.now():%Y%m%d}"
 
     root = Path(args.root).resolve()
     lp = Path(args.learnings).resolve() if args.learnings else root / "learnings" / "recent.md"
@@ -224,7 +263,7 @@ def main(argv: list[str] | None = None) -> int:
         return 0
 
     if args.apply:
-        return apply_all(root, lp, entries, pending, args.branch)
+        return apply_all(root, lp, entries, pending, args.branch, args.pr)
     return propose_all(root, lp, pending)
 
 
