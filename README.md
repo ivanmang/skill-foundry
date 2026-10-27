@@ -36,6 +36,20 @@ reports/baseline/         pinned baseline.json (committed); other reports gitign
 - The 11 existing `pto-isa/agents/skills` are kept as-is (referenced, not migrated).
 - M1 scope = **CPU-ST + NPU-sim** (A5 / A3 / A6, matching the A6/v200 workflow).
 
+## Conformance & portability
+
+- Skills follow the open [Agent Skills spec](https://agentskills.io/specification):
+  required `name` + `description` frontmatter (name matches folder, lowercase-hyphen,
+  <=64 chars; description <=1024 chars), plus optional `license` + `compatibility`.
+- **Scripts are deliberately co-located at the repo root** (`scripts/`), not inside a
+  single skill folder, because the run/extract/diff/report drivers are shared by
+  several skills. Skills reference them from the harness root (`./scripts/...`).
+  Consequence: these are *co-located repo skills* — they work when this repo is
+  checked out and used as the working directory, but a single skill folder copied
+  alone into another tool's skills dir is **not** self-contained.
+- If individual portability is ever needed, promote the shared drivers into a
+  dedicated skill's `scripts/` folder (or a `harness-runner` skill).
+
 ## Quickstart
 
 ```bash

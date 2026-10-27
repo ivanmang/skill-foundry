@@ -5,6 +5,8 @@ description: >
   -> generate-report -> review-inconsistencies, then hand off to
   skill-maintainer when corrections or reusable patterns surface. Use when asked
   to run the full analysis pipeline or a complete regression analysis.
+license: CANN Open Software License Agreement Version 2.0
+compatibility: Requires python3 and git. Delegates to the run/extract/report/review skills.
 ---
 
 # Full Analysis Pipeline

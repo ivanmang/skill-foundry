@@ -4,6 +4,8 @@ description: >
   Turn normalized run results (run.json) into a Markdown summary and a
   standalone HTML report. Use when asked to generate a report or dashboard from
   a regression run, or after the pipeline has produced results.
+license: CANN Open Software License Agreement Version 2.0
+compatibility: Requires python3.
 ---
 
 # Generate Report

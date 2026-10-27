@@ -4,6 +4,8 @@ description: >
   Parse raw gtest / ctest / run_cpu.py / run_st.py logs into a normalized
   results object (passed/failed/skipped counts + per-case status). Use after a
   run, or when asked to extract or normalize test logs into structured results.
+license: CANN Open Software License Agreement Version 2.0
+compatibility: Requires python3.
 ---
 
 # Extract Logs

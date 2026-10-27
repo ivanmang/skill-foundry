@@ -5,6 +5,8 @@ description: >
   (A5/A3/A6, incl. the A6 dav_9201 / v200 workflow), plus env/soc handling and
   known failure patterns. Use when working in the pto-isa repo, running pto-isa
   tests, or asked for a pto-isa regression run or failure triage.
+license: CANN Open Software License Agreement Version 2.0
+compatibility: Requires python3 and git. CPU-ST needs clang++>=15 or g++>=13; NPU-sim needs a CANN simulator (A6 dav_9201 runs on the yellow machine).
 ---
 
 # PTO-ISA regression adapter

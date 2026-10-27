@@ -5,6 +5,8 @@ description: >
   reviewable updates to the harness skills. Use when asked to update the skills,
   remember a correction, or review learnings/recent.md and promote reusable
   patterns.
+license: CANN Open Software License Agreement Version 2.0
+compatibility: Requires git.
 ---
 
 # Skill Maintainer

@@ -5,6 +5,8 @@ description: >
   produce a normalized run record (run.json + raw log). Use when asked to run a
   regression, run the suite matrix, execute a single suite/testcase, or re-run a
   suite for a specific target such as pto-isa.
+license: CANN Open Software License Agreement Version 2.0
+compatibility: Requires python3 and git. NPU-sim suites additionally require a CANN toolkit with the matching simulator.
 ---
 
 # Run Testcase
