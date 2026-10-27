@@ -14,8 +14,8 @@ The harness turns *"run the regression"* from a repeated instruction into:
 - **Scripts** (`scripts/`) that actually do the run → extract → report → review.
 - A **pinned baseline** (`reports/baseline/baseline.json`) so "regression" =
   *diff vs baseline*.
-- A **learning loop** (`learnings/` + `log_correction.py` / `promote_recent.py`)
-  that captures corrections and promotes them back into the skills.
+- A **learning loop** (`learnings/` + `scripts/teach` to capture and
+  `scripts/promote_recent.py` to promote) that turns corrections into skills.
 
 Two loops, always:
 
@@ -171,8 +171,8 @@ The `pto-isa` adapter skill drives this. In order:
    / env-leak / timeout.
 3. Check `.claude/skills/pto-isa/references/known-failures.md` first.
 
-If it's in the corpus → done, it was already flagged known. If not → go to
-Step 7 and teach it.
+If it's in the corpus → done, it was already flagged known. If not — or if you
+correct the agent's triage — go to Step 7 and teach it.
 
 ---
 
@@ -180,6 +180,10 @@ Step 7 and teach it.
 
 You found something the harness didn't know. Capture it, propose the fix, and
 promote it — capture is automatic, promotion is reviewed.
+
+> Most of the time you don't type a command at all: the skills tell the agent
+> to log it automatically when you correct it ("remember …", "no, that's
+> wrong", "actually …"). The agent replies with the `LRN-…` id it logged.
 
 ### 7a. Capture (automatic, append-only)
 
@@ -199,7 +203,8 @@ Use the friendly `teach` entry point (wizard, shorthand, or editor):
 python3 scripts/session_digest.py --run reports/<run-id>/run.json --apply
 ```
 
-This appends a strict, parseable entry to `learnings/recent.md`:
+This appends a strict, parseable entry to `learnings/recent.md`:  
+*(If the agent logged it for you, it already did this — same result.)*
 
 ```markdown
 ## LRN-20261027-003
@@ -276,7 +281,7 @@ loop, and every teammate gets it via git.
 | Run one suite | `./scripts/run_suite.sh --target pto-isa --suite cpu-st` |
 | Report | `python3 scripts/build_report.py --run reports/<id>/run.json --known <kf> --out <base>` |
 | Diff vs baseline | `python3 scripts/diff_runs.py --run reports/<id>/run.json` |
-| Capture correction | `python3 scripts/log_correction.py …` |
+| Capture correction | `./scripts/teach "… → … → …"` (or `./scripts/teach` wizard) |
 | Auto-draft from run | `python3 scripts/session_digest.py --run reports/<id>/run.json --apply` |
 | Propose promotion | `python3 scripts/promote_recent.py --propose` |
 | Apply + branch | `python3 scripts/promote_recent.py --apply --branch feat/learnings-<date>` |
@@ -291,6 +296,9 @@ loop, and every teammate gets it via git.
 | Draft promotion (diff, no write) | 🟢 automatic |
 | Apply + commit | 🟡 scripted, PR-gated |
 | Remove / change an existing check | 🔴 never automatic |
+
+Capture is triggered by `./scripts/teach` or by the agent reacting to your
+corrections; until a note is promoted it changes nothing in the skills.
 
 This mirrors the industry norm: like Claude Code auto-writing memory but not
 auto-editing your `CLAUDE.md`, the harness auto-logs but only *proposes* edits.
