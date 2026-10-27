@@ -17,7 +17,9 @@ Produce a reviewable, human-readable report from normalized results.
 1. Generate from one or more run records:
 
    ```bash
-   python3 scripts/build_report.py --run reports/<run-id>/run.json \
+   ./harness report --run reports/<run-id>/run.json --out reports/<run-id>/report
+   ./harness report --run reports/<run-id>/run.json \
+     --known .claude/skills/pto-isa/references/known-failures.md \
      --out reports/<run-id>/report
    ```
 

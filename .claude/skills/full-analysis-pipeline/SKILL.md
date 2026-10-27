@@ -17,13 +17,13 @@ skill is the wiring and the handoff.
 ## Steps
 
 1. **Run** — `run-testcase` for the target's enabled suites
-   (`./scripts/run_suite.sh --target pto-isa --all-suites`).
+   (`./harness run --all-suites`, or a narrow `--suite`/`--testcase`).
 2. **Extract** — confirm `run.json` contains per-suite `results` (the driver
    does this automatically; re-run `extract-logs` only if a parse failed).
 3. **Report** — `generate-report` to `report.md` + `report.html`.
 4. **Review** — `review-inconsistencies` against the pinned baseline.
 5. **Handoff** — if the review surfaced (a) a user correction, (b) a repeated
-   failure pattern, or (c) a missing check, log it with `./scripts/teach "…"`
+   failure pattern, or (c) a missing check, log it with `./harness teach "…"`
    and hand to `skill-maintainer`.
 
 ## Pipeline contract
@@ -35,7 +35,7 @@ skill is the wiring and the handoff.
 
 ## Handoff to maintainer
 
-Log with `./scripts/teach "wrong -> correct -> action"` (it writes the strict
+Log with `./harness teach "wrong -> correct -> action"` (it writes the strict
 `LRN-…` entry automatically), then hand to `skill-maintainer` to propose.
 
 ```markdown

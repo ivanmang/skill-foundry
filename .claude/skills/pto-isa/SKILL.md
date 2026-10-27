@@ -30,7 +30,15 @@ commands, env, and triage.
 | NPU-sim A3 | `python3 tests/script/run_st.py -r sim -v a3 -t all` |
 | NPU-sim A6 | `python3 tests/script/run_st.py -r sim -v a6 -t all` |
 
-Single testcase / filter:
+Via the harness (recommended — one entry point):
+
+```bash
+./harness run --suite npu-sim-a5 --testcase tpartargmax          # one testcase
+./harness run --suite npu-sim-a5 --testcase tadd --filter 'TADDTest.case_*'
+./harness run --suite cpu-st --testcase tadd --filter 'TADDTest.case_*'
+```
+
+Single testcase / filter (raw pto-isa runner):
 
 ```bash
 python3 tests/run_cpu.py --testcase tadd --gtest_filter 'TADDTest.case_float_64x64_64x64'
@@ -41,9 +49,9 @@ python3 tests/script/run_st.py -r sim -v a5 -t tadd -g TADDTest.case_float_64x64
 
 - `source <cann>/set_env.sh` sets `ASCEND_HOME_PATH` and friends (driver does
   this via `env_setup`).
-- A6 (dav_9201): pto-isa arch headers MUST precede CANN include — set
-  `PTO_ISA_PATH` and put `-I $PTO_ISA_PATH` FIRST. CANN 9.1.0 ships the A6 sim
-  but not the A6 compile headers.
+- A6 (dav_9201): A6 support is split across CANN versions — some toolkits have
+  the sim, some the headers. Check `references/cann-matrix.md`, and when
+  compiling put `-I $PTO_ISA_PATH` FIRST.
 
 ## Arch / soc
 
@@ -62,7 +70,7 @@ Full table: `references/env.md`.
    / env-leak / timeout.
 3. Match against `references/known-failures.md` before treating as new.
 4. If the user corrects the triage, or the cause is new and reusable, log it
-   so it can be promoted: `./scripts/teach "symptom -> fix -> where"`.
+   so it can be promoted: `./harness teach "symptom -> fix -> where"`.
 
 ## References
 

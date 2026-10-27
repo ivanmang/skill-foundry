@@ -18,33 +18,33 @@ git-tracked edit.** This skill never rewrites skills blindly.
 
 | Action | Command |
 |---|---|
-| Log a correction (capture) | `./scripts/teach` (wizard) · `./scripts/teach "… -> … -> …"` (shorthand) · `./scripts/teach --edit` (editor) |
+| Log a correction (capture) | `./harness teach` (wizard) · `./harness teach "… -> … -> …"` (shorthand) · `./harness teach --edit` (editor) |
 | Draft from a run (auto-capture) | `python3 scripts/session_digest.py --run reports/<id>/run.json [--apply]` |
-| Propose promotion (diff, no write) | `python3 scripts/promote_recent.py --propose` |
-| Apply promotion | `python3 scripts/promote_recent.py --apply [--branch feat/learnings-<date>]` |
+| Propose promotion (diff, no write) | `./harness promote --propose` |
+| Apply promotion | `./harness promote --apply [--branch feat/learnings-<date>]` (or `--pr` to push + open MR) |
 
 ## Modes
 
 | Mode | Behavior | When |
 |---|---|---|
-| Propose | `promote_recent.py --propose` prints a diff, no file change | default |
-| Apply (small) | `--apply` writes the edit, moves the entry to promoted.md | high-confidence, small change |
+| Propose | `./harness promote --propose` prints a diff, no file change | default |
+| Apply (small) | `./harness promote --apply` writes the edit, moves the entry to promoted.md | high-confidence, small change |
 | Manual | User explicitly asks to update a skill | sensitive changes |
 
 ## Flow
 
-1. **Capture** — whenever corrected, run `scripts/teach` (wizard, or
+1. **Capture** — whenever corrected, run `./harness teach` (wizard, or
    `teach "…"` shorthand), or `session_digest.py` after a run. Never
    freeform-edit `learnings/recent.md`.
-2. **Propose** — `promote_recent.py --propose` renders a minimal diff per
+2. **Propose** — `./harness promote --propose` renders a minimal diff per
    pending entry into the right skill / known-failures file.
-3. **Apply** — `--apply` writes it, marks the entry promoted, logs to
-   `corrections.md`, and (with `--branch`) commits for a PR.
+3. **Apply** — `./harness promote --apply` writes it, marks the entry promoted,
+   logs to `corrections.md`, and (with `--branch`/`--pr`) commits for a PR.
 4. **Verify** — re-run a representative case to confirm the improvement.
 
 ## Auto-capture triggers
 
-Log to `learnings/recent.md` via `scripts/teach` when any of these happen
+Log to `learnings/recent.md` via `./harness teach` when any of these happen
 (promotion stays reviewed). When the user says "remember …" or corrects you,
 run it automatically and reply with the LRN id:
 

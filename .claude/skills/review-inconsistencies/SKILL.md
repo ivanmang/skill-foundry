@@ -18,7 +18,7 @@ The regression signal lives here. Diff a run against `reports/baseline/baseline.
 1. Run the diff:
 
    ```bash
-   python3 scripts/diff_runs.py --run reports/<run-id>/run.json
+   ./harness review --run reports/<run-id>/run.json
    ```
 
 2. Classify every delta:
@@ -39,7 +39,7 @@ The regression signal lives here. Diff a run against `reports/baseline/baseline.
 ## Gotchas
 
 - A seed baseline (`"generated": false`) has no case data — the first real run
-  should be **promoted** to baseline (`scripts/make_baseline.sh`), not diffed.
+  should be **promoted** to baseline (`./harness baseline`), not diffed.
 - Durations only exist where the parser captured them; treat missing durations
   as "no perf data", never as zero.
 - Different hosts have different speeds — only compare runs from the same

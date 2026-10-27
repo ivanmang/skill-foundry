@@ -23,13 +23,13 @@ run record. Do **not** hand-edit test results.
    - target repo git commit + dirty status
    - harness git commit
    - toolchain / CANN version when relevant
-3. Run the suite:
+3. Run through `./harness run` (requires an explicit `--suite` or `--all-suites`):
 
    ```bash
-   # one suite
-   ./scripts/run_suite.sh --target pto-isa --suite cpu-st
-   # all enabled suites for a target
-   ./scripts/run_suite.sh --target pto-isa --all-suites
+   ./harness run --suite cpu-st                          # one suite
+   ./harness run --all-suites --quiet                    # everything, summary only
+   ./harness run --suite npu-sim-a5 --testcase tpartargmax      # one testcase
+   ./harness run --suite cpu-st --testcase tadd --filter 'TADDTest.case_*'  # one gtest case
    ```
 
 4. The driver writes `reports/<run-id>/run.json` and the raw log, and runs
@@ -45,6 +45,8 @@ run record. Do **not** hand-edit test results.
 - Re-`source` the CANN env per suite block; env leaks between suites corrupt
   results.
 - `--all-suites` continues past a failed suite and records each suite's status.
+- Narrow a run with `--testcase <name>` and `--filter <gtest-pattern>` (requires
+  a single `--suite`; invalid with `--all-suites`).
 
 ## Output
 
