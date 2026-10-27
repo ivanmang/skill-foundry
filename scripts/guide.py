@@ -89,6 +89,11 @@ def choose_target_and_suites() -> tuple[str, list[str], list[str]]:
     else:
         suite_flags = ["--suite", choice]
 
+    if not os.environ.get("ASCEND_HOME_PATH") and (
+        choice.lower() in ("all", "") or choice.lower().startswith(("npu", "costmodel", "comm"))
+    ):
+        print(c("  ⚠  ASCEND_HOME_PATH is not set — this choice will ERROR. Run 'source ./env.sh' first, or pick a cpu suite.", YELLOW))
+
     mode = ask("Output mode — normal / quiet / tui", "normal").strip().lower()
     mode_flags = {"normal": [], "quiet": ["--quiet"], "tui": ["--tui"]}.get(mode, [])
     run_id = ask("Run id (blank = auto)")

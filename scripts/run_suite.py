@@ -248,6 +248,9 @@ def print_summary(record: dict) -> None:
     for r in rows:
         print(line(r))
     print(sep)
+    for s in record["suites"]:
+        if s.get("error"):
+            print(f"  ⚠  {s['name']}: {s['error']}")
 
 
 def summary_object(record: dict) -> dict:
@@ -262,6 +265,7 @@ def summary_object(record: dict) -> dict:
             "skipped": sm.get("skipped", 0),
             "total": sm.get("total", 0),
             "duration_s": s.get("duration_s"),
+            "error": s.get("error"),
         })
     return {"run_id": record["run_id"], "target": record["target"], "suites": suites}
 
@@ -406,17 +410,19 @@ def main(argv: list[str] | None = None) -> int:
         "suites": [],
     }
 
-    tui = args.tui and sys.stdout.isatty()
+    run_quiet = args.quiet or args.json
+    tui = args.tui and not args.json and sys.stdout.isatty()
     for suite in suites:
-        record["suites"].append(run_one(repo, suite, arches, target_cfg, run_dir, args.quiet, tui))
+        record["suites"].append(run_one(repo, suite, arches, target_cfg, run_dir, run_quiet, tui))
 
     run_json = run_dir / "run.json"
     run_json.write_text(json.dumps(record, indent=2) + "\n", encoding="utf-8")
     if args.json:
         print(json.dumps(summary_object(record), indent=2))
+        print(f"Wrote {run_json}", file=sys.stderr)
     else:
         print_summary(record)
-    print(f"\nWrote {run_json}")
+        print(f"\nWrote {run_json}")
 
     failed = any(s.get("status") != "PASS" for s in record["suites"])
     return 1 if failed else 0
