@@ -21,16 +21,20 @@ that can be expressed as a suite matrix.
 
 ```text
 ./harness run       Run suites            [--suite X | --all-suites] [--quiet | --tui | --json] [--testcase T | --filter G]
-./harness report    run.json → MD + HTML  [--run, --known, --out]
-./harness review    diff vs baseline      [--run, --baseline, --out]
+./harness report    run.json → MD + HTML  [--run (default latest), --known, --out, --open]
+./harness review    diff vs baseline      [--run (default latest), --baseline, --out]
 ./harness teach     log a correction      ["wrong -> correct -> action" | wizard | --edit]
 ./harness promote   learnings → skills    [--propose | --apply | --pr]
 ./harness baseline  re-pin baseline.json  [--force] [target]
+./harness history   recent runs           [--limit, --json]
+./harness clean     remove run dirs       [--dry-run, --keep]
+./harness open      open report.html      [run-id (default latest)]
+./harness validate  check config files
 ./harness demo      2-minute walkthrough
 ./harness list      suites + arches       [--target, --format text|markdown|html]
 ./harness cann      which CANN → which arch  [--home, --scan, --json]
 ./harness selfcheck compile-check + demo smoke
-./harness help      show this            ./harness version
+./harness help      show this            ./harness version [--short]
 ```
 
 Quick start:
@@ -43,10 +47,13 @@ Quick start:
 ./harness run --suite cpu-st --testcase tadd --filter 'TADDTest.case_*'   # one gtest case
 ./harness report --run reports/<id>/run.json \
   --known .claude/skills/pto-isa/references/known-failures.md --out reports/<id>/report
-./harness review --run reports/<id>/run.json       # diff vs the pinned baseline
-./harness baseline pto-isa                         # re-pin the baseline (refuses if any suite FAILs)
+./harness report --open                 # latest run → browser
+./harness review                         # latest run vs baseline
+./harness history                        # recent runs
+./harness clean                          # purge old runs (keeps the baseline)
+make check                               # run the self-check
 
-source completions/harness.bash                    # tab-completion (add to ~/.bashrc)
+source completions/harness.bash          # tab-completion (add to ~/.bashrc)
 ```
 
 - `run` requires an explicit `--suite` **or** `--all-suites`; a bare `run` prints

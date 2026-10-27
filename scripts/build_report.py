@@ -18,7 +18,13 @@ from __future__ import annotations
 import argparse
 import html
 import json
+import shutil
+import subprocess
+import sys
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import _runs  # noqa: E402
 
 HARNESS = Path(__file__).resolve().parent.parent
 
@@ -176,18 +182,40 @@ h3 {{ margin-top: 1rem; }}
 
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description="Render run records to Markdown + HTML.")
-    ap.add_argument("--run", action="append", required=True, help="run.json (repeatable).")
-    ap.add_argument("--out", required=True, help="Output base path (writes <out>.md and <out>.html).")
+    ap.add_argument("--run", action="append", help="run.json (repeatable); default = latest run.")
+    ap.add_argument("--out", help="Output base path (writes <out>.md and <out>.html); default = alongside the run.")
     ap.add_argument("--known", help="Optional known-failures markdown used to annotate failures.")
+    ap.add_argument("--open", action="store_true", help="Open the HTML in a browser after writing.")
     args = ap.parse_args(argv)
 
-    records = [load(r) for r in args.run]
+    if args.run:
+        runs = args.run
+    else:
+        latest = _runs.latest_run()
+        if not latest:
+            print("No runs found under reports/. Pass --run <path>.", file=sys.stderr)
+            return 1
+        runs = [str(latest[0])]
+
+    if not args.out:
+        base = Path(runs[0]).parent / "report"
+    else:
+        base = Path(args.out)
+
+    records = [load(r) for r in runs]
     known_sigs = load_known_signatures(args.known)
-    base = Path(args.out)
     base.parent.mkdir(parents=True, exist_ok=True)
     (Path(str(base) + ".md")).write_text(render_md(records, known_sigs), encoding="utf-8")
-    (Path(str(base) + ".html")).write_text(render_html(records, known_sigs), encoding="utf-8")
-    print(f"Wrote {base}.md and {base}.html")
+    html_path = Path(str(base) + ".html")
+    html_path.write_text(render_html(records, known_sigs), encoding="utf-8")
+    print(f"Wrote {base}.md and {html_path}")
+
+    if args.open:
+        opener = shutil.which("xdg-open") or shutil.which("open") or shutil.which("start")
+        if opener:
+            subprocess.run([opener, str(html_path)], check=False)
+        else:
+            print(f"Open: {html_path}")
     return 0
 
 

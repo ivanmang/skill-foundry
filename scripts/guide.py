@@ -295,9 +295,6 @@ def choose_target_and_suites() -> tuple[str, list[str], list[str]]:
     ):
         print(c("  ⚠  ASCEND_HOME_PATH is not set — this choice will ERROR. Run 'source ./env.sh' first, or pick a cpu suite.", YELLOW))
 
-    mode = select_menu("Output mode (↑/↓ + Enter):", ["normal", "quiet", "tui"]) or "normal"
-    mode_flags = {"normal": [], "quiet": ["--quiet"], "tui": ["--tui"]}.get(mode, [])
-
     testcase_flags: list[str] = []
     filter_flags: list[str] = []
     if choice.lower() not in ("all", ""):
@@ -307,6 +304,9 @@ def choose_target_and_suites() -> tuple[str, list[str], list[str]]:
             gfilter = choose_filter(choice, testcase)
             if gfilter:
                 filter_flags = ["--filter", gfilter]
+
+    mode = select_menu("Output mode (↑/↓ + Enter):", ["normal", "quiet", "tui"]) or "normal"
+    mode_flags = {"normal": [], "quiet": ["--quiet"], "tui": ["--tui"]}.get(mode, [])
 
     run_id = ask("Run id (blank = auto)")
     run_id_flags = ["--run-id", run_id] if run_id else []

@@ -16,7 +16,11 @@ from __future__ import annotations
 import argparse
 import json
 import math
+import sys
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import _runs  # noqa: E402
 
 HARNESS = Path(__file__).resolve().parent.parent
 DEFAULT_BASELINE = HARNESS / "reports" / "baseline" / "baseline.json"
@@ -130,15 +134,24 @@ def print_human(d: dict) -> None:
 
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description="Diff a run against the pinned baseline.")
-    ap.add_argument("--run", required=True, help="Run record (run.json) to review.")
+    ap.add_argument("--run", default=None, help="Run record (run.json); default = latest run.")
     ap.add_argument("--baseline", default=str(DEFAULT_BASELINE), help="Baseline run.json.")
     ap.add_argument("--out", help="Write the machine-readable delta JSON to this path.")
     args = ap.parse_args(argv)
 
-    new = load(Path(args.run))
+    if args.run:
+        run_path = args.run
+    else:
+        latest = _runs.latest_run()
+        if not latest:
+            print("No runs found under reports/. Pass --run <path>.", file=sys.stderr)
+            return 1
+        run_path = str(latest[0])
+
+    new = load(Path(run_path))
     base = load(Path(args.baseline))
     if new is None:
-        raise SystemExit(f"run not found: {args.run}")
+        raise SystemExit(f"run not found: {run_path}")
     if base is None:
         raise SystemExit(f"baseline not found: {args.baseline}")
 

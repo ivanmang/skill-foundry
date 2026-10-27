@@ -19,6 +19,10 @@ directly.
 | `teach` | `teach` | Log a correction (wizard / shorthand / editor) |
 | `promote` | `promote_recent.py` | Propose or apply learnings into skills |
 | `baseline` | `make_baseline.sh` | Re-pin `reports/baseline/baseline.json` |
+| `history` | `history.py` | List recent runs |
+| `clean` | `clean.py` | Remove run dirs (keeps baseline) |
+| `open` | `open_report.py` | Open a run's report.html |
+| `validate` | `validate.py` | Check suites/arches/cann configs |
 | `demo` | `demo/run_demo.sh` | Sandboxed walkthrough |
 | `guide` | `guide.py` | Interactive step-by-step tour |
 | `list` | `run_suite.py --list` | List suites + arches |
@@ -27,6 +31,8 @@ directly.
 
 ## Internals (imported / used by the commands above — not for direct use)
 
+- `_runs.py` — locate latest/list runs (used by report/review/history/clean/open).
+- `complete.py` — completion candidates (used by `completions/harness.bash`).
 - `parse_gtest.py` — log → normalized results (used by `run_suite.py`).
 - `log_correction.py` — strict `LRN-…` writer (used by `teach` and `session_digest.py`).
 - `session_digest.py` — draft pending learnings from a `run.json`.
@@ -45,4 +51,10 @@ directly.
   `--gtest_filter` for cpu).
 - `./harness list --format markdown|html` — suite catalog for docs/dashboards.
 - `./harness promote --pr` — apply + branch + commit + push + merge-request URL.
-- Tab completion: `source completions/harness.bash` (then `./harness <TAB>`).
+- `./harness report` / `./harness review` — default to the latest run.
+- `./harness report --open` — generate and open in the browser.
+- `./harness history [--limit N] [--json]` — recent runs table.
+- `./harness clean [--dry-run] [--keep N]` — purge run dirs, keeps baseline.
+- `./harness validate` — sanity-check suites/arches/cann configs.
+- `make check` — run the self-check locally.
+- Tab completion: `source completions/harness.bash` (also completes `--suite`/`--testcase` values).

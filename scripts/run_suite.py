@@ -427,7 +427,13 @@ def main(argv: list[str] | None = None) -> int:
     if not repo.exists():
         usage_error(f"target repo not found: {repo} (set {target_cfg.get('repo_env', 'PTO_ISA_REPO')} or source ./env.sh)")
 
-    run_id = args.run_id or f"{_dt.datetime.now():%Y%m%d-%H%M%S}-{args.target}"
+    if args.run_id:
+        sane = re.sub(r"[^A-Za-z0-9._-]+", "-", args.run_id).strip(".-")
+        if sane != args.run_id:
+            print(f"warning: sanitized run-id '{args.run_id}' -> '{sane}'", file=sys.stderr)
+        run_id = sane or f"{_dt.datetime.now():%Y%m%d-%H%M%S}-{args.target}"
+    else:
+        run_id = f"{_dt.datetime.now():%Y%m%d-%H%M%S}-{args.target}"
     run_dir = HARNESS / "reports" / run_id
     run_dir.mkdir(parents=True, exist_ok=True)
 
