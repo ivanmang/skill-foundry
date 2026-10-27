@@ -8,10 +8,14 @@ Usage:
 
 from __future__ import annotations
 
+import json
 import os
+import select
 import shutil
 import subprocess
 import sys
+import termios
+import tty
 from pathlib import Path
 
 HARNESS = Path(__file__).resolve().parent.parent
@@ -63,6 +67,94 @@ def ask_yesno(prompt: str, default: str = "n") -> bool:
             return False
 
 
+def _read_key() -> str:
+    """Read one keypress (raw mode). Arrow keys return UP/DOWN/LEFT/RIGHT."""
+    fd = sys.stdin.fileno()
+    old = termios.tcgetattr(fd)
+    try:
+        tty.setraw(fd)
+        ch = sys.stdin.read(1)
+        if ch == "\x1b":
+            ready, _, _ = select.select([fd], [], [], 0.03)
+            if ready:
+                seq = sys.stdin.read(2)
+                return {"[A": "UP", "[B": "DOWN", "[C": "RIGHT", "[D": "LEFT"}.get(seq, "ESC")
+            return "ESC"
+        if ch in ("\r", "\n"):
+            return "ENTER"
+        if ch in ("q", "Q"):
+            return "q"
+        if ch == "\x03":
+            return "CTRL_C"
+        return ch
+    finally:
+        termios.tcsetattr(fd, termios.TCSADRAIN, old)
+
+
+def select_menu(title: str, options: list, default_index: int = 0):
+    """Arrow-key menu with highlighted selection.
+
+    options is a list of str labels or (label, value) tuples. Returns the value
+    (or the label when a bare string). Enter selects, Up/Down navigate, number
+    selects directly, q/Esc cancels (None). Falls back to a numbered prompt on
+    non-TTY stdin.
+    """
+    if not options:
+        return None
+    labels = [o[0] if isinstance(o, tuple) else o for o in options]
+    values = [o[1] if isinstance(o, tuple) else o for o in options]
+
+    if not sys.stdin.isatty():
+        print(c(title, BOLD))
+        for i, lab in enumerate(labels, 1):
+            print(f"  {i}) {lab}")
+        choice = ask("Choose [1-%d] or name (Enter = skip)" % len(labels))
+        if choice.isdigit() and 1 <= int(choice) <= len(labels):
+            return values[int(choice) - 1]
+        low = choice.lower()
+        for i, v in enumerate(values):
+            if v is not None and str(v).lower() == low:
+                return v
+        return None
+
+    idx = max(0, min(default_index, len(labels) - 1))
+    n = len(labels)
+
+    def render() -> str:
+        lines = []
+        for i, lab in enumerate(labels):
+            if i == idx:
+                lines.append("  \033[7m ▶ " + lab + " \033[0m")
+            else:
+                lines.append("    " + lab + " ")
+        return "\n".join(lines)
+
+    sys.stdout.write(c(title, BOLD) + "\n")
+    sys.stdout.write(render() + "\n")
+
+    while True:
+        key = _read_key()
+        if key == "UP":
+            idx = (idx - 1) % n
+        elif key == "DOWN":
+            idx = (idx + 1) % n
+        elif key == "ENTER":
+            return values[idx]
+        elif key in ("q", "ESC", "CTRL_C"):
+            sys.stdout.write("\n")
+            return None
+        elif isinstance(key, str) and key.isdigit():
+            di = int(key) - 1
+            if 0 <= di < n:
+                idx = di
+            else:
+                continue
+        else:
+            continue
+        sys.stdout.write(f"\033[{n}A\r")
+        sys.stdout.write(render() + "\n")
+
+
 def choose_cann() -> str | None:
     """List installed CANN toolkits with their arch support and let the user pick one."""
     cfg = detect_cann.load_config()
@@ -70,16 +162,14 @@ def choose_cann() -> str | None:
     if not roots:
         return None
     infos = [detect_cann.analyze(r, cfg) for r in roots]
-    print(c("  No ASCEND_HOME_PATH set. Available CANN packages (headers = compile, simulator = run):", YELLOW))
-    for i, info in enumerate(infos, 1):
+    options = []
+    for info in infos:
         hdr = " ".join(info["headers"]) if info["headers"] else "-"
         sim = " ".join(info["simulators"]) if info["simulators"] else "-"
-        print(f"    {i}) {info['path']}")
-        print(f"       version {info['version']} · headers {hdr} · simulator {sim}")
-    choice = ask("Choose a CANN package [1-%d] (Enter = skip)" % len(infos))
-    if choice.isdigit() and 1 <= int(choice) <= len(infos):
-        return infos[int(choice) - 1]["path"]
-    return None
+        label = f"{info['path']}  ·  v{info['version']}  ·  headers {hdr}  ·  sim {sim}"
+        options.append((label, info["path"]))
+    title = c("  No ASCEND_HOME_PATH set. Choose a CANN package (↑/↓ + Enter, q = skip):", YELLOW)
+    return select_menu(title, options)
 
 
 def check_env() -> None:
@@ -107,20 +197,34 @@ def check_env() -> None:
 
 def choose_target_and_suites() -> tuple[str, list[str], list[str]]:
     banner("1 · Choose what to run")
-    subprocess.run([sys.executable, "scripts/run_suite.py", "--list"], cwd=HARNESS, check=False)
+
+    # print arch context (soc → march) — informational, then pick the suite
+    arches = json.loads(ARCHES.read_text(encoding="utf-8"))
+    print("Arches (soc → march):")
+    for name, a in arches.items():
+        print(f"  {name:<8} {a.get('soc','-'):<18} {a.get('march') or '-'}")
     print()
-    choice = ask("Suite — 'all' or a name (e.g. cpu-st)", "all").strip()
-    if choice.lower() in ("all", ""):
+
+    cfg = json.loads(CONFIG.read_text(encoding="utf-8"))
+    suites = cfg["targets"]["pto-isa"]["suites"]
+    options = [("all enabled suites", "all")]
+    for s in suites:
+        mark = "✓ " if s.get("enabled") else "  "
+        label = f"{mark}{s['name']:<14} {s.get('mode','-'):<9} {s.get('description','')}"
+        options.append((label, s["name"]))
+    choice = select_menu("Choose a suite (↑/↓ + Enter):", options) or "all"
+
+    if choice == "all":
         suite_flags = ["--all-suites"]
     else:
         suite_flags = ["--suite", choice]
 
     if not os.environ.get("ASCEND_HOME_PATH") and (
-        choice.lower() in ("all", "") or choice.lower().startswith(("npu", "costmodel", "comm"))
+        choice == "all" or choice.startswith(("npu", "costmodel", "comm"))
     ):
         print(c("  ⚠  ASCEND_HOME_PATH is not set — this choice will ERROR. Run 'source ./env.sh' first, or pick a cpu suite.", YELLOW))
 
-    mode = ask("Output mode — normal / quiet / tui", "normal").strip().lower()
+    mode = select_menu("Output mode (↑/↓ + Enter):", ["normal", "quiet", "tui"]) or "normal"
     mode_flags = {"normal": [], "quiet": ["--quiet"], "tui": ["--tui"]}.get(mode, [])
 
     testcase_flags: list[str] = []
