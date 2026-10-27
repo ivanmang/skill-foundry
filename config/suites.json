@@ -1,0 +1,93 @@
+{
+  "version": 1,
+  "targets": {
+    "pto-isa": {
+      "repo_env": "PTO_ISA_REPO",
+      "repo_default": "~/pto-isa",
+      "env_setup": "source ${ASCEND_HOME_PATH:-$HOME/Ascend/cann-9.0.0-alpha.1}/set_env.sh >/dev/null 2>&1 || true",
+      "env": {},
+      "suites": [
+        {
+          "name": "cpu-st",
+          "mode": "cpu",
+          "arch": null,
+          "enabled": true,
+          "milestone": "M1",
+          "command": ["python3", "tests/run_cpu.py", "--clean", "--verbose"],
+          "timeout_s": 7200,
+          "description": "CPU simulator ST — fast correctness tier (needs clang++>=15 or g++>=13)."
+        },
+        {
+          "name": "npu-sim-a5",
+          "mode": "npu-sim",
+          "arch": "a5",
+          "enabled": true,
+          "milestone": "M1",
+          "command": ["python3", "tests/script/run_st.py", "-r", "sim", "-v", "a5", "-t", "all"],
+          "timeout_s": 7200,
+          "description": "NPU ST on the A5 simulator (Ascend950PR_9599 -> Ascend910_9599)."
+        },
+        {
+          "name": "npu-sim-a3",
+          "mode": "npu-sim",
+          "arch": "a3",
+          "enabled": true,
+          "milestone": "M1",
+          "command": ["python3", "tests/script/run_st.py", "-r", "sim", "-v", "a3", "-t", "all"],
+          "timeout_s": 7200,
+          "description": "NPU ST on the A3 simulator (Ascend910B1)."
+        },
+        {
+          "name": "npu-sim-a6",
+          "mode": "npu-sim",
+          "arch": "a6",
+          "enabled": true,
+          "milestone": "M1",
+          "command": ["python3", "tests/script/run_st.py", "-r", "sim", "-v", "a6", "-t", "all"],
+          "timeout_s": 7200,
+          "description": "NPU ST on the A6 simulator (dav_9201) — matches the A6/v200 workflow."
+        },
+        {
+          "name": "npu-hw-a5",
+          "mode": "npu",
+          "arch": "a5",
+          "enabled": false,
+          "milestone": "M2",
+          "command": ["python3", "tests/script/run_st.py", "-r", "npu", "-v", "a5", "-t", "all"],
+          "timeout_s": 7200,
+          "description": "NPU ST on A5 hardware. Requires a device + ASCEND_HOME_PATH."
+        },
+        {
+          "name": "costmodel-st",
+          "mode": "costmodel",
+          "arch": null,
+          "enabled": false,
+          "milestone": "M2",
+          "command": ["./tests/run_costmodel_tests.sh"],
+          "timeout_s": 7200,
+          "description": "Cost model ST (operator cost measurement)."
+        },
+        {
+          "name": "comm-st",
+          "mode": "comm",
+          "arch": null,
+          "enabled": false,
+          "milestone": "M3",
+          "command": ["./tests/run_comm_test.sh"],
+          "timeout_s": 7200,
+          "description": "Communication ST (MPI + HCCL). Async tests need CANN 9.0+."
+        },
+        {
+          "name": "static-gates",
+          "mode": "static",
+          "arch": null,
+          "enabled": false,
+          "milestone": "M2",
+          "command": ["python3", "tests/validate_op_coverage.py"],
+          "timeout_s": 600,
+          "description": "Operator coverage + testcase name validation (structural gates)."
+        }
+      ]
+    }
+  }
+}

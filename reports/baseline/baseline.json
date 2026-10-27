@@ -1,0 +1,63 @@
+{
+  "run_id": "baseline-seed",
+  "generated_at": "2026-10-27T00:00:00+00:00",
+  "generated": false,
+  "note": "Seed baseline. No real run yet — regenerate on the canonical machine with scripts/make_baseline.sh (needs clang++>=15/g++>=13 for CPU-ST and a CANN simulator for NPU-sim).",
+  "harness_commit": null,
+  "target": "pto-isa",
+  "target_repo": "~/pto-isa",
+  "target_commit": null,
+  "target_dirty": null,
+  "host": null,
+  "env_snapshot": {},
+  "suites": [
+    {
+      "name": "cpu-st",
+      "mode": "cpu",
+      "status": "PENDING",
+      "exit_code": null,
+      "timed_out": false,
+      "duration_s": null,
+      "command": ["python3", "tests/run_cpu.py", "--clean", "--verbose"],
+      "log_file": null,
+      "description": "CPU simulator ST — fast correctness tier.",
+      "results": {"suite": "cpu-st", "summary": {"passed": 0, "failed": 0, "skipped": 0, "total": 0, "status": "PENDING"}, "cases": [], "evidence": []}
+    },
+    {
+      "name": "npu-sim-a5",
+      "mode": "npu-sim",
+      "status": "PENDING",
+      "exit_code": null,
+      "timed_out": false,
+      "duration_s": null,
+      "command": ["python3", "tests/script/run_st.py", "-r", "sim", "-v", "a5", "-t", "all"],
+      "log_file": null,
+      "description": "NPU ST on the A5 simulator.",
+      "results": {"suite": "npu-sim-a5", "summary": {"passed": 0, "failed": 0, "skipped": 0, "total": 0, "status": "PENDING"}, "cases": [], "evidence": []}
+    },
+    {
+      "name": "npu-sim-a3",
+      "mode": "npu-sim",
+      "status": "PENDING",
+      "exit_code": null,
+      "timed_out": false,
+      "duration_s": null,
+      "command": ["python3", "tests/script/run_st.py", "-r", "sim", "-v", "a3", "-t", "all"],
+      "log_file": null,
+      "description": "NPU ST on the A3 simulator.",
+      "results": {"suite": "npu-sim-a3", "summary": {"passed": 0, "failed": 0, "skipped": 0, "total": 0, "status": "PENDING"}, "cases": [], "evidence": []}
+    },
+    {
+      "name": "npu-sim-a6",
+      "mode": "npu-sim",
+      "status": "PENDING",
+      "exit_code": null,
+      "timed_out": false,
+      "duration_s": null,
+      "command": ["python3", "tests/script/run_st.py", "-r", "sim", "-v", "a6", "-t", "all"],
+      "log_file": null,
+      "description": "NPU ST on the A6 simulator (dav_9201).",
+      "results": {"suite": "npu-sim-a6", "summary": {"passed": 0, "failed": 0, "skipped": 0, "total": 0, "status": "PENDING"}, "cases": [], "evidence": []}
+    }
+  ]
+}

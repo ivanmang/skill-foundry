@@ -1,0 +1,14 @@
+# Generated run artifacts — everything under reports/ except the pinned baseline
+reports/*
+!reports/
+!reports/baseline/
+reports/baseline/*
+!reports/baseline/baseline.json
+
+# Python
+__pycache__/
+*.pyc
+
+# OS / editors
+.DS_Store
+*.swp

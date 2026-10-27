@@ -1,0 +1,37 @@
+{
+  "a2a3": {
+    "soc": "Ascend910B1",
+    "soc_version": "a3",
+    "march": null,
+    "chip": "Ascend910B/C",
+    "note": "Shared A2/A3 slot; pto-isa run_st.py flag is -v a3"
+  },
+  "a3": {
+    "soc": "Ascend910B1",
+    "soc_version": "a3",
+    "march": null,
+    "chip": "Ascend910B/C",
+    "note": "run_st.py defaults a3 -> Ascend910B1"
+  },
+  "a5": {
+    "soc": "Ascend950PR_9599",
+    "soc_version": "a5",
+    "march": null,
+    "chip": "Ascend950",
+    "note": "run_st.py maps a5 -> Ascend950PR_9599 -> simulator Ascend910_9599"
+  },
+  "a6": {
+    "soc": "dav_9201",
+    "soc_version": "a6",
+    "march": "dav-920r1-vec",
+    "chip": "A6 sim",
+    "note": "A6 sim (yellow). pto-isa headers MUST precede CANN include (set PTO_ISA_PATH first)."
+  },
+  "v200": {
+    "soc": "v926",
+    "soc_version": "v926",
+    "march": "dav-920r1-vec",
+    "chip": "V200 / v926",
+    "note": "v926 is ISA-identical to A6 for VEC; compile with dav-920r1-vec."
+  }
+}
