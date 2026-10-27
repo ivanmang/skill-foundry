@@ -26,14 +26,14 @@ usage() {
 usage: ./harness <command> [args]
 
 Commands:
-  run       Run a declared suite (run_suite.py)      [--quiet, --all-suites, --suite, --target]
+  run       Run a declared suite (run_suite.py)      [--quiet, --tui, --json, --all-suites, --suite, --target]
   report    Render a run to Markdown + HTML          [--run, --known, --out]
   review    Diff a run vs the pinned baseline        [--run, --baseline, --out]
   teach     Log a correction (wizard / shorthand)    ["wrong -> correct -> action", --edit]
   promote   Propose or apply pending learnings       [--propose, --apply, --branch, --pr]
   baseline  Re-pin reports/baseline/baseline.json    [--force, target]
   demo      Run the sandboxed 2-minute walkthrough
-  list      List suites + arches for a target        [target]
+  list      List suites + arches for a target        [target] [--format text|markdown|html]
   selfcheck Compile-check + demo smoke test
   help      Show this help
   version   Show the harness version
@@ -59,7 +59,8 @@ case "$CMD" in
   demo)     exec "$HARNESS/demo/run_demo.sh" "$@" ;;
   list)
     if [[ $# -gt 0 && "$1" != -* ]]; then
-      exec python3 "$HARNESS/scripts/run_suite.py" --list --target "$1"
+      _tgt="$1"; shift
+      exec python3 "$HARNESS/scripts/run_suite.py" --list --target "$_tgt" "$@"
     fi
     exec python3 "$HARNESS/scripts/run_suite.py" --list "$@"
     ;;

@@ -22,6 +22,7 @@ import shlex
 import socket
 import subprocess
 import sys
+import threading
 import time
 from pathlib import Path
 
@@ -32,6 +33,8 @@ import parse_gtest  # noqa: E402
 
 # Modes that need a CANN toolkit (ASCEND_HOME_PATH) on the runner.
 NEEDS_ASCEND = {"npu-sim", "npu", "costmodel", "comm"}
+
+SPINNER = "|/-\\"
 
 
 def now_iso() -> str:
@@ -118,8 +121,35 @@ def _error_result(suite: dict, message: str) -> dict:
     }
 
 
+def _popen_run(script: str, repo: Path, log_file: Path, timeout_s: int,
+               on_line=None) -> tuple[int | None, bool, float]:
+    start = time.perf_counter()
+    exit_code: int | None = None
+    timed_out = False
+    with log_file.open("w", encoding="utf-8") as lf:
+        proc = subprocess.Popen(
+            ["bash", "-c", script], cwd=str(repo),
+            stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, bufsize=1,
+        )
+        try:
+            assert proc.stdout is not None
+            for line in proc.stdout:
+                if on_line:
+                    on_line(line)
+                lf.write(line)
+            proc.wait(timeout=timeout_s)
+            exit_code = proc.returncode
+        except subprocess.TimeoutExpired:
+            timed_out = True
+            proc.kill()
+            proc.wait()
+            exit_code = proc.returncode
+            lf.write(f"\n[harness] TIMEOUT after {timeout_s}s\n")
+    return exit_code, timed_out, round(time.perf_counter() - start, 3)
+
+
 def run_one(repo: Path, suite: dict, arches: dict, target_cfg: dict,
-            run_dir: Path, quiet: bool) -> dict:
+            run_dir: Path, quiet: bool, tui: bool) -> dict:
     mode = suite.get("mode") or ""
     if mode in NEEDS_ASCEND and not os.environ.get("ASCEND_HOME_PATH"):
         return _error_result(suite, "ASCEND_HOME_PATH not set — source ./env.sh (or export it) before running npu/costmodel/comm suites.")
@@ -138,31 +168,34 @@ def run_one(repo: Path, suite: dict, arches: dict, target_cfg: dict,
     log_file = run_dir / f"{suite['name']}.log"
     timeout_s = int(suite.get("timeout_s", 7200))
 
-    if not quiet:
-        print(f"\n=== {suite['name']} ===")
-    start = time.perf_counter()
-    exit_code = None
-    timed_out = False
-    with log_file.open("w", encoding="utf-8") as lf:
-        proc = subprocess.Popen(
-            ["bash", "-c", script], cwd=str(repo),
-            stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, bufsize=1,
-        )
-        try:
-            assert proc.stdout is not None
-            for line in proc.stdout:
-                if not quiet:
-                    sys.stdout.write(line)
-                lf.write(line)
-            proc.wait(timeout=timeout_s)
-            exit_code = proc.returncode
-        except subprocess.TimeoutExpired:
-            timed_out = True
-            proc.kill()
-            proc.wait()
-            exit_code = proc.returncode
-            lf.write(f"\n[harness] TIMEOUT after {timeout_s}s\n")
-    duration_s = round(time.perf_counter() - start, 3)
+    if tui:
+        start = time.perf_counter()
+        stop = threading.Event()
+
+        def spin() -> None:
+            i = 0
+            while not stop.is_set():
+                elapsed = time.perf_counter() - start
+                sys.stdout.write(f"\r  {SPINNER[i % len(SPINNER)]} {suite['name']} … {elapsed:.0f}s")
+                sys.stdout.flush()
+                i += 1
+                stop.wait(0.1)
+
+        t = threading.Thread(target=spin, daemon=True)
+        t.start()
+        exit_code, timed_out, duration_s = _popen_run(script, repo, log_file, timeout_s)
+        stop.set()
+        t.join(timeout=0.3)
+        sys.stdout.write("\r" + " " * 60 + "\r")
+        sys.stdout.flush()
+        status = "TIMEOUT" if timed_out else ("PASS" if exit_code == 0 else "FAIL")
+        mark = "⏱" if timed_out else ("✓" if status == "PASS" else "✗")
+        print(f"{mark} {suite['name']} — {status} ({fmt_dur(duration_s)})")
+    else:
+        if not quiet:
+            print(f"\n=== {suite['name']} ===")
+        on_line = None if quiet else sys.stdout.write
+        exit_code, timed_out, duration_s = _popen_run(script, repo, log_file, timeout_s, on_line)
 
     results = parse_gtest.parse_text(log_file.read_text(encoding="utf-8", errors="replace"), suite["name"])
     status = "TIMEOUT" if timed_out else ("PASS" if exit_code == 0 else "FAIL")
@@ -233,23 +266,81 @@ def summary_object(record: dict) -> dict:
     return {"run_id": record["run_id"], "target": record["target"], "suites": suites}
 
 
-def list_all(cfg_path: Path, arches_path: Path, target: str) -> int:
+def _suite_rows(target_cfg: dict):
+    rows = []
+    for s in target_cfg.get("suites", []):
+        rows.append({
+            "name": s.get("name", ""),
+            "mode": s.get("mode", "-"),
+            "arch": s.get("arch") or "-",
+            "enabled": bool(s.get("enabled")),
+            "milestone": s.get("milestone", ""),
+            "description": s.get("description", ""),
+        })
+    return rows
+
+
+def _arch_rows(arches: dict):
+    rows = []
+    for name, a in arches.items():
+        rows.append({
+            "name": name,
+            "soc": a.get("soc", "-"),
+            "march": a.get("march") or "-",
+            "chip": a.get("chip", ""),
+        })
+    return rows
+
+
+def list_all(cfg_path: Path, arches_path: Path, target: str, fmt: str) -> int:
     cfg = load_json(cfg_path)
     arches = load_json(arches_path)
     targets = cfg.get("targets", {})
     if target not in targets:
         usage_error(f"unknown target '{target}'. Known: {list(targets)}")
+    suites = _suite_rows(targets[target])
+    archs = _arch_rows(arches)
+
+    if fmt == "markdown":
+        print(f"# Suites — {target}\n")
+        print("| suite | mode | arch | enabled | milestone | description |")
+        print("|---|---|---|---|---|---|")
+        for s in suites:
+            print(f"| {s['name']} | {s['mode']} | {s['arch']} | {'✓' if s['enabled'] else ''} | {s['milestone']} | {s['description']} |")
+        print("\n# Arches\n")
+        print("| arch | soc | march | chip |")
+        print("|---|---|---|---|")
+        for a in archs:
+            print(f"| {a['name']} | {a['soc']} | {a['march']} | {a['chip']} |")
+        return 0
+
+    if fmt == "html":
+        import html
+        suites_html = "".join(
+            f"<tr><td>{html.escape(s['name'])}</td><td>{html.escape(s['mode'])}</td>"
+            f"<td>{html.escape(s['arch'])}</td><td>{'✓' if s['enabled'] else ''}</td>"
+            f"<td>{html.escape(s['milestone'])}</td><td>{html.escape(s['description'])}</td></tr>"
+            for s in suites)
+        arch_html = "".join(
+            f"<tr><td>{html.escape(a['name'])}</td><td>{html.escape(a['soc'])}</td>"
+            f"<td>{html.escape(a['march'])}</td><td>{html.escape(a['chip'])}</td></tr>"
+            for a in archs)
+        print(f"""<!doctype html><html><head><meta charset=\"utf-8\"><title>Suites</title>
+<style>body{{font-family:-apple-system,Segoe UI,Roboto,sans-serif;margin:2rem}}table{{border-collapse:collapse;margin:1rem 0}}th,td{{border:1px solid #ddd;padding:.4rem .6rem;text-align:left}}th{{background:#f5f5f5}}</style>
+</head><body><h1>Run catalog — {html.escape(target)}</h1>
+<h2>Suites</h2><table><thead><tr><th>suite</th><th>mode</th><th>arch</th><th>enabled</th><th>milestone</th><th>description</th></tr></thead><tbody>{suites_html}</tbody></table>
+<h2>Arches</h2><table><thead><tr><th>arch</th><th>soc</th><th>march</th><th>chip</th></tr></thead><tbody>{arch_html}</tbody></table>
+</body></html>""")
+        return 0
 
     print(f"\nSuites for '{target}':")
-    for s in targets[target].get("suites", []):
-        mark = "✓" if s.get("enabled") else " "
-        arch = s.get("arch") or "-"
-        print(f"  [{mark}] {s['name']:<16} mode={s.get('mode','-'):<9} arch={arch:<6} "
-              f"{'(' + s.get('milestone','') + ')'} {s.get('description','')}")
-
-    print(f"\nArches:")
-    for name, a in arches.items():
-        print(f"  {name:<8} soc={a.get('soc','-'):<18} march={a.get('march') or '-':<16} {a.get('chip','')}")
+    for s in suites:
+        mark = "✓" if s["enabled"] else " "
+        print(f"  [{mark}] {s['name']:<16} mode={s['mode']:<9} arch={s['arch']:<6} "
+              f"({s['milestone']}) {s['description']}")
+    print("\nArches:")
+    for a in archs:
+        print(f"  {a['name']:<8} soc={a['soc']:<18} march={a['march']:<16} {a['chip']}")
     return 0
 
 
@@ -259,15 +350,18 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--suite", default=None, help="Suite name, or omit with --all-suites.")
     ap.add_argument("--all-suites", action="store_true", help="Run all enabled suites for the target.")
     ap.add_argument("--quiet", "-q", action="store_true", help="Suppress per-suite output; print only the summary.")
+    ap.add_argument("--tui", action="store_true", help="Live per-suite spinner + pass/fail line (no raw output).")
     ap.add_argument("--json", action="store_true", help="Print the summary as JSON instead of a table.")
     ap.add_argument("--list", action="store_true", help="List suites + arches and exit.")
+    ap.add_argument("--format", choices=["text", "markdown", "html"], default="text",
+                    help="Output format for --list (default text).")
     ap.add_argument("--run-id", default=None, help="Run id; defaults to <ts>-<target>.")
     ap.add_argument("--config", default=str(HARNESS / "config" / "suites.json"))
     ap.add_argument("--arches", default=str(HARNESS / "config" / "arches.json"))
     args = ap.parse_args(argv)
 
     if args.list:
-        return list_all(Path(args.config), Path(args.arches), args.target)
+        return list_all(Path(args.config), Path(args.arches), args.target, args.format)
 
     cfg = load_json(Path(args.config))
     arches = load_json(Path(args.arches))
@@ -305,8 +399,9 @@ def main(argv: list[str] | None = None) -> int:
         "suites": [],
     }
 
+    tui = args.tui and sys.stdout.isatty()
     for suite in suites:
-        record["suites"].append(run_one(repo, suite, arches, target_cfg, run_dir, args.quiet))
+        record["suites"].append(run_one(repo, suite, arches, target_cfg, run_dir, args.quiet, tui))
 
     run_json = run_dir / "run.json"
     run_json.write_text(json.dumps(record, indent=2) + "\n", encoding="utf-8")

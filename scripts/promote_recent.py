@@ -32,6 +32,28 @@ def one(s: str | None) -> str:
     return " ".join((s or "").split())
 
 
+def _norm(s: str | None) -> str:
+    return one(s).lower()
+
+
+def dedupe_pending(pending: list[dict], root: Path) -> tuple[list[dict], dict[str, str]]:
+    active: list[dict] = []
+    skipped: dict[str, str] = {}
+    seen: set[str] = set()
+    for e in pending:
+        key = _norm(e.get("correct"))
+        if key and key in seen:
+            skipped[e["id"]] = "duplicate of an earlier pending entry"
+            continue
+        seen.add(key)
+        t = resolve_target(e, root)
+        if t and t.exists() and key and key in _norm(t.read_text(encoding="utf-8", errors="replace")):
+            skipped[e["id"]] = f"already present in {t.relative_to(root)}"
+            continue
+        active.append(e)
+    return active, skipped
+
+
 def parse_entries(text: str) -> list[dict]:
     entries: list[dict] = []
     cur: dict | None = None
@@ -262,9 +284,19 @@ def main(argv: list[str] | None = None) -> int:
         print("No pending entries to promote.")
         return 0
 
+    active, skipped = dedupe_pending(pending, root)
+    for e in entries:
+        if e.get("id") in skipped:
+            e["status"] = "rejected"
+    for eid, reason in skipped.items():
+        print(f"SKIP {eid}: {reason}")
+    if not active:
+        print("No new pending entries to promote (all duplicates / already present).")
+        return 0
+
     if args.apply:
-        return apply_all(root, lp, entries, pending, args.branch, args.pr)
-    return propose_all(root, lp, pending)
+        return apply_all(root, lp, entries, active, args.branch, args.pr)
+    return propose_all(root, lp, active)
 
 
 if __name__ == "__main__":

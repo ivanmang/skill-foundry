@@ -74,6 +74,9 @@ python3 scripts/build_report.py --run reports/<run-id>/run.json --out reports/<r
 
 # (Re)generate + commit the pinned baseline on the canonical machine
 ./scripts/make_baseline.sh
+
+# Tab-completion for the harness (add to ~/.bashrc)
+source completions/harness.bash
 ```
 
 ## Canonical environment

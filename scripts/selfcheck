@@ -9,7 +9,7 @@ echo "== py_compile =="
 python3 -m py_compile scripts/*.py scripts/teach
 
 echo "== bash syntax =="
-bash -n harness scripts/make_baseline.sh scripts/run_suite.sh scripts/selfcheck demo/run_demo.sh
+bash -n harness scripts/make_baseline.sh scripts/run_suite.sh scripts/selfcheck demo/run_demo.sh completions/harness.bash
 
 echo "== demo smoke =="
 rm -rf reports/demo-live-*

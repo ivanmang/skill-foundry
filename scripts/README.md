@@ -33,3 +33,11 @@ directly.
 
 - Exit codes: `0` success, `1` ran-but-not-clean, `2` usage error.
 - Errors go to stderr; machine-readable output is JSON where `--json` is offered.
+
+## Extras
+
+- `./harness run --tui` — live per-suite spinner + pass/fail line (auto-falls back
+  to quiet when stdout isn't a TTY).
+- `./harness list --format markdown|html` — suite catalog for docs/dashboards.
+- `./harness promote --pr` — apply + branch + commit + push + merge-request URL.
+- Tab completion: `source completions/harness.bash` (then `./harness <TAB>`).
