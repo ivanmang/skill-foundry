@@ -38,6 +38,7 @@ directly.
 - `log_correction.py` — strict `LRN-…` writer (used by `teach` and `session_digest.py`).
 - `session_digest.py` — draft pending learnings from a `run.json`.
 - `demo_tour.py` — interactive, step-by-step demo driver (reuses `guide.py` menus).
+- `validate_skills.py` — checks every SKILL.md against the open Agent Skills spec (used by selfcheck).
 
 ## Conventions
 

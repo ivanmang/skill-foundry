@@ -47,7 +47,7 @@ Commands:
   demo      Sandboxed walkthrough (interactive) [--straight]
   list      List suites + arches               [--target, --format text|markdown|html]
   cann      Which CANN supports which arch     [--home, --scan, --json]
-  selfcheck Compile-check + demo smoke test
+  selfcheck Compile-check + skill-spec validation + demo smoke
   help      Show this help
   version   Show the harness version           [--short]
 

@@ -73,7 +73,7 @@ PASSes (`--force` overrides).
 ./harness cann      which CANN → which arch  [--home, --scan, --json]
 ./harness guide     interactive tour of the real flow  [--demo]
 ./harness demo      interactive sandboxed walkthrough  [--straight]
-./harness selfcheck compile-check + demo smoke
+./harness selfcheck compile-check + skill-spec validation + demo smoke
 ./harness help      show this             ./harness version [--short]
 ```
 
@@ -182,8 +182,9 @@ env.example.sh            copy to env.sh for machine-local CANN / pto-isa paths
   Consequence: these are *co-located repo skills* — they work when this repo is
   checked out and used as the working directory, but a single skill folder copied
   alone into another tool's skills dir is **not** self-contained.
-- If individual portability is ever needed, promote the shared drivers into a
-  dedicated skill's `scripts/` folder (or a `harness-runner` skill).
+- **Conformance is machine-checked**: `./harness selfcheck` runs
+  `scripts/validate_skills.py` against the open spec (or run it directly:
+  `python3 scripts/validate_skills.py`).
 
 ## Canonical environment
 
