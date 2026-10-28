@@ -19,6 +19,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
+import textwrap
 import time
 from pathlib import Path
 
@@ -38,6 +39,8 @@ SB2 = SANDBOX / "harness"
 RUN_ID = f"demo-live-{time.strftime('%Y%m%d-%H%M%S')}"
 RUN_DIR = HARNESS / "reports" / RUN_ID
 SB2_KNOWN = SB2 / ".claude" / "skills" / "pto-isa" / "references" / "known-failures.md"
+
+SEP = "═" * 68
 
 
 def _git(repo: Path, args: list[str]) -> None:
@@ -166,42 +169,42 @@ def step_takeaway() -> None:
 
 
 STEPS: list[dict] = [
-    dict(key="run", needs=(), title="Use — run the suite",
+    dict(key="run", short="run", needs=(), title="Use — run the suite",
          what="One command runs the demo suite through the REAL run_suite.py → run.json + raw log.",
          more="The mock gtest runner is fake, but the driver is the real run_suite.py. "
               "It records the target repo's git ref, dirty flag, host, and env snapshot, "
               "so every result is reproducible — the same metadata the pto-isa runs carry.",
          run=step_run),
-    dict(key="report", needs=("run",), title="Use — report (before learning)",
+    dict(key="report", short="report", needs=("run",), title="Use — report (before learning)",
          what="build_report.py renders the run into report.md/.html — one failing case shows up as a raw FAIL.",
          more="Right now the harness has no triage knowledge: VecOpTest.case_vcvt_bf16fp16_128x128 "
               "is just 'FAIL'. The whole point of the improve loop is to make this line smarter.",
          run=step_report),
-    dict(key="review", needs=("run",), title="Use — review vs the pinned baseline",
+    dict(key="review", short="review", needs=("run",), title="Use — review vs the pinned baseline",
          what="diff_runs.py diffs the run against demo/baseline/demo-baseline.json — the failing case is flagged as a PASS→FAIL regression.",
          more="Avg and p99 are both tracked; p99 rising >15% trips a perf flag even when avg is flat — "
               "never report average alone.",
          run=step_review),
-    dict(key="teach", needs=("review",), title="Improve — auto-capture the correction",
+    dict(key="teach", short="teach", needs=("review",), title="Improve — auto-capture the correction",
          what="A person says 'that's a known vcvt round-field issue'. scripts/teach logs it as a strict, parseable LRN-… entry.",
          more="Capture is automatic and append-only: one command, strict format, no freeform editing. "
               "session_digest.py can even draft the same entry straight from the run's failures.",
          run=step_teach),
-    dict(key="propose", needs=("teach",), title="Improve — auto-propose a diff",
+    dict(key="propose", short="propose", needs=("teach",), title="Improve — auto-propose a diff",
          what="promote_recent.py --propose turns the pending entry into a reviewable git-style diff — no write yet.",
          more="This is the automation boundary: propose is automatic, apply is scripted but human-gated. "
               "Nothing in the skills changes until a reviewer approves.",
          run=step_propose),
-    dict(key="apply", needs=("propose",), title="Improve — apply + bookkeeping",
+    dict(key="apply", short="apply", needs=("propose",), title="Improve — apply + bookkeeping",
          what="promote_recent.py --apply writes the edit into known-failures.md and moves the entry to promoted.md + corrections.md.",
          more="Watch the mechanical effect: known-failure signatures go 0 → 1, and the entry leaves recent.md. "
               "In the real repo this step becomes a branch + push + merge-request (--pr).",
          run=step_apply),
-    dict(key="rerun", needs=("apply",), title="Improve — re-render with the new knowledge",
+    dict(key="rerun", short="rerun", needs=("apply",), title="Improve — re-render with the new knowledge",
          what="Re-render the SAME run.json with the improved corpus → the failure is now annotated as known.",
          more="The agent didn't get smarter — the harness did. Every teammate gets the same improvement via git.",
          run=step_rerun),
-    dict(key="takeaway", needs=(), title="Takeaway",
+    dict(key="takeaway", short="takeaway", needs=(), title="Takeaway",
          what="Summary + where the artifacts landed.",
          more="",
          run=step_takeaway),
@@ -214,8 +217,54 @@ def run_step(s: dict, done: set[str]) -> None:
         if need not in done:
             print(guide.c(f"  ⚠ prerequisite '{need}' not run yet — running it first.\n", guide.YELLOW))
             run_step(BY_KEY[need], done)
+    sys.stdout.flush()
     s["run"]()
+    sys.stdout.flush()
     done.add(s["key"])
+
+
+def _paths(paused: bool = False) -> None:
+    msg = "Demo paused." if paused else "Demo finished."
+    print(f"\n  {msg} Artifacts:")
+    print(f"    run artifacts: {RUN_DIR}")
+    print(f"    sandbox:       {SANDBOX}\n")
+
+
+def _progress(done: set[str]) -> str:
+    n = sum(1 for s in STEPS if s["key"] in done)
+    width = 22
+    filled = round(n / len(STEPS) * width)
+    return f"[{'█' * filled}{'░' * (width - filled)}]  {n}/{len(STEPS)}"
+
+
+def _stepmap(current: int, done: set[str]) -> str:
+    parts = []
+    for i, s in enumerate(STEPS):
+        tag = s["short"]
+        if i == current:
+            parts.append(guide.c(f"▶{tag}", guide.BOLD))
+        elif s["key"] in done:
+            parts.append(guide.c(f"✓{tag}", guide.GREEN))
+        else:
+            parts.append(f"·{tag}")
+    return "  ".join(parts)
+
+
+def _header(idx: int, done: set[str]) -> None:
+    s = STEPS[idx]
+    print()
+    print(guide.c(SEP, guide.BOLD))
+    print(guide.c(f"  STEP {idx + 1} / {len(STEPS)}   ·   {s['title']}", guide.BOLD))
+    print(guide.c(SEP, guide.BOLD))
+    print()
+    print(f"  progress  {_progress(done)}")
+    print("  steps     " + _stepmap(idx, done))
+    print()
+    print(guide.c("  What this step does", guide.BOLD))
+    for line in textwrap.wrap(s["what"], width=66):
+        print(f"    {line}")
+    print()
+    sys.stdout.flush()
 
 
 def intro() -> None:
@@ -228,31 +277,41 @@ def intro() -> None:
     1. USE it     — run → report → review  (all through the real drivers)
     2. IMPROVE it — capture → propose → apply → the triage gets smarter
 
-  After every step you choose what to do next (arrow keys + Enter).
+  Each step is framed in its own block with a progress bar and a step map
+  (✓ done · ▶ current · · upcoming). After each step you choose what to do:
+  run & continue, skip, go back, jump, or explain.
 """)
 
 
 def tour_loop() -> int:
     done: set[str] = set()
     idx = 0
+    last = len(STEPS) - 1
     while True:
         s = STEPS[idx]
-        guide.banner(f"{idx + 1}/{len(STEPS)} · {s['title']}")
-        print("  " + s["what"] + "\n")
-        choice = guide.select_menu("What next?", [
-            ("▶  run this step   ", "run"),
-            ("⏭  next step       ", "next"),
-            ("⏮  previous step   ", "prev"),
-            ("🗺  jump to a step  ", "jump"),
-            ("🛈  explain more    ", "more"),
-            ("✕  quit demo       ", "quit"),
-        ])
+        _header(idx, done)
+        choice = guide.select_menu(
+            guide.c("Your move  ·  ↑/↓ choose  ·  Enter confirm  ·  1–6 jump  ·  q quit", guide.BOLD),
+            [
+                ("▶  run this step & continue", "run"),
+                ("⏭  skip to the next step   ", "next"),
+                ("⏮  go back one step        ", "prev"),
+                ("🗺  jump to any step        ", "jump"),
+                ("🛈  explain this step       ", "more"),
+                ("✕  quit demo               ", "quit"),
+            ],
+        )
         if choice == "run":
             print()
             run_step(s, done)
-            print()
+            print(guide.c(f"  ✔ Step {idx + 1} complete — '{s['title']}'", guide.GREEN))
+            if idx < last:
+                idx += 1
+            else:
+                _paths(paused=False)
+                return 0
         elif choice == "next":
-            idx = min(idx + 1, len(STEPS) - 1)
+            idx = min(idx + 1, last)
         elif choice == "prev":
             idx = max(idx - 1, 0)
         elif choice == "jump":
@@ -262,12 +321,13 @@ def tour_loop() -> int:
             if sel is not None:
                 idx = sel
         elif choice == "more":
-            print("\n" + (s["more"] or "—") + "\n")
+            print()
+            for line in textwrap.wrap(s["more"] or "—", width=66):
+                print("  " + line)
+            print()
             guide.ask("Press Enter to continue ")
         else:
-            print("\n  Demo paused. Artifacts so far are under:")
-            print(f"    {RUN_DIR}")
-            print(f"    {SANDBOX}\n")
+            _paths(paused=True)
             return 0
     return 0
 
@@ -280,10 +340,13 @@ def main(argv: list[str] | None = None) -> int:
     intro()
     if not sys.stdin.isatty():
         # piped / non-interactive: fall back to running each step straight through
-        print("(stdin is not a terminal — running straight through)\n")
+        print("(stdin is not a terminal — running all steps straight through)\n")
         done: set[str] = set()
-        for s in STEPS:
-            guide.banner(s["title"])
+        for i, s in enumerate(STEPS):
+            print(guide.c(SEP, guide.BOLD))
+            print(guide.c(f"  STEP {i + 1} / {len(STEPS)}   ·   {s['title']}", guide.BOLD))
+            print(guide.c(SEP, guide.BOLD))
+            print()
             run_step(s, done)
             print()
         return 0
