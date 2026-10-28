@@ -565,6 +565,8 @@ def main(argv: list[str] | None = None) -> int:
     for s in record["suites"]:
         cases = (s.get("results") or {}).get("cases", [])
         s["timing"] = perf_metrics.duration_stats(cases)
+        perf_metrics.copy_perf(repo, run_dir, s.get("name", ""),
+                               s.get("perf_copy"), args.testcase or s.get("testcase"))
         perf = perf_metrics.collect_perf(run_dir, s.get("name", ""))
         if perf:
             s["perf"] = perf

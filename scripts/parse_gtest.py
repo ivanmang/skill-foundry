@@ -38,6 +38,12 @@ FAILED_CASE_RE = re.compile(r"^\[\s*FAILED\s*\]\s+(\S+)")
 
 DEMO_RE = re.compile(r"^\[(PASS|FAIL)\]\s+demo(?::|\s)(\S+)")
 
+# sim_dsl.sh / pto-vmi style per-case line:  PASS case0_...  compile=0.014s launch=72.536s
+SIMDSL_RE = re.compile(
+    r"^(PASS|FAIL|SKIP|SKIPPED)\s+(\S+?)\s*"
+    r"(?:compile=(\d+(?:\.\d+)?)\S*\s+launch=(\d+(?:\.\d+)?)\S*)?$"
+)
+
 
 def parse_text(text: str, suite: str = "") -> dict:
     cases: dict[str, dict] = {}  # name -> {status, duration_s}
@@ -45,6 +51,7 @@ def parse_text(text: str, suite: str = "") -> dict:
     summary = {"passed": 0, "failed": 0, "skipped": 0, "total": 0, "status": "UNKNOWN"}
     evidence: list[str] = []
     pending_gtest_case: str | None = None
+    have_counts = False  # True once a gtest final summary line gave explicit counts
 
     def add_case(name: str, status: str, duration_s: float | None = None):
         if not name:
@@ -66,12 +73,14 @@ def parse_text(text: str, suite: str = "") -> dict:
         if m:
             summary["failed"] = int(m.group(1))
             evidence.append(line)
+            have_counts = True
             continue
 
         m = GTEST_PASSED_RE.match(line)
         if m:
             summary["passed"] = int(m.group(1))
             evidence.append(line)
+            have_counts = True
             continue
 
         # gtest state machine: RUN -> OK/FAILED for a specific test name
@@ -104,8 +113,18 @@ def parse_text(text: str, suite: str = "") -> dict:
             add_case(f"demo:{m.group(2)}", m.group(1).upper())
             continue
 
-    # Resolve summary if the final gtest summary lines were absent
-    if not evidence:
+        # sim_dsl.sh / pto-vmi per-case line: `PASS case0_…  compile=… launch=…`
+        m = SIMDSL_RE.match(line)
+        if m:
+            status = m.group(1).upper().replace("SKIPPED", "SKIP")
+            name = m.group(2)
+            dur = float(m.group(4)) if m.group(4) else None
+            add_case(name, status, dur)
+            evidence.append(line)
+            continue
+
+    # Resolve summary from the case list when no gtest final-summary lines were seen.
+    if not have_counts:
         passed = sum(1 for c in cases.values() if c["status"] == "PASS")
         failed = sum(1 for c in cases.values() if c["status"] == "FAIL")
         skipped = sum(1 for c in cases.values() if c["status"] == "SKIP")

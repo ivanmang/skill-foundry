@@ -18,8 +18,11 @@ normalized case list, which is always available for gtest-style runs.
 
 from __future__ import annotations
 
+import glob
 import math
+import os
 import re
+import shutil
 from pathlib import Path
 
 # Line in a core0.veccore0 instr dump:
@@ -232,6 +235,37 @@ def collect_perf(run_dir: Path, suite_name: str) -> dict | None:
         agg["ipc"] = round(instr_num / vf_real, 3) if instr_num else None
         agg["ex_ipc"] = round(agg["ex"] / vf_real, 3) if agg["ex"] else None
     return agg
+
+
+def copy_perf(repo: Path, run_dir: Path, suite_name: str,
+              patterns: list[str] | None, testcase: str | None) -> None:
+    """Copy the newest CAModel dumps (core0.veccore0.*) into run_dir/<suite>/perf/.
+
+    patterns are globs relative to `repo`, supporting {repo}, {testcase},
+    {testcase_stem}. A dir glob takes its newest matching directory; a file glob
+    copies the newest matching files (filtered to core0.veccore0.* so the
+    vector-pipe core is the one parsed).
+    """
+    if not patterns:
+        return
+    dest = run_dir / suite_name / "perf"
+    dest.mkdir(parents=True, exist_ok=True)
+    stem = Path(testcase).stem if testcase else "all"
+    sub = {"repo": str(repo), "testcase": testcase or "all", "testcase_stem": stem}
+    for pat in patterns:
+        g = pat.format(**sub)
+        matches = sorted(glob.glob(g), key=os.path.getmtime, reverse=True)
+        if not matches:
+            continue
+        if Path(matches[0]).is_dir():
+            src = Path(matches[0])
+            for f in src.iterdir():
+                if f.is_file() and f.name.startswith("core0.veccore0"):
+                    shutil.copy2(f, dest / f.name)
+        else:
+            for f in matches:
+                if Path(f).name.startswith("core0.veccore0"):
+                    shutil.copy2(f, dest / Path(f).name)
 
 
 if __name__ == "__main__":
