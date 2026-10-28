@@ -136,6 +136,10 @@ source completions/harness.bash          # tab-completion (add to ~/.bashrc)
 - In an interactive terminal, every verb ends with a guided **"What next?"** menu —
   the natural next step for what you just ran, a **"type a command"** option, the
   full verb menu, or `q` to return to the shell. Skipped automatically when piped / in CI.
+- Reports include a summary table, failures (annotated **known**), per-case
+  **timing** (min/p50/p99/max), and — when a CAModel dump is present — a
+  **Performance (CA metrics)** table (EX/IPC/vf_real/dual/stalls, modeled on the
+  vmi-dashboard). See [docs/metrics.md](docs/metrics.md).
 
 ### What's automatic vs human
 

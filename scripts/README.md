@@ -45,6 +45,7 @@ directly.
 - `demo_tour.py` — interactive, step-by-step demo driver (reuses `guide.py` menus).
 - `validate_skills.py` — checks every SKILL.md against the open Agent Skills spec (used by selfcheck).
 - `status.py` / `diagnose.py` / `tui.py` — status dashboard, env health check, and full-screen dashboard (share `capabilities` + `_runs`).
+- `perf_metrics.py` — per-case timing (p50/p99/max) + CAModel metrics (EX/IPC/vf_real/dual/stalls, vmi-dashboard schema).
 - `onboarding.py` / `menu.py` — guided first-run setup and the bare-`./harness` menu (reuse `guide.py` helpers).
 - `wrap.py` — wraps a verb and offers a context-aware "What next?" menu (type-a-command / full menu / shell).
 - `_browser.py` — cross-platform browser opener (WSL explorer.exe → xdg-open/open/start → print path).

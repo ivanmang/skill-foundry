@@ -72,6 +72,45 @@ def suite_rows(record: dict) -> list[list[str]]:
     return rows
 
 
+def timing_rows(record: dict) -> list[list[str]]:
+    """Per-suite per-case timing (min/p50/p99/max) from the timing block."""
+    rows = []
+    for s in record.get("suites", []):
+        t = s.get("timing") or {}
+
+        def f(v):
+            return "-" if v is None else fmt_dur(v)
+
+        rows.append([
+            s.get("name", "?"),
+            str(t.get("cases", 0)),
+            f(t.get("min")), f(t.get("p50")), f(t.get("p99")), f(t.get("max")),
+        ])
+    return rows
+
+
+def perf_rows(record: dict) -> list[list[str]]:
+    """Per-suite CAModel metrics (vmi-dashboard schema), only suites that have them."""
+    rows = []
+    for s in record.get("suites", []):
+        p = s.get("perf")
+        if not p:
+            continue
+
+        def g(k):
+            v = p.get(k)
+            return "-" if v is None else (f"{v:.3f}" if isinstance(v, float) else str(v))
+
+        rows.append([
+            s.get("name", "?"),
+            str(p.get("ex", 0)), str(p.get("su", 0)), str(p.get("ld", 0)),
+            str(p.get("st", 0)), str(p.get("pred", 0)), str(p.get("scalar", 0)),
+            str(p.get("dma", 0)), str(p.get("dual", 0)), str(p.get("stalls", 0)),
+            str(p.get("max_stall", 0)), g("ipc"), g("ex_ipc"), str(p.get("vf_real", "-")),
+        ])
+    return rows
+
+
 def _matches(sig: str, name: str) -> bool:
     """True if a known-failure signature is about this case name."""
     s, n = sig.lower(), name.lower()
@@ -124,6 +163,23 @@ def render_md(records: list[dict], known_sigs: list[str]) -> str:
         fl = failures(rec, known_sigs)
         if fl:
             lines += _failures_md(fl)
+
+        trows = timing_rows(rec)
+        if any(r[1] != "0" for r in trows):
+            lines += ["", "### Timing (per-case)", "",
+                      "| suite | cases | min | p50 | p99 | max |",
+                      "|---|---|---|---|---|---|"]
+            for r in trows:
+                lines.append("| " + " | ".join(r) + " |")
+
+        prows = perf_rows(rec)
+        if prows:
+            lines += ["", "### Performance (CA metrics)", "",
+                      "| suite | EX | SU | LD | ST | pred | scalar | dma | dual | stalls | max_stall | IPC | EX-IPC | vf_real |",
+                      "|---|---|---|---|---|---|---|---|---|---|---|---|---|---|"]
+            for r in prows:
+                lines.append("| " + " | ".join(r) + " |")
+
         lines += ["", "---", ""]
     return "\n".join(lines)
 
@@ -161,6 +217,28 @@ def render_html(records: list[dict], known_sigs: list[str]) -> str:
                 for f in fl
             )
             rows_html.append(f"<h3>Failures</h3><ul>{items}</ul>")
+
+        trows = timing_rows(rec)
+        if any(r[1] != "0" for r in trows):
+            trs = "".join(
+                "<tr>" + "".join(f"<td>{html.escape(c)}</td>" for c in r) + "</tr>" for r in trows
+            )
+            rows_html.append(
+                "<h3>Timing (per-case)</h3>"
+                "<table><thead><tr><th>suite</th><th>cases</th><th>min</th><th>p50</th><th>p99</th><th>max</th></tr></thead><tbody>"
+                + trs + "</tbody></table>"
+            )
+
+        prows = perf_rows(rec)
+        if prows:
+            ptrs = "".join(
+                "<tr>" + "".join(f"<td>{html.escape(c)}</td>" for c in r) + "</tr>" for r in prows
+            )
+            rows_html.append(
+                "<h3>Performance (CA metrics)</h3>"
+                "<table><thead><tr><th>suite</th><th>EX</th><th>SU</th><th>LD</th><th>ST</th><th>pred</th><th>scalar</th><th>dma</th><th>dual</th><th>stalls</th><th>max_stall</th><th>IPC</th><th>EX-IPC</th><th>vf_real</th></tr></thead><tbody>"
+                + ptrs + "</tbody></table>"
+            )
     return f"""<!doctype html>
 <html><head><meta charset="utf-8"><title>Regression Report</title>
 <style>

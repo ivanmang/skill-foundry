@@ -33,6 +33,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 import parse_gtest  # noqa: E402
 import capabilities  # noqa: E402
+import perf_metrics  # noqa: E402
 
 # Modes that need a CANN toolkit (ASCEND_HOME_PATH) on the runner.
 NEEDS_ASCEND = {"npu-sim", "npu", "costmodel", "comm"}
@@ -553,6 +554,14 @@ def main(argv: list[str] | None = None) -> int:
             record["suites"].append(
                 run_one(repo, suite, arches, target_cfg, run_dir, run_quiet, tui, args.testcase, args.filter)
             )
+
+    # Attach per-suite analytics: per-case timing + optional CAModel metrics.
+    for s in record["suites"]:
+        cases = (s.get("results") or {}).get("cases", [])
+        s["timing"] = perf_metrics.duration_stats(cases)
+        perf = perf_metrics.collect_perf(run_dir, s.get("name", ""))
+        if perf:
+            s["perf"] = perf
 
     run_json = run_dir / "run.json"
     run_json.write_text(json.dumps(record, indent=2) + "\n", encoding="utf-8")

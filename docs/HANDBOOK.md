@@ -37,6 +37,10 @@ Six rules that matter more than they look:
 6. **Every run records context** (git ref, dirty flag, host, env) in `run.json`,
    so any result is reproducible on another machine.
 
+See [docs/metrics.md](docs/metrics.md) for the performance-metric schema
+(modeled on the vmi-dashboard: EX/IPC/vf_real/dual/stalls) and the exact
+regression thresholds.
+
 ---
 
 ## Automation boundary (who does what)
@@ -52,6 +56,11 @@ is the harness's own scratch memory. Auto-*edit* is not — `SKILL.md` +
 `known-failures.md` are the team's shared source of truth. Same line Claude Code
 draws: it auto-writes its memory but never auto-edits your `CLAUDE.md`. A wrong
 auto-edit (e.g. a bad "known failure") would hide real regressions.
+
+On the report side: gtest-style case timing (p50/p99/max) is always captured;
+per-suite CA metrics (EX/IPC/vf_real/dual/stalls, modeled on the vmi-dashboard)
+are recorded when a CAModel instruction dump is present. See
+[docs/metrics.md](docs/metrics.md).
 
 ---
 
@@ -85,7 +94,7 @@ The harness itself needs only `python3` + `git`. Targets need more — and
 | `./harness menu` | curated interactive menu (also the bare `./harness` default) |
 | `./harness run` | run suites (`--all-suites`, `--suite X`, `--testcase`, `--filter`, `--quiet`, `--tui`, `--json`, `--dry-run`, `--parallel`) |
 | `./harness report` | run.json → `report.md`/`.html` (`--open`, `--known`) |
-| `./harness review` | diff a run vs the pinned baseline |
+| `./harness review` | diff a run vs the pinned baseline (p99 + CA metrics) |
 | `./harness teach` | log a correction (append-only) |
 | `./harness promote` | pending learnings → skills (`--propose` / `--apply` / `--pr`) |
 | `./harness baseline` | re-pin `reports/baseline/baseline.json` |

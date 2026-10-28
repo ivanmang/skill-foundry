@@ -25,6 +25,7 @@ import _runs  # noqa: E402
 HARNESS = Path(__file__).resolve().parent.parent
 DEFAULT_BASELINE = HARNESS / "reports" / "baseline" / "baseline.json"
 P99_PCT = 15.0
+PERF_PCT = 15.0  # CA-metric thresholds: cycles/EX up >15%, IPC down >15%
 
 
 def load(path: Path) -> dict | None:
@@ -39,6 +40,13 @@ def suite_cases(record: dict) -> dict[str, list[dict]]:
         cases = (s.get("results") or {}).get("cases", [])
         out[s["name"]] = cases
     return out
+
+
+def suite_perf(record: dict, suite: str) -> dict | None:
+    for s in record.get("suites", []):
+        if s.get("name") == suite:
+            return s.get("perf")
+    return None
 
 
 def stats(cases: list[dict]) -> dict:
@@ -101,6 +109,25 @@ def diff(new: dict, base: dict) -> dict:
                     "avg_delta_pct": pct(ns["avg"], bs["avg"]),
                 })
 
+        # CA-metric regressions (vmi-dashboard schema): cycles/EX up, IPC down.
+        np = suite_perf(new, suite)
+        bp = suite_perf(base, suite)
+        if np and bp:
+            for metric, label in (("vf_real", "vf_real (cycles)"), ("ex", "EX (instrs)")):
+                nv, bv = np.get(metric), bp.get(metric)
+                if nv and bv:
+                    d = pct(nv, bv)
+                    if d is not None and d > PERF_PCT:
+                        perf_flags.append({"suite": suite, "metric": label,
+                                            "before": bv, "after": nv, "delta_pct": d})
+            for metric, label in (("ipc", "IPC"), ("ex_ipc", "EX-IPC")):
+                nv, bv = np.get(metric), bp.get(metric)
+                if nv and bv:
+                    d = pct(nv, bv)
+                    if d is not None and d < -PERF_PCT:
+                        perf_flags.append({"suite": suite, "metric": label,
+                                            "before": bv, "after": nv, "delta_pct": d})
+
     return {
         "regressions": regressions,
         "fixes": fixes,
@@ -126,10 +153,13 @@ def print_human(d: dict) -> None:
         for r in d["regressions"]:
             print(f"  {r['suite']}/{r['name']}  ({r['before']} -> {r['after']})")
     if d["perf_flags"]:
-        print(f"\nPERF FLAGS (p99 > +{P99_PCT}%):")
+        print(f"\nPERF FLAGS (p99 > +{P99_PCT}% or CA metric shifts):")
         for p in d["perf_flags"]:
-            print(f"  {p['suite']}: p99 {p['before_s']}s -> {p['after_s']}s "
-                  f"({p['delta_pct']:+}%, avg {p['avg_delta_pct']:+}%)")
+            if p.get("metric") == "p99":
+                print(f"  {p['suite']}: p99 {p['before_s']}s -> {p['after_s']}s "
+                      f"({p['delta_pct']:+}%, avg {p['avg_delta_pct']:+}%)")
+            else:
+                print(f"  {p['suite']}: {p['metric']} {p['before']} -> {p['after']} ({p['delta_pct']:+}%)")
 
 
 def main(argv: list[str] | None = None) -> int:
