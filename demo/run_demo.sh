@@ -119,5 +119,5 @@ Sandbox (loop): $SANDBOX
 - IMPROVE:  teach / session_digest.py (capture) →
             promote_recent.py --propose (draft diff) → --apply → annotated next report
 
-The real pto-isa target uses the same flow with config/suites.json + arches.json.
+The real targets (pto-isa, pto-vmi) use the same flow with config/suites.json.
 EOF

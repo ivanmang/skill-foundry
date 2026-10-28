@@ -161,7 +161,7 @@ def step_takeaway() -> None:
   - IMPROVE:  teach / session_digest.py (capture) →
               promote_recent.py --propose (draft diff) → --apply → annotated next report
 
-  The real pto-isa target uses the same flow with config/suites.json + arches.json.
+  The real targets (pto-isa, pto-vmi) use the same flow with config/suites.json.
 
   Capture is automated; promotion is always a reviewed diff. The agent didn't get
   smarter — the *harness* did.
@@ -244,7 +244,7 @@ ROLES: dict[str, tuple[str, str, str]] = {
               "nothing — watch the line flip to 'known'"),
     "takeaway": ("—",
                  "—",
-                 "decide what to run next (the real pto-isa suites)"),
+                 "decide what to run next (the real suites)"),
 }
 
 

@@ -19,11 +19,11 @@ import guide  # noqa: E402 — reuse select_menu / banner / c
 
 ITEMS = [
     ("📊  status — one-glance dashboard", ["status"]),
-    ("🚀  run tests — guided (real pto-isa)", ["guide"]),
+    ("🚀  run tests — guided tour", ["guide"]),
     ("🎬  sandboxed demo — no hardware", ["demo"]),
     ("📄  open the latest report", ["report", "--open"]),
     ("🔍  review latest vs baseline", ["review"]),
-    ("🧠  teach / promote a learning", ["teach"]),
+    ("🧠  log a correction (teach)", ["teach"]),
     ("🔧  diagnose this machine", ["diagnose"]),
     ("🧭  onboarding — first-run setup", ["onboarding"]),
     ("❓  help", ["help"]),

@@ -243,8 +243,9 @@ corpus that only changes via a merged MR.
 - **`./harness demo`** — drives the *real* scripts against a mock gtest runner
   in 8 framed steps (progress bar, step map, a "Who does what" box, and a
   `run & continue / skip / back / jump / explain / quit` menu). No hardware.
-- **`./harness guide`** — the same journey against the real pto-isa repo: env
-  check → CANN picker → suite/testcase/filter menus → run → report → review →
+- **`./harness guide`** — the same journey against a real target (pto-isa /
+  pto-vmi): target picker → env check → CANN picker → suite/testcase/filter
+  menus → run → report → review →
   teach → promote.
 
 ---

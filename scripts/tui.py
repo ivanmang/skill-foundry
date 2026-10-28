@@ -20,12 +20,12 @@ import status  # noqa: E402 — reuse collect()
 from _term import BOLD, RESET, mark  # noqa: E402
 
 ACTIONS: list[tuple[str, list[str] | None]] = [
-    ("🚀  run tests — guided", ["guide"]),
+    ("🚀  run tests — guided tour", ["guide"]),
     ("🎬  sandboxed demo", ["demo"]),
     ("📊  status", ["status"]),
     ("📄  open the latest report", ["report", "--open"]),
     ("🔍  review vs baseline", ["review"]),
-    ("🧠  teach / promote a learning", ["teach"]),
+    ("🧠  log a correction (teach)", ["teach"]),
     ("🔧  diagnose this machine", ["diagnose"]),
     ("🧭  onboarding", ["onboarding"]),
     ("❓  help", ["help"]),
