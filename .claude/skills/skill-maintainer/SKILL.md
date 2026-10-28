@@ -21,15 +21,14 @@ git-tracked edit.** This skill never rewrites skills blindly.
 | Log a correction (capture) | `./harness teach` (wizard) · `./harness teach "… -> … -> …"` (shorthand) · `./harness teach --edit` (editor) |
 | Draft from a run (auto-capture) | `python3 scripts/session_digest.py --run reports/<id>/run.json [--apply]` |
 | Propose promotion (diff, no write) | `./harness promote --propose` |
-| Apply promotion | `./harness promote --apply [--branch feat/learnings-<date>]` (or `--pr` to push + open MR) |
+| Apply promotion | `./harness promote --apply [--branch feat/learnings-<date>]` (or `--pr` to apply + push + auto-create the MR) |
 
 ## Modes
 
 | Mode | Behavior | When |
 |---|---|---|
-| Propose | `./harness promote --propose` prints a diff, no file change | default |
-| Apply (small) | `./harness promote --apply` writes the edit, marks the entry promoted (summary logged in promoted.md) | high-confidence, small change |
-| Manual | User explicitly asks to update a skill | sensitive changes |
+| Propose | `./harness promote --propose` prints a diff, no file change | optional review |
+| Apply + auto-MR | `./harness promote --pr` writes, commits, pushes, auto-creates the MR (glab / GITCODE_TOKEN) | default — you merge on the remote |
 
 ## Flow
 
@@ -38,8 +37,9 @@ git-tracked edit.** This skill never rewrites skills blindly.
    freeform-edit `learnings/recent.md`.
 2. **Propose** — `./harness promote --propose` renders a minimal diff per
    pending entry into the right skill / known-failures file.
-3. **Apply** — `./harness promote --apply` writes it, marks the entry promoted,
-   logs to `corrections.md`, and (with `--branch`/`--pr`) commits for an MR.
+3. **Apply** — `./harness promote --pr` writes it, marks the entry promoted,
+   logs to `corrections.md`, commits, pushes, and auto-creates the MR. **You
+   merge it on the remote** (branch protection is the gate).
 4. **Verify** — re-run a representative case to confirm the improvement.
 
 ## Auto-capture triggers

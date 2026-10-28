@@ -36,7 +36,9 @@ skill is the wiring and the handoff.
 ## Handoff to maintainer
 
 Log with `./harness teach "wrong -> correct -> action"` (it writes the strict
-`LRN-…` entry automatically), then hand to `skill-maintainer` to propose.
+`LRN-…` entry automatically), then hand to `skill-maintainer` to promote.
+`skill-maintainer` runs `./harness promote --pr`, which auto-applies, commits,
+pushes, and creates the MR — the human merges it on the remote.
 
 ```markdown
 ## LRN-20261027-003

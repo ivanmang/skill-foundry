@@ -17,3 +17,7 @@ export PTO_ISA_REPO="${PTO_ISA_REPO:-$HOME/pto-isa}"
 # Per-target checkout env vars (each target declares its own repo_env in
 # config/suites.json). Example for the pto-vmi target:
 #   export PTO_VMI_REPO="$HOME/pto-vmi"
+
+# Optional: token for auto-creating the MR on GitCode/GitLab (used by
+# ./harness promote --pr). If unset, --pr prints the MR-new URL instead.
+#   export GITCODE_TOKEN="glpat-…"   # or GITLAB_TOKEN

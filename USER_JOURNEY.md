@@ -326,17 +326,18 @@ It renders a **reviewable git-style diff** into the right place (a new
 skips duplicates / entries already present in the target file. Nothing is
 written yet.
 
-### 7c. Apply + MR (scripted, human-gated)
+### 7c. Apply + auto-create MR (merge is remote-gated)
 
 ```bash
-./harness promote --pr     # apply + branch + commit + push + MR (merge request) URL
+./harness promote --pr     # apply + branch + commit + push + auto-create the MR
 ```
 
 One command finishes the loop: it writes the edit, marks the entry
-`promoted` in `recent.md`, appends a summary to `promoted.md`, and logs a dated
-block in `corrections.md`. It then commits on a `feat/learnings-<date>` branch,
-pushes, and prints the merge-request URL. **A reviewer merges** — the harness
-never self-merges. This is the other place a human is required.
+`promoted` in `recent.md`, appends a summary to `promoted.md`, logs a dated
+block in `corrections.md`, commits on a `feat/learnings-<date>` branch, pushes,
+and **creates the merge request** (via `glab` or the GitCode API with
+`GITCODE_TOKEN`/`GITLAB_TOKEN`; otherwise it prints the MR-new URL). **You
+merge the MR on the remote** — branch protection is the gate.
 
 ---
 
@@ -410,7 +411,8 @@ loop, and every teammate gets it via git.
 | Run / extract / report / review / dry-run | 🟢 automatic | harness |
 | Capture a correction (`recent.md`, append-only) | 🟢 automatic | harness **or** the AI (when you correct it) |
 | Draft promotion (diff, no write) | 🟢 automatic | harness |
-| Apply + commit + push + MR | 🟡 scripted, MR-gated | you / a reviewer |
+| Apply + commit + push + **create the MR** | 🟢 automatic | harness |
+| **Merge the MR** | 🟡 remote-gated (branch protection) | you / a reviewer |
 | Remove / change an existing check | 🔴 never automatic | — |
 
 Capture is triggered by `./harness teach` or by the agent reacting to your

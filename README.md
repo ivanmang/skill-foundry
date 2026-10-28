@@ -149,23 +149,24 @@ Four roles, shown on every demo step and applying to the real flow:
 
 | Role | What it does |
 |---|---|
-| 🟢 **harness (automatic)** | run, extract logs, report, review, capture a correction, propose a diff, dry-run previews |
+| 🟢 **harness (automatic)** | run, extract logs, report, review, capture a correction, propose a diff, apply + commit + push + create the MR, dry-run previews |
 | 🤖 **AI / agent (automatic, on trigger)** | auto-captures a correction when you correct it (`"no / actually / remember …"`) and replies with the `LRN-…` id; triages per the skill |
-| 🟡 **you / a reviewer** | the triage *content* (`wrong → correct → action`) and merging the MR (`promote --pr`) |
+| 🟡 **you (remote gate)** | the triage *content* (`wrong → correct → action`) and **merging the MR on the remote** (branch protection) |
 | 🔴 **never automatic** | remove or change an existing check |
 
 `./harness demo` shows this per step with a **"Who does what"** box
-(command / harness / you). Capture is automatic; promotion is MR-gated — the
-harness (and the AI) auto-log but only *propose* edits.
+(command / harness / you). Capture and apply are automatic — `--pr`
+auto-creates the MR; the **merge** is the gate, and it lives on the remote.
 
 **Why the line is drawn there**: auto-*append* is safe — `learnings/recent.md`
 is the harness's own scratch memory (append-only, cheap to discard). Auto-*edit*
 is not — `SKILL.md` + `known-failures.md` are the team's shared source of truth
-every future run reads. This is the same line Claude Code draws: it auto-writes
-its memory but never auto-edits your `CLAUDE.md`. A machine that silently
-rewrites shared knowledge turns its own mistakes into everyone's blind spots —
-e.g. a wrong "known failure" would annotate real regressions as known and hide
-them.
+every future run reads. So the harness auto-applies and auto-opens the MR, but
+the **merge stays remote-gated** (branch protection). Same line Claude Code draws:
+it auto-writes its memory but never auto-edits your `CLAUDE.md`. A machine that
+silently rewrites shared knowledge turns its own mistakes into everyone's blind
+spots — e.g. a wrong "known failure" would annotate real regressions as known and
+hide them.
 
 ### Guided tour
 
@@ -251,7 +252,8 @@ See `.claude/skills/pto-isa/references/env.md` for the arch/soc/env table.
 
 ## Learning loop
 
-Capture is automated; promotion is a reviewable, git-tracked edit.
+Capture is automated; promotion is automated to the MR, and the **merge is
+remote-gated** (branch protection).
 
 ```bash
 # 1. capture (strict LRN-… entry in learnings/recent.md)
@@ -260,12 +262,16 @@ Capture is automated; promotion is a reviewable, git-tracked edit.
 ./harness teach --edit                                          # or $EDITOR
 # (the agent also auto-captures when you correct it — no command needed)
 
-# 2. propose a minimal diff into the right skill / known-failures (no write)
+# 2. propose a minimal diff (optional review, no write)
 ./harness promote --propose
 
-# 3. apply + push + open a merge request, all in one command
+# 3. apply + commit + push + auto-create the MR — you merge it on the remote
 ./harness promote --pr
 ```
+
+`--pr` auto-creates the MR via `glab` or the GitCode API (`GITCODE_TOKEN` /
+`GITLAB_TOKEN`); otherwise it prints the MR-new URL for you to click. Set branch
+protection on the repo so the merge itself is the review gate.
 
 `.gitcode/workflows/promote-learnings.yml` surfaces pending learnings nightly;
 `.gitcode/workflows/selfcheck.yml` runs `./harness selfcheck` on push/PR.

@@ -170,10 +170,14 @@ Maya reads it. It's exactly what she meant. "Ship it."
 
 The harness applies the edit, flips the entry to `promoted`, appends a summary
 to `promoted.md` + an audit block to `corrections.md`, commits on
-`feat/learnings-20261030`, pushes, and prints a merge-request URL.
+`feat/learnings-20261030`, pushes, and **creates the merge request itself** —
+no local review, no manual push. (Under the hood it uses `glab` or the GitCode
+API with `GITCODE_TOKEN`; either way, it's one command.)
 
-Maya opens the MR and clicks **Merge**. That's the human gate — the harness
-never self-merges.
+Later, Maya logs into GitCode and clicks **Merge** on the auto-created MR.
+That's the gate — the harness **never self-merges**; branch protection is what
+guards the shared skills. Maya reviews and merges *at her pace, on the remote*,
+not in the terminal.
 
 ---
 
@@ -196,7 +200,8 @@ The failure that cost Maya ten minutes yesterday is now annotated in one line.
 |---|---|
 | Detect env, run, dry-run, normalize logs, report, review | 🟢 harness (automatic) |
 | Read the skills, run `teach` when Maya says "no/actually" | 🤖 Pi (automatic on trigger) |
-| Decide the triage was *known*, approve the diff, merge the MR | 🟡 Maya (human) |
+| Apply + commit + push + create the MR | 🟢 harness (automatic — `--pr`) |
+| Decide the triage was *known*, **merge the MR** on the remote | 🟡 Maya (human) |
 | Remove or weaken an existing check | 🔴 nobody, ever |
 
 That's the whole relationship, in story form: **you steer, the agent conducts,

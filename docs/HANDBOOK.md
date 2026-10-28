@@ -50,16 +50,18 @@ regression thresholds.
 
 | Role | What it does |
 |---|---|
-| 🟢 **harness (automatic)** | run, extract logs, report, review, capture a correction, propose a diff, dry-run previews |
+| 🟢 **harness (automatic)** | run, extract logs, report, review, capture a correction, propose a diff, apply + commit + push + create the MR, dry-run previews |
 | 🤖 **AI / agent (automatic, on trigger)** | auto-captures a correction when you correct it (`"no / actually / remember …"`) and replies with the `LRN-…` id; triages per the skill |
-| 🟡 **you / a reviewer** | the triage *content* (`wrong → correct → action`) and merging the MR (`promote --pr`) |
+| 🟡 **you (remote gate)** | the triage *content* (`wrong → correct → action`) and **merging the MR on the remote** (branch protection) |
 | 🔴 **never automatic** | remove or change an existing check |
 
 **Why the line is drawn there:** auto-*append* is safe — `learnings/recent.md`
 is the harness's own scratch memory. Auto-*edit* is not — `SKILL.md` +
-`known-failures.md` are the team's shared source of truth. Same line Claude Code
-draws: it auto-writes its memory but never auto-edits your `CLAUDE.md`. A wrong
-auto-edit (e.g. a bad "known failure") would hide real regressions.
+`known-failures.md` are the team's shared source of truth. So `--pr`
+auto-applies + pushes + creates the MR, but the **merge stays remote-gated**
+(branch protection). Same line Claude Code draws: it auto-writes its memory but
+never auto-edits your `CLAUDE.md`. A wrong auto-edit (e.g. a bad "known
+failure") would hide real regressions.
 
 On the report side: gtest-style case timing (p50/p99/max) is always captured;
 per-suite CA metrics (EX/IPC/vf_real/dual/stalls, modeled on the vmi-dashboard)
@@ -206,12 +208,14 @@ Exit codes: `0` clean, `1` ran-with-failures, `2` usage.
   already-present entries are skipped (marked `rejected`).
 - **Apply** (`./harness promote --pr`) writes the edit, flips the entry to
   `promoted`, appends a summary to `promoted.md` + an audit block to
-  `corrections.md`, commits on `feat/learnings-<date>`, pushes, and prints an MR
-  URL. **A reviewer merges.**
+  `corrections.md`, commits on `feat/learnings-<date>`, pushes, and **auto-creates
+  the MR** (via `glab` or the GitCode API with `GITCODE_TOKEN`/`GITLAB_TOKEN`;
+  otherwise it prints the MR-new URL). **You merge it on the remote** — branch
+  protection is the gate.
 
 Files: `learnings/recent.md` (pending log) · `promoted.md` (promoted log) ·
 `corrections.md` (audit trail). Skills + `known-failures.md` are the shared
-corpus that only changes via MR.
+corpus that only changes via a merged MR.
 
 ---
 

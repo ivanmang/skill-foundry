@@ -199,14 +199,13 @@ STEPS: list[dict] = [
          more="This is the automation boundary: propose is automatic, apply is scripted but human-gated. "
               "Nothing in the skills changes until a reviewer approves.",
          run=step_propose),
-    dict(key="apply", short="apply", needs=("propose",), title="Improve — apply + bookkeeping  🟡 HUMAN-GATED",
-         what="--apply actually WRITES the proposed edit into the shared skills. In the real repo this becomes a branch + push + an MR a reviewer must merge.",
-         more="This is the automation boundary in action. Capture is automatic — recent.md is the harness's own memory, "
-              "append-only, cheap, revertible. Apply is gated — SKILL.md + known-failures.md are the team's shared source "
-              "of truth every future agent reads. The machine may grow its memory freely, but shared knowledge only changes "
-              "when a human merges — same as Claude Code auto-writing memory but never auto-editing CLAUDE.md. "
-              "A wrong auto-edit here (e.g. a bad 'known failure') would silently annotate real regressions as known and hide them. "
-              "RED line beyond it: the harness never auto-REMOVES or auto-CHANGES an existing check — it only ADDS.",
+    dict(key="apply", short="apply", needs=("propose",), title="Improve — apply + bookkeeping  🟢 AUTO",
+         what="--pr applies the edit, commits, pushes, and AUTO-CREATES the MR. You only merge it on the remote (branch protection gates the merge).",
+         more="Capture is automatic — recent.md is the harness's own memory, append-only, cheap, revertible. "
+              "Apply is now also automatic: --pr applies + commits + pushes + opens the MR (via glab or the GitCode API "
+              "with GITCODE_TOKEN). The only human step left is MERGING the MR on the remote — same principle as "
+              "Claude Code auto-writing memory, with branch protection as the gate. "
+              "RED line: the harness never auto-REMOVES or auto-CHANGES an existing check — it only ADDS.",
          run=step_apply),
     dict(key="rerun", short="rerun", needs=("apply",), title="Improve — re-render with the new knowledge",
          what="Re-render the SAME run.json with the improved corpus → the failure is now annotated as known.",
@@ -236,9 +235,9 @@ ROLES: dict[str, tuple[str, str, str]] = {
     "propose": ("./harness promote --propose",
                 "drafts a git-style diff (writes nothing yet)",
                 "nothing — just review the proposed diff"),
-    "apply": ("./harness promote --apply  (real repo: --pr)",
-              "writes the edit + marks it promoted (logs a summary in promoted.md)",
-              "in the real repo: a reviewer must merge the MR"),
+    "apply": ("./harness promote --pr",
+              "applies + commits + pushes + auto-creates the MR (glab / GITCODE_TOKEN)",
+              "merge the MR on the remote (branch protection gates it)"),
     "rerun": ("./harness report --run <run.json> --known …",
               "re-renders with the new corpus → failure annotated 'known'",
               "nothing — watch the line flip to 'known'"),
@@ -329,15 +328,16 @@ def intro() -> None:
     🤖 AI      — auto-captures a correction when you correct it ("no / actually /
                  remember …") and replies with the LRN-… id; triages per the skill.
     🟡 you     — your judgment (the wrong → correct → action content) and merging
-                 the MR (promote --pr).
+                 the MR on the remote (promote --pr auto-creates it).
     🔴 never   — remove or change an existing check (the harness only ADDS).
 
   The one rule to remember:
 
     🟢 Auto-APPEND is safe  — the harness logs lessons to its own memory
                               (learnings/recent.md) freely.
-    🟡 Auto-EDIT is not      — shared skills + known-failures.md only change
-                              when a HUMAN merges the MR.
+    🟡 Auto-EDIT is gated    — --pr auto-applies + pushes + creates the MR; the
+                              shared skills change only when you MERGE it on the
+                              remote (branch protection).
 
   Same line Claude Code draws: it auto-writes its memory but never auto-edits
   your CLAUDE.md. A machine that silently rewrites shared knowledge turns its

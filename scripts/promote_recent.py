@@ -6,7 +6,11 @@ Proposal (default, no writes):
 
 Apply (writes files, marks entries promoted, logs to promoted.md + corrections.md):
   python3 scripts/promote_recent.py --apply [--branch feat/learnings-YYYYMMDD]
-  python3 scripts/promote_recent.py --pr            # apply + push + merge-request URL
+  python3 scripts/promote_recent.py --pr            # apply + push + CREATE the MR (remote-gated merge)
+
+The `--pr` flow auto-creates the merge request via `glab` or the GitLab/GitCode
+REST API (GITCODE_TOKEN / GITLAB_TOKEN); otherwise it prints the MR-new URL.
+The merge itself is gated on the remote (branch protection) — not here.
 
 Target resolution:
   - action/correct mentions "known-failure(s)"/"triage corpus"  ->  known-failures.md
@@ -19,9 +23,14 @@ from __future__ import annotations
 import argparse
 import datetime as _dt
 import difflib
+import json
+import os
 import re
+import shutil
 import subprocess
 import sys
+import urllib.parse
+import urllib.request
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
@@ -195,6 +204,58 @@ def mr_url(web: str, branch: str, base: str = "main") -> str:
     return f"{web}/merge_requests/new?source_branch={branch}&target_branch={base}"
 
 
+def _glab_create_mr(branch: str, base: str, title: str) -> str | None:
+    glab = shutil.which("glab")
+    if not glab:
+        return None
+    try:
+        r = subprocess.run(
+            [glab, "mr", "create", "--source-branch", branch,
+             "--target-branch", base, "--title", title, "--yes"],
+            capture_output=True, text=True, timeout=60)
+        if r.returncode == 0:
+            m = re.search(r"https?://\S*merge_requests/\d+", (r.stdout or "") + " " + (r.stderr or ""))
+            return m.group(0) if m else None
+    except Exception:
+        return None
+    return None
+
+
+def _api_create_mr(web: str, branch: str, base: str, title: str) -> str | None:
+    """Create a GitLab/GitCode merge request via the REST API (PRIVATE-TOKEN)."""
+    token = os.environ.get("GITCODE_TOKEN") or os.environ.get("GITLAB_TOKEN")
+    if not token:
+        return None
+    try:
+        u = urllib.parse.urlsplit(web)
+        if not u.scheme or not u.netloc:
+            return None
+        proj = urllib.parse.quote(u.path.strip("/"), safe="")
+        api = f"{u.scheme}://{u.netloc}/api/v4/projects/{proj}/merge_requests"
+        payload = urllib.parse.urlencode({
+            "source_branch": branch, "target_branch": base, "title": title,
+        }).encode()
+        req = urllib.request.Request(
+            api, data=payload, method="POST",
+            headers={"PRIVATE-TOKEN": token, "Content-Type": "application/x-www-form-urlencoded"},
+        )
+        with urllib.request.urlopen(req, timeout=60) as resp:
+            return json.loads(resp.read().decode()).get("web_url")
+    except Exception:
+        return None
+
+
+def create_mr(web: str, branch: str, base: str, title: str) -> tuple[str, bool]:
+    """Create (or otherwise locate) an MR URL. Returns (url, created)."""
+    url = _glab_create_mr(branch, base, title)
+    if url:
+        return url, True
+    url = _api_create_mr(web, branch, base, title)
+    if url:
+        return url, True
+    return mr_url(web, branch, base), False
+
+
 def propose_all(root: Path, lp: Path, pending: list[dict]) -> int:
     any_diff = False
     for e in pending:
@@ -252,8 +313,14 @@ def apply_all(root: Path, lp: Path, entries: list[dict], pending: list[dict],
             if pushed.returncode == 0:
                 web = remote_web_url(root)
                 if web:
-                    url = mr_url(web, branch)
-                    print(f"\nOpen a merge request:\n  {url}")
+                    title = (f"chore: promote learnings ({len(changed)} entries) — "
+                             f"{_dt.datetime.now():%Y-%m-%d}")
+                    url, created = create_mr(web, branch, "main", title)
+                    if created:
+                        print(f"\n✓ Created merge request:\n  {url}")
+                    else:
+                        print(f"\nPushed branch '{branch}'. To create the MR, visit:\n  {url}\n"
+                              f"  (set GITCODE_TOKEN / GITLAB_TOKEN or install glab to auto-create it)")
                     try:
                         err = _browser.open_browser(url)
                         if err:

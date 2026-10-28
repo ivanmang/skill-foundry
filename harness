@@ -120,12 +120,12 @@ Example: ./harness teach "vcvt mismatch -> known pattern, annotate -> promote to
 EOF
     ;;
     promote) cat <<'EOF'
-./harness promote — promote pending learnings into skills (human-gated)
+./harness promote — promote pending learnings into skills (merge is remote-gated)
   --propose   print a reviewable diff (no write)
   --apply     write the edits locally
-  --pr        apply + branch + commit + push + print a merge-request URL
+  --pr        apply + branch + commit + push + AUTO-CREATE the MR (glab / GITCODE_TOKEN)
 
-Example: ./harness promote --propose    then    ./harness promote --pr
+Example: ./harness promote --pr    # then merge the MR on the remote
 EOF
     ;;
     status) cat <<'EOF'

@@ -379,14 +379,13 @@ def run_real_tour(name: str, target: dict) -> int:
         subprocess.run([str(HARNESS / "scripts" / "teach")])
 
     banner("6 · Promote pending learnings")
-    print(c("  Capture is automatic; promotion is HUMAN-GATED.", BOLD))
-    print("    🟢 '--propose' only DRAFTS a diff (no write) — review it freely.")
-    print("    🟡 '--pr' writes it on a branch + pushes + prints an MR — a reviewer merges.")
-    print(c("    (Auto-edit of shared skills is NOT automatic — like Claude Code auto-writing memory\n"
-            "     but never auto-editing CLAUDE.md.)", YELLOW))
+    print(c("  Capture is automatic; promotion is AUTO — the MR merge is remote-gated.", BOLD))
+    print("    🟢 '--propose' DRAFTS a diff (no write) — optional review.")
+    print("    🟢 '--pr' applies + commits + pushes + AUTO-CREATES the MR (glab / GITCODE_TOKEN).")
+    print("    🟡 you merge the MR on the remote (branch protection gates it).")
     print(c("  RED line: the harness never auto-REMOVES or auto-CHANGES an existing check — it only ADDS.", RED))
     if ask_yesno("Propose/promote pending learnings?", "n"):
-        if ask_yesno("Apply + push + open a merge request (--pr)? (n = propose only)", "y"):
+        if ask_yesno("Apply + push + auto-create the MR (--pr)? (n = propose only)", "y"):
             subprocess.run([sys.executable, "scripts/promote_recent.py", "--pr"], cwd=HARNESS)
         else:
             subprocess.run([sys.executable, "scripts/promote_recent.py", "--propose"], cwd=HARNESS)
