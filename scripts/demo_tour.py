@@ -211,6 +211,34 @@ STEPS: list[dict] = [
 ]
 BY_KEY = {s["key"]: s for s in STEPS}
 
+# What the harness runs for you vs. what needs a human, per step.
+ROLES: dict[str, tuple[str, str, str]] = {
+    "run": ("python3 scripts/run_suite.py --target demo --all-suites",
+            "runs the suite and normalizes the log into run.json",
+            "nothing — press Enter to run"),
+    "report": ("python3 scripts/build_report.py --run <run.json>",
+               "renders report.md + report.html from run.json",
+               "nothing — just read the FAIL line"),
+    "review": ("python3 scripts/diff_runs.py --run <run.json> --baseline …",
+               "diffs vs baseline → regressions / fixes / perf flags",
+               "nothing — read which cases regressed"),
+    "teach": ("./harness teach \"wrong → correct → action\"",
+              "logs a strict LRN-… entry to learnings/recent.md",
+              "YOUR judgment — decide the correct triage"),
+    "propose": ("./harness promote --propose",
+                "drafts a git-style diff (writes nothing yet)",
+                "nothing — just review the proposed diff"),
+    "apply": ("./harness promote --apply  (real repo: --pr)",
+              "writes the edit + moves the learning to promoted.md",
+              "in the real repo: a reviewer must merge the PR"),
+    "rerun": ("./harness report --run <run.json> --known …",
+              "re-renders with the new corpus → failure annotated 'known'",
+              "nothing — watch the line flip to 'known'"),
+    "takeaway": ("—",
+                 "—",
+                 "decide what to run next (the real pto-isa suites)"),
+}
+
 
 def run_step(s: dict, done: set[str]) -> None:
     for need in s["needs"]:
@@ -264,6 +292,12 @@ def _header(idx: int, done: set[str]) -> None:
     for line in textwrap.wrap(s["what"], width=66):
         print(f"    {line}")
     print()
+    cmd, auto, human = ROLES.get(s["key"], ("—", "—", "—"))
+    print(guide.c("  Who does what", guide.BOLD))
+    print(f"    ▸ command   {cmd}")
+    print(guide.c(f"    🟢 harness  {auto}", guide.GREEN))
+    print(guide.c(f"    🟡 you       {human}", guide.YELLOW))
+    print()
     sys.stdout.flush()
 
 
@@ -278,8 +312,14 @@ def intro() -> None:
     2. IMPROVE it — capture → propose → apply → the triage gets smarter
 
   Each step is framed in its own block with a progress bar and a step map
-  (✓ done · ▶ current · · upcoming). After each step you choose what to do:
-  run & continue, skip, go back, jump, or explain.
+  (✓ done · ▶ current · · upcoming), plus a "Who does what" box:
+
+    ▸ command   — the exact command the step runs
+    🟢 harness  — done for you automatically (no action needed)
+    🟡 you       — where your judgment / a human review is required
+
+  After each step you choose what to do: run & continue, skip, go back,
+  jump, or explain.
 """)
 
 
@@ -343,10 +383,7 @@ def main(argv: list[str] | None = None) -> int:
         print("(stdin is not a terminal — running all steps straight through)\n")
         done: set[str] = set()
         for i, s in enumerate(STEPS):
-            print(guide.c(SEP, guide.BOLD))
-            print(guide.c(f"  STEP {i + 1} / {len(STEPS)}   ·   {s['title']}", guide.BOLD))
-            print(guide.c(SEP, guide.BOLD))
-            print()
+            _header(i, done)
             run_step(s, done)
             print()
         return 0
