@@ -254,6 +254,8 @@ def copy_perf(repo: Path, run_dir: Path, suite_name: str,
     sub = {"repo": str(repo), "testcase": testcase or "all", "testcase_stem": stem}
     for pat in patterns:
         g = pat.format(**sub)
+        if not Path(g).is_absolute():
+            g = str(repo / g)
         matches = sorted(glob.glob(g), key=os.path.getmtime, reverse=True)
         if not matches:
             continue
