@@ -66,7 +66,7 @@ def suite_rows(record: dict) -> list[list[str]]:
 
 
 def timing_rows(record: dict) -> list[list[str]]:
-    """Per-suite per-case timing (min/p50/p99/max) from the timing block."""
+    """Per-suite timing: suite duration always, per-case stats when captured."""
     rows = []
     for s in record.get("suites", []):
         t = s.get("timing") or {}
@@ -77,7 +77,22 @@ def timing_rows(record: dict) -> list[list[str]]:
         rows.append([
             s.get("name", "?"),
             str(t.get("cases", 0)),
+            fmt_dur(s.get("duration_s")),
             f(t.get("min")), f(t.get("p50")), f(t.get("p99")), f(t.get("max")),
+        ])
+    return rows
+
+
+def command_rows(record: dict) -> list[list[str]]:
+    """Per-suite command / exit code / raw log path."""
+    rows = []
+    for s in record.get("suites", []):
+        exit_code = s.get("exit_code")
+        rows.append([
+            s.get("name", "?"),
+            str(exit_code) if exit_code is not None else "-",
+            s.get("log_file", ""),
+            " ".join(str(x) for x in s.get("command", [])),
         ])
     return rows
 
@@ -141,12 +156,14 @@ def _failures_md(fl: list[dict]) -> list[str]:
 def render_md(records: list[dict], known_sigs: list[str]) -> str:
     lines: list[str] = ["# Regression Report", ""]
     for rec in records:
+        env = rec.get("env_snapshot") or {}
+        ascend = env.get("ASCEND_HOME_PATH") or "—"
         lines += [
             f"## Run: {rec.get('run_id')}",
             "",
             f"- target: `{rec.get('target')}`  repo: `{rec.get('target_repo')}`",
             f"- target commit: `{rec.get('target_commit')}`  dirty: {rec.get('target_dirty')}",
-            f"- host: `{rec.get('host')}`  generated: {rec.get('generated_at')}",
+            f"- host: `{rec.get('host')}`  ASCEND: `{ascend}`  generated: {rec.get('generated_at')}",
             "",
             "| suite | passed | failed | skipped | total | status | duration |",
             "|---|---|---|---|---|---|---|",
@@ -158,12 +175,11 @@ def render_md(records: list[dict], known_sigs: list[str]) -> str:
             lines += _failures_md(fl)
 
         trows = timing_rows(rec)
-        if any(r[1] != "0" for r in trows):
-            lines += ["", "### Timing (per-case)", "",
-                      "| suite | cases | min | p50 | p99 | max |",
-                      "|---|---|---|---|---|---|"]
-            for r in trows:
-                lines.append("| " + " | ".join(r) + " |")
+        lines += ["", "### Timing", "",
+                  "| suite | cases | duration | min | p50 | p99 | max |",
+                  "|---|---|---|---|---|---|---|"]
+        for r in trows:
+            lines.append("| " + " | ".join(r) + " |")
 
         prows = perf_rows(rec)
         if prows:
@@ -173,6 +189,13 @@ def render_md(records: list[dict], known_sigs: list[str]) -> str:
             for r in prows:
                 lines.append("| " + " | ".join(r) + " |")
 
+        crows = command_rows(rec)
+        lines += ["", "### Commands & logs", "",
+                  "| suite | exit | log | command |",
+                  "|---|---|---|---|"]
+        for r in crows:
+            lines.append("| " + " | ".join(r) + " |")
+
         lines += ["", "---", ""]
     return "\n".join(lines)
 
@@ -180,11 +203,14 @@ def render_md(records: list[dict], known_sigs: list[str]) -> str:
 def render_html(records: list[dict], known_sigs: list[str]) -> str:
     rows_html = []
     for rec in records:
+        env = rec.get("env_snapshot") or {}
+        ascend = env.get("ASCEND_HOME_PATH") or "—"
         rows_html.append(
             f'<h2>Run: {html.escape(rec.get("run_id", ""))}</h2>'
             f'<p class="meta">target <code>{html.escape(rec.get("target", ""))}</code> · '
             f'commit <code>{html.escape(rec.get("target_commit", "") or "")}</code> · '
-            f'host <code>{html.escape(rec.get("host", ""))}</code></p>'
+            f'host <code>{html.escape(rec.get("host", ""))}</code> · '
+            f'ASCEND <code>{html.escape(ascend)}</code></p>'
         )
         trs = []
         for row in suite_rows(rec):
@@ -212,15 +238,14 @@ def render_html(records: list[dict], known_sigs: list[str]) -> str:
             rows_html.append(f"<h3>Failures</h3><ul>{items}</ul>")
 
         trows = timing_rows(rec)
-        if any(r[1] != "0" for r in trows):
-            trs = "".join(
-                "<tr>" + "".join(f"<td>{html.escape(c)}</td>" for c in r) + "</tr>" for r in trows
-            )
-            rows_html.append(
-                "<h3>Timing (per-case)</h3>"
-                "<table><thead><tr><th>suite</th><th>cases</th><th>min</th><th>p50</th><th>p99</th><th>max</th></tr></thead><tbody>"
-                + trs + "</tbody></table>"
-            )
+        trs = "".join(
+            "<tr>" + "".join(f"<td>{html.escape(c)}</td>" for c in r) + "</tr>" for r in trows
+        )
+        rows_html.append(
+            "<h3>Timing</h3>"
+            "<table><thead><tr><th>suite</th><th>cases</th><th>duration</th><th>min</th><th>p50</th><th>p99</th><th>max</th></tr></thead><tbody>"
+            + trs + "</tbody></table>"
+        )
 
         prows = perf_rows(rec)
         if prows:
@@ -232,6 +257,16 @@ def render_html(records: list[dict], known_sigs: list[str]) -> str:
                 "<table><thead><tr><th>suite</th><th>EX</th><th>SU</th><th>LD</th><th>ST</th><th>pred</th><th>scalar</th><th>dma</th><th>dual</th><th>stalls</th><th>max_stall</th><th>IPC</th><th>EX-IPC</th><th>vf_real</th></tr></thead><tbody>"
                 + ptrs + "</tbody></table>"
             )
+
+        crows = command_rows(rec)
+        ctrs = "".join(
+            "<tr>" + "".join(f"<td>{html.escape(c)}</td>" for c in r) + "</tr>" for r in crows
+        )
+        rows_html.append(
+            "<h3>Commands &amp; logs</h3>"
+            "<table><thead><tr><th>suite</th><th>exit</th><th>log</th><th>command</th></tr></thead><tbody>"
+            + ctrs + "</tbody></table>"
+        )
     return f"""<!doctype html>
 <html><head><meta charset="utf-8"><title>Regression Report</title>
 <style>

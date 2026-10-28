@@ -93,6 +93,9 @@ def duration_stats(cases: list[dict]) -> dict:
     if not durs:
         return {"cases": 0, "min": None, "p50": None, "p99": None, "max": None, "mean": None}
     n = len(durs)
+    if all(d == 0.0 for d in durs):
+        # cases were captured but no per-case timing was measured (0.0 = unknown)
+        return {"cases": n, "min": None, "p50": None, "p99": None, "max": None, "mean": None}
     p50 = durs[math.ceil(n * 0.50) - 1]
     p99 = durs[math.ceil(n * 0.99) - 1]
     return {

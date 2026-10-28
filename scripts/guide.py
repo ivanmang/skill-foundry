@@ -364,7 +364,7 @@ def run_real_tour(name: str, target: dict) -> int:
             subprocess.run([
                 sys.executable, "scripts/build_report.py",
                 "--run", str(HARNESS / "reports" / latest / "run.json"),
-                *kargs, "--out", str(out_base),
+                *kargs, "--out", str(out_base), "--open",
             ], cwd=HARNESS, check=False)
             print(f"  → {out_base}.md / {out_base}.html")
     else:
