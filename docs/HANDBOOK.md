@@ -106,6 +106,7 @@ Agent-Skills-compatible agent:
 |---|---|
 | `./harness status` | one-glance dashboard (env, suites, baseline, learnings, last run) |
 | `./harness targets` | list configured targets (name, label, repo, suites) |
+| `./harness install-skills` | link skills into each agent's user dir (`.claude`/`.pi`/`.agents`) |
 | `./harness diagnose` | check this machine + print the exact fix for each issue |
 | `./harness onboarding` | guided first-run setup |
 | `./harness tui` | full-screen dashboard (interactive) |
@@ -122,7 +123,7 @@ Agent-Skills-compatible agent:
 | `./harness demo` | interactive sandboxed walkthrough |
 | `./harness history` / `clean` / `open` / `validate` | housekeeping |
 | `./harness selfcheck` | compile-check + skill-spec validation + demo smoke |
-| `./harness help [verb]` | this help, or per-verb examples |
+| `./harness help [verb]` · `./harness version` | this help / per-verb examples / version |
 
 Run `./harness help <verb>` for any verb's detailed examples.
 

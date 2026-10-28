@@ -112,6 +112,7 @@ any Agent-Skills-compatible agent two ways:
 ./harness status    one-glance dashboard   [--json]
 ./harness diagnose  check env + fixes      [--json, --strict]
 ./harness targets   list configured targets [--json]
+./harness install-skills  link skills into each agent's user dir  [--dry-run, --uninstall]
 ./harness onboarding  guided first-run setup
 ./harness tui       full-screen dashboard (interactive)
 ./harness menu      curated menu (bare ./harness default)
