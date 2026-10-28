@@ -112,12 +112,12 @@ only deliberately (new suites, arch changes), never casually.
 ## Step 3 — Everyday: run a regression
 
 ```bash
-./harness list                                # what can I run?
+./harness list                                # what can I run? (auto-detected availability)
 
-./harness run --all-suites --quiet            # everything, summary only
+./harness run --all-suites --quiet            # everything runnable, summary only
 ./harness run --all-suites --tui              # live spinner + per-suite pass/fail
 ./harness run --all-suites --json             # machine-readable summary
-./harness run --suite cpu-st                  # one suite
+./harness run --suite cpu-st                  # one suite (force, even if prereqs missing)
 ./harness run --suite npu-sim-a5 --testcase tpartargmax        # one testcase
 ./harness run --suite cpu-st --testcase tadd --filter 'TADDTest.case_*'  # one gtest case
 
@@ -126,7 +126,10 @@ python3 tests/script/run_st.py -r sim -v a5 -t tadd -g 'TADDTest.case_*'
 ```
 
 `run` requires an explicit `--suite` or `--all-suites` — a bare `./harness run`
-prints the enabled suites and exits 2 (no accidental full run).
+prints the enabled suites and exits 2 (no accidental full run). `--all-suites`
+auto-skips suites whose prerequisites aren't present on this machine (compiler /
+CANN / simulator / device / MPI) and prints why; an explicit `--suite`
+force-runs regardless.
 
 Each run produces, under `reports/<run-id>/`:
 

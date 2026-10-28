@@ -31,6 +31,7 @@ HARNESS = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 import parse_gtest  # noqa: E402
+import capabilities  # noqa: E402
 
 # Modes that need a CANN toolkit (ASCEND_HOME_PATH) on the runner.
 NEEDS_ASCEND = {"npu-sim", "npu", "costmodel", "comm"}
@@ -317,14 +318,17 @@ def summary_object(record: dict) -> dict:
     return {"run_id": record["run_id"], "target": record["target"], "suites": suites}
 
 
-def _suite_rows(target_cfg: dict):
+def _suite_rows(target_cfg: dict, arches: dict):
     rows = []
     for s in target_cfg.get("suites", []):
+        runnable, reason = capabilities.suite_reason(s, arches)
         rows.append({
             "name": s.get("name", ""),
             "mode": s.get("mode", "-"),
             "arch": s.get("arch") or "-",
             "enabled": bool(s.get("enabled")),
+            "runnable": runnable,
+            "reason": reason,
             "milestone": s.get("milestone", ""),
             "description": s.get("description", ""),
         })
@@ -349,15 +353,17 @@ def list_all(cfg_path: Path, arches_path: Path, target: str, fmt: str) -> int:
     targets = cfg.get("targets", {})
     if target not in targets:
         usage_error(f"unknown target '{target}'. Known: {list(targets)}")
-    suites = _suite_rows(targets[target])
+    suites = _suite_rows(targets[target], arches)
     archs = _arch_rows(arches)
 
     if fmt == "markdown":
         print(f"# Suites — {target}\n")
-        print("| suite | mode | arch | enabled | milestone | description |")
+        print("| suite | mode | arch | status | milestone | description |")
         print("|---|---|---|---|---|---|")
         for s in suites:
-            print(f"| {s['name']} | {s['mode']} | {s['arch']} | {'✓' if s['enabled'] else ''} | {s['milestone']} | {s['description']} |")
+            st = "✓" if (s["enabled"] and s["runnable"]) else ("!" if s["enabled"] else "—")
+            desc = s["description"] if s["runnable"] else f"{s['description']} ({s['reason']})"
+            print(f"| {s['name']} | {s['mode']} | {s['arch']} | {st} | {s['milestone']} | {desc} |")
         print("\n# Arches\n")
         print("| arch | soc | march | chip |")
         print("|---|---|---|---|")
@@ -369,8 +375,10 @@ def list_all(cfg_path: Path, arches_path: Path, target: str, fmt: str) -> int:
         import html
         suites_html = "".join(
             f"<tr><td>{html.escape(s['name'])}</td><td>{html.escape(s['mode'])}</td>"
-            f"<td>{html.escape(s['arch'])}</td><td>{'✓' if s['enabled'] else ''}</td>"
-            f"<td>{html.escape(s['milestone'])}</td><td>{html.escape(s['description'])}</td></tr>"
+            f"<td>{html.escape(s['arch'])}</td>"
+            f"<td>{'✓' if (s['enabled'] and s['runnable']) else ('!' if s['enabled'] else '—')}</td>"
+            f"<td>{html.escape(s['milestone'])}</td>"
+            f"<td>{html.escape(s['description'] if s['runnable'] else s['description'] + ' (' + s['reason'] + ')')}</td></tr>"
             for s in suites)
         arch_html = "".join(
             f"<tr><td>{html.escape(a['name'])}</td><td>{html.escape(a['soc'])}</td>"
@@ -379,16 +387,22 @@ def list_all(cfg_path: Path, arches_path: Path, target: str, fmt: str) -> int:
         print(f"""<!doctype html><html><head><meta charset=\"utf-8\"><title>Suites</title>
 <style>body{{font-family:-apple-system,Segoe UI,Roboto,sans-serif;margin:2rem}}table{{border-collapse:collapse;margin:1rem 0}}th,td{{border:1px solid #ddd;padding:.4rem .6rem;text-align:left}}th{{background:#f5f5f5}}</style>
 </head><body><h1>Run catalog — {html.escape(target)}</h1>
-<h2>Suites</h2><table><thead><tr><th>suite</th><th>mode</th><th>arch</th><th>enabled</th><th>milestone</th><th>description</th></tr></thead><tbody>{suites_html}</tbody></table>
+<h2>Suites</h2><table><thead><tr><th>suite</th><th>mode</th><th>arch</th><th>status</th><th>milestone</th><th>description</th></tr></thead><tbody>{suites_html}</tbody></table>
 <h2>Arches</h2><table><thead><tr><th>arch</th><th>soc</th><th>march</th><th>chip</th></tr></thead><tbody>{arch_html}</tbody></table>
 </body></html>""")
         return 0
 
-    print(f"\nSuites for '{target}':")
+    print(f"\nSuites for '{target}' — ✓ enabled+runnable, ! enabled-but-missing, — disabled:")
     for s in suites:
-        mark = "✓" if s["enabled"] else " "
+        if s["enabled"] and s["runnable"]:
+            mark = "✓"
+        elif s["enabled"]:
+            mark = "!"
+        else:
+            mark = " "
+        note = "" if (s["runnable"] or not s["enabled"]) else f"  ← {s['reason']}"
         print(f"  [{mark}] {s['name']:<16} mode={s['mode']:<9} arch={s['arch']:<6} "
-              f"({s['milestone']}) {s['description']}")
+              f"({s['milestone']}) {s['description']}{note}")
     print("\nArches:")
     for a in archs:
         print(f"  {a['name']:<8} soc={a['soc']:<18} march={a['march']:<16} {a['chip']}")
@@ -450,6 +464,20 @@ def main(argv: list[str] | None = None) -> int:
     suites = select_suites(target_cfg, None if args.all_suites else args.suite)
     if not suites:
         usage_error("no enabled suites matched; check config/suites.json")
+
+    # auto-detect availability: for --all-suites, skip suites whose prerequisites
+    # are missing in this environment (explicit --suite still force-runs them).
+    if args.all_suites:
+        runnable: list[dict] = []
+        for s in suites:
+            ok, reason = capabilities.suite_reason(s, arches)
+            if ok:
+                runnable.append(s)
+            else:
+                print(f"  skip {s['name']}: {reason}")
+        if not runnable:
+            usage_error("none of the enabled suites are runnable in this environment; see ./harness list.")
+        suites = runnable
 
     record = {
         "run_id": run_id,

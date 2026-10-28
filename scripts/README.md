@@ -32,6 +32,7 @@ directly.
 ## Internals (imported / used by the commands above — not for direct use)
 
 - `_runs.py` — locate latest/list runs (used by report/review/history/clean/open).
+- `capabilities.py` — runtime capability checks (compiler/CANN/simulator/device/MPI) for auto-enabling suites.
 - `complete.py` — completion candidates (used by `completions/harness.bash`).
 - `parse_gtest.py` — log → normalized results (used by `run_suite.py`).
 - `log_correction.py` — strict `LRN-…` writer (used by `teach` and `session_digest.py`).
@@ -57,4 +58,6 @@ directly.
 - `./harness clean [--dry-run] [--keep N]` — purge run dirs, keeps baseline.
 - `./harness validate` — sanity-check suites/arches/cann configs.
 - `make check` — run the self-check locally.
+- `./harness list` — shows auto-detected availability: `✓` runnable, `!` missing prereqs, `—` disabled.
+- `--all-suites` auto-skips non-runnable suites and prints why (compiler/CANN/simulator/device/MPI).
 - Tab completion: `source completions/harness.bash` (also completes `--suite`/`--testcase` values).

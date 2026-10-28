@@ -9,7 +9,7 @@
       "suites": [
         {
           "name": "demo-suite",
-          "mode": "cpu",
+          "mode": "mock",
           "arch": null,
           "enabled": true,
           "milestone": "demo",

@@ -58,6 +58,9 @@ source completions/harness.bash          # tab-completion (add to ~/.bashrc)
 
 - `run` requires an explicit `--suite` **or** `--all-suites`; a bare `run` prints
   the enabled suites and exits 2.
+- `./harness list` auto-detects availability per environment: `[✓]`
+  enabled+runnable, `[!]` enabled but missing prereqs, `[ ]` disabled. `--all-suites`
+  runs only the runnable ones (and prints why the rest were skipped).
 - Exit codes: **0** clean, **1** ran-with-failures, **2** usage error.
 
 ### Guided tour
