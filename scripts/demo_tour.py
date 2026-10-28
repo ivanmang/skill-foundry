@@ -173,7 +173,9 @@ STEPS: list[dict] = [
          what="One command runs the demo suite through the REAL run_suite.py → run.json + raw log.",
          more="The mock gtest runner is fake, but the driver is the real run_suite.py. "
               "It records the target repo's git ref, dirty flag, host, and env snapshot, "
-              "so every result is reproducible — the same metadata the pto-isa runs carry.",
+              "so every result is reproducible — the same metadata the pto-isa runs carry. "
+              "In the real flow, --all-suites auto-skips suites whose prereqs are missing "
+              "(compiler / CANN headers+simulator / device / MPI); an explicit --suite force-runs.",
          run=step_run),
     dict(key="report", short="report", needs=("run",), title="Use — report (before learning)",
          what="build_report.py renders the run into report.md/.html — one failing case shows up as a raw FAIL.",
@@ -182,7 +184,8 @@ STEPS: list[dict] = [
          run=step_report),
     dict(key="review", short="review", needs=("run",), title="Use — review vs the pinned baseline",
          what="diff_runs.py diffs the run against demo/baseline/demo-baseline.json — the failing case is flagged as a PASS→FAIL regression.",
-         more="Avg and p99 are both tracked; p99 rising >15% trips a perf flag even when avg is flat — "
+         more="Regression = diff vs the PINNED baseline — refresh the baseline only deliberately. "
+              "Avg and p99 are both tracked; p99 rising >15% trips a perf flag even when avg is flat — "
               "never report average alone.",
          run=step_review),
     dict(key="teach", short="teach", needs=("review",), title="Improve — auto-capture the correction",
@@ -201,7 +204,8 @@ STEPS: list[dict] = [
               "append-only, cheap, revertible. Apply is gated — SKILL.md + known-failures.md are the team's shared source "
               "of truth every future agent reads. The machine may grow its memory freely, but shared knowledge only changes "
               "when a human merges — same as Claude Code auto-writing memory but never auto-editing CLAUDE.md. "
-              "A wrong auto-edit here (e.g. a bad 'known failure') would silently annotate real regressions as known and hide them.",
+              "A wrong auto-edit here (e.g. a bad 'known failure') would silently annotate real regressions as known and hide them. "
+              "RED line beyond it: the harness never auto-REMOVES or auto-CHANGES an existing check — it only ADDS.",
          run=step_apply),
     dict(key="rerun", short="rerun", needs=("apply",), title="Improve — re-render with the new knowledge",
          what="Re-render the SAME run.json with the improved corpus → the failure is now annotated as known.",
@@ -332,6 +336,20 @@ def intro() -> None:
   your CLAUDE.md. A machine that silently rewrites shared knowledge turns its
   own mistakes into everyone's blind spots — a wrong "known failure" would
   hide real regressions.
+
+  The rules that keep the regression signal honest:
+
+    1. The pinned baseline is the ground truth — "regression" = diff vs it.
+       Refresh it only deliberately (new suites / arch changes), never casually.
+    2. Never auto-remove or auto-change an existing check — the harness adds
+       entries; it never silently deletes or weakens one.
+    3. p99 > +15% flags a perf regression even if the average looks stable —
+       never trust average alone.
+    4. An npu-sim suite needs BOTH the CANN compile headers AND the simulator —
+       ./harness list marks it ! if either is missing.
+    5. --all-suites auto-skips missing prereqs; an explicit --suite force-runs.
+    6. Every run records context (git ref, dirty flag, host, env), so any
+       result is reproducible on another machine.
 
   After each step you choose what to do: run & continue, skip, go back,
   jump, or explain.

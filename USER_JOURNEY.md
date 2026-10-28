@@ -31,6 +31,16 @@ And a simple rule of thumb for who does what:
 - 🟡 **you / a reviewer do** — the triage judgment (`teach`), merging the MR
   (`promote --pr`).
 
+And six rules that keep the regression signal honest:
+
+1. The pinned baseline is the **ground truth** — "regression" = diff vs it;
+   refresh only deliberately (new suites / arch changes), never casually.
+2. Never auto-remove or auto-change an existing check — the harness only adds.
+3. p99 > +15% flags a perf regression even if the average is stable.
+4. npu-sim needs BOTH compile headers AND the simulator (see `./harness list` / `cann`).
+5. `--all-suites` auto-skips missing prereqs; an explicit `--suite` force-runs.
+6. Every run records context (git ref, dirty flag, host, env) → reproducible.
+
 ---
 
 ## Personas

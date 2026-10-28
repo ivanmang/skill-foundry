@@ -291,6 +291,8 @@ def choose_target_and_suites() -> tuple[str, list[str], list[str]]:
         note = "" if (runnable or not s.get("enabled")) else f"  ← {reason}"
         label = f"{mark}{s['name']:<14} {s.get('mode','-'):<9} {s.get('description','')}{note}"
         options.append((label, s["name"]))
+    print(c("  ✓ = enabled+runnable   ! = enabled but missing prereqs   (blank) = disabled", BOLD))
+    print(c("  npu-sim needs BOTH compile headers AND the simulator; --all-suites auto-skips the rest.", YELLOW))
     choice = select_menu("Choose a suite (↑/↓ + Enter):", options) or "all"
 
     if choice == "all":
@@ -327,6 +329,7 @@ def run_real_tour() -> int:
     target, suite_flags, extra_flags = choose_target_and_suites()
 
     banner("2 · Run the suite(s)")
+    print(c("  Every run records context (git ref, dirty flag, host, env) in run.json — reproducible on any machine.", YELLOW))
     cmd = [sys.executable, "scripts/run_suite.py", "--target", target, *suite_flags, *extra_flags]
     result = subprocess.run(cmd, cwd=HARNESS)
     if result.returncode != 0:
@@ -349,6 +352,8 @@ def run_real_tour() -> int:
         print(f"  → {out_base}.md / {out_base}.html")
 
     banner("4 · Review vs baseline")
+    print(c("  'Regression' = diff vs the PINNED baseline — refresh the baseline only deliberately (new suites / arch changes).", BOLD))
+    print(c("  Perf: p99 > +15% flags even if average looks stable — never trust average alone.", YELLOW))
     if latest and ask_yesno("Diff against the pinned baseline?", "y"):
         subprocess.run([
             sys.executable, "scripts/diff_runs.py",
@@ -368,6 +373,7 @@ def run_real_tour() -> int:
     print("    🟡 '--pr' writes it on a branch + pushes + prints an MR — a reviewer merges.")
     print(c("    (Auto-edit of shared skills is NOT automatic — like Claude Code auto-writing memory\n"
             "     but never auto-editing CLAUDE.md.)", YELLOW))
+    print(c("  RED line: the harness never auto-REMOVES or auto-CHANGES an existing check — it only ADDS.", RED))
     if ask_yesno("Propose/promote pending learnings?", "n"):
         if ask_yesno("Apply + push + open a merge request (--pr)? (n = propose only)", "y"):
             subprocess.run([sys.executable, "scripts/promote_recent.py", "--pr"], cwd=HARNESS)

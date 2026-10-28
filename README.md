@@ -33,6 +33,28 @@ See both loops live in ~2 minutes: `./harness demo`.
 
 ---
 
+## The rules that keep the signal honest
+
+Six rules that matter more than they look — get these wrong and the regression
+signal itself is corrupted:
+
+1. **The pinned baseline is the ground truth.** "Regression" means *diff vs
+   `reports/baseline/baseline.json`*. Refresh it only deliberately (new suites /
+   arch changes), never casually — a bad re-pin poisons every future run.
+2. **Never auto-remove or auto-change an existing check.** The harness adds
+   entries; it never silently deletes or weakens one. Removing a check is how
+   regressions start leaking through.
+3. **p99 > +15% flags a perf regression even if average is stable.** Never trust
+   average alone — averages hide tail latency.
+4. **An npu-sim suite needs BOTH the CANN compile headers AND the simulator.**
+   `./harness list` marks it `!` if either is missing; `./harness cann` shows why.
+5. **`--all-suites` auto-skips missing prereqs; an explicit `--suite` force-runs.**
+   Safe-by-default, with an explicit override.
+6. **Every run records context** (git ref, dirty flag, host, env) in `run.json`,
+   so any result is reproducible on another machine.
+
+---
+
 ## Getting started
 
 ```bash
