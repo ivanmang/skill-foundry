@@ -88,6 +88,7 @@ The harness itself needs only `python3` + `git`. Targets need more — and
 | Command | Purpose |
 |---|---|
 | `./harness status` | one-glance dashboard (env, suites, baseline, learnings, last run) |
+| `./harness targets` | list configured targets (name, label, repo, suites) |
 | `./harness diagnose` | check this machine + print the exact fix for each issue |
 | `./harness onboarding` | guided first-run setup |
 | `./harness tui` | full-screen dashboard (interactive) |
@@ -97,7 +98,7 @@ The harness itself needs only `python3` + `git`. Targets need more — and
 | `./harness review` | diff a run vs the pinned baseline (p99 + CA metrics) |
 | `./harness teach` | log a correction (append-only) |
 | `./harness promote` | pending learnings → skills (`--propose` / `--apply` / `--pr`) |
-| `./harness baseline` | re-pin `reports/baseline/baseline.json` |
+| `./harness baseline` | re-pin `reports/baseline/<target>.json` (per target) |
 | `./harness list` | suites + arches with auto-detected availability |
 | `./harness cann` | which CANN supports which arch (headers vs simulator) |
 | `./harness guide` | interactive tour of the real flow |

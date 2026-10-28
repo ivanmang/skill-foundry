@@ -3,7 +3,7 @@
 #
 # Run on the canonical machine (CPU-ST: clang++>=15/g++>=13; NPU-sim: CANN sim).
 # The harness intentionally keeps ALL other report artifacts gitignored; only
-# reports/baseline/baseline.json is committed.
+# reports/baseline/<target>.json is committed.
 #
 # Safety: refuses to pin a baseline if ANY suite did not PASS, unless --force.
 set -euo pipefail
@@ -27,7 +27,7 @@ echo "Regenerating pinned baseline for target '${TARGET}' (run ${RUN_ID})..."
 python3 "$HARNESS_DIR/scripts/run_suite.py" --target "$TARGET" --all-suites --run-id "$RUN_ID"
 
 SRC="$HARNESS_DIR/reports/$RUN_ID/run.json"
-DST="$HARNESS_DIR/reports/baseline/baseline.json"
+DST="$HARNESS_DIR/reports/baseline/${TARGET}.json"
 
 BAD_SUITES="$(python3 - "$SRC" <<'PY'
 import json, sys
@@ -57,6 +57,6 @@ cat <<EOF
 Committed baseline points at $DST.
 
 Review, then commit:
-  git -C "$HARNESS_DIR" add reports/baseline/baseline.json
+  git -C "$HARNESS_DIR" add reports/baseline/${TARGET}.json
   git -C "$HARNESS_DIR" commit -m "chore: pin $TARGET regression baseline ($STAMP)"
 EOF

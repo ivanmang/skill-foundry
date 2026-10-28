@@ -73,7 +73,7 @@ cd regression-harness
 ./harness review                 # 7. diff vs the pinned baseline
 ```
 
-`./harness baseline pto-isa` pins the baseline on the canonical machine (see
+`./harness baseline <target>` pins the baseline on the canonical machine (see
 [Canonical environment](#canonical-environment)); it refuses unless every suite
 PASSes (`--force` overrides).
 
@@ -89,13 +89,14 @@ PASSes (`--force` overrides).
 ./harness review    diff vs baseline      [--run (default latest), --baseline, --out]
 ./harness teach     log a correction      ["wrong -> correct -> action" | wizard | --edit]
 ./harness promote   learnings → skills    [--propose | --apply | --pr]
-./harness baseline  re-pin baseline.json  [--force] [target]
+./harness baseline  re-pin baseline <target>.json  [--force] [target]
 ./harness history   recent runs           [--limit, --json]
 ./harness clean     remove run dirs       [--dry-run, --keep N]
 ./harness open      open report.html      [run-id (default latest)]
 ./harness validate  check config files
 ./harness status    one-glance dashboard   [--json]
 ./harness diagnose  check env + fixes      [--json, --strict]
+./harness targets   list configured targets [--json]
 ./harness onboarding  guided first-run setup
 ./harness tui       full-screen dashboard (interactive)
 ./harness menu      curated menu (bare ./harness default)

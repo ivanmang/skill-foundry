@@ -45,8 +45,9 @@ Commands:
   clean     Remove run dirs (keeps baseline)   [--dry-run, --keep N]
   open      Open a run's report.html           [run-id (default: latest)]
   validate  Check suites/arches/cann configs
-  status    One-glance dashboard               [--json]
+  status    One-glance dashboard               [--json, --target]
   diagnose  Check env + print exact fixes      [--json, --strict]
+  targets   List configured targets            [--json]
   onboarding  Guided first-run setup
   tui       Full-screen dashboard (interactive)
   menu      Curated interactive menu (bare ./harness default)
@@ -128,9 +129,16 @@ Example: ./harness promote --propose    then    ./harness promote --pr
 EOF
     ;;
     status) cat <<'EOF'
-./harness status — one-glance dashboard (env, suites, baseline, learnings, last run)
-  --json  machine output
+./harness status — one-glance dashboard (env, per-target suites, baseline, learnings, last run)
+  --target <t>  show only one target
+  --json        machine output
 Example: ./harness status
+EOF
+    ;;
+    targets) cat <<'EOF'
+./harness targets — list configured targets (name, label, repo, suites)
+  --json  machine output
+Examples: ./harness targets           ./harness targets --json
 EOF
     ;;
     diagnose) cat <<'EOF'
@@ -213,6 +221,7 @@ case "$CMD" in
   validate) exec python3 "$HARNESS/scripts/validate.py" "$@" ;;
   status)   exec python3 "$HARNESS/scripts/status.py" "$@" ;;
   diagnose) exec python3 "$HARNESS/scripts/diagnose.py" "$@" ;;
+  targets)  exec python3 "$HARNESS/scripts/targets_cli.py" "$@" ;;
   onboarding) exec python3 "$HARNESS/scripts/onboarding.py" "$@" ;;
   tui)      exec python3 "$HARNESS/scripts/tui.py" "$@" ;;
   menu)     exec python3 "$HARNESS/scripts/menu.py" "$@" ;;

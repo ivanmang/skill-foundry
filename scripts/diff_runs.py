@@ -21,9 +21,9 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import _runs  # noqa: E402
+import targets  # noqa: E402
 
 HARNESS = Path(__file__).resolve().parent.parent
-DEFAULT_BASELINE = HARNESS / "reports" / "baseline" / "baseline.json"
 P99_PCT = 15.0
 PERF_PCT = 15.0  # CA-metric thresholds: cycles/EX up >15%, IPC down >15%
 
@@ -165,7 +165,7 @@ def print_human(d: dict) -> None:
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description="Diff a run against the pinned baseline.")
     ap.add_argument("--run", default=None, help="Run record (run.json); default = latest run.")
-    ap.add_argument("--baseline", default=str(DEFAULT_BASELINE), help="Baseline run.json.")
+    ap.add_argument("--baseline", default=None, help="Baseline run.json; default = reports/baseline/<target>.json for the run's target.")
     ap.add_argument("--out", help="Write the machine-readable delta JSON to this path.")
     args = ap.parse_args(argv)
 
@@ -179,11 +179,24 @@ def main(argv: list[str] | None = None) -> int:
         run_path = str(latest[0])
 
     new = load(Path(run_path))
-    base = load(Path(args.baseline))
     if new is None:
         raise SystemExit(f"run not found: {run_path}")
+
+    if args.baseline:
+        base_path = Path(args.baseline)
+    else:
+        tgt = new.get("target")
+        if not tgt:
+            raise SystemExit("run has no target — pass --baseline explicitly")
+        base_path = targets.baseline_path(tgt)
+    base = load(base_path)
     if base is None:
-        raise SystemExit(f"baseline not found: {args.baseline}")
+        raise SystemExit(f"baseline not found: {base_path}")
+
+    if new.get("target") and base.get("target") and new.get("target") != base.get("target"):
+        raise SystemExit(
+            f"refusing to diff across targets: run target '{new['target']}' vs baseline target '{base['target']}'"
+            " — pass --baseline explicitly if this is intentional.")
 
     if base.get("generated") is False:
         print("NOTE: baseline is a seed (generated=false). First real run should be "

@@ -1,9 +1,9 @@
-# Generated run artifacts — everything under reports/ except the pinned baseline
+# Generated run artifacts — everything under reports/ except the pinned baselines
 reports/*
 !reports/
 !reports/baseline/
 reports/baseline/*
-!reports/baseline/baseline.json
+!reports/baseline/*.json
 
 # Python
 __pycache__/

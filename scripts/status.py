@@ -80,8 +80,22 @@ def _target_rows(cfg: dict, only: str | None) -> list[dict]:
             "repo_ok": repo.exists(),
             "repo_path": str(repo),
             "suites": suite_rows,
+            "baseline": _baseline_info(name),
         })
     return rows
+
+
+def _baseline_info(name: str) -> dict:
+    bpath = targets.baseline_path(name)
+    bdata = json.loads(bpath.read_text(encoding="utf-8")) if bpath.exists() else {}
+    age = None
+    if bdata.get("generated_at"):
+        try:
+            gen = _dt.datetime.fromisoformat(bdata["generated_at"])
+            age = (_dt.datetime.now(_dt.timezone.utc) - gen).days
+        except Exception:
+            age = None
+    return {"exists": bpath.exists(), "run_id": bdata.get("run_id"), "age_days": age}
 
 
 def collect(only: str | None = None) -> dict:
@@ -95,16 +109,7 @@ def collect(only: str | None = None) -> dict:
         except Exception:
             ascend_version = "?"
 
-    baseline_path = HARNESS / "reports" / "baseline" / "baseline.json"
-    baseline = json.loads(baseline_path.read_text(encoding="utf-8")) if baseline_path.exists() else {}
-    baseline_age = None
-    if baseline.get("generated_at"):
-        try:
-            gen = _dt.datetime.fromisoformat(baseline["generated_at"])
-            baseline_age = (_dt.datetime.now(_dt.timezone.utc) - gen).days
-        except Exception:
-            baseline_age = None
-
+    # baseline now lives per-target (see _target_rows); no shared baseline block.
     last_info = None
     for p, data in _runs.iter_runs():
         if data.get("run_id", "").startswith("demo-live"):
@@ -127,11 +132,6 @@ def collect(only: str | None = None) -> dict:
             "ascend_version": ascend_version,
         },
         "targets": _target_rows(cfg, only),
-        "baseline": {
-            "exists": baseline_path.exists(),
-            "run_id": baseline.get("run_id"),
-            "age_days": baseline_age,
-        },
         "learnings": {
             "pending": pending_count(HARNESS / "learnings" / "recent.md"),
             "promoted": promoted_count(HARNESS / "learnings" / "promoted.md"),
@@ -154,19 +154,17 @@ def render(data: dict) -> None:
     for t in data["targets"]:
         print(c(f"\n target: {t['label']}  ({t['name']})", BOLD))
         print(f"  {mark(t['repo_ok'])} repo  {t['repo_path']}  (env {t['repo_env']})")
+        b = t["baseline"]
+        if b["exists"]:
+            age = f"{b['age_days']}d ago" if b["age_days"] is not None else "?"
+            print(f"  {mark(True)} baseline  {b['run_id']}, {age} — refresh only deliberately")
+        else:
+            print(f"  {mark(False)} baseline  none — ./harness baseline {t['name']}")
         for s in t["suites"]:
             sym = "✓" if (s["enabled"] and s["runnable"]) else ("!" if s["enabled"] else "·")
             color = GREEN if (s["enabled"] and s["runnable"]) else (YELLOW if s["enabled"] else "")
             note = "" if (s["runnable"] or not s["enabled"]) else f"  ← {s['reason']}"
             print(f"    [{c(sym, color)}] {s['name']:<14} {s['mode']:<9} {s['milestone']}{note}")
-
-    b = data["baseline"]
-    age = f"{b['age_days']}d ago" if b["age_days"] is not None else "?"
-    print(c("\n baseline", BOLD))
-    if b["exists"]:
-        print(f"  {mark(True)} pinned ({b['run_id']}), {age} — refresh only deliberately")
-    else:
-        print(f"  {mark(False)} no baseline yet — run: ./harness baseline <target>")
 
     ln = data["learnings"]
     print(c("\n learnings", BOLD))

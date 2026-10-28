@@ -23,6 +23,12 @@ from pathlib import Path
 HARNESS = Path(__file__).resolve().parent.parent
 CONFIG = HARNESS / "config" / "suites.json"
 DEFAULT_ARCHES = HARNESS / "config" / "arches.json"
+BASELINES_DIR = HARNESS / "reports" / "baseline"
+
+
+def baseline_path(target_name: str) -> Path:
+    """Per-target pinned baseline: reports/baseline/<target>.json."""
+    return BASELINES_DIR / f"{target_name}.json"
 
 
 def load_config(path: Path | None = None) -> dict:

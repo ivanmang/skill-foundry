@@ -154,9 +154,9 @@ which arches it can compile (headers) vs simulate.
 On a canonical machine (see the table in Step 0):
 
 ```bash
-./harness baseline pto-isa
+./harness baseline pto-isa   # or: ./harness baseline <target>
 # runs all enabled (and runnable) suites, copies the result to
-# reports/baseline/baseline.json
+# reports/baseline/<target>.json
 # (refuses to pin if any suite did not PASS — use --force to override)
 
 git add reports/baseline/baseline.json
@@ -368,7 +368,7 @@ loop, and every teammate gets it via git.
 | Nightly | `.gitcode/workflows/promote-learnings.yml` surfaces pending learnings |
 | On push/PR | `.gitcode/workflows/selfcheck.yml` runs `./harness selfcheck` |
 | Weekly / on demand | reviewer merges `feat/learnings-*` MRs |
-| After suite changes | `./harness baseline pto-isa` to re-pin the baseline |
+| After suite changes | `./harness baseline <target>` to re-pin the baseline |
 | After a correction | re-run one representative case to verify it improved triage |
 | Housekeeping | `./harness clean --keep 3` / `./harness history` / `make check` |
 
@@ -385,7 +385,7 @@ loop, and every teammate gets it via git.
 | Guided setup | `./harness onboarding` |
 | List suites + arches + availability | `./harness list [--format markdown\|html]` |
 | Which CANN supports which arch | `./harness cann [--scan] [--json]` |
-| Pin / refresh baseline | `./harness baseline [--force] pto-isa` |
+| Pin / refresh baseline | `./harness baseline [--force] <target>` |
 | Run all suites | `./harness run --all-suites [--quiet\|--tui\|--json\|--parallel]` |
 | Run one suite | `./harness run --suite cpu-st` |
 | Run one testcase | `./harness run --suite npu-sim-a5 --testcase tpartargmax` |

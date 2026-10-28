@@ -32,9 +32,6 @@ YELLOW = "\033[33m"
 BOLD = "\033[1m"
 RESET = "\033[0m"
 
-BASELINE = HARNESS / "reports" / "baseline" / "baseline.json"
-
-
 def c(text: str, color: str) -> str:
     return f"{color}{text}{RESET}" if sys.stdout.isatty() else text
 
@@ -353,10 +350,11 @@ def run_real_tour(name: str, target: dict) -> int:
     if latest:
         print(c(f"  latest run: {latest}", GREEN))
         if ask_yesno("Diff it against the pinned baseline?", "y"):
+            baseline = targets.baseline_path(tname)
             subprocess.run([
                 sys.executable, "scripts/diff_runs.py",
                 "--run", str(HARNESS / "reports" / latest / "run.json"),
-                "--baseline", str(BASELINE),
+                "--baseline", str(baseline),
             ], cwd=HARNESS, check=False)
     else:
         print(c("  (no run.json found — nothing to review)", YELLOW))
