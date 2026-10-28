@@ -10,11 +10,22 @@ A self-contained, non-destructive live demo of the regression harness.
 ## Run it
 
 ```bash
-./demo/run_demo.sh            # straight through
-PAUSE=1 ./demo/run_demo.sh    # pause between scenes (for presenting)
+./harness demo                # interactive, step-by-step (arrow keys + Enter)
+./harness demo --straight     # straight through (CI / quick skim)
+PAUSE=1 ./demo/run_demo.sh    # scene-by-scene with a pause (for presenting)
 ```
 
 Presenter talking points: [`NARRATION.md`](NARRATION.md).
+
+### Interactive controls
+
+After each step the tour offers a menu (arrow keys + Enter):
+
+- **run this step** — execute the real harness command and show its output
+- **next / previous step** — move without running
+- **jump to a step** — open the step map and pick any scene
+- **explain more** — a short "why it matters" for the step
+- **quit** — stop; artifacts remain under `reports/demo-live-<ts>/` and `/tmp`
 
 ## What it does
 

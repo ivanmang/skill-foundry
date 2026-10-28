@@ -37,6 +37,7 @@ directly.
 - `parse_gtest.py` — log → normalized results (used by `run_suite.py`).
 - `log_correction.py` — strict `LRN-…` writer (used by `teach` and `session_digest.py`).
 - `session_digest.py` — draft pending learnings from a `run.json`.
+- `demo_tour.py` — interactive, step-by-step demo driver (reuses `guide.py` menus).
 
 ## Conventions
 
@@ -59,5 +60,6 @@ directly.
 - `./harness validate` — sanity-check suites/arches/cann configs.
 - `make check` — run the self-check locally.
 - `./harness list` — shows auto-detected availability: `✓` runnable, `!` missing prereqs, `—` disabled.
+- `./harness demo` — interactive step-by-step walkthrough (run / next / previous / jump / explain / quit); `--straight` runs it non-interactively.
 - `--all-suites` auto-skips non-runnable suites and prints why (compiler/CANN/simulator/device/MPI).
 - Tab completion: `source completions/harness.bash` (also completes `--suite`/`--testcase` values).

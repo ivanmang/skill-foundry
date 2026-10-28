@@ -374,14 +374,14 @@ def run_real_tour() -> int:
 def main(argv: list[str] | None = None) -> int:
     args = argv if argv is not None else sys.argv[1:]
     if "--demo" in args:
-        return subprocess.run([str(HARNESS / "demo" / "run_demo.sh")]).returncode
+        return subprocess.run([sys.executable, str(HARNESS / "scripts" / "demo_tour.py")]).returncode
     print(c("\n regression-harness · guided tour ", BOLD))
     mode = select_menu(
         "Start with:",
-        [("Sandboxed demo (no hardware)", "demo"), ("Real pto-isa tour", "real")],
+        [("Sandboxed demo (no hardware, step-by-step)", "demo"), ("Real pto-isa tour", "real")],
     ) or "demo"
     if mode == "demo":
-        return subprocess.run([str(HARNESS / "demo" / "run_demo.sh")]).returncode
+        return subprocess.run([sys.executable, str(HARNESS / "scripts" / "demo_tour.py")]).returncode
     return run_real_tour()
 
 

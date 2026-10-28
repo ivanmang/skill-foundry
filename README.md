@@ -10,7 +10,7 @@ that can be expressed as a suite matrix.
 
 > **New here?** Start with the [User Journey](USER_JOURNEY.md), run
 > `./harness guide` for an interactive tour, or jump straight to the
-> 2-minute sandboxed demo: `./harness demo`.
+> interactive sandboxed demo: `./harness demo`.
 > One entry point for everything: `./harness help`.
 
 ---
@@ -30,7 +30,7 @@ that can be expressed as a suite matrix.
 ./harness clean     remove run dirs       [--dry-run, --keep]
 ./harness open      open report.html      [run-id (default latest)]
 ./harness validate  check config files
-./harness demo      2-minute walkthrough
+./harness demo      interactive step-by-step walkthrough  [--straight]
 ./harness list      suites + arches       [--target, --format text|markdown|html]
 ./harness cann      which CANN → which arch  [--home, --scan, --json]
 ./harness selfcheck compile-check + demo smoke
@@ -67,7 +67,8 @@ source completions/harness.bash          # tab-completion (add to ~/.bashrc)
 
 ```bash
 ./harness guide           # interactive step-by-step tour of the real flow
-./harness guide --demo    # sandboxed demo tour (no hardware)
+./harness demo            # interactive sandboxed demo (no hardware, step-by-step)
+./harness demo --straight # demo straight through (for presenting / CI)
 ```
 
 The guide walks you through env check → choose suites → run → report → review →
@@ -77,6 +78,11 @@ choice, **suite**, **testcase**, **gtest filter**, **CANN package**, and
 skip) and fall back to numbered prompts when piped. If `ASCEND_HOME_PATH` is
 unset, the CANN picker lists each installed package with which arches it can
 compile vs simulate.
+
+The demo (`./harness demo`) drives the **real** harness scripts against a mock
+gtest runner, one step at a time. After each step it offers **run / next /
+previous / jump / explain / quit** (arrow keys + Enter), so you can pace it or
+re-play any step.
 
 ---
 
@@ -156,7 +162,7 @@ Capture is automated; promotion is a reviewable, git-tracked edit.
 `.gitcode/workflows/selfcheck.yml` runs `./harness selfcheck` on push/PR.
 
 See `.claude/skills/skill-maintainer/SKILL.md` and run the live walkthrough:
-`./harness demo` (narration in `demo/NARRATION.md`).
+`./harness demo` (interactive; narration in `demo/NARRATION.md`).
 
 ## Troubleshooting
 

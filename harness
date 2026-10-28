@@ -44,7 +44,7 @@ Commands:
   open      Open a run's report.html           [run-id (default: latest)]
   validate  Check suites/arches/cann configs
   guide     Interactive step-by-step tour      [--demo]
-  demo      Sandboxed 2-minute walkthrough
+  demo      Sandboxed walkthrough (interactive) [--straight]
   list      List suites + arches               [--target, --format text|markdown|html]
   cann      Which CANN supports which arch     [--home, --scan, --json]
   selfcheck Compile-check + demo smoke test
@@ -76,7 +76,7 @@ case "$CMD" in
   open)     exec python3 "$HARNESS/scripts/open_report.py" "$@" ;;
   validate) exec python3 "$HARNESS/scripts/validate.py" "$@" ;;
   guide)    exec python3 "$HARNESS/scripts/guide.py" "$@" ;;
-  demo)     exec "$HARNESS/demo/run_demo.sh" "$@" ;;
+  demo)     exec python3 "$HARNESS/scripts/demo_tour.py" "$@" ;;
   list)     exec python3 "$HARNESS/scripts/run_suite.py" --list "$@" ;;
   cann)     exec python3 "$HARNESS/scripts/detect_cann.py" "$@" ;;
   selfcheck) exec "$HARNESS/scripts/selfcheck" ;;
