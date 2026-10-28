@@ -156,16 +156,16 @@ def render(data: dict) -> None:
     ln = data["learnings"]
     print(c("\n learnings", BOLD))
     print(f"  {ln['pending']} pending · {ln['promoted']} promoted"
-          + (f"   → ./harness promote --propose" if ln["pending"] else ""))
+          + ("   → ./harness promote --propose" if ln["pending"] else ""))
 
     lr = data["last_run"]
     print(c("\n last run", BOLD))
     if lr:
         st = c("FAIL" if lr["failed"] else "PASS", RED if lr["failed"] else GREEN)
         print(f"  {lr['run_id']} [{lr['target']}] · {lr['suites']} · {st}")
-        print(f"  next: ./harness report --open" + ("" if lr["failed"] else "  (or ./harness review)"))
+        print("  next: ./harness report --open" + ("" if lr["failed"] else "  (or ./harness review)"))
     else:
-        print(f"  none yet — run: ./harness run --all-suites --quiet")
+        print("  none yet — run: ./harness run --all-suites --quiet")
 
     print()
 

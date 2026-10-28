@@ -21,7 +21,6 @@ from __future__ import annotations
 
 import argparse
 import re
-import sys
 from pathlib import Path
 
 HARNESS = Path(__file__).resolve().parent.parent

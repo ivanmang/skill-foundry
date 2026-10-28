@@ -20,9 +20,8 @@ HARNESS = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 import capabilities  # noqa: E402
-import _runs  # noqa: E402
 import targets  # noqa: E402
-from _term import GREEN, RED, YELLOW, BOLD, c, mark  # noqa: E402
+from _term import GREEN, YELLOW, BOLD, c, mark  # noqa: E402
 
 
 def collect_issues() -> list[dict]:

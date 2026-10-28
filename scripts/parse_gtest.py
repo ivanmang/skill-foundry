@@ -17,7 +17,6 @@ from __future__ import annotations
 import argparse
 import json
 import re
-import sys
 from pathlib import Path
 
 # gtest final summary lines
@@ -50,7 +49,6 @@ def parse_text(text: str, suite: str = "") -> dict:
     order: list[str] = []
     summary = {"passed": 0, "failed": 0, "skipped": 0, "total": 0, "status": "UNKNOWN"}
     evidence: list[str] = []
-    pending_gtest_case: str | None = None
     have_counts = False  # True once a gtest final summary line gave explicit counts
 
     def add_case(name: str, status: str, duration_s: float | None = None):
@@ -86,17 +84,14 @@ def parse_text(text: str, suite: str = "") -> dict:
         # gtest state machine: RUN -> OK/FAILED for a specific test name
         m = RUN_RE.match(line)
         if m:
-            pending_gtest_case = m.group(1)
             continue
         m = OK_RE.match(line)
         if m:
             add_case(m.group(1), "PASS")
-            pending_gtest_case = None
             continue
         m = FAILED_CASE_RE.match(line)
         if m:
             add_case(m.group(1), "FAIL")
-            pending_gtest_case = None
             continue
 
         # run_cpu.py / run_st.py per-case summary lines

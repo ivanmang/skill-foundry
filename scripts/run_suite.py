@@ -135,13 +135,13 @@ def _empty_results(name: str, status: str, evidence: list[str]) -> dict:
 
 def extract_error(log_text: str) -> str | None:
     """Pull the most likely root-cause line out of a failing run's log."""
-    lines = [l.strip() for l in log_text.splitlines() if l.strip()]
-    for l in lines:
-        if re.search(r"segmentation fault|\bfatal error:", l, re.I):
-            return l[:200]
-    for l in lines:
-        if re.search(r"\berror:|run failed:", l, re.I):
-            return l[:200]
+    lines = [line.strip() for line in log_text.splitlines() if line.strip()]
+    for line in lines:
+        if re.search(r"segmentation fault|\bfatal error:", line, re.I):
+            return line[:200]
+    for line in lines:
+        if re.search(r"\berror:|run failed:", line, re.I):
+            return line[:200]
     return None
 
 
@@ -423,12 +423,12 @@ def _print_next_steps(record: dict, failed: bool, as_json: bool) -> None:
             "next: ./harness report --open   or   ./harness review   (diff vs baseline)",
         ]
     if as_json:
-        for l in lines:
-            print(l, file=sys.stderr)
+        for line in lines:
+            print(line, file=sys.stderr)
     else:
         print()
-        for l in lines:
-            print("  " + l)
+        for line in lines:
+            print("  " + line)
 
 
 def main(argv: list[str] | None = None) -> int:

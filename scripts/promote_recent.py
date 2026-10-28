@@ -257,7 +257,6 @@ def create_mr(web: str, branch: str, base: str, title: str) -> tuple[str, bool]:
 
 
 def propose_all(root: Path, lp: Path, pending: list[dict]) -> int:
-    any_diff = False
     for e in pending:
         t = resolve_target(e, root)
         if t is None:
@@ -268,7 +267,6 @@ def propose_all(root: Path, lp: Path, pending: list[dict]) -> int:
         if new == old:
             print(f"SKIP {e['id']}: no change for {t.relative_to(root)}")
             continue
-        any_diff = True
         print(f"\n### {e['id']} → {t.relative_to(root)}")
         print("\n".join(difflib.unified_diff(
             old.splitlines(), new.splitlines(),
