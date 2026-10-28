@@ -193,13 +193,24 @@ def choose_cann() -> str | None:
     return select_menu(title, options)
 
 
-def choose_testcase(suite: str, tdirs: dict, repo: Path) -> str:
-    """Dropdown of testcases in the chosen suite; '' means run all in the suite."""
+def choose_testcase(suite: str, tdirs: dict, repo: Path, kind: str = "dir") -> str:
+    """Dropdown of testcases; '' = run all. kind: 'dir' (default) or 'file' (list .py cases)."""
     rel = tdirs.get(suite)
-    d = repo / rel if rel else None
-    if not d or not d.exists():
+    base = repo / rel if rel else None
+    if not base or not base.exists():
         return ask("Testcase (blank = all in suite)").strip()
-    names = sorted(p.name for p in d.iterdir() if p.is_dir())
+    if kind == "file":
+        files = sorted(
+            p.relative_to(base).as_posix()
+            for p in base.rglob("*.py")
+            if p.is_file() and "__" not in p.name
+        )
+        if not files:
+            return ""
+        options = [("all cases (no filter)", "")] + [(f, f) for f in files]
+        sel = select_menu(f"Choose a case for {suite} (↑/↓ + Enter, q = all):", options)
+        return sel if sel is not None else ""
+    names = sorted(p.name for p in base.iterdir() if p.is_dir())
     if not names:
         return ""
     options = [("all testcases", "")] + [(name, name) for name in names]
@@ -293,7 +304,9 @@ def choose_target_and_suites(name: str, target: dict) -> tuple[str, list[str], l
     testcase_flags: list[str] = []
     filter_flags: list[str] = []
     if choice.lower() not in ("all", ""):
-        testcase = choose_testcase(choice, tdirs, repo)
+        smap = {s["name"]: s for s in suites}
+        suite_obj = smap.get(choice) or {}
+        testcase = choose_testcase(choice, tdirs, repo, suite_obj.get("testcase_kind", "dir"))
         if testcase:
             testcase_flags = ["--testcase", testcase]
             gfilter = choose_filter(choice, testcase, tdirs, repo)

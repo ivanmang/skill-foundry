@@ -106,7 +106,7 @@
       "repo_env": "PTO_VMI_REPO",
       "repo_default": "~/pto-vmi",
       "repo_clone": "git@gitcode.com:csjlchen/pto-vmi.git",
-      "env_setup": "source \"$ASCEND_HOME_PATH/set_env.sh\" >/dev/null 2>&1 || true",
+      "env_setup": "source \"$ASCEND_HOME_PATH/set_env.sh\" >/dev/null 2>&1 || true\nexport PTO_VENV=\"${PTO_VENV:-$HOME/.venv-ptoas312}\"\nexport PATH=\"$PTO_VENV/bin:$PATH\"\nexport PYTHON_BIN=\"$PTO_VENV/bin/python3\"\nexport PTOAS_BIN=\"$PTO_VENV/bin/ptoas\"",
       "env": {},
       "testcase_dirs": {
         "dsl-st": "dsl",
@@ -119,11 +119,12 @@
           "mode": "npu-sim",
           "arch": "a5",
           "runner": "generic",
+          "testcase_kind": "file",
           "enabled": true,
           "milestone": "M1",
           "command": ["bash", "scripts/sim_dsl.sh", "dsl/{testcase}"],
           "timeout_s": 7200,
-          "description": "DSL ST on the A5 simulator (ptoas-vmi msprof). Run one DSL kernel."
+          "description": "DSL ST on the A5 simulator (ptoas-vmi msprof). Run one DSL case (.py)."
         },
         {
           "name": "cce-st",
@@ -141,6 +142,7 @@
           "mode": "npu-sim",
           "arch": "a5",
           "runner": "generic",
+          "testcase_kind": "file",
           "enabled": false,
           "milestone": "M3",
           "command": ["bash", "scripts/sim_dsl.sh", "tilelang/{testcase}"],
