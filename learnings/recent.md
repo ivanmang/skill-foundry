@@ -24,14 +24,5 @@ Rules:
   summary line is appended to `promoted.md` and the change is logged in
   `corrections.md`.
 
-
-## LRN-20261028-001
-- id: LRN-20261028-001
-- category: correction
-- context: manual
-- skill: pto-isa
-- wrong: A5 sim build failed with 'decomposition declaration template not supported' at include/pto/common/type.hpp:474
-- correct: an uncommitted SaturatedIntDiv template marked PTO_INTERNAL/[aicore] in the user fork caused it; revert and re-run
-- action: promote decomp-declaration-template compile error into known-failures
-- status: pending
+(No entries yet.)
 
