@@ -15,6 +15,7 @@ each log with parse_gtest into the suite's "results" field.
 from __future__ import annotations
 
 import argparse
+import concurrent.futures
 import datetime as _dt
 import json
 import os
@@ -439,6 +440,7 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--filter", default=None, help="gtest filter applied to the suite (e.g. 'TADDTest.case_*').")
     ap.add_argument("--quiet", "-q", action="store_true", help="Suppress per-suite output; print only the summary.")
     ap.add_argument("--tui", action="store_true", help="Live per-suite spinner + pass/fail line (no raw output).")
+    ap.add_argument("--parallel", action="store_true", help="Run independent suites concurrently (implies per-suite quiet).")
     ap.add_argument("--json", action="store_true", help="Print the summary as JSON instead of a table.")
     ap.add_argument("--dry-run", action="store_true", help="Print what WOULD run and exit (no run.json).")
     ap.add_argument("--list", action="store_true", help="List suites + arches and exit.")
@@ -533,10 +535,24 @@ def main(argv: list[str] | None = None) -> int:
 
     run_quiet = args.quiet or args.json
     tui = args.tui and not args.json and sys.stdout.isatty()
-    for suite in suites:
-        record["suites"].append(
-            run_one(repo, suite, arches, target_cfg, run_dir, run_quiet, tui, args.testcase, args.filter)
-        )
+    parallel = args.parallel and len(suites) > 1 and not tui and not args.json
+    if parallel:
+        print(f"  running {len(suites)} suites in parallel (--parallel)", file=sys.stderr)
+        results: dict[int, dict] = {}
+        with concurrent.futures.ThreadPoolExecutor(max_workers=len(suites)) as ex:
+            futs = {
+                ex.submit(run_one, repo, suite, arches, target_cfg, run_dir, True, False,
+                          args.testcase, args.filter): i
+                for i, suite in enumerate(suites)
+            }
+            for fut in concurrent.futures.as_completed(futs):
+                results[futs[fut]] = fut.result()
+        record["suites"] = [results[i] for i in sorted(results)]
+    else:
+        for suite in suites:
+            record["suites"].append(
+                run_one(repo, suite, arches, target_cfg, run_dir, run_quiet, tui, args.testcase, args.filter)
+            )
 
     run_json = run_dir / "run.json"
     run_json.write_text(json.dumps(record, indent=2) + "\n", encoding="utf-8")

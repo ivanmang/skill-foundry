@@ -83,7 +83,7 @@ The harness itself needs only `python3` + `git`. Targets need more — and
 | `./harness onboarding` | guided first-run setup |
 | `./harness tui` | full-screen dashboard (interactive) |
 | `./harness menu` | curated interactive menu (also the bare `./harness` default) |
-| `./harness run` | run suites (`--all-suites`, `--suite X`, `--testcase`, `--filter`, `--quiet`, `--tui`, `--json`, `--dry-run`) |
+| `./harness run` | run suites (`--all-suites`, `--suite X`, `--testcase`, `--filter`, `--quiet`, `--tui`, `--json`, `--dry-run`, `--parallel`) |
 | `./harness report` | run.json → `report.md`/`.html` (`--open`, `--known`) |
 | `./harness review` | diff a run vs the pinned baseline |
 | `./harness teach` | log a correction (append-only) |
@@ -117,6 +117,20 @@ Run `./harness help <verb>` for any verb's detailed examples.
 ```
 
 Exit codes: `0` clean, `1` ran-with-failures, `2` usage.
+
+---
+
+## Performance & CI
+
+- **`--parallel`** — run independent suites concurrently (npu-sim A5/A3/A6 in
+  parallel) with `./harness run --all-suites --parallel`. Implies per-suite quiet;
+  the summary still prints once all finish.
+- **Capability cache** — `capabilities.py` caches CANN header/simulator scans in
+  `.cache/cann-lanes.json` (5-min TTL), so `status`/`list`/`dry-run` are instant
+  on slow mounts.
+- **CI** — `.gitcode/workflows/selfcheck.yml` runs on push/PR;
+  `promote-learnings.yml` surfaces pending learnings nightly;
+  `dashboard.yml` renders `status --json` + `diagnose --strict` on a schedule.
 
 ---
 

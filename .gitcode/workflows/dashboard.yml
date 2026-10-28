@@ -1,0 +1,30 @@
+# Nightly dashboard: machine-readable status + diagnose on a schedule.
+#
+# TEMPLATE: adjust runs-on / image to your gitcode runner; add an artifact
+# upload step for status.json if your runner supports it.
+name: dashboard
+
+on:
+  schedule:
+    # daily 02:15 UTC — after the nightly promote sweep
+    - cron: '15 2 * * *'
+  workflow_dispatch:
+
+jobs:
+  JOB_dashboard:
+    name: Dashboard
+    runs-on: [self-hosted]   # e.g. [self-hosted, arch=x64, spec=small]
+    steps:
+      - name: Checkout
+        identifier: process_checkout
+        uses: checkout
+        with:
+          token: ${{secrets.GIT_TOKEN}}
+      - name: Status (JSON)
+        run: |
+          python3 scripts/status.py --json > status.json
+          cat status.json
+      - name: Diagnose (strict)
+        run: python3 scripts/diagnose.py --strict
+      - name: Recent runs (JSON)
+        run: python3 scripts/history.py --limit 10 --json

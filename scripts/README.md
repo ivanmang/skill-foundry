@@ -69,5 +69,7 @@ directly.
 - `make check` — run the self-check locally.
 - `./harness list` — shows auto-detected availability: `✓` runnable, `!` missing prereqs, `—` disabled.
 - `./harness demo` — interactive step-by-step walkthrough (run / next / previous / jump / explain / quit); `--straight` runs it non-interactively.
+- `./harness run --dry-run` — preview what would run (no run.json); `--parallel` runs independent suites concurrently.
+- `capabilities.py` caches CANN scans in `.cache/cann-lanes.json` (5-min TTL) for instant status/list.
 - `--all-suites` auto-skips non-runnable suites and prints why (compiler/CANN/simulator/device/MPI).
 - Tab completion: `source completions/harness.bash` (also completes `--suite`/`--testcase` values).

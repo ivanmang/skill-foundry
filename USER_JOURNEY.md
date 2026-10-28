@@ -177,6 +177,7 @@ only deliberately (new suites, arch changes), never casually.
 ./harness run --all-suites --quiet            # everything runnable, summary only
 ./harness run --all-suites --tui              # live spinner + per-suite pass/fail
 ./harness run --all-suites --json             # machine-readable summary
+./harness run --all-suites --parallel         # independent suites concurrently
 ./harness run --suite cpu-st                  # one suite (force, even if prereqs missing)
 ./harness run --suite npu-sim-a5 --testcase tpartargmax        # one testcase
 ./harness run --suite cpu-st --testcase tadd --filter 'TADDTest.case_*'  # one gtest case
@@ -329,11 +330,11 @@ written yet.
 ./harness promote --pr     # apply + branch + commit + push + MR (merge request) URL
 ```
 
-One command finishes the loop: it writes the edit, moves the entry from
-`recent.md` → `promoted.md`, logs it in `corrections.md`, commits on a
-`feat/learnings-<date>` branch, pushes, and prints the merge-request URL. **A
-reviewer merges** — the harness never self-merges. This is the other place a
-human is required.
+One command finishes the loop: it writes the edit, marks the entry
+`promoted` in `recent.md`, appends a summary to `promoted.md`, and logs a dated
+block in `corrections.md`. It then commits on a `feat/learnings-<date>` branch,
+pushes, and prints the merge-request URL. **A reviewer merges** — the harness
+never self-merges. This is the other place a human is required.
 
 ---
 
@@ -383,7 +384,7 @@ loop, and every teammate gets it via git.
 | List suites + arches + availability | `./harness list [--format markdown\|html]` |
 | Which CANN supports which arch | `./harness cann [--scan] [--json]` |
 | Pin / refresh baseline | `./harness baseline [--force] pto-isa` |
-| Run all suites | `./harness run --all-suites [--quiet\|--tui\|--json]` |
+| Run all suites | `./harness run --all-suites [--quiet\|--tui\|--json\|--parallel]` |
 | Run one suite | `./harness run --suite cpu-st` |
 | Run one testcase | `./harness run --suite npu-sim-a5 --testcase tpartargmax` |
 | Run a gtest filter | `./harness run --suite cpu-st --testcase tadd --filter 'TADDTest.case_*'` |

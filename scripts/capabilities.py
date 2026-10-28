@@ -8,11 +8,17 @@ static `enabled` flag in config/suites.json.
 
 from __future__ import annotations
 
+import json
 import os
 import re
 import shutil
 import subprocess
+import time
 from pathlib import Path
+
+HARNESS = Path(__file__).resolve().parent.parent
+_CACHE_FILE = HARNESS / ".cache" / "cann-lanes.json"
+_CACHE_TTL = 300  # seconds; headers/simulators change rarely, but a re-scan is cheap
 
 
 def _which(name: str) -> str | None:
@@ -70,6 +76,21 @@ def has_mpi() -> bool:
 _CANN_LANES_CACHE: tuple[set[str], set[str]] | None = None
 
 
+def _load_cache() -> dict:
+    try:
+        return json.loads(_CACHE_FILE.read_text(encoding="utf-8"))
+    except Exception:
+        return {}
+
+
+def _save_cache(data: dict) -> None:
+    try:
+        _CACHE_FILE.parent.mkdir(parents=True, exist_ok=True)
+        _CACHE_FILE.write_text(json.dumps(data), encoding="utf-8")
+    except Exception:
+        pass
+
+
 def _toolkit_lanes() -> tuple[set[str], set[str]]:
     """(headers, simulators) arch sets for the current ASCEND_HOME_PATH CANN."""
     global _CANN_LANES_CACHE
@@ -79,10 +100,25 @@ def _toolkit_lanes() -> tuple[set[str], set[str]]:
     if not home:
         _CANN_LANES_CACHE = (set(), set())
         return _CANN_LANES_CACHE
+
+    # persistent cross-process cache (TTL) so status/list are instant on slow mounts
+    key = str(home)
+    cached = _load_cache().get(key)
+    if cached and (time.time() - cached.get("ts", 0)) < _CACHE_TTL:
+        _CANN_LANES_CACHE = (set(cached.get("headers", [])), set(cached.get("simulators", [])))
+        return _CANN_LANES_CACHE
+
     try:
         import detect_cann
         info = detect_cann.analyze(home, detect_cann.load_config())
         _CANN_LANES_CACHE = (set(info["headers"]), set(info["simulators"]))
+        data = _load_cache()
+        data[key] = {
+            "ts": time.time(),
+            "headers": sorted(_CANN_LANES_CACHE[0]),
+            "simulators": sorted(_CANN_LANES_CACHE[1]),
+        }
+        _save_cache(data)
     except Exception:
         _CANN_LANES_CACHE = (set(), set())
     return _CANN_LANES_CACHE

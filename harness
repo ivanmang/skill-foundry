@@ -35,7 +35,7 @@ usage() {
 usage: ./harness <command> [args]
 
 Commands:
-  run       Run a declared suite               [--suite | --all-suites] [--testcase] [--filter] [--quiet|--tui|--json] [--dry-run]
+  run       Run a declared suite               [--suite | --all-suites] [--testcase] [--filter] [--quiet|--tui|--json] [--dry-run] [--parallel]
   report    Render a run to Markdown + HTML    [--run (default: latest), --known, --out, --open]
   review    Diff a run vs the pinned baseline  [--run (default: latest), --baseline, --out]
   teach     Log a correction                   ["wrong -> correct -> action" | wizard | --edit]
@@ -79,6 +79,7 @@ verb_help() {
   --testcase <t>   one testcase (e.g. tpartargmax); --filter <g> a gtest filter
   --quiet          summary only   --tui live spinner   --json machine output
   --dry-run        print what WOULD run and exit (no run.json)
+  --parallel       run independent suites concurrently (implies per-suite quiet)
 
 Examples:
   ./harness run --all-suites --dry-run

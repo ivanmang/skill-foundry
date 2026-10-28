@@ -9,6 +9,9 @@ reports/baseline/*
 __pycache__/
 *.pyc
 
+# Capability-detection cache
+.cache/
+
 # OS / editors
 .DS_Store
 *.swp

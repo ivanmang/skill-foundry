@@ -83,7 +83,7 @@ PASSes (`--force` overrides).
 `./harness` is the single entry point:
 
 ```text
-./harness run       Run suites            [--suite X | --all-suites] [--quiet | --tui | --json] [--dry-run] [--testcase T | --filter G]
+./harness run       Run suites            [--suite X | --all-suites] [--quiet | --tui | --json] [--dry-run] [--parallel] [--testcase T | --filter G]
 ./harness report    run.json → MD + HTML  [--run (default latest), --known, --out, --open]
 ./harness review    diff vs baseline      [--run (default latest), --baseline, --out]
 ./harness teach     log a correction      ["wrong -> correct -> action" | wizard | --edit]
