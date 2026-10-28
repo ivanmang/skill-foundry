@@ -97,6 +97,24 @@ def command_rows(record: dict) -> list[list[str]]:
     return rows
 
 
+def case_rows(record: dict) -> list[dict]:
+    """Per-case rows: suite, case name, status, duration_s (None = not measured)."""
+    rows = []
+    for s in record.get("suites", []):
+        r = s.get("results") or {}
+        for c in r.get("cases", []):
+            dur = c.get("duration_s")
+            if dur == 0.0:
+                dur = None  # 0.0 means the runner didn't measure per-case timing
+            rows.append({
+                "suite": s.get("name", "?"),
+                "name": c.get("name", "?"),
+                "status": c.get("status", "?"),
+                "duration_s": dur,
+            })
+    return rows
+
+
 def perf_rows(record: dict) -> list[list[str]]:
     """Per-suite CAModel metrics (vmi-dashboard schema), only suites that have them."""
     rows = []
@@ -170,6 +188,16 @@ def render_md(records: list[dict], known_sigs: list[str]) -> str:
         ]
         for row in suite_rows(rec):
             lines.append("| " + " | ".join(row) + " |")
+
+        cases = case_rows(rec)
+        if cases:
+            lines += ["", "### Cases", "",
+                      "| suite | case | status | duration |",
+                      "|---|---|---|---|"]
+            for c in cases:
+                dur = fmt_dur(c["duration_s"]) if c["duration_s"] is not None else "-"
+                lines.append(f"| {c['suite']} | {c['name']} | {c['status']} | {dur} |")
+
         fl = failures(rec, known_sigs)
         if fl:
             lines += _failures_md(fl)
@@ -227,6 +255,43 @@ def render_html(records: list[dict], known_sigs: list[str]) -> str:
             "<th>total</th><th>status</th><th>duration</th>"
             "</tr></thead><tbody>" + "".join(trs) + "</tbody></table>"
         )
+
+        cases = case_rows(rec)
+        if cases:
+            n_pass = sum(1 for c in cases if c["status"] == "PASS")
+            n_fail = sum(1 for c in cases if c["status"] in ("FAIL", "TIMEOUT", "ERROR"))
+            n_skip = len(cases) - n_pass - n_fail
+            durs = [c["duration_s"] for c in cases if isinstance(c["duration_s"], (int, float)) and c["duration_s"] > 0]
+            maxd = max(durs) if durs else 0
+            cts = []
+            for c in cases:
+                st = c["status"]
+                cls = "ok" if st == "PASS" else ("bad" if st in ("FAIL", "TIMEOUT", "ERROR") else "skip")
+                dur = c["duration_s"]
+                dur_s = fmt_dur(dur) if isinstance(dur, (int, float)) else "-"
+                if dur and maxd:
+                    pct = max(3, int(dur / maxd * 100))
+                    bar_cls = "bar" if st == "PASS" else "bar bar-bad"
+                    bar = f'<div class="{bar_cls}" style="width:{pct}%"></div>'
+                else:
+                    bar = ""
+                cts.append(
+                    f"<tr>"
+                    f"<td>{html.escape(c['suite'])}</td>"
+                    f"<td><code>{html.escape(c['name'])}</code></td>"
+                    f'<td class="{cls}">{html.escape(st)}</td>'
+                    f"<td>{dur_s}</td>"
+                    f'<td class="bar-cell">{bar}</td>'
+                    f"</tr>"
+                )
+            rows_html.append(
+                f"<h3>Cases &nbsp;<span class='count ok'>{n_pass} pass</span> · "
+                f"<span class='count bad'>{n_fail} fail</span> · "
+                f"<span class='count skip'>{n_skip} skip</span></h3>"
+                "<table><thead><tr><th>suite</th><th>case</th><th>status</th><th>duration</th><th>relative</th></tr></thead><tbody>"
+                + "".join(cts) + "</tbody></table>"
+            )
+
         fl = failures(rec, known_sigs)
         if fl:
             items = "".join(
@@ -276,6 +341,14 @@ th, td {{ border: 1px solid #ddd; padding: 0.4rem 0.6rem; text-align: left; }}
 th {{ background: #f5f5f5; }}
 td.ok {{ color: #0a7d33; font-weight: 600; }}
 td.bad {{ color: #b00020; font-weight: 600; }}
+td.skip {{ color: #888; }}
+.bar-cell {{ min-width: 120px; width: 30%; }}
+.bar {{ background: #0a7d33; height: 0.6em; border-radius: 3px; }}
+.bar-bad {{ background: #b00020; }}
+.count {{ font-weight: 600; margin-right: 0.75em; }}
+.count.ok {{ color: #0a7d33; }}
+.count.bad {{ color: #b00020; }}
+.count.skip {{ color: #888; }}
 .meta {{ color: #555; }}
 h2 {{ margin-top: 2rem; }}
 h3 {{ margin-top: 1rem; }}
