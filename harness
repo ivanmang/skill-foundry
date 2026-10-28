@@ -34,29 +34,38 @@ usage() {
   cat <<'EOF'
 usage: ./harness <command> [args]
 
-Commands:
+USE — run → report → review:
   run       Run a declared suite               [--suite | --all-suites] [--testcase] [--filter] [--quiet|--tui|--json] [--dry-run] [--parallel]
   report    Render a run to Markdown + HTML    [--run (default: latest), --known, --out, --open]
   review    Diff a run vs the pinned baseline  [--run (default: latest), --baseline, --out]
+
+IMPROVE — teach → promote:
   teach     Log a correction                   ["wrong -> correct -> action" | wizard | --edit]
   promote   Propose or apply learnings         [--propose | --apply | --pr]
+
+SETUP:
+  onboarding  Guided first-run setup
+  status      One-glance dashboard             [--json, --target]
+  diagnose    Check env + print exact fixes    [--json, --strict]
+  targets     List configured targets          [--json]
+  install-skills  Link skills into each agent's user dir  [--dry-run, --uninstall]
+  cann        Which CANN supports which arch   [--home, --scan, --json]
+
+INTERACTIVE:
+  guide     Interactive step-by-step tour      [--demo]
+  demo      Sandboxed walkthrough (interactive) [--straight]
+  tui       Full-screen dashboard (interactive)
+  menu      Curated interactive menu (bare ./harness default)
+
+BASELINE & HOUSEKEEPING:
   baseline  Re-pin reports/baseline/<target>.json  [--force] [target]
   history   List recent runs                   [--limit N, --json]
   clean     Remove run dirs (keeps baseline)   [--dry-run, --keep N]
   open      Open a run's report.html           [run-id (default: latest)]
   validate  Check suites/arches/cann configs
-  status    One-glance dashboard               [--json, --target]
-  diagnose  Check env + print exact fixes      [--json, --strict]
-  targets   List configured targets            [--json]
-  install-skills  Link skills into each agent's user dir  [--dry-run, --uninstall]
-  onboarding  Guided first-run setup
-  tui       Full-screen dashboard (interactive)
-  menu      Curated interactive menu (bare ./harness default)
-  guide     Interactive step-by-step tour      [--demo]
-  demo      Sandboxed walkthrough (interactive) [--straight]
   list      List suites + arches               [--target, --format text|markdown|html]
-  cann      Which CANN supports which arch     [--home, --scan, --json]
   selfcheck Compile-check + skill-spec validation + demo smoke
+
   help      Show this help — or: ./harness help <verb> for examples
   version   Show the harness version           [--short]
 

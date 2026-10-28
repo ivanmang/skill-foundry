@@ -24,6 +24,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import _runs  # noqa: E402
 import _browser  # noqa: E402
+from _term import fmt_dur  # noqa: E402
 
 HARNESS = Path(__file__).resolve().parent.parent
 
@@ -45,14 +46,6 @@ def load_known_signatures(path: str | None) -> list[str]:
         if s.startswith("###"):
             sigs.append(s[3:].strip())
     return sigs
-
-
-def fmt_dur(sec: float | None) -> str:
-    if sec is None:
-        return "-"
-    if sec < 1:
-        return f"{sec * 1000:.0f}ms"
-    return f"{sec:.2f}s"
 
 
 def suite_rows(record: dict) -> list[list[str]]:

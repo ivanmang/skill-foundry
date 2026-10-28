@@ -17,12 +17,7 @@ HARNESS = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(HARNESS / "scripts"))
 import guide  # noqa: E402 — reuse _read_key
 import status  # noqa: E402 — reuse collect()
-
-BOLD = "\033[1m"
-RESET = "\033[0m"
-GREEN = "\033[32m"
-RED = "\033[31m"
-YELLOW = "\033[33m"
+from _term import BOLD, RESET, mark  # noqa: E402
 
 ACTIONS: list[tuple[str, list[str] | None]] = [
     ("🚀  run tests — guided", ["guide"]),
@@ -37,8 +32,6 @@ ACTIONS: list[tuple[str, list[str] | None]] = [
 ]
 
 
-def _ok(b: bool) -> str:
-    return (GREEN + "✓" if b else RED + "✗") + RESET
 
 
 def render(selected: int) -> None:
@@ -48,18 +41,18 @@ def render(selected: int) -> None:
     lines: list[str] = []
     lines.append(BOLD + "══ regression-harness · dashboard ══" + RESET)
     lines.append(
-        f"  env      python3 {_ok(env['python3'])}  git {_ok(env['git'])}  "
-        f"ASCEND {asc}  pto-isa {_ok(env['pto_isa'])}"
+        f"  env      python3 {mark(env['python3'])}  git {mark(env['git'])}  "
+        f"ASCEND {asc}  pto-isa {mark(env['pto_isa'])}"
     )
     suite_bits = []
     for s in data["suites"]:
         if not s["enabled"]:
             continue
-        suite_bits.append(f"{s['name']} {_ok(s['runnable'])}")
+        suite_bits.append(f"{s['name']} {mark(s['runnable'])}")
     lines.append("  suites   " + "  ".join(suite_bits))
     b, ln, lr = data["baseline"], data["learnings"], data["last_run"]
     lines.append(
-        f"  baseline {_ok(b['exists'])} · learnings {ln['pending']} pending / {ln['promoted']} promoted"
+        f"  baseline {mark(b['exists'])} · learnings {ln['pending']} pending / {ln['promoted']} promoted"
     )
     if lr:
         lines.append(f"  last     {lr['run_id']}  {lr['suites']}")

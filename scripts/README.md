@@ -53,6 +53,7 @@ directly.
 - `onboarding.py` / `menu.py` — guided first-run setup and the bare-`./harness` menu (reuse `guide.py` helpers).
 - `wrap.py` — wraps a verb and offers a context-aware "What next?" menu (type-a-command / full menu / shell).
 - `_browser.py` — cross-platform browser opener (WSL explorer.exe → xdg-open/open/start → print path).
+- `_term.py` — shared ANSI colors + `c()`/`mark()`/`fmt_dur()` (imported by the CLI scripts).
 
 ## Conventions
 

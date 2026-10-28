@@ -22,27 +22,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import capabilities  # noqa: E402
 import _runs  # noqa: E402
 import targets  # noqa: E402
-
-GREEN = "\033[32m"
-RED = "\033[31m"
-YELLOW = "\033[33m"
-BOLD = "\033[1m"
-RESET = "\033[0m"
-
-
-def c(text: str, color: str) -> str:
-    return f"{color}{text}{RESET}" if sys.stdout.isatty() else text
-
-
-def _load(path: Path) -> dict:
-    try:
-        return json.loads(path.read_text(encoding="utf-8"))
-    except Exception:
-        return {}
-
-
-def _mark(ok: bool) -> str:
-    return c("✓" if ok else "✗", GREEN if ok else RED)
+from _term import GREEN, RED, YELLOW, BOLD, c, mark  # noqa: E402
 
 
 def collect_issues() -> list[dict]:
@@ -134,9 +114,9 @@ def render(issues: list[dict], strict: bool) -> int:
     print(c(" harness diagnose", BOLD))
     bad = 0
     for it in issues:
-        mark = _mark(it["ok"])
+        mark_ = mark(it["ok"])
         detail = c(it["detail"], GREEN if it["ok"] else YELLOW)
-        print(f"  {mark} {it['check']:<30} {detail}")
+        print(f"  {mark_} {it['check']:<30} {detail}")
         if not it["ok"]:
             bad += 1
             print(f"      fix → {it['fix']}")

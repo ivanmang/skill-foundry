@@ -25,16 +25,7 @@ import capabilities  # noqa: E402
 import detect_cann  # noqa: E402
 import _runs  # noqa: E402
 import targets  # noqa: E402
-
-GREEN = "\033[32m"
-RED = "\033[31m"
-YELLOW = "\033[33m"
-BOLD = "\033[1m"
-RESET = "\033[0m"
-
-
-def c(text: str, color: str) -> str:
-    return f"{color}{text}{RESET}" if sys.stdout.isatty() else text
+from _term import GREEN, RED, YELLOW, BOLD, c, mark  # noqa: E402
 
 
 def pending_count(path: Path) -> int:
@@ -138,10 +129,6 @@ def collect(only: str | None = None) -> dict:
         },
         "last_run": last_info,
     }
-
-
-def mark(ok: bool) -> str:
-    return c("✓" if ok else "✗", GREEN if ok else RED)
 
 
 def render(data: dict) -> None:

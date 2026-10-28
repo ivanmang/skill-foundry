@@ -34,6 +34,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import parse_gtest  # noqa: E402
 import capabilities  # noqa: E402
 import perf_metrics  # noqa: E402
+import targets  # noqa: E402
+from _term import fmt_dur  # noqa: E402
 
 # Modes that need a CANN toolkit (ASCEND_HOME_PATH) on the runner.
 NEEDS_ASCEND = {"npu-sim", "npu", "costmodel", "comm"}
@@ -77,14 +79,6 @@ def load_json(path: Path) -> dict:
 def usage_error(message: str) -> None:
     print(message, file=sys.stderr)
     sys.exit(2)
-
-
-def fmt_dur(sec: float | None) -> str:
-    if sec is None:
-        return "-"
-    if sec < 1:
-        return f"{sec * 1000:.0f}ms"
-    return f"{sec:.2f}s"
 
 
 def _set_flag(cmd: list[str], flag: str, value: str) -> list[str]:
@@ -439,7 +433,7 @@ def _print_next_steps(record: dict, failed: bool, as_json: bool) -> None:
 
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description="Run a declared regression suite and record a normalized run.")
-    ap.add_argument("--target", default="pto-isa", help="Target key in config/suites.json (default pto-isa).")
+    ap.add_argument("--target", default=None, help="Target key in config/suites.json (default: config default_target).")
     ap.add_argument("--suite", default=None, help="Suite name, or omit with --all-suites.")
     ap.add_argument("--all-suites", action="store_true", help="Run all enabled suites for the target.")
     ap.add_argument("--testcase", default=None, help="Run a single testcase inside the selected suite (e.g. tpartargmax).")
