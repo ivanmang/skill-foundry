@@ -321,6 +321,19 @@ def choose_target_and_suites(name: str, target: dict) -> tuple[str, list[str], l
     return name, suite_flags, mode_flags + run_id_flags + testcase_flags + filter_flags
 
 
+def pending_learning_count() -> int:
+    """Number of status:pending entries in learnings/recent.md (0 if none/missing)."""
+    try:
+        import promote_recent
+        p = HARNESS / "learnings" / "recent.md"
+        if not p.exists():
+            return 0
+        return sum(1 for e in promote_recent.parse_entries(p.read_text(encoding="utf-8"))
+                   if e.get("status") == "pending")
+    except Exception:
+        return 0
+
+
 def run_real_tour(name: str, target: dict) -> int:
     check_env(target)
     tname, suite_flags, extra_flags = choose_target_and_suites(name, target)
@@ -384,13 +397,19 @@ def run_real_tour(name: str, target: dict) -> int:
     print("    🟢 '--pr' applies + commits + pushes + AUTO-CREATES the MR (glab / GITCODE_TOKEN).")
     print("    🟡 you merge the MR on the remote (branch protection gates it).")
     print(c("  RED line: the harness never auto-REMOVES or auto-CHANGES an existing check — it only ADDS.", RED))
-    if ask_yesno("Propose/promote pending learnings?", "n"):
-        if ask_yesno("Apply + push + auto-create the MR (--pr)? (n = propose only)", "y"):
-            subprocess.run([sys.executable, "scripts/promote_recent.py", "--pr"], cwd=HARNESS)
-        else:
-            subprocess.run([sys.executable, "scripts/promote_recent.py", "--propose"], cwd=HARNESS)
+    pending = pending_learning_count()
+    if pending == 0:
+        print(c("  no pending learnings — nothing to promote. (./harness teach \"…\" to capture one)", YELLOW))
+    else:
+        print(c(f"  {pending} pending learning(s) ready to promote.", GREEN))
+        if ask_yesno("Promote them?", "y"):
+            if ask_yesno("Apply + push + auto-create the MR (--pr)? (n = propose only)", "y"):
+                subprocess.run([sys.executable, "scripts/promote_recent.py", "--pr"], cwd=HARNESS)
+            else:
+                subprocess.run([sys.executable, "scripts/promote_recent.py", "--propose"], cwd=HARNESS)
 
-    print(c("\n✓ Done. Next time: ./harness run --all-suites --quiet  and  ./harness promote --pr", GREEN))
+    nxt = "./harness run --all-suites --quiet" + ("  and  ./harness promote --pr" if pending else "")
+    print(c(f"\n✓ Done. Next time: {nxt}", GREEN))
     return 0
 
 
