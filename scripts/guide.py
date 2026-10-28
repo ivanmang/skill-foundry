@@ -357,10 +357,17 @@ def run_real_tour() -> int:
         ], cwd=HARNESS, check=False)
 
     banner("5 · Teach it (if something new failed)")
+    print(c("  Capture is automatic + append-only: it writes to learnings/recent.md (your memory).", YELLOW))
+    print(c("    Auto-APPEND is safe — the harness logs lessons freely, nothing else changes.", YELLOW))
     if latest and ask_yesno("Log a correction for any new failure?", "n"):
         subprocess.run([str(HARNESS / "scripts" / "teach")])
 
     banner("6 · Promote pending learnings")
+    print(c("  Capture is automatic; promotion is HUMAN-GATED.", BOLD))
+    print("    🟢 '--propose' only DRAFTS a diff (no write) — review it freely.")
+    print("    🟡 '--pr' writes it on a branch + pushes + prints an MR — a reviewer merges.")
+    print(c("    (Auto-edit of shared skills is NOT automatic — like Claude Code auto-writing memory\n"
+            "     but never auto-editing CLAUDE.md.)", YELLOW))
     if ask_yesno("Propose/promote pending learnings?", "n"):
         if ask_yesno("Apply + push + open a merge request (--pr)? (n = propose only)", "y"):
             subprocess.run([sys.executable, "scripts/promote_recent.py", "--pr"], cwd=HARNESS)

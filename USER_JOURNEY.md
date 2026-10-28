@@ -397,6 +397,14 @@ corrections; until a note is promoted it changes nothing in the skills.
 This mirrors the industry norm: like Claude Code auto-writing memory but not
 auto-editing your `CLAUDE.md`, the harness auto-logs but only *proposes* edits.
 
+**Why the line is drawn there:** auto-append is cheap and safe — `recent.md` is
+the harness's own scratch memory, append-only and trivially revertible.
+Auto-edit is expensive and risky — `SKILL.md` + `known-failures.md` are the
+team's shared source of truth that every future run reads. The worst failure
+mode isn't a bad memory entry; it's a wrong "known failure" that silently
+annotates a real regression as known and hides it. So the machine may grow its
+memory freely, but shared knowledge only changes when a human merges the MR.
+
 ---
 
 ## Hygiene rules

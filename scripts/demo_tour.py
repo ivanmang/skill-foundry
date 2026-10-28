@@ -195,10 +195,13 @@ STEPS: list[dict] = [
          more="This is the automation boundary: propose is automatic, apply is scripted but human-gated. "
               "Nothing in the skills changes until a reviewer approves.",
          run=step_propose),
-    dict(key="apply", short="apply", needs=("propose",), title="Improve — apply + bookkeeping",
-         what="promote_recent.py --apply writes the edit into known-failures.md and moves the entry to promoted.md + corrections.md.",
-         more="Watch the mechanical effect: known-failure signatures go 0 → 1, and the entry leaves recent.md. "
-              "In the real repo this step becomes a branch + push + merge-request (--pr).",
+    dict(key="apply", short="apply", needs=("propose",), title="Improve — apply + bookkeeping  🟡 HUMAN-GATED",
+         what="--apply actually WRITES the proposed edit into the shared skills. In the real repo this becomes a branch + push + an MR a reviewer must merge.",
+         more="This is the automation boundary in action. Capture is automatic — recent.md is the harness's own memory, "
+              "append-only, cheap, revertible. Apply is gated — SKILL.md + known-failures.md are the team's shared source "
+              "of truth every future agent reads. The machine may grow its memory freely, but shared knowledge only changes "
+              "when a human merges — same as Claude Code auto-writing memory but never auto-editing CLAUDE.md. "
+              "A wrong auto-edit here (e.g. a bad 'known failure') would silently annotate real regressions as known and hide them.",
          run=step_apply),
     dict(key="rerun", short="rerun", needs=("apply",), title="Improve — re-render with the new knowledge",
          what="Re-render the SAME run.json with the improved corpus → the failure is now annotated as known.",
@@ -317,6 +320,18 @@ def intro() -> None:
     ▸ command   — the exact command the step runs
     🟢 harness  — done for you automatically (no action needed)
     🟡 you       — where your judgment / a human review is required
+
+  The one rule to remember:
+
+    🟢 Auto-APPEND is safe  — the harness logs lessons to its own memory
+                              (learnings/recent.md) freely.
+    🟡 Auto-EDIT is not      — shared skills + known-failures.md only change
+                              when a HUMAN merges the MR.
+
+  Same line Claude Code draws: it auto-writes its memory but never auto-edits
+  your CLAUDE.md. A machine that silently rewrites shared knowledge turns its
+  own mistakes into everyone's blind spots — a wrong "known failure" would
+  hide real regressions.
 
   After each step you choose what to do: run & continue, skip, go back,
   jump, or explain.

@@ -117,6 +117,15 @@ applies to the real flow:
 (command / harness / you). Capture is automatic; promotion is PR-gated — the
 harness auto-logs but only *proposes* edits.
 
+**Why the line is drawn there**: auto-*append* is safe — `learnings/recent.md`
+is the harness's own scratch memory (append-only, cheap to discard). Auto-*edit*
+is not — `SKILL.md` + `known-failures.md` are the team's shared source of truth
+every future run reads. This is the same line Claude Code draws: it auto-writes
+its memory but never auto-edits your `CLAUDE.md`. A machine that silently
+rewrites shared knowledge turns its own mistakes into everyone's blind spots —
+e.g. a wrong "known failure" would annotate real regressions as known and hide
+them.
+
 ### Guided tour
 
 ```bash
