@@ -24,6 +24,7 @@ HARNESS = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import detect_cann  # noqa: E402
 import capabilities  # noqa: E402
+import _runs  # noqa: E402
 
 GREEN = "\033[32m"
 RED = "\033[31m"
@@ -335,31 +336,42 @@ def run_real_tour() -> int:
     if result.returncode != 0:
         print(c("\n  Some suites did not pass — we'll review next.", YELLOW))
 
-    run_dir = subprocess.run(
-        ["ls", "-1dt", str(HARNESS / "reports" / "*")],
-        capture_output=True, text=True,
-    ).stdout.splitlines()
-    latest = next((d for d in run_dir if (HARNESS / "reports" / d / "run.json").exists()), None)
+    # Find the run we just produced (skip demo-live artifacts).
+    # NOTE: use python globbing, not `ls reports/*` — ls does NOT expand globs
+    # when exec'd directly (no shell), so it silently returned nothing.
+    latest = None
+    for _p, _data in _runs.iter_runs():
+        if not _data.get("run_id", "").startswith("demo-live"):
+            latest = _p.parent.name
+            break
 
     banner("3 · Report")
-    if latest and ask_yesno(f"Generate a report for {latest}?", "y"):
-        out_base = HARNESS / "reports" / latest / "report"
-        subprocess.run([
-            sys.executable, "scripts/build_report.py",
-            "--run", str(HARNESS / "reports" / latest / "run.json"),
-            "--known", str(KNOWN), "--out", str(out_base),
-        ], cwd=HARNESS, check=False)
-        print(f"  → {out_base}.md / {out_base}.html")
+    if latest:
+        print(c(f"  latest run: {latest}", GREEN))
+        if ask_yesno("Generate report.md/.html for it?", "y"):
+            out_base = HARNESS / "reports" / latest / "report"
+            subprocess.run([
+                sys.executable, "scripts/build_report.py",
+                "--run", str(HARNESS / "reports" / latest / "run.json"),
+                "--known", str(KNOWN), "--out", str(out_base),
+            ], cwd=HARNESS, check=False)
+            print(f"  → {out_base}.md / {out_base}.html")
+    else:
+        print(c("  (no run.json found — nothing to report)", YELLOW))
 
     banner("4 · Review vs baseline")
     print(c("  'Regression' = diff vs the PINNED baseline — refresh the baseline only deliberately (new suites / arch changes).", BOLD))
     print(c("  Perf: p99 > +15% flags even if average looks stable — never trust average alone.", YELLOW))
-    if latest and ask_yesno("Diff against the pinned baseline?", "y"):
-        subprocess.run([
-            sys.executable, "scripts/diff_runs.py",
-            "--run", str(HARNESS / "reports" / latest / "run.json"),
-            "--baseline", str(BASELINE),
-        ], cwd=HARNESS, check=False)
+    if latest:
+        print(c(f"  latest run: {latest}", GREEN))
+        if ask_yesno("Diff it against the pinned baseline?", "y"):
+            subprocess.run([
+                sys.executable, "scripts/diff_runs.py",
+                "--run", str(HARNESS / "reports" / latest / "run.json"),
+                "--baseline", str(BASELINE),
+            ], cwd=HARNESS, check=False)
+    else:
+        print(c("  (no run.json found — nothing to review)", YELLOW))
 
     banner("5 · Teach it (if something new failed)")
     print(c("  Capture is automatic + append-only: it writes to learnings/recent.md (your memory).", YELLOW))
