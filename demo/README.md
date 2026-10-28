@@ -39,8 +39,9 @@ After each step the tour offers a menu (arrow keys + Enter):
      `LRN-…` entry in `learnings/recent.md`.
    - `scripts/session_digest.py` drafts the same entry straight from run.json.
    - `scripts/promote_recent.py --propose` turns it into a reviewable diff,
-     `--apply` writes it into `known-failures.md` and moves the entry to
-     `promoted.md` + `corrections.md`.
+     `--apply` writes it into `known-failures.md`, marks the entry `promoted`
+     in `recent.md`, and appends a summary to `promoted.md` + an audit block to
+     `corrections.md`.
    - Re-render the *same* run.json with `--known` → the failure is now
      annotated as **known**.
 

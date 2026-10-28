@@ -45,8 +45,9 @@ no hardware, works on any machine.
   `recent.md` — one command, no freeform editing. `session_digest.py` can even
   draft the same entry straight from the run's failures."
 - "`promote_recent.py --propose` turns that pending entry into a **reviewable
-  git-style diff** into the right file — no write yet. Then `--apply` writes it
-  and moves the entry to `promoted.md` + `corrections.md`."
+  git-style diff** into the right file — no write yet. Then `--apply` writes it,
+  marks the entry `promoted` in `recent.md`, and appends a summary to
+  `promoted.md` + an audit block to `corrections.md`."
 - "Watch the mechanical effect: known-failure signatures go 0 → 1, and
   re-rendering the *same* run.json now annotates the failure as **known**."
 - Key line: "The agent didn't get smarter — the *harness* did. That's the
@@ -68,7 +69,7 @@ no hardware, works on any machine.
   keep re-deriving. It sits on top of the existing `.gitcode` CI, doesn't replace it.
 - **"Is the learning manual?"** Capture is automated (`scripts/teach` /
   `session_digest.py`); promotion is a scripted *proposal* that a human approves
-  and a git PR commits — reviewable, revertable.
+  and a git MR (merge request) commits — reviewable, revertable.
 - **"What's auto vs gated?"** Append-only capture: auto. Editing shared skills:
   proposed automatically, applied on approval — never auto-rewritten, never
   removing an existing check silently.

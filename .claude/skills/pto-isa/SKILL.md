@@ -33,6 +33,9 @@ commands, env, and triage.
 Via the harness (recommended — one entry point):
 
 ```bash
+./harness status                       # what can run here (auto-detected)
+./harness run --all-suites --dry-run   # preview before running
+./harness run --all-suites --parallel  # runnable suites concurrently
 ./harness run --suite npu-sim-a5 --testcase tpartargmax          # one testcase
 ./harness run --suite npu-sim-a5 --testcase tadd --filter 'TADDTest.case_*'
 ./harness run --suite cpu-st --testcase tadd --filter 'TADDTest.case_*'

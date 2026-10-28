@@ -1,7 +1,8 @@
 # == regression-harness ==
 #
-#   make check   run the self-check (compile + demo smoke)
-#   make help    show this
+#   make check    run the self-check (compile + skill-spec + demo smoke)
+#   make validate check suites/arches/cann configs
+#   make help     show this
 
 .PHONY: check help validate
 

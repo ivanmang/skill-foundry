@@ -148,7 +148,7 @@ applies to the real flow:
 | 🟡 **you / a reviewer** | triage judgment (`teach`), merging the MR (`promote --pr`) |
 
 `./harness demo` shows this per step with a **"Who does what"** box
-(command / harness / you). Capture is automatic; promotion is PR-gated — the
+(command / harness / you). Capture is automatic; promotion is MR-gated — the
 harness auto-logs but only *proposes* edits.
 
 **Why the line is drawn there**: auto-*append* is safe — `learnings/recent.md`

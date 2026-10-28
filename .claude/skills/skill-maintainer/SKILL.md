@@ -28,7 +28,7 @@ git-tracked edit.** This skill never rewrites skills blindly.
 | Mode | Behavior | When |
 |---|---|---|
 | Propose | `./harness promote --propose` prints a diff, no file change | default |
-| Apply (small) | `./harness promote --apply` writes the edit, moves the entry to promoted.md | high-confidence, small change |
+| Apply (small) | `./harness promote --apply` writes the edit, marks the entry promoted (summary logged in promoted.md) | high-confidence, small change |
 | Manual | User explicitly asks to update a skill | sensitive changes |
 
 ## Flow
@@ -39,7 +39,7 @@ git-tracked edit.** This skill never rewrites skills blindly.
 2. **Propose** — `./harness promote --propose` renders a minimal diff per
    pending entry into the right skill / known-failures file.
 3. **Apply** — `./harness promote --apply` writes it, marks the entry promoted,
-   logs to `corrections.md`, and (with `--branch`/`--pr`) commits for a PR.
+   logs to `corrections.md`, and (with `--branch`/`--pr`) commits for an MR.
 4. **Verify** — re-run a representative case to confirm the improvement.
 
 ## Auto-capture triggers

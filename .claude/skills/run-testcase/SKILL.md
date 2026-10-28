@@ -6,7 +6,7 @@ description: >
   regression, run the suite matrix, execute a single suite/testcase, or re-run a
   suite for a specific target such as pto-isa.
 license: CANN Open Software License Agreement Version 2.0
-compatibility: Requires python3 and git. NPU-sim suites additionally require a CANN toolkit with the matching simulator.
+compatibility: Requires python3 and git. NPU-sim suites additionally require a CANN toolkit with BOTH the compile headers AND the matching simulator.
 ---
 
 # Run Testcase
@@ -26,8 +26,11 @@ run record. Do **not** hand-edit test results.
 3. Run through `./harness run` (requires an explicit `--suite` or `--all-suites`):
 
    ```bash
+   ./harness status                          # pre-flight: what can run here
+   ./harness run --all-suites --dry-run      # preview (no run.json)
    ./harness run --suite cpu-st                          # one suite
    ./harness run --all-suites --quiet                    # everything, summary only
+   ./harness run --all-suites --parallel                 # independent suites concurrently
    ./harness run --suite npu-sim-a5 --testcase tpartargmax      # one testcase
    ./harness run --suite cpu-st --testcase tadd --filter 'TADDTest.case_*'  # one gtest case
    ```
@@ -45,6 +48,8 @@ run record. Do **not** hand-edit test results.
 - Re-`source` the CANN env per suite block; env leaks between suites corrupt
   results.
 - `--all-suites` continues past a failed suite and records each suite's status.
+- `--dry-run` previews what WOULD run (no run.json); `--parallel` runs
+  independent suites concurrently (implies per-suite quiet).
 - Narrow a run with `--testcase <name>` and `--filter <gtest-pattern>` (requires
   a single `--suite`; invalid with `--all-suites`).
 
