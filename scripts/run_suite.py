@@ -263,6 +263,7 @@ def run_one(repo: Path, suite: dict, arches: dict, target_cfg: dict,
         "command": cmd,
         "log_file": str(log_file.relative_to(HARNESS)),
         "description": suite.get("description", ""),
+        "perf_copy": suite.get("perf_copy"),
         "error": error,
         "results": results,
     }
