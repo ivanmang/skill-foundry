@@ -13,6 +13,9 @@ A shared, self-improving regression harness built on open **Agent Skills**
 (the USE loop) and **teach → promote → MR** (the IMPROVE loop), against a
 pinned baseline that makes "regression" a mechanical diff.
 
+> Want the human angle? Read [docs/STORY.md](STORY.md) — a short story about a
+> developer, a pi agent, and the harness.
+
 ```text
 USE      ./harness run → report → review   (diff vs pinned baseline)
 IMPROVE  ./harness teach → promote --pr    (corrections become skills)

@@ -11,9 +11,9 @@ second target. Any target expressible as a suite matrix can be added with one
 [How to add a target](docs/HANDBOOK.md#how-to-add-a-target).
 
 > **New here?** Start with the [Handbook](docs/HANDBOOK.md) (the canonical
-> reference) or the [User Journey](USER_JOURNEY.md), then run
-> `./harness onboarding` and `./harness demo`. One entry point for everything:
-> `./harness help`.
+> reference), the [User Journey](USER_JOURNEY.md), or read
+> [the Story](docs/STORY.md) — then run `./harness onboarding` and
+> `./harness demo`. One entry point for everything: `./harness help`.
 
 Legend: 🟢 automatic · 🟡 human · 🔴 never automatic · `✓ / ! / ·` runnable / missing / disabled.
 
