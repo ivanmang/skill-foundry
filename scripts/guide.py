@@ -8,7 +8,6 @@ Usage:
 
 from __future__ import annotations
 
-import json
 import os
 import re
 import select
@@ -25,6 +24,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import detect_cann  # noqa: E402
 import capabilities  # noqa: E402
 import _runs  # noqa: E402
+import targets  # noqa: E402
 
 GREEN = "\033[32m"
 RED = "\033[31m"
@@ -32,10 +32,7 @@ YELLOW = "\033[33m"
 BOLD = "\033[1m"
 RESET = "\033[0m"
 
-CONFIG = HARNESS / "config" / "suites.json"
-ARCHES = HARNESS / "config" / "arches.json"
 BASELINE = HARNESS / "reports" / "baseline" / "baseline.json"
-KNOWN = HARNESS / ".claude" / "skills" / "pto-isa" / "references" / "known-failures.md"
 
 
 def c(text: str, color: str) -> str:
@@ -199,21 +196,9 @@ def choose_cann() -> str | None:
     return select_menu(title, options)
 
 
-TESTCASE_DIRS = {
-    "cpu-st": "tests/cpu/st/testcase",
-    "npu-sim-a3": "tests/npu/a2a3/src/st/testcase",
-    "npu-hw-a3": "tests/npu/a2a3/src/st/testcase",
-    "npu-sim-a5": "tests/npu/a5/src/st/testcase",
-    "npu-hw-a5": "tests/npu/a5/src/st/testcase",
-    "npu-sim-a6": "tests/npu/a6/src/st/testcase",
-    "npu-hw-a6": "tests/npu/a6/src/st/testcase",
-}
-
-
-def choose_testcase(suite: str) -> str:
+def choose_testcase(suite: str, tdirs: dict, repo: Path) -> str:
     """Dropdown of testcases in the chosen suite; '' means run all in the suite."""
-    repo = Path(os.environ.get("PTO_ISA_REPO", "~/pto-isa")).expanduser()
-    rel = TESTCASE_DIRS.get(suite)
+    rel = tdirs.get(suite)
     d = repo / rel if rel else None
     if not d or not d.exists():
         return ask("Testcase (blank = all in suite)").strip()
@@ -228,10 +213,9 @@ def choose_testcase(suite: str) -> str:
 GTEST_RE = re.compile(r"TEST(?:_F|_P)?\s*\(\s*(\w+)\s*,\s*(\w+)\s*\)")
 
 
-def choose_filter(suite: str, testcase: str) -> str:
+def choose_filter(suite: str, testcase: str, tdirs: dict, repo: Path) -> str:
     """Dropdown of gtest cases in the chosen testcase; '' = no filter."""
-    repo = Path(os.environ.get("PTO_ISA_REPO", "~/pto-isa")).expanduser()
-    rel = TESTCASE_DIRS.get(suite)
+    rel = tdirs.get(suite)
     d = repo / rel / testcase if rel else None
     main = d / "main.cpp" if d else None
     if not main or not main.exists():
@@ -245,13 +229,15 @@ def choose_filter(suite: str, testcase: str) -> str:
     return sel if sel is not None else ""
 
 
-def check_env() -> None:
+def check_env(target: dict) -> None:
     banner("0 · Environment check")
+    repo = targets.resolve_repo(target)
+    repo_env = target.get("repo_env") or "PTO_ISA_REPO"
     checks = [
         ("python3", shutil.which("python3") is not None),
         ("git", shutil.which("git") is not None),
         ("ASCEND_HOME_PATH", bool(os.environ.get("ASCEND_HOME_PATH"))),
-        ("PTO_ISA_REPO / ~/pto-isa", bool(os.environ.get("PTO_ISA_REPO")) or Path("~/pto-isa").expanduser().exists()),
+        (f"{repo_env} / {repo.name}", bool(os.environ.get(repo_env)) or repo.exists()),
     ]
     for name, ok in checks:
         mark = c("✓", GREEN) if ok else c("✗", RED)
@@ -264,22 +250,22 @@ def check_env() -> None:
         else:
             print(c("  → npu/costmodel/comm suites need ASCEND_HOME_PATH — pick a CANN above or source ./env.sh.", YELLOW))
     if not checks[3][1]:
-        print(c("  → pto-isa checkout not found — export PTO_ISA_REPO=... or clone ~/pto-isa.", YELLOW))
+        print(c(f"  → checkout not found — export {repo_env}=... or clone {repo}.", YELLOW))
     print()
 
 
-def choose_target_and_suites() -> tuple[str, list[str], list[str]]:
+def choose_target_and_suites(name: str, target: dict) -> tuple[str, list[str], list[str]]:
     banner("1 · Choose what to run")
 
-    # print arch context (soc → march) — informational, then pick the suite
-    arches = json.loads(ARCHES.read_text(encoding="utf-8"))
+    arches = targets.load_arches(target)
     print("Arches (soc → march):")
-    for name, a in arches.items():
-        print(f"  {name:<8} {a.get('soc','-'):<18} {a.get('march') or '-'}")
+    for arch_name, a in arches.items():
+        print(f"  {arch_name:<8} {a.get('soc','-'):<18} {a.get('march') or '-'}")
     print()
 
-    cfg = json.loads(CONFIG.read_text(encoding="utf-8"))
-    suites = cfg["targets"]["pto-isa"]["suites"]
+    suites = target.get("suites", [])
+    tdirs = target.get("testcase_dirs", {})
+    repo = targets.resolve_repo(target)
     options = [("all runnable suites", "all")]
     for s in suites:
         runnable, reason = capabilities.suite_reason(s, arches)
@@ -310,10 +296,10 @@ def choose_target_and_suites() -> tuple[str, list[str], list[str]]:
     testcase_flags: list[str] = []
     filter_flags: list[str] = []
     if choice.lower() not in ("all", ""):
-        testcase = choose_testcase(choice)
+        testcase = choose_testcase(choice, tdirs, repo)
         if testcase:
             testcase_flags = ["--testcase", testcase]
-            gfilter = choose_filter(choice, testcase)
+            gfilter = choose_filter(choice, testcase, tdirs, repo)
             if gfilter:
                 filter_flags = ["--filter", gfilter]
 
@@ -322,16 +308,16 @@ def choose_target_and_suites() -> tuple[str, list[str], list[str]]:
 
     run_id = ask("Run id (blank = auto)")
     run_id_flags = ["--run-id", run_id] if run_id else []
-    return "pto-isa", suite_flags, mode_flags + run_id_flags + testcase_flags + filter_flags
+    return name, suite_flags, mode_flags + run_id_flags + testcase_flags + filter_flags
 
 
-def run_real_tour() -> int:
-    check_env()
-    target, suite_flags, extra_flags = choose_target_and_suites()
+def run_real_tour(name: str, target: dict) -> int:
+    check_env(target)
+    tname, suite_flags, extra_flags = choose_target_and_suites(name, target)
 
     banner("2 · Run the suite(s)")
     print(c("  Every run records context (git ref, dirty flag, host, env) in run.json — reproducible on any machine.", YELLOW))
-    cmd = [sys.executable, "scripts/run_suite.py", "--target", target, *suite_flags, *extra_flags]
+    cmd = [sys.executable, "scripts/run_suite.py", "--target", tname, *suite_flags, *extra_flags]
     result = subprocess.run(cmd, cwd=HARNESS)
     if result.returncode != 0:
         print(c("\n  Some suites did not pass — we'll review next.", YELLOW))
@@ -350,10 +336,12 @@ def run_real_tour() -> int:
         print(c(f"  latest run: {latest}", GREEN))
         if ask_yesno("Generate report.md/.html for it?", "y"):
             out_base = HARNESS / "reports" / latest / "report"
+            known = HARNESS / ".claude" / "skills" / tname / "references" / "known-failures.md"
+            kargs = ["--known", str(known)] if known.exists() else []
             subprocess.run([
                 sys.executable, "scripts/build_report.py",
                 "--run", str(HARNESS / "reports" / latest / "run.json"),
-                "--known", str(KNOWN), "--out", str(out_base),
+                *kargs, "--out", str(out_base),
             ], cwd=HARNESS, check=False)
             print(f"  → {out_base}.md / {out_base}.html")
     else:
@@ -403,11 +391,19 @@ def main(argv: list[str] | None = None) -> int:
     print(c("\n regression-harness · guided tour ", BOLD))
     mode = select_menu(
         "Start with:",
-        [("Sandboxed demo (no hardware, step-by-step)", "demo"), ("Real pto-isa tour", "real")],
+        [("Sandboxed demo (no hardware, step-by-step)", "demo"), ("Real target tour", "real")],
     ) or "demo"
     if mode == "demo":
         return subprocess.run([sys.executable, str(HARNESS / "scripts" / "demo_tour.py")]).returncode
-    return run_real_tour()
+
+    cfg = targets.load_config()
+    names = targets.list_targets(cfg)
+    if len(names) <= 1:
+        tname = names[0] if names else "pto-isa"
+    else:
+        opts = [(targets.target_label(targets.get_target(n, cfg) or {}), n) for n in names]
+        tname = select_menu("Which target?", opts) or names[0]
+    return run_real_tour(tname, targets.get_target(tname, cfg) or {})
 
 
 if __name__ == "__main__":

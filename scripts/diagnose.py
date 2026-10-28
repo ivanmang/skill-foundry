@@ -21,6 +21,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 import capabilities  # noqa: E402
 import _runs  # noqa: E402
+import targets  # noqa: E402
 
 GREEN = "\033[32m"
 RED = "\033[31m"
@@ -66,15 +67,7 @@ def collect_issues() -> list[dict]:
         "check": "env.sh",
         "ok": env_sh.exists(),
         "detail": "present" if env_sh.exists() else "missing",
-        "fix": "cp env.example.sh env.sh && edit PTO_ISA_REPO / ASCEND_HOME_PATH && source ./env.sh",
-    })
-
-    pto = Path(os.environ.get("PTO_ISA_REPO") or "~/pto-isa").expanduser()
-    issues.append({
-        "check": "pto-isa checkout",
-        "ok": pto.exists(),
-        "detail": str(pto),
-        "fix": f"clone pto-isa to {pto} or export PTO_ISA_REPO=<path>",
+        "fix": "cp env.example.sh env.sh && edit the repo + CANN paths && source ./env.sh",
     })
 
     issues.append({
@@ -92,35 +85,44 @@ def collect_issues() -> list[dict]:
         "fix": "cp env.example.sh env.sh && source ./env.sh  (or pick one in ./harness guide)",
     })
 
-    # per enabled suite, check its prereqs
-    cfg = _load(HARNESS / "config" / "suites.json")
-    arches = _load(HARNESS / "config" / "arches.json")
-    suites = (cfg.get("targets", {}).get("pto-isa", {}) or {}).get("suites", [])
-    for s in suites:
-        if not s.get("enabled"):
-            continue
-        ok, reason = capabilities.suite_reason(s, arches)
-        if not ok:
-            mode = s.get("mode") or ""
-            if mode == "cpu":
-                fix = "install clang++ (>=15) or g++ (>=13) — or run cpu-st on ecs/yellow/b10"
-            elif mode in ("npu-sim", "npu", "costmodel", "comm"):
-                fix = "set ASCEND_HOME_PATH (npu-sim also needs BOTH headers and simulator — ./harness cann)"
-            else:
-                fix = "see ./harness list"
-            issues.append({
-                "check": f"suite {s['name']}",
-                "ok": False,
-                "detail": reason,
-                "fix": fix,
-            })
+    # per target: repo checkout + each enabled suite's prereqs
+    cfg = targets.load_config()
+    for name in targets.list_targets(cfg):
+        t = targets.get_target(name, cfg) or {}
+        repo = targets.resolve_repo(t)
+        repo_env = t.get("repo_env") or "PTO_ISA_REPO"
+        issues.append({
+            "check": f"{name} checkout",
+            "ok": repo.exists(),
+            "detail": str(repo),
+            "fix": f"clone to {repo} or export {repo_env}=<path>",
+        })
+        arches = targets.load_arches(t)
+        for s in t.get("suites", []):
+            if not s.get("enabled"):
+                continue
+            ok, reason = capabilities.suite_reason(s, arches)
+            if not ok:
+                mode = s.get("mode") or ""
+                if mode == "cpu":
+                    fix = "install clang++ (>=15) or g++ (>=13) — or run cpu-st on ecs/yellow/b10"
+                elif mode in ("npu-sim", "npu", "costmodel", "comm"):
+                    fix = "set ASCEND_HOME_PATH (npu-sim also needs BOTH headers and simulator — ./harness cann)"
+                else:
+                    fix = "see ./harness list"
+                issues.append({
+                    "check": f"{name}/{s['name']}",
+                    "ok": False,
+                    "detail": reason,
+                    "fix": fix,
+                })
 
     baseline = HARNESS / "reports" / "baseline" / "baseline.json"
     issues.append({
         "check": "pinned baseline",
         "ok": baseline.exists(),
         "detail": "present" if baseline.exists() else "missing",
-        "fix": "run: ./harness baseline pto-isa  (on a canonical machine where all suites PASS)",
+        "fix": "run: ./harness baseline <target>  (on a canonical machine where all suites PASS)",
     })
 
     return issues

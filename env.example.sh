@@ -13,3 +13,7 @@ export ASCEND_HOME_PATH="${ASCEND_HOME_PATH:-}"
 # Optional: pto-isa checkout used by the harness (default ~/pto-isa).
 #   export PTO_ISA_REPO="$HOME/pto-isa"
 export PTO_ISA_REPO="${PTO_ISA_REPO:-$HOME/pto-isa}"
+
+# Per-target checkout env vars (each target declares its own repo_env in
+# config/suites.json). Example for the pto-vmi target:
+#   export PTO_VMI_REPO="$HOME/pto-vmi"

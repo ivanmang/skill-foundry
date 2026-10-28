@@ -108,21 +108,25 @@ def build_command(suite: dict, arches: dict, repo: Path,
         "soc": arch_info.get("soc", ""),
         "soc_version": arch_info.get("soc_version", ""),
         "repo": str(repo),
-        "testcase": suite.get("testcase", "all"),
+        "testcase": testcase or suite.get("testcase", "all"),
+        "filter": gtest_filter or "",
     }
     cmd = [tok.format(**subst) for tok in suite.get("command", [])]
 
     # Inject a single-testcase / gtest-filter selection per runner convention.
     mode = suite.get("mode") or ""
-    if mode == "cpu":
+    runner = suite.get("runner") or ("cpu" if mode == "cpu"
+                                     else ("run_st" if mode in ("npu-sim", "npu", "comm") else "generic"))
+    if runner == "cpu":
         if testcase:
             cmd += ["--testcase", testcase]
         if gtest_filter:
             cmd += ["--gtest_filter", gtest_filter]
-    elif mode in ("npu-sim", "npu", "comm"):
+    elif runner == "run_st":
         cmd = _set_flag(cmd, "-t", testcase or "all")
         if gtest_filter:
             cmd = _set_flag(cmd, "-g", gtest_filter)
+    # runner == "generic": the command template handles {testcase}/{filter} itself
     return cmd
 
 
@@ -452,15 +456,17 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--arches", default=str(HARNESS / "config" / "arches.json"))
     args = ap.parse_args(argv)
 
+    cfg = load_json(Path(args.config))
+    if args.target is None:
+        args.target = targets.default_target(cfg)
+    if args.target not in cfg.get("targets", {}):
+        usage_error(f"unknown target '{args.target}'. Known: {targets.list_targets(cfg)}")
+
     if args.list:
         return list_all(Path(args.config), Path(args.arches), args.target, args.format)
 
-    cfg = load_json(Path(args.config))
     arches = load_json(Path(args.arches))
-    targets = cfg.get("targets", {})
-    if args.target not in targets:
-        usage_error(f"unknown target '{args.target}'. Known: {list(targets)}")
-    target_cfg = targets[args.target]
+    target_cfg = cfg["targets"][args.target]
 
     repo = resolve_repo(target_cfg)
     if not repo.exists():

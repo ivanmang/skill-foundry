@@ -5,9 +5,10 @@ A shared, self-improving **regression harness** built on open Agent Skills
 report → review, plus a learning loop that promotes corrections back into the
 skills.
 
-First target: **pto-isa** (CPU simulator ST + NPU simulator ST). Later targets:
-pto-vmi (CCE / DSL), costmodel, comm, and any target expressible as a suite
-matrix.
+First target: **pto-isa** (CPU + NPU-sim), plus **pto-vmi** (CCE + DSL) as a
+second target. Any target expressible as a suite matrix can be added with one
+`targets.<name>` config block + an adapter skill — see
+[How to add a target](docs/HANDBOOK.md#how-to-add-a-target).
 
 > **New here?** Start with the [Handbook](docs/HANDBOOK.md) (the canonical
 > reference) or the [User Journey](USER_JOURNEY.md), then run

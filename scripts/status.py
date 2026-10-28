@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
-"""One-glance dashboard: environment, suites, baseline, learnings, last run.
+"""One-glance dashboard: environment, per-target suites, baseline, learnings, last run.
 
 Usage:
-  ./harness status            # human-readable dashboard
-  ./harness status --json     # machine-readable
+  ./harness status              # all targets
+  ./harness status --target X   # one target
+  ./harness status --json       # machine-readable
 """
 
 from __future__ import annotations
@@ -23,6 +24,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import capabilities  # noqa: E402
 import detect_cann  # noqa: E402
 import _runs  # noqa: E402
+import targets  # noqa: E402
 
 GREEN = "\033[32m"
 RED = "\033[31m"
@@ -30,25 +32,16 @@ YELLOW = "\033[33m"
 BOLD = "\033[1m"
 RESET = "\033[0m"
 
-LRN_ID_RE = re.compile(r"^## LRN-\d{8}-\d{3}", re.M)
-
 
 def c(text: str, color: str) -> str:
     return f"{color}{text}{RESET}" if sys.stdout.isatty() else text
-
-
-def _load(path: Path) -> dict:
-    try:
-        return json.loads(path.read_text(encoding="utf-8"))
-    except Exception:
-        return {}
 
 
 def pending_count(path: Path) -> int:
     if not path.exists():
         return 0
     try:
-        import promote_recent  # reuse its strict LRN parser
+        import promote_recent
         return sum(1 for e in promote_recent.parse_entries(path.read_text(encoding="utf-8"))
                    if e.get("status") == "pending")
     except Exception:
@@ -61,14 +54,38 @@ def promoted_count(path: Path) -> int:
     return len(re.findall(r"^- LRN-\d{8}-\d{3}", path.read_text(encoding="utf-8"), re.M))
 
 
-def pto_isa_path() -> Path:
-    return Path(os.environ.get("PTO_ISA_REPO") or "~/pto-isa").expanduser()
+def _target_rows(cfg: dict, only: str | None) -> list[dict]:
+    rows = []
+    for name in targets.list_targets(cfg):
+        if only and name != only:
+            continue
+        t = targets.get_target(name, cfg) or {}
+        arches = targets.load_arches(t)
+        repo = targets.resolve_repo(t)
+        suite_rows = []
+        for s in t.get("suites", []):
+            runnable, reason = capabilities.suite_reason(s, arches)
+            suite_rows.append({
+                "name": s.get("name", ""),
+                "mode": s.get("mode", "-"),
+                "enabled": bool(s.get("enabled")),
+                "runnable": runnable,
+                "reason": reason,
+                "milestone": s.get("milestone", ""),
+            })
+        rows.append({
+            "name": name,
+            "label": t.get("label") or name,
+            "repo_env": t.get("repo_env") or "PTO_ISA_REPO",
+            "repo_ok": repo.exists(),
+            "repo_path": str(repo),
+            "suites": suite_rows,
+        })
+    return rows
 
 
-def collect() -> dict:
-    cfg = _load(HARNESS / "config" / "suites.json")
-    arches = _load(HARNESS / "config" / "arches.json")
-    suites = (cfg.get("targets", {}).get("pto-isa", {}) or {}).get("suites", [])
+def collect(only: str | None = None) -> dict:
+    cfg = targets.load_config()
 
     ascend = os.environ.get("ASCEND_HOME_PATH", "")
     ascend_version = None
@@ -78,20 +95,8 @@ def collect() -> dict:
         except Exception:
             ascend_version = "?"
 
-    suite_rows = []
-    for s in suites:
-        runnable, reason = capabilities.suite_reason(s, arches)
-        suite_rows.append({
-            "name": s.get("name", ""),
-            "mode": s.get("mode", "-"),
-            "enabled": bool(s.get("enabled")),
-            "runnable": runnable,
-            "reason": reason,
-            "milestone": s.get("milestone", ""),
-        })
-
     baseline_path = HARNESS / "reports" / "baseline" / "baseline.json"
-    baseline = _load(baseline_path)
+    baseline = json.loads(baseline_path.read_text(encoding="utf-8")) if baseline_path.exists() else {}
     baseline_age = None
     if baseline.get("generated_at"):
         try:
@@ -100,24 +105,19 @@ def collect() -> dict:
         except Exception:
             baseline_age = None
 
-    last = None
+    last_info = None
     for p, data in _runs.iter_runs():
         if data.get("run_id", "").startswith("demo-live"):
-            continue  # ignore sandbox demo runs when reporting "last real run"
-        last = (p, data)
-        break
-    last_info = None
-    if last:
-        p, data = last
-        suites_status = ", ".join(
-            f"{s.get('name')}:{s.get('status')}" for s in data.get("suites", [])
-        )
+            continue
+        if only and data.get("target") != only:
+            continue
         last_info = {
             "run_id": data.get("run_id", p.parent.name),
             "target": data.get("target", ""),
-            "suites": suites_status,
+            "suites": ", ".join(f"{s.get('name')}:{s.get('status')}" for s in data.get("suites", [])),
             "failed": any(s.get("status") != "PASS" for s in data.get("suites", [])),
         }
+        break
 
     return {
         "env": {
@@ -125,10 +125,8 @@ def collect() -> dict:
             "git": bool(shutil.which("git")),
             "ascend": ascend,
             "ascend_version": ascend_version,
-            "pto_isa": pto_isa_path().exists(),
-            "pto_isa_path": str(pto_isa_path()),
         },
-        "suites": suite_rows,
+        "targets": _target_rows(cfg, only),
         "baseline": {
             "exists": baseline_path.exists(),
             "run_id": baseline.get("run_id"),
@@ -152,14 +150,15 @@ def render(data: dict) -> None:
     print(c(" environment", BOLD))
     print(f"  {mark(env['python3'])} python3    {mark(env['git'])} git")
     print(f"  {mark(bool(env['ascend']))} ASCEND_HOME_PATH  {c(ascend_desc, GREEN if env['ascend'] else YELLOW)}")
-    print(f"  {mark(env['pto_isa'])} pto-isa  {env['pto_isa_path']}")
 
-    print(c("\n suites (what can run here)", BOLD))
-    for s in data["suites"]:
-        sym = "✓" if (s["enabled"] and s["runnable"]) else ("!" if s["enabled"] else "·")
-        color = GREEN if (s["enabled"] and s["runnable"]) else (YELLOW if s["enabled"] else "")
-        note = "" if (s["runnable"] or not s["enabled"]) else f"  ← {s['reason']}"
-        print(f"  [{c(sym, color)}] {s['name']:<14} {s['mode']:<9} {s['milestone']}{note}")
+    for t in data["targets"]:
+        print(c(f"\n target: {t['label']}  ({t['name']})", BOLD))
+        print(f"  {mark(t['repo_ok'])} repo  {t['repo_path']}  (env {t['repo_env']})")
+        for s in t["suites"]:
+            sym = "✓" if (s["enabled"] and s["runnable"]) else ("!" if s["enabled"] else "·")
+            color = GREEN if (s["enabled"] and s["runnable"]) else (YELLOW if s["enabled"] else "")
+            note = "" if (s["runnable"] or not s["enabled"]) else f"  ← {s['reason']}"
+            print(f"    [{c(sym, color)}] {s['name']:<14} {s['mode']:<9} {s['milestone']}{note}")
 
     b = data["baseline"]
     age = f"{b['age_days']}d ago" if b["age_days"] is not None else "?"
@@ -167,7 +166,7 @@ def render(data: dict) -> None:
     if b["exists"]:
         print(f"  {mark(True)} pinned ({b['run_id']}), {age} — refresh only deliberately")
     else:
-        print(f"  {mark(False)} no baseline yet — run: ./harness baseline pto-isa")
+        print(f"  {mark(False)} no baseline yet — run: ./harness baseline <target>")
 
     ln = data["learnings"]
     print(c("\n learnings", BOLD))
@@ -178,7 +177,7 @@ def render(data: dict) -> None:
     print(c("\n last run", BOLD))
     if lr:
         st = c("FAIL" if lr["failed"] else "PASS", RED if lr["failed"] else GREEN)
-        print(f"  {lr['run_id']} · {lr['suites']} · {st}")
+        print(f"  {lr['run_id']} [{lr['target']}] · {lr['suites']} · {st}")
         print(f"  next: ./harness report --open" + ("" if lr["failed"] else "  (or ./harness review)"))
     else:
         print(f"  none yet — run: ./harness run --all-suites --quiet")
@@ -188,9 +187,10 @@ def render(data: dict) -> None:
 
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description="One-glance harness status.")
+    ap.add_argument("--target", default=None, help="Show only this target.")
     ap.add_argument("--json", action="store_true", help="Emit JSON.")
     args = ap.parse_args(argv)
-    data = collect()
+    data = collect(args.target)
     if args.json:
         print(json.dumps(data, indent=2))
     else:

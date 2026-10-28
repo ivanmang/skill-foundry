@@ -115,6 +115,48 @@ command"** option to enter any `./harness …` yourself, the full verb menu, or
 
 ---
 
+## How to add a target
+
+A target is one declarative block in `config/suites.json` under `targets.<name>`
+plus (optionally) one adapter skill. Nothing in run/report/review/learn needs to
+change — they already read the target from the run record.
+
+```jsonc
+{
+  "name": "your-target",
+  "label": "Your target (…)",
+  "repo_env": "YOUR_TARGET_REPO",          // env var for the checkout
+  "repo_default": "~/your-target",
+  "repo_clone": "git@gitcode.com:org/your-target.git",
+  "env_setup": "source \"$ASCEND_HOME_PATH/set_env.sh\"",
+  "testcase_dirs": {                        // for the guide's dropdowns
+    "suite-name": "path/to/testcases"
+  },
+  "suites": [
+    {
+      "name": "suite-name",
+      "mode": "cpu" | "npu-sim" | "npu" | "costmodel" | "comm" | "static",
+      "arch": "a5",                           // per config/arches.json
+      "runner": "cpu" | "run_st" | "generic", // generic: use {testcase}/{filter} in command
+      "enabled": true,
+      "milestone": "M1",
+      "command": ["python3", "run.py", "{testcase}"],
+      "timeout_s": 7200,
+      "description": "…"
+    }
+  ]
+}
+```
+
+Then: `./harness status`, `./harness list --target your-target`, `./harness guide`
+(pick the target), `./harness run --target your-target --all-suites --dry-run`.
+`runner` defaults are derived from `mode` (cpu → `--testcase`/`--gtest_filter`,
+npu-sim/npu/comm → `-t`/`-g`); `generic` lets the `command` template use
+`{testcase}`/`{filter}`/`{repo}`/`{arch}`/`{soc}` placeholders directly, for
+arbitrary runners (e.g. `bash scripts/sim_dsl.sh dsl/{testcase}`).
+
+---
+
 ## The daily flow, end to end
 
 ```bash
