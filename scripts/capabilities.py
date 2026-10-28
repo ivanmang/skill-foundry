@@ -67,6 +67,27 @@ def has_mpi() -> bool:
     return _which("mpirun") is not None
 
 
+_CANN_LANES_CACHE: tuple[set[str], set[str]] | None = None
+
+
+def _toolkit_lanes() -> tuple[set[str], set[str]]:
+    """(headers, simulators) arch sets for the current ASCEND_HOME_PATH CANN."""
+    global _CANN_LANES_CACHE
+    if _CANN_LANES_CACHE is not None:
+        return _CANN_LANES_CACHE
+    home = Path(os.environ.get("ASCEND_HOME_PATH", ""))
+    if not home:
+        _CANN_LANES_CACHE = (set(), set())
+        return _CANN_LANES_CACHE
+    try:
+        import detect_cann
+        info = detect_cann.analyze(home, detect_cann.load_config())
+        _CANN_LANES_CACHE = (set(info["headers"]), set(info["simulators"]))
+    except Exception:
+        _CANN_LANES_CACHE = (set(), set())
+    return _CANN_LANES_CACHE
+
+
 def suite_reason(suite: dict, arches: dict) -> tuple[bool, str]:
     """Return (runnable, why-not) for a suite in the current environment."""
     mode = (suite.get("mode") or "").lower()
@@ -77,12 +98,18 @@ def suite_reason(suite: dict, arches: dict) -> tuple[bool, str]:
     if mode == "npu-sim":
         if not has_ascend():
             return (False, "ASCEND_HOME_PATH not set")
-        arch = arches.get(suite.get("arch") or "", {})
-        soc = arch.get("soc", "")
-        if not soc:
-            return (False, "no soc in config/arches.json")
-        ok = has_simulator(soc)
-        return (ok, f"CANN simulator {soc} not found" if not ok else "ok")
+        arch = suite.get("arch") or ""
+        arch_info = arches.get(arch, {})
+        soc = arch_info.get("soc", "")
+        headers, sims = _toolkit_lanes()
+        missing = []
+        if arch not in headers:
+            missing.append("compile headers")
+        if arch not in sims:
+            missing.append(f"simulator {soc or arch}")
+        if missing:
+            return (False, "CANN lacks " + " + ".join(missing))
+        return (True, "ok")
 
     if mode == "npu":
         if not has_ascend():

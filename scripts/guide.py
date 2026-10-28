@@ -23,6 +23,7 @@ from pathlib import Path
 HARNESS = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import detect_cann  # noqa: E402
+import capabilities  # noqa: E402
 
 GREEN = "\033[32m"
 RED = "\033[31m"
@@ -278,10 +279,17 @@ def choose_target_and_suites() -> tuple[str, list[str], list[str]]:
 
     cfg = json.loads(CONFIG.read_text(encoding="utf-8"))
     suites = cfg["targets"]["pto-isa"]["suites"]
-    options = [("all enabled suites", "all")]
+    options = [("all runnable suites", "all")]
     for s in suites:
-        mark = "✓ " if s.get("enabled") else "  "
-        label = f"{mark}{s['name']:<14} {s.get('mode','-'):<9} {s.get('description','')}"
+        runnable, reason = capabilities.suite_reason(s, arches)
+        if s.get("enabled") and runnable:
+            mark = "✓ "
+        elif s.get("enabled"):
+            mark = "! "
+        else:
+            mark = "  "
+        note = "" if (runnable or not s.get("enabled")) else f"  ← {reason}"
+        label = f"{mark}{s['name']:<14} {s.get('mode','-'):<9} {s.get('description','')}{note}"
         options.append((label, s["name"]))
     choice = select_menu("Choose a suite (↑/↓ + Enter):", options) or "all"
 
@@ -289,11 +297,12 @@ def choose_target_and_suites() -> tuple[str, list[str], list[str]]:
         suite_flags = ["--all-suites"]
     else:
         suite_flags = ["--suite", choice]
-
-    if not os.environ.get("ASCEND_HOME_PATH") and (
-        choice == "all" or choice.startswith(("npu", "costmodel", "comm"))
-    ):
-        print(c("  ⚠  ASCEND_HOME_PATH is not set — this choice will ERROR. Run 'source ./env.sh' first, or pick a cpu suite.", YELLOW))
+        for s in suites:
+            if s["name"] == choice:
+                runnable, reason = capabilities.suite_reason(s, arches)
+                if not runnable:
+                    print(c(f"  ⚠  {choice}: {reason} — it will ERROR when run.", YELLOW))
+                break
 
     testcase_flags: list[str] = []
     filter_flags: list[str] = []
