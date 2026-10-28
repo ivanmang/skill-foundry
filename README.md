@@ -1,17 +1,56 @@
 # Regression Harness
 
-A shared, self-improving harness of **Agent Skills** for benchmark and regression
-testing, built to the open Agent Skills specification (`SKILL.md`).
+A shared, self-improving **regression harness** built on open Agent Skills
+(`SKILL.md`), wrapping a single entry point (`./harness`) around run → extract →
+report → review, plus a learning loop that promotes corrections back into the
+skills.
 
-First target: **pto-isa** regression (CPU simulator ST + NPU simulator ST).
+First target: **pto-isa** (CPU simulator ST + NPU simulator ST). Later targets:
+pto-vmi (CCE / DSL), costmodel, comm, and any target expressible as a suite
+matrix.
 
-Teams in scope (later): pto-vmi (CCE / DSL), costmodel, comm, and any new target
-that can be expressed as a suite matrix.
+> **New here?** Start with the [User Journey](USER_JOURNEY.md) for the full
+> story, then run `./harness demo` (interactive, no hardware) or
+> `./harness guide` (real flow). One entry point for everything:
+> `./harness help`.
 
-> **New here?** Start with the [User Journey](USER_JOURNEY.md), run
-> `./harness guide` for an interactive tour, or jump straight to the
-> interactive sandboxed demo: `./harness demo`.
-> One entry point for everything: `./harness help`.
+---
+
+## The two loops
+
+```text
+USE      ./harness run → report → review   (diff vs pinned baseline)
+IMPROVE  ./harness teach → promote --pr    (corrections become skills)
+```
+
+- **USE** — run suites, extract logs, render reports, and diff against the
+  pinned baseline. Exit codes: `0` clean, `1` ran-with-failures, `2` usage.
+- **IMPROVE** — capture a correction (append-only), propose a diff (no write),
+  then apply + open an MR — gated on human review. Capture is automatic;
+  promotion is always reviewed.
+
+See both loops live in ~2 minutes: `./harness demo`.
+
+---
+
+## Getting started
+
+```bash
+git clone git@gitcode.com:ivanmang/regression-harness.git
+cd regression-harness
+cp env.example.sh env.sh     # edit: PTO_ISA_REPO + ASCEND_HOME_PATH (CANN paths)
+source ./env.sh              # only needed for npu / costmodel / comm suites
+
+./harness demo               # 1. interactive walkthrough (no hardware needed)
+./harness list               # 2. what can run on THIS machine (auto-detected)
+./harness run --all-suites   # 3. run everything runnable (auto-skips missing prereqs)
+./harness report --open      # 4. open the report in your browser
+./harness review             # 5. diff vs the pinned baseline
+```
+
+`./harness baseline pto-isa` pins the baseline on the canonical machine (see
+[Canonical environment](#canonical-environment)); it refuses unless every suite
+PASSes (`--force` overrides).
 
 ---
 
@@ -27,14 +66,15 @@ that can be expressed as a suite matrix.
 ./harness promote   learnings → skills    [--propose | --apply | --pr]
 ./harness baseline  re-pin baseline.json  [--force] [target]
 ./harness history   recent runs           [--limit, --json]
-./harness clean     remove run dirs       [--dry-run, --keep]
+./harness clean     remove run dirs       [--dry-run, --keep N]
 ./harness open      open report.html      [run-id (default latest)]
 ./harness validate  check config files
-./harness demo      interactive step-by-step walkthrough  [--straight]
 ./harness list      suites + arches       [--target, --format text|markdown|html]
 ./harness cann      which CANN → which arch  [--home, --scan, --json]
+./harness guide     interactive tour of the real flow  [--demo]
+./harness demo      interactive sandboxed walkthrough  [--straight]
 ./harness selfcheck compile-check + demo smoke
-./harness help      show this            ./harness version [--short]
+./harness help      show this             ./harness version [--short]
 ```
 
 Quick start:
@@ -50,7 +90,7 @@ Quick start:
 ./harness report --open                 # latest run → browser
 ./harness review                         # latest run vs baseline
 ./harness history                        # recent runs
-./harness clean                          # purge old runs (keeps the baseline)
+./harness clean --keep 3                 # purge old runs, keep 3 (keeps the baseline)
 make check                               # run the self-check
 
 source completions/harness.bash          # tab-completion (add to ~/.bashrc)
@@ -58,10 +98,24 @@ source completions/harness.bash          # tab-completion (add to ~/.bashrc)
 
 - `run` requires an explicit `--suite` **or** `--all-suites`; a bare `run` prints
   the enabled suites and exits 2.
-- `./harness list` auto-detects availability per environment: `[✓]`
-  enabled+runnable, `[!]` enabled but missing prereqs, `[ ]` disabled. `--all-suites`
-  runs only the runnable ones (and prints why the rest were skipped).
-- Exit codes: **0** clean, **1** ran-with-failures, **2** usage error.
+- `./harness list` auto-detects availability per environment: `[✓]` = enabled
+  and runnable, `[!]` = enabled but missing prereqs (with the reason), `[ ]` =
+  disabled. `--all-suites` runs only the runnable ones and prints why the rest
+  were skipped; an explicit `--suite` force-runs regardless.
+
+### What's automatic vs human
+
+Every step of the interactive demo labels the three roles; the same boundary
+applies to the real flow:
+
+| Role | Actions |
+|---|---|
+| 🟢 **harness (automatic)** | run, extract logs, report, review, capture a correction, propose a diff |
+| 🟡 **you / a reviewer** | triage judgment (`teach`), merging the MR (`promote --pr`) |
+
+`./harness demo` shows this per step with a **"Who does what"** box
+(command / harness / you). Capture is automatic; promotion is PR-gated — the
+harness auto-logs but only *proposes* edits.
 
 ### Guided tour
 
@@ -80,9 +134,9 @@ unset, the CANN picker lists each installed package with which arches it can
 compile vs simulate.
 
 The demo (`./harness demo`) drives the **real** harness scripts against a mock
-gtest runner, one step at a time. After each step it offers **run / next /
-previous / jump / explain / quit** (arrow keys + Enter), so you can pace it or
-re-play any step.
+gtest runner, one step at a time. Each step is a framed block with a progress
+bar, a step map (`✓` done · `▶` current · `·` upcoming), a **"Who does what"**
+box, and a menu: **run & continue / skip / back / jump / explain / quit**.
 
 ---
 
@@ -96,12 +150,13 @@ re-play any step.
   review-inconsistencies/ Diff a run vs the pinned baseline
   full-analysis-pipeline/ Orchestrate run -> extract -> report -> review -> maintainer
   skill-maintainer/       Learning/correction loop
-  pto-isa/                Target adapter: pto-isa commands, suites, gotchas
-config/                   suites.json + arches.json (source of truth)
+  pto-isa/                Target adapter (+ references/: env, suite matrix, cann matrix, known-failures)
+config/                   suites.json + arches.json + cann.json (source of truth)
 scripts/                  drivers (see scripts/README.md: user verbs vs internals)
 completions/              bash tab-completion for ./harness
 learnings/                corrections.md / recent.md / promoted.md
 reports/baseline/         pinned baseline.json (committed); other reports gitignored
+demo/                     sandboxed walkthrough (config, fixtures, run_demo.sh, NARRATION.md)
 env.example.sh            copy to env.sh for machine-local CANN / pto-isa paths
 ```
 
@@ -113,6 +168,8 @@ env.example.sh            copy to env.sh for machine-local CANN / pto-isa paths
 - Perf regression flag: **p99 +15%** even if average is stable.
 - The 11 existing `pto-isa/agents/skills` are kept as-is (referenced, not migrated).
 - M1 scope = **CPU-ST + NPU-sim** (A5 / A3 / A6, matching the A6/v200 workflow).
+- **Automation boundary**: capture auto, promotion propose/apply + MR-gated,
+  never auto-remove/change an existing check.
 
 ## Conformance & portability
 
@@ -132,11 +189,12 @@ env.example.sh            copy to env.sh for machine-local CANN / pto-isa paths
 
 Set machine-local paths in `env.sh` (copy `env.example.sh`) and
 `source ./env.sh` before npu suites; cpu-st / static suites run without it.
+`./harness list` tells you exactly what's runnable on the current machine.
 
 | Tier | Where | Notes |
 |---|---|---|
 | CPU-ST | machine with clang++>=15 **or** g++>=13 | e.g. ecs / yellow / b10 |
-| NPU-sim (A5/A3/A6) | CANN toolkit with simulator `tools/simulator/<soc>` | A6 sim lives on yellow (`dav_9201`) |
+| NPU-sim (A5/A3/A6) | a CANN toolkit with **both** compile headers (`include/pto/npu/<arch>`) **and** the simulator (`tools/simulator/<soc>`) | A6 sim lives on yellow (`dav_9201`); see `./harness cann` for which installed CANN covers which arch |
 
 See `.claude/skills/pto-isa/references/env.md` for the arch/soc/env table.
 
@@ -170,6 +228,7 @@ See `.claude/skills/skill-maintainer/SKILL.md` and run the live walkthrough:
 |---|---|
 | `ASCEND_HOME_PATH not set` on npu/costmodel/comm suites | `cp env.example.sh env.sh && source ./env.sh` |
 | cpu-st: `Could not find a suitable compiler` | run on ecs / yellow / b10 (needs clang++>=15 or g++>=13) |
+| npu-sim suite shows `!` in `./harness list` | `./harness cann` — the chosen CANN must have both headers and the simulator |
 | `target repo not found` | `export PTO_ISA_REPO=~/pto-isa` |
 | bare `./harness run` returns exit 2 | pass `--suite <name>` or `--all-suites` |
 | `baseline` refuses to pin | some suite did not PASS — fix it, or use `--force` |

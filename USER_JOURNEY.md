@@ -20,10 +20,16 @@ The harness turns *"run the regression"* from a repeated instruction into:
 
 Two loops, always:
 
+```text
+USE      run → extract → report → review (diff vs baseline)
+IMPROVE  capture → propose → apply → MR → next run is smarter
 ```
-USE     run → extract → report → review (diff vs baseline)
-IMPROVE capture → propose → apply → PR → next run is smarter
-```
+
+And a simple rule of thumb for who does what:
+
+- 🟢 **harness does** — run, extract, report, review, capture, propose.
+- 🟡 **you / a reviewer do** — the triage judgment (`teach`), merging the MR
+  (`promote --pr`).
 
 ---
 
@@ -32,7 +38,7 @@ IMPROVE capture → propose → apply → PR → next run is smarter
 | Role | Typical activity |
 |---|---|
 | **Developer** | Runs regressions, reads reports, triages failures |
-| **Reviewer** | Approves proposed skill changes (PR merge) |
+| **Reviewer** | Approves proposed skill changes (MR merge) |
 | **Maintainer** | Curates `learnings/`, refreshes the baseline |
 
 You'll usually wear the first hat, sometimes the last two.
@@ -50,41 +56,79 @@ cp env.example.sh env.sh && source ./env.sh
 
 # see everything the harness can do
 ./harness help
-./harness guide          # interactive step-by-step tour
-./harness cann           # which installed CANN supports which arch
+./harness demo          # interactive walkthrough (no hardware needed)
+./harness guide         # interactive tour of the real flow
+./harness cann          # which installed CANN supports which arch
 
 # optional: tab-completion
 source completions/harness.bash   # add to ~/.bashrc
 ```
 
 Requirements are only `python3` + `git` for the harness itself. The *targets*
-have their own needs:
+have their own needs — and `./harness list` auto-detects them on any machine:
 
 | Suite | Needs |
 |---|---|
 | `cpu-st` | clang++>=15 **or** g++>=13 (run on ecs / yellow / b10, not the blue laptop) |
-| `npu-sim-a5/a3` | a CANN toolkit with the matching simulator |
-| `npu-sim-a6` | yellow (`dav_9201`); pto-isa headers before CANN include |
+| `npu-sim-a5/a3` | a CANN toolkit with the matching **simulator** AND compile **headers** |
+| `npu-sim-a6` | yellow (`dav_9201`); needs a CANN with **both** A6 headers and the A6 sim |
+| `npu-hw-a5` | a real A5 device (`npu-smi` must succeed) + ASCEND_HOME_PATH |
+| `costmodel-st` | ASCEND_HOME_PATH |
+| `comm-st` | ASCEND_HOME_PATH + `mpirun` |
 
 ---
 
 ## Step 1 — Try it in 2 minutes (no hardware)
 
 ```bash
-./harness guide --demo        # guided demo tour (asks before each step)
-./harness demo                # or: run the demo straight through
-PAUSE=1 ./demo/run_demo.sh    # or: step scene-by-scene (for presenting)
+./harness demo                # interactive, step-by-step (arrow keys + Enter)
+./harness demo --straight     # straight through (CI / a quick skim)
+./harness guide --demo        # same interactive tour via the guide entry
+PAUSE=1 ./demo/run_demo.sh    # scene-by-scene with a pause (for presenting)
 ```
 
 This runs the **real** harness scripts against a mock gtest runner and walks the
-entire journey (run → report → review → correct → promote → re-run). Everything
-happens in `/tmp` + the gitignored `reports/`, so the repo stays clean.
+entire journey (run → report → review → correct → promote → re-run) in 8 steps.
+Everything happens in `/tmp` + the gitignored `reports/`, so the repo stays clean.
+
+Each step is a **framed block** that makes the workflow self-explanatory:
+
+```text
+════════════════════════════════════════════════════════════════════
+  STEP 1 / 8   ·   Use — run the suite
+════════════════════════════════════════════════════════════════════
+
+  progress  [░░░░░░░░░░░░░░░░░░░░░░]  0/8
+  steps     ▶run  ·report  ·review  ·teach  ·propose  ·apply  ·rerun  ·takeaway
+
+  What this step does
+    One command runs the demo suite through the REAL run_suite.py → run.json.
+
+  Who does what
+    ▸ command   python3 scripts/run_suite.py --target demo --all-suites
+    🟢 harness  runs the suite and normalizes the log into run.json
+    🟡 you       nothing — press Enter to run
+
+  Your move  ·  ↑/↓ choose  ·  Enter confirm  ·  1–6 jump  ·  q quit
+   [▶] ▶  run this step & continue
+       ⏭  skip to the next step
+       ⏮  go back one step
+       🗺  jump to any step
+       🛈  explain this step
+       ✕  quit demo
+```
+
+`run this step & continue` runs the step *and* advances to the next, so holding
+Enter walks the whole journey; `skip` / `back` / `jump` / `explain` give control.
+The first three steps are **USE**, the next four are **IMPROVE** — and the
+"Who does what" box marks where a human is needed (teach = your triage call,
+apply = a reviewer merges the MR).
 
 The interactive `./harness guide` (without `--demo`) walks the **real** pto-isa
 flow the same way: env check → choose suites → run → report → review → teach →
 promote. Its interactive menus — **demo/real**, **suite**, **testcase**, **gtest
 filter**, **CANN package**, and **output mode** — use arrow keys (`↑`/`↓` +
-Enter, highlighted selection; fell back to numbered prompts when piped). When
+Enter, highlighted selection; fall back to numbered prompts when piped). When
 `ASCEND_HOME_PATH` isn't set, the CANN picker lists each installed package and
 which arches it can compile (headers) vs simulate.
 
@@ -92,11 +136,12 @@ which arches it can compile (headers) vs simulate.
 
 ## Step 2 — First real run: pin the baseline
 
-On a canonical machine (see table above):
+On a canonical machine (see the table in Step 0):
 
 ```bash
 ./harness baseline pto-isa
-# runs all enabled suites, copies the result to reports/baseline/baseline.json
+# runs all enabled (and runnable) suites, copies the result to
+# reports/baseline/baseline.json
 # (refuses to pin if any suite did not PASS — use --force to override)
 
 git add reports/baseline/baseline.json
@@ -112,7 +157,7 @@ only deliberately (new suites, arch changes), never casually.
 ## Step 3 — Everyday: run a regression
 
 ```bash
-./harness list                                # what can I run? (auto-detected availability)
+./harness list                                # what can I run on THIS machine? (auto-detected)
 
 ./harness run --all-suites --quiet            # everything runnable, summary only
 ./harness run --all-suites --tui              # live spinner + per-suite pass/fail
@@ -130,6 +175,10 @@ prints the enabled suites and exits 2 (no accidental full run). `--all-suites`
 auto-skips suites whose prerequisites aren't present on this machine (compiler /
 CANN / simulator / device / MPI) and prints why; an explicit `--suite`
 force-runs regardless.
+
+`./harness list` shows the same auto-detection inline: `[✓]` = enabled and
+runnable, `[!]` = enabled but missing prereqs (the reason is printed), `[ ]` =
+disabled. Use it as the first thing on any new machine.
 
 Each run produces, under `reports/<run-id>/`:
 
@@ -239,11 +288,14 @@ This appends a strict, parseable entry to `learnings/recent.md`:
 - category: correction
 - context: reports/<run-id>
 - skill: pto-isa
-<｜begin▁of▁sentence｜>- wrong: device vcvt round-field mismatch
+- wrong: device vcvt round-field mismatch
 - correct: known vcvt round-field pattern; annotate instead of re-triage
 - action: promote vcvt round-field swap into known-failures
 - status: pending
 ```
+
+This step is **your judgment** — the harness logs what you tell it, it can't
+decide the correct triage for you.
 
 ### 7b. Propose (auto-draft a diff, no write)
 
@@ -253,18 +305,20 @@ This appends a strict, parseable entry to `learnings/recent.md`:
 
 It renders a **reviewable git-style diff** into the right place (a new
 `known-failures.md` entry, or a `## Gotchas` bullet in the target skill), and
-skips duplicates / entries already present in the target file.
+skips duplicates / entries already present in the target file. Nothing is
+written yet.
 
-### 7c. Apply + PR (scripted, human-gated)
+### 7c. Apply + MR (scripted, human-gated)
 
 ```bash
-./harness promote --pr     # apply + branch + commit + push + merge-request URL
+./harness promote --pr     # apply + branch + commit + push + MR (merge request) URL
 ```
 
 One command finishes the loop: it writes the edit, moves the entry from
 `recent.md` → `promoted.md`, logs it in `corrections.md`, commits on a
-`feat/learnings-<date>` branch, pushes, and prints the merge-request URL. A
-reviewer merges — nothing is ever auto-merged.
+`feat/learnings-<date>` branch, pushes, and prints the merge-request URL. **A
+reviewer merges** — the harness never self-merges. This is the other place a
+human is required.
 
 ---
 
@@ -295,10 +349,10 @@ loop, and every teammate gets it via git.
 |---|---|
 | Nightly | `.gitcode/workflows/promote-learnings.yml` surfaces pending learnings |
 | On push/PR | `.gitcode/workflows/selfcheck.yml` runs `./harness selfcheck` |
-| Weekly / on demand | reviewer merges `feat/learnings-*` PRs |
+| Weekly / on demand | reviewer merges `feat/learnings-*` MRs |
 | After suite changes | `./harness baseline pto-isa` to re-pin the baseline |
 | After a correction | re-run one representative case to verify it improved triage |
-| Housekeeping | `./harness clean` / `./harness history` / `make check` |
+| Housekeeping | `./harness clean --keep 3` / `./harness history` / `make check` |
 
 ---
 
@@ -306,8 +360,10 @@ loop, and every teammate gets it via git.
 
 | Goal | Command |
 |---|---|
-| Sandboxed walkthrough | `./harness demo` |
-| List suites + arches | `./harness list [--format markdown\|html]` |
+| Interactive walkthrough (no hardware) | `./harness demo` (or `--straight`; `--demo` in `guide`) |
+| Interactive tour (real flow) | `./harness guide` |
+| List suites + arches + availability | `./harness list [--format markdown\|html]` |
+| Which CANN supports which arch | `./harness cann [--scan] [--json]` |
 | Pin / refresh baseline | `./harness baseline [--force] pto-isa` |
 | Run all suites | `./harness run --all-suites [--quiet\|--tui\|--json]` |
 | Run one suite | `./harness run --suite cpu-st` |
@@ -321,7 +377,7 @@ loop, and every teammate gets it via git.
 | Validate config | `./harness validate` |
 | Capture correction | `./harness teach "… -> … -> …"` (or wizard) |
 | Propose promotion | `./harness promote --propose` |
-| Apply + PR | `./harness promote --pr` |
+| Apply + MR | `./harness promote --pr` |
 | Self-check | `./harness selfcheck` |
 
 ---
@@ -332,7 +388,7 @@ loop, and every teammate gets it via git.
 |---|---|
 | Capture a correction (`recent.md`, append-only) | 🟢 automatic |
 | Draft promotion (diff, no write) | 🟢 automatic |
-| Apply + commit + push + MR | 🟡 scripted, PR-gated |
+| Apply + commit + push + MR | 🟡 scripted, MR-gated |
 | Remove / change an existing check | 🔴 never automatic |
 
 Capture is triggered by `./harness teach` or by the agent reacting to your
@@ -359,6 +415,7 @@ auto-editing your `CLAUDE.md`, the harness auto-logs but only *proposes* edits.
 |---|---|
 | `ASCEND_HOME_PATH not set` on npu/costmodel/comm | `cp env.example.sh env.sh && source ./env.sh` |
 | cpu-st `Could not find a suitable compiler` | run on ecs / yellow / b10 (clang++>=15 or g++>=13) |
+| npu-sim suite shows `!` in `./harness list` | `./harness cann` — the chosen CANN must have both headers and the simulator |
 | `target repo not found` | `export PTO_ISA_REPO=~/pto-isa` |
 | bare `./harness run` exits 2 | pass `--suite <name>` or `--all-suites` |
 | `./harness baseline` refuses to pin | a suite didn't PASS — fix it, or `--force` |
