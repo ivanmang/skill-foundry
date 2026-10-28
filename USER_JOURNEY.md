@@ -405,15 +405,17 @@ loop, and every teammate gets it via git.
 
 ## Automation boundaries
 
-| Step | Automation |
-|---|---|
-| Capture a correction (`recent.md`, append-only) | 🟢 automatic |
-| Draft promotion (diff, no write) | 🟢 automatic |
-| Apply + commit + push + MR | 🟡 scripted, MR-gated |
-| Remove / change an existing check | 🔴 never automatic |
+| Step | Automation | Who |
+|---|---|---|
+| Run / extract / report / review / dry-run | 🟢 automatic | harness |
+| Capture a correction (`recent.md`, append-only) | 🟢 automatic | harness **or** the AI (when you correct it) |
+| Draft promotion (diff, no write) | 🟢 automatic | harness |
+| Apply + commit + push + MR | 🟡 scripted, MR-gated | you / a reviewer |
+| Remove / change an existing check | 🔴 never automatic | — |
 
 Capture is triggered by `./harness teach` or by the agent reacting to your
-corrections; until a note is promoted it changes nothing in the skills.
+corrections (`"no / actually / remember …"`) and replying with the `LRN-…` id;
+until a note is promoted it changes nothing in the skills.
 
 This mirrors the industry norm: like Claude Code auto-writing memory but not
 auto-editing your `CLAUDE.md`, the harness auto-logs but only *proposes* edits.

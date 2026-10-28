@@ -45,10 +45,11 @@ regression thresholds.
 
 ## Automation boundary (who does what)
 
-| Role | Actions |
+| Role | What it does |
 |---|---|
-| 🟢 **harness (automatic)** | run, extract logs, report, review, capture a correction, propose a diff |
-| 🟡 **you / a reviewer** | triage judgment (`teach`), merging the MR (`promote --pr`) |
+| 🟢 **harness (automatic)** | run, extract logs, report, review, capture a correction, propose a diff, dry-run previews |
+| 🤖 **AI / agent (automatic, on trigger)** | auto-captures a correction when you correct it (`"no / actually / remember …"`) and replies with the `LRN-…` id; triages per the skill |
+| 🟡 **you / a reviewer** | the triage *content* (`wrong → correct → action`) and merging the MR (`promote --pr`) |
 | 🔴 **never automatic** | remove or change an existing check |
 
 **Why the line is drawn there:** auto-*append* is safe — `learnings/recent.md`

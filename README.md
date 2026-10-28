@@ -145,17 +145,18 @@ source completions/harness.bash          # tab-completion (add to ~/.bashrc)
 
 ### What's automatic vs human
 
-Every step of the interactive demo labels the three roles; the same boundary
-applies to the real flow:
+Four roles, shown on every demo step and applying to the real flow:
 
-| Role | Actions |
+| Role | What it does |
 |---|---|
-| 🟢 **harness (automatic)** | run, extract logs, report, review, capture a correction, propose a diff |
-| 🟡 **you / a reviewer** | triage judgment (`teach`), merging the MR (`promote --pr`) |
+| 🟢 **harness (automatic)** | run, extract logs, report, review, capture a correction, propose a diff, dry-run previews |
+| 🤖 **AI / agent (automatic, on trigger)** | auto-captures a correction when you correct it (`"no / actually / remember …"`) and replies with the `LRN-…` id; triages per the skill |
+| 🟡 **you / a reviewer** | the triage *content* (`wrong → correct → action`) and merging the MR (`promote --pr`) |
+| 🔴 **never automatic** | remove or change an existing check |
 
 `./harness demo` shows this per step with a **"Who does what"** box
 (command / harness / you). Capture is automatic; promotion is MR-gated — the
-harness auto-logs but only *proposes* edits.
+harness (and the AI) auto-log but only *propose* edits.
 
 **Why the line is drawn there**: auto-*append* is safe — `learnings/recent.md`
 is the harness's own scratch memory (append-only, cheap to discard). Auto-*edit*

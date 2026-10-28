@@ -189,8 +189,9 @@ STEPS: list[dict] = [
               "never report average alone.",
          run=step_review),
     dict(key="teach", short="teach", needs=("review",), title="Improve — auto-capture the correction",
-         what="A person says 'that's a known vcvt round-field issue'. scripts/teach logs it as a strict, parseable LRN-… entry.",
-         more="Capture is automatic and append-only: one command, strict format, no freeform editing. "
+         what="A person says 'that's a known vcvt round-field issue'. The AI logs it automatically (scripts/teach) as a strict, parseable LRN-… entry.",
+         more="Capture is automatic and append-only: when you correct the agent ('no / actually / remember …'), "
+              "it runs ./harness teach by itself and replies with the LRN-… id — one command, strict format, no freeform editing. "
               "session_digest.py can even draft the same entry straight from the run's failures.",
          run=step_teach),
     dict(key="propose", short="propose", needs=("teach",), title="Improve — auto-propose a diff",
@@ -230,7 +231,7 @@ ROLES: dict[str, tuple[str, str, str]] = {
                "diffs vs baseline → regressions / fixes / perf flags",
                "nothing — read which cases regressed"),
     "teach": ("./harness teach \"wrong → correct → action\"",
-              "logs a strict LRN-… entry to learnings/recent.md",
+              "logs a strict LRN-… entry (or the AI auto-runs it when you correct it)",
               "YOUR judgment — decide the correct triage"),
     "propose": ("./harness promote --propose",
                 "drafts a git-style diff (writes nothing yet)",
@@ -319,11 +320,17 @@ def intro() -> None:
     2. IMPROVE it — capture → propose → apply → the triage gets smarter
 
   Each step is framed in its own block with a progress bar and a step map
-  (✓ done · ▶ current · · upcoming), plus a "Who does what" box:
+  (✓ done · ▶ current · · upcoming), plus a "Who does what" box.
 
-    ▸ command   — the exact command the step runs
-    🟢 harness  — done for you automatically (no action needed)
-    🟡 you       — where your judgment / a human review is required
+  Who does what, automatically:
+
+    🟢 harness — runs on its own: run, extract, report, review, capture (teach),
+                 propose (draft a diff), dry-run previews.
+    🤖 AI      — auto-captures a correction when you correct it ("no / actually /
+                 remember …") and replies with the LRN-… id; triages per the skill.
+    🟡 you     — your judgment (the wrong → correct → action content) and merging
+                 the MR (promote --pr).
+    🔴 never   — remove or change an existing check (the harness only ADDS).
 
   The one rule to remember:
 
