@@ -9,10 +9,12 @@ First target: **pto-isa** (CPU simulator ST + NPU simulator ST). Later targets:
 pto-vmi (CCE / DSL), costmodel, comm, and any target expressible as a suite
 matrix.
 
-> **New here?** Start with the [User Journey](USER_JOURNEY.md) for the full
-> story, then run `./harness demo` (interactive, no hardware) or
-> `./harness guide` (real flow). One entry point for everything:
+> **New here?** Start with the [Handbook](docs/HANDBOOK.md) (the canonical
+> reference) or the [User Journey](USER_JOURNEY.md), then run
+> `./harness onboarding` and `./harness demo`. One entry point for everything:
 > `./harness help`.
+
+Legend: 🟢 automatic · 🟡 human · 🔴 never automatic · `✓ / ! / ·` runnable / missing / disabled.
 
 ---
 
@@ -60,14 +62,14 @@ signal itself is corrupted:
 ```bash
 git clone git@gitcode.com:ivanmang/regression-harness.git
 cd regression-harness
-cp env.example.sh env.sh     # edit: PTO_ISA_REPO + ASCEND_HOME_PATH (CANN paths)
-source ./env.sh              # only needed for npu / costmodel / comm suites
 
-./harness demo               # 1. interactive walkthrough (no hardware needed)
-./harness list               # 2. what can run on THIS machine (auto-detected)
-./harness run --all-suites   # 3. run everything runnable (auto-skips missing prereqs)
-./harness report --open      # 4. open the report in your browser
-./harness review             # 5. diff vs the pinned baseline
+./harness onboarding            # 1. guided setup: env.sh, CANN, pto-isa
+./harness status                # 2. one-glance dashboard — is this machine ready?
+./harness demo                  # 3. interactive walkthrough (no hardware needed)
+./harness run --all-suites --dry-run   # 4. preview what will run
+./harness run --all-suites --quiet     # 5. run everything runnable
+./harness report --open          # 6. open the report in your browser
+./harness review                 # 7. diff vs the pinned baseline
 ```
 
 `./harness baseline pto-isa` pins the baseline on the canonical machine (see
@@ -81,7 +83,7 @@ PASSes (`--force` overrides).
 `./harness` is the single entry point:
 
 ```text
-./harness run       Run suites            [--suite X | --all-suites] [--quiet | --tui | --json] [--testcase T | --filter G]
+./harness run       Run suites            [--suite X | --all-suites] [--quiet | --tui | --json] [--dry-run] [--testcase T | --filter G]
 ./harness report    run.json → MD + HTML  [--run (default latest), --known, --out, --open]
 ./harness review    diff vs baseline      [--run (default latest), --baseline, --out]
 ./harness teach     log a correction      ["wrong -> correct -> action" | wizard | --edit]
@@ -91,12 +93,18 @@ PASSes (`--force` overrides).
 ./harness clean     remove run dirs       [--dry-run, --keep N]
 ./harness open      open report.html      [run-id (default latest)]
 ./harness validate  check config files
+./harness status    one-glance dashboard   [--json]
+./harness diagnose  check env + fixes      [--json, --strict]
+./harness onboarding  guided first-run setup
+./harness tui       full-screen dashboard (interactive)
+./harness menu      curated menu (bare ./harness default)
 ./harness list      suites + arches       [--target, --format text|markdown|html]
 ./harness cann      which CANN → which arch  [--home, --scan, --json]
 ./harness guide     interactive tour of the real flow  [--demo]
 ./harness demo      interactive sandboxed walkthrough  [--straight]
 ./harness selfcheck compile-check + skill-spec validation + demo smoke
-./harness help      show this             ./harness version [--short]
+./harness help      show this — ./harness help <verb> for examples
+./harness version   show the harness version   [--short]
 ```
 
 Quick start:

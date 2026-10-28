@@ -4,6 +4,9 @@ From first clone to a self-improving regression loop, end to end. Every command
 below is real; the mock demo lets you experience the whole journey in ~2 minutes
 without hardware.
 
+> **Looking for the full reference?** See [docs/HANDBOOK.md](docs/HANDBOOK.md)
+> (canonical) — this page is the narrative walkthrough.
+
 ---
 
 ## The 30-second version
@@ -61,11 +64,13 @@ You'll usually wear the first hat, sometimes the last two.
 git clone git@gitcode.com:ivanmang/regression-harness.git
 cd regression-harness
 
-# machine-local env (CANN path, pto-isa checkout) — copy + edit
-cp env.example.sh env.sh && source ./env.sh
+# one command sets up env.sh, picks a CANN, and verifies pto-isa (interactive)
+./harness onboarding
+#   or do it by hand:  cp env.example.sh env.sh && source ./env.sh
 
 # see everything the harness can do
 ./harness help
+./harness status        # one-glance dashboard
 ./harness demo          # interactive walkthrough (no hardware needed)
 ./harness guide         # interactive tour of the real flow
 ./harness cann          # which installed CANN supports which arch
@@ -372,6 +377,9 @@ loop, and every teammate gets it via git.
 |---|---|
 | Interactive walkthrough (no hardware) | `./harness demo` (or `--straight`; `--demo` in `guide`) |
 | Interactive tour (real flow) | `./harness guide` |
+| One-glance dashboard | `./harness status` (or `./harness tui`) |
+| Diagnose this machine | `./harness diagnose [--strict]` |
+| Guided setup | `./harness onboarding` |
 | List suites + arches + availability | `./harness list [--format markdown\|html]` |
 | Which CANN supports which arch | `./harness cann [--scan] [--json]` |
 | Pin / refresh baseline | `./harness baseline [--force] pto-isa` |

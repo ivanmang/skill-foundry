@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # regression-harness — single entry point.
 #
-#   ./harness run [--quiet] [--all-suites|--suite X] [--target T] [--testcase T] [--filter G]
+#   ./harness run [--quiet] [--all-suites|--suite X] [--target T] [--testcase T] [--filter G] [--dry-run]
 #   ./harness report [--run <id>/run.json] [--known <file>] [--out <base>] [--open]
 #   ./harness review [--run <id>/run.json]
 #   ./harness teach "symptom -> correct -> action" | (wizard) | --edit
@@ -11,8 +11,10 @@
 #   ./harness clean [--dry-run] [--keep N]
 #   ./harness open [run-id]
 #   ./harness validate
+#   ./harness status | diagnose | onboarding | tui | menu
 #   ./harness guide | demo | list | cann | selfcheck
-#   ./harness help | version [--short]
+#   ./harness help [verb] | version [--short]
+#   ./harness (bare) -> interactive menu (help when piped)
 set -euo pipefail
 
 HARNESS="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -33,7 +35,7 @@ usage() {
 usage: ./harness <command> [args]
 
 Commands:
-  run       Run a declared suite               [--suite | --all-suites] [--testcase] [--filter] [--quiet|--tui|--json]
+  run       Run a declared suite               [--suite | --all-suites] [--testcase] [--filter] [--quiet|--tui|--json] [--dry-run]
   report    Render a run to Markdown + HTML    [--run (default: latest), --known, --out, --open]
   review    Diff a run vs the pinned baseline  [--run (default: latest), --baseline, --out]
   teach     Log a correction                   ["wrong -> correct -> action" | wizard | --edit]
@@ -43,25 +45,145 @@ Commands:
   clean     Remove run dirs (keeps baseline)   [--dry-run, --keep N]
   open      Open a run's report.html           [run-id (default: latest)]
   validate  Check suites/arches/cann configs
+  status    One-glance dashboard               [--json]
+  diagnose  Check env + print exact fixes      [--json, --strict]
+  onboarding  Guided first-run setup
+  tui       Full-screen dashboard (interactive)
+  menu      Curated interactive menu (bare ./harness default)
   guide     Interactive step-by-step tour      [--demo]
   demo      Sandboxed walkthrough (interactive) [--straight]
   list      List suites + arches               [--target, --format text|markdown|html]
   cann      Which CANN supports which arch     [--home, --scan, --json]
   selfcheck Compile-check + skill-spec validation + demo smoke
-  help      Show this help
+  help      Show this help — or: ./harness help <verb> for examples
   version   Show the harness version           [--short]
 
 Examples:
-  ./harness run --all-suites --quiet
+  ./harness status
+  ./harness run --all-suites --dry-run      # preview before the real run
   ./harness run --suite npu-sim-a5 --testcase tpartargmax
   ./harness report --open                  # latest run, in the browser
   ./harness review                         # latest run vs baseline
-  ./harness history
   ./harness teach "vcvt mismatch -> annotate as known -> add to known-failures"
+  ./harness demo                           # no hardware needed
 EOF
 }
 
-CMD="${1:-help}"
+verb_help() {
+  case "$1" in
+    run) cat <<'EOF'
+./harness run — run a declared suite
+  --suite <name>   one suite (force-runs even if prereqs are missing)
+  --all-suites     every enabled suite that is runnable here (auto-skips the rest)
+  --target <t>     target key in config/suites.json (default pto-isa)
+  --testcase <t>   one testcase (e.g. tpartargmax); --filter <g> a gtest filter
+  --quiet          summary only   --tui live spinner   --json machine output
+  --dry-run        print what WOULD run and exit (no run.json)
+
+Examples:
+  ./harness run --all-suites --dry-run
+  ./harness run --all-suites --quiet
+  ./harness run --suite npu-sim-a5 --testcase tpartargmax
+  ./harness run --suite cpu-st --testcase tadd --filter 'TADDTest.case_*'
+EOF
+    ;;
+    report) cat <<'EOF'
+./harness report — render run.json -> report.md/.html
+  --run <path>   run.json (default latest run)
+  --known <file> known-failures.md to annotate known failures
+  --out <base>   output base path (default <run>/report)
+  --open         open the HTML in the browser
+
+Examples:
+  ./harness report
+  ./harness report --open
+  ./harness report --run reports/<id>/run.json --known .claude/skills/pto-isa/references/known-failures.md
+EOF
+    ;;
+    review) cat <<'EOF'
+./harness review — diff a run vs the pinned baseline
+  --run <path>      run.json (default latest run)
+  --baseline <path> baseline.json (default reports/baseline/baseline.json)
+
+Example: ./harness review
+EOF
+    ;;
+    teach) cat <<'EOF'
+./harness teach — log a correction (append-only)
+  "wrong -> correct -> action"  one-line shorthand
+  (no args)                     interactive wizard
+  --edit                        open $EDITOR with a template
+
+Example: ./harness teach "vcvt mismatch -> known pattern, annotate -> promote to known-failures"
+EOF
+    ;;
+    promote) cat <<'EOF'
+./harness promote — promote pending learnings into skills (human-gated)
+  --propose   print a reviewable diff (no write)
+  --apply     write the edits locally
+  --pr        apply + branch + commit + push + print a merge-request URL
+
+Example: ./harness promote --propose    then    ./harness promote --pr
+EOF
+    ;;
+    status) cat <<'EOF'
+./harness status — one-glance dashboard (env, suites, baseline, learnings, last run)
+  --json  machine output
+Example: ./harness status
+EOF
+    ;;
+    diagnose) cat <<'EOF'
+./harness diagnose — check this machine and print the exact fix for each issue
+  --json    machine output
+  --strict  exit 1 if any issue (for CI)
+Example: ./harness diagnose
+EOF
+    ;;
+    demo) cat <<'EOF'
+./harness demo — interactive sandboxed walkthrough (no hardware)
+  --straight  run straight through (CI / presenting)
+Example: ./harness demo
+EOF
+    ;;
+    guide) cat <<'EOF'
+./harness guide — interactive tour of the real pto-isa flow (env -> choose -> run -> report -> review -> teach -> promote)
+  --demo  jump straight to the sandboxed demo
+Example: ./harness guide
+EOF
+    ;;
+    baseline) cat <<'EOF'
+./harness baseline [--force] pto-isa — run all enabled (runnable) suites and re-pin reports/baseline/baseline.json
+Refuses unless every suite PASSes (use --force to override).
+Example: ./harness baseline pto-isa
+EOF
+    ;;
+    list) cat <<'EOF'
+./harness list — list suites + arches with auto-detected availability
+  --target <t>  --format text|markdown|html
+Example: ./harness list
+EOF
+    ;;
+    cann) cat <<'EOF'
+./harness cann — which installed CANN supports which arch (headers vs simulator)
+  --home <path>  --scan  --json
+Example: ./harness cann
+EOF
+    ;;
+    onboarding) cat <<'EOF'
+./harness onboarding — guided first-run setup (detect env, write env.sh, pick CANN, verify pto-isa)
+Example: ./harness onboarding
+EOF
+    ;;
+    tui) cat <<'EOF'
+./harness tui — full-screen dashboard (status + action menu)
+Example: ./harness tui
+EOF
+    ;;
+    *) echo "no detailed help for '$1' — run ./harness help" ;;
+  esac
+}
+
+CMD="${1:-menu}"
 shift || true
 
 case "$CMD" in
@@ -75,13 +197,24 @@ case "$CMD" in
   clean)    exec python3 "$HARNESS/scripts/clean.py" "$@" ;;
   open)     exec python3 "$HARNESS/scripts/open_report.py" "$@" ;;
   validate) exec python3 "$HARNESS/scripts/validate.py" "$@" ;;
+  status)   exec python3 "$HARNESS/scripts/status.py" "$@" ;;
+  diagnose) exec python3 "$HARNESS/scripts/diagnose.py" "$@" ;;
+  onboarding) exec python3 "$HARNESS/scripts/onboarding.py" "$@" ;;
+  tui)      exec python3 "$HARNESS/scripts/tui.py" "$@" ;;
+  menu)     exec python3 "$HARNESS/scripts/menu.py" "$@" ;;
   guide)    exec python3 "$HARNESS/scripts/guide.py" "$@" ;;
   demo)     exec python3 "$HARNESS/scripts/demo_tour.py" "$@" ;;
   list)     exec python3 "$HARNESS/scripts/run_suite.py" --list "$@" ;;
   cann)     exec python3 "$HARNESS/scripts/detect_cann.py" "$@" ;;
   selfcheck) exec "$HARNESS/scripts/selfcheck" ;;
   __complete) exec python3 "$HARNESS/scripts/complete.py" "$@" ;;
-  help|-h|--help) usage ;;
+  help|-h|--help)
+    if [[ -n "${1:-}" && "$1" != "-h" && "$1" != "--help" ]]; then
+      verb_help "$1"
+    else
+      usage
+    fi
+    ;;
   version|--version|-V) version "$@" ;;
   *) echo "unknown command: $CMD" >&2; usage >&2; exit 2 ;;
 esac

@@ -23,11 +23,16 @@ directly.
 | `clean` | `clean.py` | Remove run dirs (keeps baseline) |
 | `open` | `open_report.py` | Open a run's report.html |
 | `validate` | `validate.py` | Check suites/arches/cann configs |
-| `demo` | `demo/run_demo.sh` | Sandboxed walkthrough |
+| `status` | `status.py` | One-glance dashboard (env, suites, baseline, learnings, last run) |
+| `diagnose` | `diagnose.py` | Check this machine + print exact fixes |
+| `onboarding` | `onboarding.py` | Guided first-run setup |
+| `tui` | `tui.py` | Full-screen dashboard (interactive) |
+| `menu` | `menu.py` | Curated interactive menu (bare `./harness` default) |
+| `demo` | `demo_tour.py` | Interactive step-by-step sandboxed walkthrough (`--straight` = `demo/run_demo.sh`) |
 | `guide` | `guide.py` | Interactive step-by-step tour |
 | `list` | `run_suite.py --list` | List suites + arches |
 | `cann` | `detect_cann.py` | Which CANN supports which arch |
-| `selfcheck` | `selfcheck` | Compile-check + demo smoke |
+| `selfcheck` | `selfcheck` | Compile-check + skill-spec validation + demo smoke |
 
 ## Internals (imported / used by the commands above — not for direct use)
 
@@ -39,6 +44,8 @@ directly.
 - `session_digest.py` — draft pending learnings from a `run.json`.
 - `demo_tour.py` — interactive, step-by-step demo driver (reuses `guide.py` menus).
 - `validate_skills.py` — checks every SKILL.md against the open Agent Skills spec (used by selfcheck).
+- `status.py` / `diagnose.py` / `tui.py` — status dashboard, env health check, and full-screen dashboard (share `capabilities` + `_runs`).
+- `onboarding.py` / `menu.py` — guided first-run setup and the bare-`./harness` menu (reuse `guide.py` helpers).
 
 ## Conventions
 

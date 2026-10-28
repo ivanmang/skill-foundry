@@ -409,6 +409,27 @@ def list_all(cfg_path: Path, arches_path: Path, target: str, fmt: str) -> int:
     return 0
 
 
+def _print_next_steps(record: dict, failed: bool, as_json: bool) -> None:
+    n_failed = sum(1 for s in record["suites"] if s.get("status") != "PASS")
+    if failed:
+        lines = [
+            f"⚠ {n_failed} suite(s) failed.",
+            "next: ./harness report --open   (see the failure)   → triage → ./harness teach \"…\"",
+        ]
+    else:
+        lines = [
+            "✓ all passed.",
+            "next: ./harness report --open   or   ./harness review   (diff vs baseline)",
+        ]
+    if as_json:
+        for l in lines:
+            print(l, file=sys.stderr)
+    else:
+        print()
+        for l in lines:
+            print("  " + l)
+
+
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description="Run a declared regression suite and record a normalized run.")
     ap.add_argument("--target", default="pto-isa", help="Target key in config/suites.json (default pto-isa).")
@@ -419,6 +440,7 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--quiet", "-q", action="store_true", help="Suppress per-suite output; print only the summary.")
     ap.add_argument("--tui", action="store_true", help="Live per-suite spinner + pass/fail line (no raw output).")
     ap.add_argument("--json", action="store_true", help="Print the summary as JSON instead of a table.")
+    ap.add_argument("--dry-run", action="store_true", help="Print what WOULD run and exit (no run.json).")
     ap.add_argument("--list", action="store_true", help="List suites + arches and exit.")
     ap.add_argument("--format", choices=["text", "markdown", "html"], default="text",
                     help="Output format for --list (default text).")
@@ -439,7 +461,7 @@ def main(argv: list[str] | None = None) -> int:
 
     repo = resolve_repo(target_cfg)
     if not repo.exists():
-        usage_error(f"target repo not found: {repo} (set {target_cfg.get('repo_env', 'PTO_ISA_REPO')} or source ./env.sh)")
+        usage_error(f"target repo not found: {repo} (set {target_cfg.get('repo_env', 'PTO_ISA_REPO')} or source ./env.sh — see ./harness diagnose)")
 
     if args.run_id:
         sane = re.sub(r"[^A-Za-z0-9._-]+", "-", args.run_id).strip(".-")
@@ -448,14 +470,13 @@ def main(argv: list[str] | None = None) -> int:
         run_id = sane or f"{_dt.datetime.now():%Y%m%d-%H%M%S}-{args.target}"
     else:
         run_id = f"{_dt.datetime.now():%Y%m%d-%H%M%S}-{args.target}"
-    run_dir = HARNESS / "reports" / run_id
-    run_dir.mkdir(parents=True, exist_ok=True)
 
     if not args.all_suites and args.suite is None:
         enabled = [s["name"] for s in target_cfg.get("suites", []) if s.get("enabled")]
         usage_error(
             "specify --suite <name> or --all-suites.\n"
-            f"Enabled suites for '{args.target}': {enabled or 'none'}"
+            f"Enabled suites for '{args.target}': {enabled or 'none'}\n"
+            "see ./harness list (what can run) or ./harness diagnose (what's missing)"
         )
 
     if args.all_suites and (args.testcase or args.filter):
@@ -475,9 +496,23 @@ def main(argv: list[str] | None = None) -> int:
                 runnable.append(s)
             else:
                 print(f"  skip {s['name']}: {reason}")
-        if not runnable:
-            usage_error("none of the enabled suites are runnable in this environment; see ./harness list.")
+        if not runnable and not args.dry_run:
+            usage_error("none of the enabled suites are runnable in this environment; see ./harness list / ./harness diagnose.")
         suites = runnable
+
+    if args.dry_run:
+        print(f"\ndry-run: would run {len(suites)} suite(s) for '{args.target}':")
+        if not suites:
+            print("  (none — every enabled suite was skipped above)")
+        for s in suites:
+            tmo = s.get("timeout_s") or 0
+            upto = f"  (up to {tmo // 60}m)" if tmo else ""
+            print(f"  - {s['name']:<16} mode={s.get('mode', ''):<9}{upto}")
+        print("no run.json written (dry-run).")
+        return 0
+
+    run_dir = HARNESS / "reports" / run_id
+    run_dir.mkdir(parents=True, exist_ok=True)
 
     record = {
         "run_id": run_id,
@@ -513,6 +548,7 @@ def main(argv: list[str] | None = None) -> int:
         print(f"\nWrote {run_json}")
 
     failed = any(s.get("status") != "PASS" for s in record["suites"])
+    _print_next_steps(record, failed, args.json)
     return 1 if failed else 0
 
 
