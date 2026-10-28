@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
 """Cross-platform browser opener with graceful fallback (WSL / headless).
 
-Internal helper used by build_report.py --open and open_report.py.
+Internal helper used by build_report.py --open, open_report.py, and
+promote_recent.py --pr.
 
 Strategy:
-  1. On WSL, open via explorer.exe on the Windows host (best UX).
+  1. On WSL, open files/URLs via explorer.exe on the Windows host (best UX).
   2. Otherwise try xdg-open / open / start.
-  3. If nothing works, print the path (+ Windows path on WSL) instead of
+  3. If nothing works, print the path/URL (+ Windows path on WSL) instead of
      spewing xdg-open's noisy error.
 """
 
@@ -40,24 +41,47 @@ def to_windows(path: Path | str) -> str | None:
         return None
 
 
-def open_browser(path: Path | str) -> str | None:
-    """Open `path` in a browser. Return an error message if it couldn't, else None."""
-    p = Path(path)
+def _host_browser_exe() -> str | None:
+    exe = shutil.which("explorer.exe")
+    if not exe and Path("/mnt/c/Windows/explorer.exe").exists():
+        exe = "/mnt/c/Windows/explorer.exe"
+    return exe
 
-    if is_wsl():
-        exe = shutil.which("explorer.exe")
-        if not exe and Path("/mnt/c/Windows/explorer.exe").exists():
-            exe = "/mnt/c/Windows/explorer.exe"
-        if exe:
-            win = to_windows(p)
-            if win:
-                r = subprocess.run([exe, win], check=False)
-                if r.returncode == 0:
-                    return None
-                return (
-                    f"explorer.exe failed to open the report. Open manually:\n  {p}\n"
-                    f"  (Windows: {win})"
-                )
+
+def open_browser(path: Path | str) -> str | None:
+    """Open `path` (a file path or an http(s) URL) in a browser.
+
+    Return an error message if it couldn't be opened, else None.
+    """
+    target = str(path)
+    is_url = target.startswith(("http://", "https://"))
+
+    # URLs: open in the host browser on WSL, else xdg-open/open/start.
+    if is_url:
+        if is_wsl() and _host_browser_exe():
+            r = subprocess.run([_host_browser_exe(), target], check=False)
+            if r.returncode == 0:
+                return None
+            return f"couldn't open the URL in the host browser. Open manually:\n  {target}"
+        opener = shutil.which("xdg-open") or shutil.which("open") or shutil.which("start")
+        if opener:
+            r = subprocess.run([opener, target], check=False)
+            if r.returncode == 0:
+                return None
+        return f"no browser found — open the URL manually:\n  {target}"
+
+    # Files
+    p = Path(target)
+    if is_wsl() and _host_browser_exe():
+        win = to_windows(p)
+        if win:
+            r = subprocess.run([_host_browser_exe(), win], check=False)
+            if r.returncode == 0:
+                return None
+            return (
+                f"explorer.exe failed to open the report. Open manually:\n  {p}\n"
+                f"  (Windows: {win})"
+            )
 
     opener = shutil.which("xdg-open") or shutil.which("open") or shutil.which("start")
     if opener:

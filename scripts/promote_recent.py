@@ -24,6 +24,9 @@ import subprocess
 import sys
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import _browser  # noqa: E402
+
 HARNESS = Path(__file__).resolve().parent.parent
 FIELD_ORDER = ["id", "category", "context", "skill", "wrong", "correct", "action", "status"]
 ENTRY_RE = re.compile(r"^##\s+(LRN-\d{8}-\d{3})")
@@ -187,9 +190,9 @@ def remote_web_url(root: Path) -> str | None:
 
 
 def mr_url(web: str, branch: str, base: str = "main") -> str:
-    return (f"{web}/-/merge_requests/new"
-            f"?merge_request%5Bsource_branch%5D={branch}"
-            f"&merge_request%5Btarget_branch%5D={base}")
+    # gitcode (GitLab-style) — matches gitcode's own "To create a merge request"
+    # hint: <web>/merge_requests/new?source_branch=<branch> (no "/-" prefix).
+    return f"{web}/merge_requests/new?source_branch={branch}&target_branch={base}"
 
 
 def propose_all(root: Path, lp: Path, pending: list[dict]) -> int:
@@ -249,7 +252,14 @@ def apply_all(root: Path, lp: Path, entries: list[dict], pending: list[dict],
             if pushed.returncode == 0:
                 web = remote_web_url(root)
                 if web:
-                    print(f"\nOpen a merge request:\n  {mr_url(web, branch)}")
+                    url = mr_url(web, branch)
+                    print(f"\nOpen a merge request:\n  {url}")
+                    try:
+                        err = _browser.open_browser(url)
+                        if err:
+                            print(err, file=sys.stderr)
+                    except Exception:
+                        pass
             else:
                 print(f"\nPush failed (exit {pushed.returncode}) — push manually:"
                       f"\n  git -C {root} push -u origin {branch}", file=sys.stderr)
