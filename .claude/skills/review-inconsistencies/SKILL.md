@@ -11,7 +11,7 @@ compatibility: Requires python3.
 
 # Review Inconsistencies
 
-The regression signal lives here. Diff a run against `reports/baseline/baseline.json`.
+The regression signal lives here. Diff a run against `reports/baseline/<target>.json` (the baseline for the run's target — cross-target diffs are refused).
 
 ## Steps
 

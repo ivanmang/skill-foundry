@@ -40,7 +40,7 @@ Commands:
   review    Diff a run vs the pinned baseline  [--run (default: latest), --baseline, --out]
   teach     Log a correction                   ["wrong -> correct -> action" | wizard | --edit]
   promote   Propose or apply learnings         [--propose | --apply | --pr]
-  baseline  Re-pin reports/baseline.json       [--force] [target]
+  baseline  Re-pin reports/baseline/<target>.json  [--force] [target]
   history   List recent runs                   [--limit N, --json]
   clean     Remove run dirs (keeps baseline)   [--dry-run, --keep N]
   open      Open a run's report.html           [run-id (default: latest)]
@@ -105,7 +105,7 @@ EOF
     review) cat <<'EOF'
 ./harness review — diff a run vs the pinned baseline
   --run <path>      run.json (default latest run)
-  --baseline <path> baseline.json (default reports/baseline/baseline.json)
+  --baseline <path> baseline.json (default: reports/baseline/<target>.json for the run's target)
 
 Example: ./harness review
 EOF
@@ -161,7 +161,7 @@ Example: ./harness guide
 EOF
     ;;
     baseline) cat <<'EOF'
-./harness baseline [--force] pto-isa — run all enabled (runnable) suites and re-pin reports/baseline/baseline.json
+./harness baseline [--force] <target> — run all enabled (runnable) suites and re-pin reports/baseline/<target>.json
 Refuses unless every suite PASSes (use --force to override).
 Example: ./harness baseline pto-isa
 EOF

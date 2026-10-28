@@ -42,7 +42,7 @@ Six rules that matter more than they look — get these wrong and the regression
 signal itself is corrupted:
 
 1. **The pinned baseline is the ground truth.** "Regression" means *diff vs
-   `reports/baseline/baseline.json`*. Refresh it only deliberately (new suites /
+   `reports/baseline/<target>.json`*. Refresh it only deliberately (new suites /
    arch changes), never casually — a bad re-pin poisons every future run.
 2. **Never auto-remove or auto-change an existing check.** The harness adds
    entries; it never silently deletes or weakens one. Removing a check is how
@@ -206,7 +206,7 @@ config/                   suites.json + arches.json + cann.json (source of truth
 scripts/                  drivers (see scripts/README.md: user verbs vs internals)
 completions/              bash tab-completion for ./harness
 learnings/                corrections.md / recent.md / promoted.md
-reports/baseline/         pinned baseline.json (committed); other reports gitignored
+reports/baseline/         pinned <target>.json (committed); other reports gitignored
 demo/                     sandboxed walkthrough (config, fixtures, run_demo.sh, NARRATION.md)
 env.example.sh            copy to env.sh for machine-local CANN / pto-isa paths
 ```
@@ -214,7 +214,7 @@ env.example.sh            copy to env.sh for machine-local CANN / pto-isa paths
 ## Decisions (as agreed)
 
 - Dedicated team repo `https://gitcode.com/ivanmang/regression-harness.git`.
-- **Pinned baseline** committed at `reports/baseline/baseline.json`; all other
+- **Pinned baseline** committed at `reports/baseline/<target>.json`; all other
   `reports/*` artifacts are gitignored.
 - Perf regression flag: **p99 +15%** even if average is stable.
 - The 11 existing `pto-isa/agents/skills` are kept as-is (referenced, not migrated).

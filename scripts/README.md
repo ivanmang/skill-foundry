@@ -18,7 +18,7 @@ directly.
 | `review` | `diff_runs.py` | Diff a run vs the pinned baseline |
 | `teach` | `teach` | Log a correction (wizard / shorthand / editor) |
 | `promote` | `promote_recent.py` | Propose or apply learnings into skills |
-| `baseline` | `make_baseline.sh` | Re-pin `reports/baseline/baseline.json` |
+| `baseline` | `make_baseline.sh` | Re-pin `reports/baseline/<target>.json` |
 | `history` | `history.py` | List recent runs |
 | `clean` | `clean.py` | Remove run dirs (keeps baseline) |
 | `open` | `open_report.py` | Open a run's report.html |

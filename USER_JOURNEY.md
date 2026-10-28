@@ -16,7 +16,7 @@ The harness turns *"run the regression"* from a repeated instruction into:
 - **Skills** (`.claude/skills/`) that tell any agent *how* to run/triage/report.
 - **Scripts** behind a **single entry point** (`./harness …`) that do the
   run → extract → report → review.
-- A **pinned baseline** (`reports/baseline/baseline.json`) so "regression" =
+- A **pinned baseline** (`reports/baseline/<target>.json`) so "regression" =
   *diff vs baseline*.
 - A **learning loop** (`./harness teach` to capture, `./harness promote` to
   promote) that turns corrections into skills.
@@ -137,7 +137,7 @@ Each step is a **framed block** that makes the workflow self-explanatory:
 Enter walks the whole journey; `skip` / `back` / `jump` / `explain` give control.
 The first three steps are **USE**, the next four are **IMPROVE** — and the
 "Who does what" box marks where a human is needed (teach = your triage call,
-apply = a reviewer merges the MR).
+apply auto-creates the MR; merge = you on the remote).
 
 The interactive `./harness guide` (without `--demo`) walks the **real** pto-isa
 flow the same way: env check → choose suites → run → report → review → teach →
@@ -159,7 +159,7 @@ On a canonical machine (see the table in Step 0):
 # reports/baseline/<target>.json
 # (refuses to pin if any suite did not PASS — use --force to override)
 
-git add reports/baseline/baseline.json
+git add reports/baseline/pto-isa.json
 git commit -m "chore: pin pto-isa regression baseline"
 git push
 ```

@@ -196,8 +196,9 @@ STEPS: list[dict] = [
          run=step_teach),
     dict(key="propose", short="propose", needs=("teach",), title="Improve — auto-propose a diff",
          what="promote_recent.py --propose turns the pending entry into a reviewable git-style diff — no write yet.",
-         more="This is the automation boundary: propose is automatic, apply is scripted but human-gated. "
-              "Nothing in the skills changes until a reviewer approves.",
+         more="This is the automation boundary: propose is automatic (optional review); apply is also automatic "
+              "(--pr commits, pushes, and creates the MR). Nothing changes in the shared skills until the MR is "
+              "MERGED on the remote — branch protection is the gate.",
          run=step_propose),
     dict(key="apply", short="apply", needs=("propose",), title="Improve — apply + bookkeeping  🟢 AUTO",
          what="--pr applies the edit, commits, pushes, and AUTO-CREATES the MR. You only merge it on the remote (branch protection gates the merge).",

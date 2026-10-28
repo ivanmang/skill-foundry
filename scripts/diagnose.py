@@ -117,13 +117,15 @@ def collect_issues() -> list[dict]:
                     "fix": fix,
                 })
 
-    baseline = HARNESS / "reports" / "baseline" / "baseline.json"
-    issues.append({
-        "check": "pinned baseline",
-        "ok": baseline.exists(),
-        "detail": "present" if baseline.exists() else "missing",
-        "fix": "run: ./harness baseline <target>  (on a canonical machine where all suites PASS)",
-    })
+    # per-target pinned baseline
+    for name in targets.list_targets(cfg):
+        bpath = targets.baseline_path(name)
+        issues.append({
+            "check": f"baseline {name}",
+            "ok": bpath.exists(),
+            "detail": "present" if bpath.exists() else "missing",
+            "fix": f"run: ./harness baseline {name}  (on a canonical machine where all suites PASS)",
+        })
 
     return issues
 

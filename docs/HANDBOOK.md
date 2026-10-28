@@ -28,7 +28,7 @@ IMPROVE  ./harness teach → promote --pr    (corrections become skills)
 Six rules that matter more than they look:
 
 1. **The pinned baseline is the ground truth.** "Regression" = *diff vs
-   `reports/baseline/baseline.json`*. Refresh it only deliberately (new suites /
+   `reports/baseline/<target>.json`*. Refresh it only deliberately (new suites /
    arch changes), never casually.
 2. **Never auto-remove or auto-change an existing check.** The harness adds; it
    never silently deletes or weakens a check.
@@ -143,8 +143,12 @@ change — they already read the target from the run record.
     {
       "name": "suite-name",
       "mode": "cpu" | "npu-sim" | "npu" | "costmodel" | "comm" | "static",
-      "arch": "a5",                           // per config/arches.json
-      "runner": "cpu" | "run_st" | "generic", // generic: use {testcase}/{filter} in command
+      "arch": "a5",                             // per config/arches.json
+      "runner": "cpu" | "run_st" | "generic",   // generic: use {testcase}/{filter} in command
+      "testcase_kind": "dir" | "file",           // guide dropdown: dirs (default) or .py case files
+      "perf_copy": [                            // optional: copy newest CA dumps into the run dir
+        "build/msprof_res/{testcase_stem}/OPPROF_*/dump"
+      ],
       "enabled": true,
       "milestone": "M1",
       "command": ["python3", "run.py", "{testcase}"],
@@ -160,7 +164,10 @@ Then: `./harness status`, `./harness list --target your-target`, `./harness guid
 `runner` defaults are derived from `mode` (cpu → `--testcase`/`--gtest_filter`,
 npu-sim/npu/comm → `-t`/`-g`); `generic` lets the `command` template use
 `{testcase}`/`{filter}`/`{repo}`/`{arch}`/`{soc}` placeholders directly, for
-arbitrary runners (e.g. `bash scripts/sim_dsl.sh dsl/{testcase}`).
+arbitrary runners. `testcase_kind: "file"` makes the guide list `.py` case files
+instead of subdirectories; `perf_copy` globs copy the newest
+`core0.veccore0.*` CAModel dumps into the run dir so `perf_metrics` can compute
+EX/IPC/dual/stalls (vmi-dashboard schema).
 
 ---
 
@@ -232,8 +239,8 @@ corpus that only changes via a merged MR.
 
 ## Glossary
 
-- **Baseline** — the pinned `reports/baseline/baseline.json`; the reference a run is diffed against.
-- **MR (merge request)** — the human-gated step that applies a learning to shared skills.
+- **Baseline** — the pinned `reports/baseline/<target>.json`; the reference a run is diffed against (per target; cross-target diffs are refused).
+- **MR (merge request)** — the remote-gated step; merging it applies a learning to shared skills.
 - **LRN-…** — a learning entry id (`LRN-YYYYMMDD-NNN`) in `learnings/recent.md`.
 - **Known failure** — a failure already triaged and recorded in `known-failures.md`; the report annotates it instead of re-triaging.
 - **soc / march** — the hardware's SoC name (`Ascend910B1`, `dav_9201`, `v926`) and the compile arch (`dav-920r1-vec`).
