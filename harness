@@ -48,6 +48,7 @@ Commands:
   status    One-glance dashboard               [--json, --target]
   diagnose  Check env + print exact fixes      [--json, --strict]
   targets   List configured targets            [--json]
+  install-skills  Link skills into each agent's user dir  [--dry-run, --uninstall]
   onboarding  Guided first-run setup
   tui       Full-screen dashboard (interactive)
   menu      Curated interactive menu (bare ./harness default)
@@ -141,6 +142,15 @@ EOF
 Examples: ./harness targets           ./harness targets --json
 EOF
     ;;
+    install-skills) cat <<'EOF'
+./harness install-skills — make the harness skills discoverable by each installed agent
+  --dry-run    show what would be linked
+  --uninstall  remove the harness skill symlinks
+Project-level discovery works via .claude/skills/ + .agents/skills/; this links
+into user dirs (Claude Code ~/.claude/skills, Pi ~/.pi/skills, open ~/.agents/skills).
+Example: ./harness install-skills
+EOF
+    ;;
     diagnose) cat <<'EOF'
 ./harness diagnose — check this machine and print the exact fix for each issue
   --json    machine output
@@ -222,6 +232,7 @@ case "$CMD" in
   status)   exec python3 "$HARNESS/scripts/status.py" "$@" ;;
   diagnose) exec python3 "$HARNESS/scripts/diagnose.py" "$@" ;;
   targets)  exec python3 "$HARNESS/scripts/targets_cli.py" "$@" ;;
+  install-skills) exec python3 "$HARNESS/scripts/install_skills.py" "$@" ;;
   onboarding) exec python3 "$HARNESS/scripts/onboarding.py" "$@" ;;
   tui)      exec python3 "$HARNESS/scripts/tui.py" "$@" ;;
   menu)     exec python3 "$HARNESS/scripts/menu.py" "$@" ;;

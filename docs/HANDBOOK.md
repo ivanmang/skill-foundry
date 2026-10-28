@@ -87,6 +87,17 @@ cd regression-harness
 The harness itself needs only `python3` + `git`. Targets need more — and
 `./harness list` / `./harness status` auto-detect exactly what on any machine.
 
+### Agent setup (skills discoverability)
+
+Skills live in one canonical place (`.claude/skills/`) and are reachable by any
+Agent-Skills-compatible agent:
+
+- **Project-level** — Claude Code reads `.claude/skills/`; Pi and open-standard
+  agents read `.agents/skills/` (a symlink to the same skills). Zero setup.
+- **Always-on** — `./harness install-skills` links each skill into the
+  installed agents' user dirs (`~/.claude/skills/`, `~/.pi/skills/`,
+  `~/.agents/skills/`); `--dry-run` previews, `--uninstall` removes. Restart/reload.
+
 ---
 
 ## Command reference

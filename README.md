@@ -79,6 +79,21 @@ PASSes (`--force` overrides).
 
 ---
 
+## Agent setup (skills discoverability)
+
+Skills live in one canonical place — `.claude/skills/` — and are reachable by
+any Agent-Skills-compatible agent two ways:
+
+- **Project-level** (work in the repo, zero setup): Claude Code reads
+  `.claude/skills/`; Pi and open-standard agents read `.agents/skills/` (a
+  symlink to the same skills).
+- **Always-on** (regardless of cwd): one command to link into each installed
+  agent's user dir — `./harness install-skills` (auto-detects Claude Code / Pi /
+  open-standard; `--dry-run` to preview, `--uninstall` to remove). Then
+  restart/reload the agent.
+
+---
+
 ## Use it
 
 `./harness` is the single entry point:
