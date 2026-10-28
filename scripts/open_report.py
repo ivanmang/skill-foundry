@@ -9,13 +9,13 @@ Usage:
 from __future__ import annotations
 
 import argparse
-import shutil
 import subprocess
 import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import _runs  # noqa: E402
+import _browser  # noqa: E402
 
 HARNESS = Path(__file__).resolve().parent.parent
 KNOWN = HARNESS / ".claude" / "skills" / "pto-isa" / "references" / "known-failures.md"
@@ -49,9 +49,9 @@ def main(argv: list[str] | None = None) -> int:
             "--out", str(run_json.parent / "report"),
         ], cwd=HARNESS, check=False)
 
-    opener = shutil.which("xdg-open") or shutil.which("open") or shutil.which("start")
-    if opener:
-        subprocess.run([opener, str(html)], check=False)
+    err = _browser.open_browser(html)
+    if err:
+        print(err, file=sys.stderr)
     print(f"Report: {html}")
     return 0
 

@@ -189,3 +189,4 @@ corpus that only changes via MR.
 | bare `./harness run` exits 2 | pass `--suite <name>` or `--all-suites` |
 | `baseline` refuses to pin | a suite didn't PASS — fix it, or `--force` |
 | Not sure what's wrong | `./harness diagnose` |
+| `report --open` prints xdg-open errors / no browser | handle automatically: on WSL it opens via `explorer.exe` (host browser), else prints the file path (+ Windows path on WSL) |

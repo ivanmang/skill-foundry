@@ -18,13 +18,12 @@ from __future__ import annotations
 import argparse
 import html
 import json
-import shutil
-import subprocess
 import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import _runs  # noqa: E402
+import _browser  # noqa: E402
 
 HARNESS = Path(__file__).resolve().parent.parent
 
@@ -211,11 +210,9 @@ def main(argv: list[str] | None = None) -> int:
     print(f"Wrote {base}.md and {html_path}")
 
     if args.open:
-        opener = shutil.which("xdg-open") or shutil.which("open") or shutil.which("start")
-        if opener:
-            subprocess.run([opener, str(html_path)], check=False)
-        else:
-            print(f"Open: {html_path}")
+        err = _browser.open_browser(html_path)
+        if err:
+            print(err, file=sys.stderr)
     return 0
 
 

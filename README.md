@@ -272,3 +272,4 @@ See `.claude/skills/skill-maintainer/SKILL.md` and run the live walkthrough:
 | `target repo not found` | `export PTO_ISA_REPO=~/pto-isa` |
 | bare `./harness run` returns exit 2 | pass `--suite <name>` or `--all-suites` |
 | `baseline` refuses to pin | some suite did not PASS — fix it, or use `--force` |
+| `report --open` → xdg-open errors / no browser | handled: WSL opens via `explorer.exe`; otherwise prints the path (+ Windows path on WSL) |

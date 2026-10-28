@@ -46,6 +46,7 @@ directly.
 - `validate_skills.py` — checks every SKILL.md against the open Agent Skills spec (used by selfcheck).
 - `status.py` / `diagnose.py` / `tui.py` — status dashboard, env health check, and full-screen dashboard (share `capabilities` + `_runs`).
 - `onboarding.py` / `menu.py` — guided first-run setup and the bare-`./harness` menu (reuse `guide.py` helpers).
+- `_browser.py` — cross-platform browser opener (WSL explorer.exe → xdg-open/open/start → print path).
 
 ## Conventions
 
