@@ -215,22 +215,28 @@ def collect_perf(run_dir: Path, suite_name: str) -> dict | None:
         return None
     agg: dict = {k: 0 for k in PERF_KEYS if k not in ("top_stall",)}
     agg["cases"] = 0
+    present: set[str] = set()
     for p in dumps:
         m = parse_ca_dump(p)
         if not m:
             continue
         agg["cases"] += 1
         for k in agg:
-            if k == "top_stall":
+            if k in ("top_stall", "cases"):
                 continue
             v = m.get(k)
-            if isinstance(v, (int, float)):
+            if isinstance(v, (int, float)) and v is not None:
                 agg[k] += v
+                present.add(k)
     if not agg["cases"]:
         return None
+    # Missing ratio/cycle fields stay None (rendered as '-') rather than 0.
+    for k in ("ipc", "ex_ipc", "vf_real", "vf_execute", "instr_num"):
+        if k not in present:
+            agg[k] = None
     # ratios recomputed over the aggregate
-    vf_real = agg.get("vf_real")
-    instr_num = agg.get("instr_num")
+    vf_real = agg.get("vf_real") or 0
+    instr_num = agg.get("instr_num") or 0
     if vf_real:
         agg["ipc"] = round(instr_num / vf_real, 3) if instr_num else None
         agg["ex_ipc"] = round(agg["ex"] / vf_real, 3) if agg["ex"] else None
