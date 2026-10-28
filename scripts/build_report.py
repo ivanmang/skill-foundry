@@ -53,6 +53,9 @@ def suite_rows(record: dict) -> list[list[str]]:
     for s in record.get("suites", []):
         r = s.get("results") or {}
         sm = r.get("summary") or {}
+        perf = s.get("perf") or {}
+        vf = perf.get("vf_real")
+        cycles = "-" if vf is None else str(vf)
         rows.append([
             s.get("name", "?"),
             str(sm.get("passed", 0)),
@@ -61,6 +64,7 @@ def suite_rows(record: dict) -> list[list[str]]:
             str(sm.get("total", 0)),
             s.get("status", "UNKNOWN"),
             fmt_dur(s.get("duration_s")),
+            cycles,
         ])
     return rows
 
@@ -183,8 +187,8 @@ def render_md(records: list[dict], known_sigs: list[str]) -> str:
             f"- target commit: `{rec.get('target_commit')}`  dirty: {rec.get('target_dirty')}",
             f"- host: `{rec.get('host')}`  ASCEND: `{ascend}`  generated: {rec.get('generated_at')}",
             "",
-            "| suite | passed | failed | skipped | total | status | duration |",
-            "|---|---|---|---|---|---|---|",
+            "| suite | passed | failed | skipped | total | status | duration | cycles |",
+            "|---|---|---|---|---|---|---|---|",
         ]
         for row in suite_rows(rec):
             lines.append("| " + " | ".join(row) + " |")
@@ -222,7 +226,10 @@ def render_md(records: list[dict], known_sigs: list[str]) -> str:
                   "| suite | exit | log | command |",
                   "|---|---|---|---|"]
         for r in crows:
-            lines.append("| " + " | ".join(r) + " |")
+            name, exit_code, logpath, cmd = r
+            logname = Path(logpath).name if logpath else ""
+            logcell = f"[{logpath}]({logname})" if logpath else "-"
+            lines.append(f"| {name} | {exit_code} | {logcell} | {cmd} |")
 
         lines += ["", "---", ""]
     return "\n".join(lines)
@@ -252,7 +259,7 @@ def render_html(records: list[dict], known_sigs: list[str]) -> str:
         rows_html.append(
             "<table><thead><tr>"
             "<th>suite</th><th>passed</th><th>failed</th><th>skipped</th>"
-            "<th>total</th><th>status</th><th>duration</th>"
+            "<th>total</th><th>status</th><th>duration</th><th>cycles</th>"
             "</tr></thead><tbody>" + "".join(trs) + "</tbody></table>"
         )
 
@@ -324,13 +331,19 @@ def render_html(records: list[dict], known_sigs: list[str]) -> str:
             )
 
         crows = command_rows(rec)
-        ctrs = "".join(
-            "<tr>" + "".join(f"<td>{html.escape(c)}</td>" for c in r) + "</tr>" for r in crows
-        )
+        ctrs = []
+        for r in crows:
+            name, exit_code, logpath, cmd = r
+            logname = Path(logpath).name if logpath else ""
+            logcell = f'<a href="{html.escape(logname)}">{html.escape(logpath)}</a>' if logpath else "-"
+            ctrs.append(
+                f"<tr><td>{html.escape(name)}</td><td>{html.escape(exit_code)}</td>"
+                f"<td>{logcell}</td><td>{html.escape(cmd)}</td></tr>"
+            )
         rows_html.append(
             "<h3>Commands &amp; logs</h3>"
             "<table><thead><tr><th>suite</th><th>exit</th><th>log</th><th>command</th></tr></thead><tbody>"
-            + ctrs + "</tbody></table>"
+            + "".join(ctrs) + "</tbody></table>"
         )
     return f"""<!doctype html>
 <html><head><meta charset="utf-8"><title>Regression Report</title>
