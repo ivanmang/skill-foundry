@@ -206,7 +206,9 @@ report.md/.html # generated report (see Step 4)
 
 The driver records **context** (repo commit, host, CANN/ASCEND path) so any
 result is reproducible — a FAIL on one machine can be re-investigated elsewhere.
-Exit codes: **0** clean, **1** ran-with-failures, **2** usage.
+Exit codes: **0** clean, **1** ran-with-failures, **2** usage. In an interactive
+terminal, every verb ends with a guided **"What next?"** menu (context-aware
+suggestions + "type a command" + `q` for the shell).
 
 ---
 

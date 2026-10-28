@@ -132,6 +132,10 @@ source completions/harness.bash          # tab-completion (add to ~/.bashrc)
   and runnable, `[!]` = enabled but missing prereqs (with the reason), `[ ]` =
   disabled. `--all-suites` runs only the runnable ones and prints why the rest
   were skipped; an explicit `--suite` force-runs regardless.
+- Exit codes: **0** clean, **1** ran-with-failures, **2** usage error.
+- In an interactive terminal, every verb ends with a guided **"What next?"** menu —
+  the natural next step for what you just ran, a **"type a command"** option, the
+  full verb menu, or `q` to return to the shell. Skipped automatically when piped / in CI.
 
 ### What's automatic vs human
 

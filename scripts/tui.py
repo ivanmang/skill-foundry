@@ -8,6 +8,7 @@ Usage:
 
 from __future__ import annotations
 
+import os
 import subprocess
 import sys
 from pathlib import Path
@@ -93,7 +94,9 @@ def main(argv: list[str] | None = None) -> int:
                 return 0
             sys.stdout.write("\033[2J\033[H")
             sys.stdout.flush()
-            subprocess.run([str(HARNESS / "harness"), *action])
+            env = dict(os.environ)
+            env["HARNESS_WRAPPED"] = "1"
+            subprocess.run([str(HARNESS / "harness"), *action], env=env)
             try:
                 input("\n  Press Enter to return to the dashboard...")
             except (EOFError, KeyboardInterrupt):

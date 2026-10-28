@@ -8,6 +8,7 @@ Usage:
 
 from __future__ import annotations
 
+import os
 import subprocess
 import sys
 from pathlib import Path
@@ -42,7 +43,9 @@ def main(argv: list[str] | None = None) -> int:
     )
     if not choice:
         return 0
-    return subprocess.run([str(HARNESS / "harness"), *choice]).returncode
+    env = dict(os.environ)
+    env["HARNESS_WRAPPED"] = "1"
+    return subprocess.run([str(HARNESS / "harness"), *choice], env=env).returncode
 
 
 if __name__ == "__main__":

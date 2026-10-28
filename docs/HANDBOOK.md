@@ -99,6 +99,11 @@ The harness itself needs only `python3` + `git`. Targets need more — and
 
 Run `./harness help <verb>` for any verb's detailed examples.
 
+In an interactive terminal, every verb finishes with a guided **"What next?"**
+menu: the natural next step for what you just ran (arrow keys), a **"type a
+command"** option to enter any `./harness …` yourself, the full verb menu, or
+`q` to return to the shell. Piped/CI invocations skip it.
+
 ---
 
 ## The daily flow, end to end

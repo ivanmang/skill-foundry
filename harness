@@ -187,6 +187,19 @@ EOF
 CMD="${1:-menu}"
 shift || true
 
+# In an interactive terminal, wrap non-UI verbs so the user gets a guided
+# "What next?" arrow menu after each one (unless HARNESS_WRAPPED is already set
+# by an outer wrap/menu/tui loop, or the verb is itself a menu/terminal).
+if [[ -t 0 && -t 1 && -z "${HARNESS_WRAPPED:-}" ]]; then
+  case "$CMD" in
+    menu|tui|help|-h|--help|version|--version|-V|__complete|selfcheck) ;;
+    *)
+      export HARNESS_WRAPPED=1
+      exec python3 "$HARNESS/scripts/wrap.py" "$CMD" "$@"
+      ;;
+  esac
+fi
+
 case "$CMD" in
   run)      exec python3 "$HARNESS/scripts/run_suite.py" "$@" ;;
   report)   exec python3 "$HARNESS/scripts/build_report.py" "$@" ;;
