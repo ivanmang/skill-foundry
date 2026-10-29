@@ -29,16 +29,16 @@ After each step the tour offers a menu (arrow keys + Enter):
 
 ## What it does
 
-1. Runs `demo/config/demo-suites.json` through the real `scripts/run_suite.py`
+1. Runs `demo/config/demo-suites.json` through the real `skill_foundry/cli/run.py`
    → `reports/demo-live-<ts>/run.json` + raw log.
-2. `scripts/build_report.py` renders `report.md`/`report.html` (1 FAIL).
-3. `scripts/diff_runs.py` diffs against `demo/baseline/demo-baseline.json`
+2. `skill_foundry/cli/report.py` renders `report.md`/`report.html` (1 FAIL).
+3. `skill_foundry/cli/review.py` diffs against `demo/baseline/demo-baseline.json`
    → flags a PASS→FAIL regression.
 4. The (now scripted) learning loop, in a `/tmp` sandbox:
-   - `scripts/teach` auto-captures the correction as a strict
+   - `skill_foundry/cli/teach.py` auto-captures the correction as a strict
      `LRN-…` entry in `learnings/recent.md`.
-   - `scripts/session_digest.py` drafts the same entry straight from run.json.
-   - `scripts/promote_recent.py --propose` turns it into a reviewable diff,
+   - `skill_foundry/lib/session_digest.py` drafts the same entry straight from run.json.
+   - `skill_foundry/cli/promote.py --propose` turns it into a reviewable diff,
      `--apply` writes it into `known-failures.md`, marks the entry `promoted`
      in `recent.md`, and appends a summary to `promoted.md` + an audit block to
      `corrections.md`.

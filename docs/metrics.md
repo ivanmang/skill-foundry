@@ -21,7 +21,7 @@ regression:      current run vs  baseline          (same suite, two points in ti
 ## Metric schema (per suite)
 
 Recorded in `run.json` under `suites[].perf` when a CA instruction dump is
-present (`scripts/perf_metrics.py`); omitted otherwise.
+present (`skill_foundry/lib/perf_metrics.py`); omitted otherwise.
 
 ### Instruction counts (by unit)
 
@@ -70,7 +70,7 @@ even when no CA dump exists.
 
 ## Regression thresholds (diff vs baseline)
 
-`scripts/diff_runs.py` flags a perf regression when:
+`skill_foundry/cli/review.py` flags a perf regression when:
 
 | Metric | Direction | Threshold |
 |---|---|---|

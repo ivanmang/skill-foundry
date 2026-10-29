@@ -7,10 +7,10 @@
 .PHONY: check help validate
 
 check:
-	./scripts/selfcheck
+	./skill_foundry/cli/selfcheck.sh
 
 validate:
-	python3 scripts/validate.py
+	python3 skill_foundry/cli/validate.py
 
 help:
 	@./harness help

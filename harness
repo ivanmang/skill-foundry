@@ -231,35 +231,35 @@ if [[ -t 0 && -t 1 && -z "${HARNESS_WRAPPED:-}" ]]; then
     menu|tui|help|-h|--help|version|--version|-V|__complete|selfcheck) ;;
     *)
       export HARNESS_WRAPPED=1
-      exec python3 "$HARNESS/scripts/wrap.py" "$CMD" "$@"
+      exec python3 "$HARNESS/skill_foundry/cli/wrap.py" "$CMD" "$@"
       ;;
   esac
 fi
 
 case "$CMD" in
-  run)      exec python3 "$HARNESS/scripts/run_suite.py" "$@" ;;
-  report)   exec python3 "$HARNESS/scripts/build_report.py" "$@" ;;
-  review)   exec python3 "$HARNESS/scripts/diff_runs.py" "$@" ;;
-  teach)    exec "$HARNESS/scripts/teach" "$@" ;;
-  promote)  exec python3 "$HARNESS/scripts/promote_recent.py" "$@" ;;
-  capture-skill) exec python3 "$HARNESS/scripts/capture_skill.py" "$@" ;;
-  promote-skill) exec python3 "$HARNESS/scripts/promote_skill.py" "$@" ;;
-  skills)   exec python3 "$HARNESS/scripts/skills_cli.py" "$@" ;;
-  baseline) exec "$HARNESS/scripts/make_baseline.sh" "$@" ;;
-  history)  exec python3 "$HARNESS/scripts/history.py" "$@" ;;
-  clean)    exec python3 "$HARNESS/scripts/clean.py" "$@" ;;
-  validate) exec python3 "$HARNESS/scripts/validate.py" "$@" ;;
-  status)   exec python3 "$HARNESS/scripts/status.py" "$@" ;;
-  diagnose) exec python3 "$HARNESS/scripts/diagnose.py" "$@" ;;
-  onboarding) exec python3 "$HARNESS/scripts/onboarding.py" "$@" ;;
-  tui)      exec python3 "$HARNESS/scripts/tui.py" "$@" ;;
-  menu)     exec python3 "$HARNESS/scripts/menu.py" "$@" ;;
-  guide)    exec python3 "$HARNESS/scripts/guide.py" "$@" ;;
-  demo)     exec python3 "$HARNESS/scripts/demo_tour.py" "$@" ;;
-  list)     exec python3 "$HARNESS/scripts/run_suite.py" --list "$@" ;;
-  cann)     exec python3 "$HARNESS/scripts/detect_cann.py" "$@" ;;
-  selfcheck) exec "$HARNESS/scripts/selfcheck" ;;
-  __complete) exec python3 "$HARNESS/scripts/complete.py" "$@" ;;
+  run)      exec python3 "$HARNESS/skill_foundry/cli/run.py" "$@" ;;
+  report)   exec python3 "$HARNESS/skill_foundry/cli/report.py" "$@" ;;
+  review)   exec python3 "$HARNESS/skill_foundry/cli/review.py" "$@" ;;
+  teach)    exec python3 "$HARNESS/skill_foundry/cli/teach.py" "$@" ;;
+  promote)  exec python3 "$HARNESS/skill_foundry/cli/promote.py" "$@" ;;
+  capture-skill) exec python3 "$HARNESS/skill_foundry/cli/capture.py" "$@" ;;
+  promote-skill) exec python3 "$HARNESS/skill_foundry/cli/promote_skill.py" "$@" ;;
+  skills)   exec python3 "$HARNESS/skill_foundry/cli/skills.py" "$@" ;;
+  baseline) exec "$HARNESS/skill_foundry/cli/baseline.sh" "$@" ;;
+  history)  exec python3 "$HARNESS/skill_foundry/cli/history.py" "$@" ;;
+  clean)    exec python3 "$HARNESS/skill_foundry/cli/clean.py" "$@" ;;
+  validate) exec python3 "$HARNESS/skill_foundry/cli/validate.py" "$@" ;;
+  status)   exec python3 "$HARNESS/skill_foundry/cli/status.py" "$@" ;;
+  diagnose) exec python3 "$HARNESS/skill_foundry/cli/diagnose.py" "$@" ;;
+  onboarding) exec python3 "$HARNESS/skill_foundry/cli/onboarding.py" "$@" ;;
+  tui)      exec python3 "$HARNESS/skill_foundry/cli/tui.py" "$@" ;;
+  menu)     exec python3 "$HARNESS/skill_foundry/cli/menu.py" "$@" ;;
+  guide)    exec python3 "$HARNESS/skill_foundry/cli/guide.py" "$@" ;;
+  demo)     exec python3 "$HARNESS/skill_foundry/cli/demo.py" "$@" ;;
+  list)     exec python3 "$HARNESS/skill_foundry/cli/run.py" --list "$@" ;;
+  cann)     exec python3 "$HARNESS/skill_foundry/lib/cann.py" "$@" ;;
+  selfcheck) exec "$HARNESS/skill_foundry/cli/selfcheck.sh" ;;
+  __complete) exec python3 "$HARNESS/skill_foundry/cli/complete.py" "$@" ;;
   help|-h|--help)
     if [[ -n "${1:-}" && "$1" != "-h" && "$1" != "--help" ]]; then
       verb_help "$1"

@@ -242,7 +242,7 @@ corpus that only changes via a merged MR.
 
 ## The demo and the guide
 
-- **`./harness demo`** — drives the *real* scripts against a mock gtest runner
+- **`./harness demo`** — drives the *real* harness drivers against a mock gtest runner
   in 8 framed steps (progress bar, step map, a "Who does what" box, and a
   `run & continue / skip / back / jump / explain / quit` menu). No hardware.
 - **`./harness guide`** — the same journey against a real target (pto-isa /

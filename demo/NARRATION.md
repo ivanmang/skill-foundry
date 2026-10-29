@@ -15,7 +15,7 @@ no hardware, works on any machine.
 ## Scene 0 — What this is
 
 - "This is a mock gtest runner, but the harness scripts are the real ones — the
-  same `run_suite.py`, `parse_gtest.py`, `build_report.py`, and `diff_runs.py`
+  same `run.py`, `parse_gtest.py`, `report.py`, and `review.py`
   we use for pto-isa."
 - "Two halves: **use** it, and **improve** it."
 
@@ -23,7 +23,7 @@ no hardware, works on any machine.
 
 - "One command runs the suite and produces a normalized `run.json` plus the raw
   log — extraction already happened."
-- Point out: `run_suite.py` records the repo git ref, dirty flag, host, and env
+- Point out: `run.py` records the repo git ref, dirty flag, host, and env
   snapshot, so every result is reproducible.
 
 ## Scene 2 — Use: report
@@ -41,10 +41,10 @@ no hardware, works on any machine.
 
 - "Now the important part. A person says: *that's a known vcvt round-field
   issue, not a new bug.*"
-- "Capture is automatic: `scripts/teach` writes a strict `LRN-…` entry to
+- "Capture is automatic: `skill_foundry/cli/teach.py` writes a strict `LRN-…` entry to
   `recent.md` — one command, no freeform editing. `session_digest.py` can even
   draft the same entry straight from the run's failures."
-- "`promote_recent.py --propose` turns that pending entry into a **reviewable
+- "`promote.py --propose` turns that pending entry into a **reviewable
   git-style diff** into the right file — no write yet. Then `--apply` writes it,
   marks the entry `promoted` in `recent.md`, and appends a summary to
   `promoted.md` + an audit block to `corrections.md`."
@@ -67,7 +67,7 @@ no hardware, works on any machine.
 - **"Why not just a CI script?"** CI runs tests; this captures *how we triage*,
   *what we learned*, and *how to present it* — the part agents (and people)
   keep re-deriving. It sits on top of the existing `.gitcode` CI, doesn't replace it.
-- **"Is the learning manual?"** Capture is automated (`scripts/teach` /
+- **"Is the learning manual?"** Capture is automated (`skill_foundry/cli/teach.py` /
   `session_digest.py`); promotion is a scripted *proposal* that a human approves
   and a git MR (merge request) commits — reviewable, revertable.
 - **"What's auto vs gated?"** Append-only capture: auto. Editing shared skills:

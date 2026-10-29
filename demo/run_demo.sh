@@ -58,41 +58,41 @@ EOF
 pause
 
 section "1 · USE — run the suite"
-echo "  python3 scripts/run_suite.py --config demo/config/demo-suites.json \\"
+echo "  python3 skill_foundry/cli/run.py --config demo/config/demo-suites.json \\"
 echo "      --arches demo/config/demo-arches.json --target demo --all-suites --run-id $RUN_ID"
 echo
-python3 scripts/run_suite.py --config "$DEMO_CONFIG" --arches "$DEMO_ARCHES" \
+python3 skill_foundry/cli/run.py --config "$DEMO_CONFIG" --arches "$DEMO_ARCHES" \
   --target demo --all-suites --run-id "$RUN_ID" || true   # exit 1 is expected (mock suite fails on purpose)
 echo
 echo "  ✔ produced $RUN_DIR/run.json  +  $RUN_DIR/demo-suite.log (normalized by extract-logs)"
 pause
 
 section "2 · USE — report (before learning)"
-python3 scripts/build_report.py --run "$RUN_DIR/run.json" --out "$RUN_DIR/report"
+python3 skill_foundry/cli/report.py --run "$RUN_DIR/run.json" --out "$RUN_DIR/report"
 echo
 echo "  Failure as the harness sees it today (no triage knowledge):"
 grep -F 'VecOpTest.case_vcvt_bf16fp16_128x128' "$RUN_DIR/report.md" || true
 pause
 
 section "3 · USE — review vs the pinned baseline"
-python3 scripts/diff_runs.py --run "$RUN_DIR/run.json" --baseline "$BASELINE"
+python3 skill_foundry/cli/review.py --run "$RUN_DIR/run.json" --baseline "$BASELINE"
 pause
 
 section "4 · IMPROVE — auto-capture → auto-propose → apply"
-echo "  (auto-capture) scripts/teach records the correction in strict format:"
-./scripts/teach "device vcvt round-field mismatch in VecOpTest.case_vcvt_bf16fp16_128x128 -> known vcvt round-field pattern; annotate instead of re-triage -> promote vcvt round-field swap into known-failures" \
+echo "  (auto-capture) skill_foundry/cli/teach.py records the correction in strict format:"
+./skill_foundry/cli/teach.py "device vcvt round-field mismatch in VecOpTest.case_vcvt_bf16fp16_128x128 -> known vcvt round-field pattern; annotate instead of re-triage -> promote vcvt round-field swap into known-failures" \
     --file "$SB2/learnings/recent.md"
 echo
 echo "  (auto-draft alternative) session_digest.py drafts pending entries from the run:"
-python3 scripts/session_digest.py --run "$RUN_DIR/run.json" --file "$SB2/learnings/recent.md" || true
+python3 skill_foundry/lib/session_digest.py --run "$RUN_DIR/run.json" --file "$SB2/learnings/recent.md" || true
 pause
 
-echo "  (auto-propose) promote_recent.py turns the pending entry into a reviewable diff:"
-python3 scripts/promote_recent.py --root "$SB2" --propose
+echo "  (auto-propose) promote.py turns the pending entry into a reviewable diff:"
+python3 skill_foundry/cli/promote.py --root "$SB2" --propose
 pause
 
 echo "  (apply) write the edit into the sandbox known-failures.md:"
-python3 scripts/promote_recent.py --root "$SB2" --apply
+python3 skill_foundry/cli/promote.py --root "$SB2" --apply
 echo
 echo "  Mechanical effect — known-failure signatures go 0 → 1:"
 printf '    before: %s known-failure signatures\n' "$(grep -Ec '^### .*vcvt' "$SB2/.claude/skills/pto-isa/references/known-failures.before.md" || true)"
@@ -103,7 +103,7 @@ grep -F 'vcvt' "$SB2/learnings/promoted.md" || true
 pause
 
 echo "  Re-render the SAME run.json against the improved corpus:"
-python3 scripts/build_report.py --run "$RUN_DIR/run.json" \
+python3 skill_foundry/cli/report.py --run "$RUN_DIR/run.json" \
   --known "$SB2/.claude/skills/pto-isa/references/known-failures.md" --out "$RUN_DIR/report-known"
 echo
 echo "  Failure line AFTER learning (now annotated as known):"
@@ -115,9 +115,9 @@ cat <<EOF
 Run artifacts:  $RUN_DIR/run.json, report.md, report-known.md, demo-suite.log
 Sandbox (loop): $SANDBOX
 
-- USE:      run_suite.py → parse_gtest → build_report → diff_runs
+- USE:      run.py → parse_gtest → build_report → diff_runs
 - IMPROVE:  teach / session_digest.py (capture) →
-            promote_recent.py --propose (draft diff) → --apply → annotated next report
+            promote.py --propose (draft diff) → --apply → annotated next report
 
 The real targets (pto-isa, pto-vmi) use the same flow with config/suites.json.
 EOF

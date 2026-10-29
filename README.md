@@ -246,7 +246,9 @@ hub/                      inbox/ (skill drafts) + catalog.json (generated index)
 .mcp.json                 MCP server config (bundled into the plugin)
 mcp/                      MCP server (server.py + deploy/start/tls scripts + runbook)
 config/                   suites.json + arches.json + cann.json (source of truth)
-scripts/                  drivers (see scripts/README.md: user verbs vs internals)
+skill_foundry/            the Python package (see skill_foundry/README.md)
+  cli/                    one module per `./harness` verb
+  lib/                    shared internals (runs/term/cann/targets/…)
 completions/              bash tab-completion for ./harness
 learnings/                corrections.md / recent.md / promoted.md
 reports/baseline/         pinned <target>.json (committed); other reports gitignored
@@ -270,15 +272,16 @@ env.example.sh            copy to env.sh for machine-local CANN / pto-isa paths
 - Skills follow the open [Agent Skills spec](https://agentskills.io/specification):
   required `name` + `description` frontmatter (name matches folder, lowercase-hyphen,
   <=64 chars; description <=1024 chars), plus optional `license` + `compatibility`.
-- **Scripts are deliberately co-located at the repo root** (`scripts/`), not inside a
-  single skill folder, because the run/extract/diff/report drivers are shared by
-  several skills. Skills reference them from the harness root (`./scripts/...`).
+- **Scripts are co-located in the `skill_foundry/` package**, not inside a single
+  skill folder, because the run/extract/diff/report drivers are shared by several
+  skills. Skills reference them from the harness root (`python3 skill_foundry/...`),
+  and the `./harness` entry point maps each verb onto its `skill_foundry/cli/` driver.
   Consequence: these are *co-located repo skills* — they work when this repo is
   checked out and used as the working directory, but a single skill folder copied
   alone into another tool's skills dir is **not** self-contained.
 - **Conformance is machine-checked**: `./harness selfcheck` runs
-  `scripts/validate_skills.py` against the open spec (or run it directly:
-  `python3 scripts/validate_skills.py`).
+  `skill_foundry/lib/validate_skills.py` against the open spec (or run it directly:
+  `python3 skill_foundry/lib/validate_skills.py`).
 
 ## Canonical environment
 

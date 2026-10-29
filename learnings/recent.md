@@ -1,8 +1,8 @@
 # Recent — pending learnings
 
 Strict, machine-parseable format. One entry per `## LRN-…` block; fields in
-this exact order. `scripts/log_correction.py` and `scripts/session_digest.py`
-write entries; `scripts/promote_recent.py` parses and promotes them.
+this exact order. `skill_foundry/lib/log_correction.py` and `skill_foundry/lib/session_digest.py`
+write entries; `skill_foundry/cli/promote.py` parses and promotes them.
 
 ```markdown
 ## LRN-YYYYMMDD-NNN

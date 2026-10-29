@@ -36,7 +36,7 @@ from pathlib import Path
 
 HARNESS = Path(__file__).resolve().parent.parent
 LIVE = HARNESS / ".claude" / "skills"
-INBOX = HARNESS / "skills" / "inbox"
+INBOX = HARNESS / "hub" / "inbox"
 
 try:
     from fastmcp import FastMCP

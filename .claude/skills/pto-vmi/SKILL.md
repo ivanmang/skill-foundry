@@ -52,7 +52,7 @@ Via the harness (recommended — one entry point):
 The vmi-dashboard compares CCE vs VMI per kernel on cycle-accurate metrics from
 `core0.veccore0.instr_log.dump`: EX / SU / LD / ST / pred / scalar / dma,
 dual-issue, stalls, IPC / EX-IPC / vf_real, and EX subcategories. The harness
-records the same metrics per suite (`scripts/perf_metrics.py`) when the dump is
+records the same metrics per suite (`skill_foundry/lib/perf_metrics.py`) when the dump is
 present, and `./harness review` flags vf_real/EX up >15% or IPC down >15%.
 
 ## Triage

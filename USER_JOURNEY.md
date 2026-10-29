@@ -120,7 +120,7 @@ Each step is a **framed block** that makes the workflow self-explanatory:
     One command runs the demo suite through the REAL run_suite.py → run.json.
 
   Who does what
-    ▸ command   python3 scripts/run_suite.py --target demo --all-suites
+    ▸ command   python3 skill_foundry/cli/run.py --target demo --all-suites
     🟢 harness  runs the suite and normalizes the log into run.json
     🟡 you       nothing — press Enter to run
 

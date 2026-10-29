@@ -17,4 +17,4 @@ jobs:
         with:
           token: ${{secrets.GIT_TOKEN}}
       - name: Self-check
-        run: ./scripts/selfcheck
+        run: ./skill_foundry/cli/selfcheck.sh
