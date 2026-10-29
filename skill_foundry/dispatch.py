@@ -15,32 +15,39 @@ from skill_foundry.paths import ROOT, version as _version
 
 # python verbs: verb -> (module, argv prefix to inject)
 VERB_MODULES: dict[str, tuple[str, list[str] | None]] = {
-    "run": ("skill_foundry.cli.run", None),
-    "list": ("skill_foundry.cli.run", ["--list"]),
-    "report": ("skill_foundry.cli.report", None),
-    "review": ("skill_foundry.cli.review", None),
-    "teach": ("skill_foundry.cli.teach", None),
-    "promote": ("skill_foundry.cli.promote", None),
+    # ── THE PRODUCT — the skill-ops loop (capture → promote → hub → discover) ──
     "capture-skill": ("skill_foundry.cli.capture", None),
     "promote-skill": ("skill_foundry.cli.promote_skill", None),
+    "teach": ("skill_foundry.cli.teach", None),
+    "promote": ("skill_foundry.cli.promote", None),
     "skills": ("skill_foundry.cli.skills", None),
-    "history": ("skill_foundry.cli.history", None),
-    "clean": ("skill_foundry.cli.clean", None),
-    "validate": ("skill_foundry.cli.validate", None),
-    "status": ("skill_foundry.cli.status", None),
-    "diagnose": ("skill_foundry.cli.diagnose", None),
-    "onboarding": ("skill_foundry.cli.onboarding", None),
+
+    # ── BUNDLED WORKFLOW — regression (run → report → review) + readiness ──
+    "run": ("skill_foundry.workflow.run", None),
+    "list": ("skill_foundry.workflow.run", ["--list"]),
+    "report": ("skill_foundry.workflow.report", None),
+    "review": ("skill_foundry.workflow.review", None),
+    "status": ("skill_foundry.workflow.status", None),
+    "diagnose": ("skill_foundry.workflow.diagnose", None),
+    "history": ("skill_foundry.workflow.history", None),
+    "clean": ("skill_foundry.workflow.clean", None),
+    "validate": ("skill_foundry.workflow.validate", None),
+    "cann": ("skill_foundry.lib.cann", None),
+
+    # ── INTERACTIVE / SHELL ──
     "menu": ("skill_foundry.cli.menu", None),
     "guide": ("skill_foundry.cli.guide", None),
     "demo": ("skill_foundry.cli.demo", None),
-    "cann": ("skill_foundry.lib.cann", None),
+    "onboarding": ("skill_foundry.cli.onboarding", None),
+
+    # ── internal ──
     "complete": ("skill_foundry.cli.complete", None),
     "__complete": ("skill_foundry.cli.complete", None),
 }
 
 # shell verbs (kept as bash for process-boundary reasons)
 SHELL_VERBS: dict[str, str] = {
-    "baseline": "skill_foundry/cli/baseline.sh",
+    "baseline": "skill_foundry/workflow/baseline.sh",
     "selfcheck": "skill_foundry/cli/selfcheck.sh",
 }
 
@@ -106,14 +113,14 @@ def dispatch(cmd: str, args: list[str]) -> int:
 TEXT_USAGE = """\
 usage: ./harness <command> [args]
 
-CAPTURE & PUBLISH — the skill-ops loop:
+THE PRODUCT — capture & publish skills (the loop):
   capture-skill  Draft a NEW skill into hub/inbox/  [--description, --dry-run]
   promote-skill  Promote a draft into .claude/skills/  [--propose | --apply | --pr | --direct]
   teach     Log a correction (a lesson about an existing skill)  ["wrong -> correct -> action" | wizard | --edit]
   promote   Promote learnings into skills        [--propose | --apply | --pr | --direct]
   skills    List/search skills · install into agents · refresh the catalog  [--search, --inbox, --install, --uninstall, --refresh, --json]
 
-USE — the bundled regression workflow:
+BUNDLED WORKFLOW — regression (run → report → review), driven by the skills:
   run       Run a declared suite               [--suite | --all-suites] [--testcase] [--filter] [--quiet|--tui|--json] [--dry-run] [--parallel] [--report|--open|--review]
   report    Render a run to Markdown + HTML    [--run (default: latest), --known, --out, --open]
   review    Diff a run vs the pinned baseline  [--run (default: latest), --baseline, --out]

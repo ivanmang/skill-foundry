@@ -260,8 +260,9 @@ hub/                      inbox/ (skill drafts) + catalog.json (generated index)
 mcp/                      MCP server (server.py + deploy/start/tls scripts + runbook)
 config/                   suites.json + arches.json + cann.json (source of truth)
 skill_foundry/            the Python package (see skill_foundry/README.md)
-  cli/                    one module per `./harness` verb
-  lib/                    shared internals (runs/term/cann/targets/…)
+  cli/                    THE PRODUCT: skill-ops verbs + shell (teach/promote/skills/…)
+  workflow/               bundled regression workflow (run/report/review/status/…)
+  lib/                    thin stable helpers (parse_gtest/perf_metrics/targets/…)
 pyproject.toml            package metadata + `skill-foundry` console script
 completions/              bash tab-completion for ./harness
 learnings/                corrections.md / recent.md / promoted.md
@@ -289,7 +290,8 @@ env.example.sh            copy to env.sh for machine-local CANN / pto-isa paths
 - **Scripts are co-located in the `skill_foundry/` package**, not inside a single
   skill folder, because the run/extract/diff/report drivers are shared by several
   skills. Skills reference them from the harness root (`python3 -m skill_foundry...`),
-  and the `./harness` entry point maps each verb onto its `skill_foundry/cli/` driver.
+  and the `./harness` entry point maps each verb onto its module in
+  `skill_foundry/cli/` (product) or `skill_foundry/workflow/` (regression).
   Consequence: these are *co-located repo skills* — they work when this repo is
   checked out and used as the working directory, but a single skill folder copied
   alone into another tool's skills dir is **not** self-contained.

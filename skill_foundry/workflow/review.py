@@ -6,8 +6,8 @@ regressions (avg + p99). Perf rule: flag when p99 rises >15% even if avg stays
 stable.
 
 Usage:
-  python3 -m skill_foundry.cli.review --run reports/<run-id>/run.json
-  python3 -m skill_foundry.cli.review --run reports/<run-id>/run.json \
+  python3 -m skill_foundry.workflow.review --run reports/<run-id>/run.json
+  python3 -m skill_foundry.workflow.review --run reports/<run-id>/run.json \
       --baseline reports/<other>/run.json
 """
 
@@ -198,7 +198,7 @@ def main(argv: list[str] | None = None) -> int:
 
     if base.get("generated") is False:
         print("NOTE: baseline is a seed (generated=false). First real run should be "
-              "promoted via skill_foundry/cli/baseline.sh, not diffed.")
+              "promoted via skill_foundry/workflow/baseline.sh, not diffed.")
         if not base.get("suites"):
             return 0
 

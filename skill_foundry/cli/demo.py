@@ -86,9 +86,9 @@ def setup() -> None:
 
 def step_run() -> None:
     print("  Running (exit 1 is expected — the mock suite fails one case on purpose):\n")
-    print("    python3 -m skill_foundry.cli.run --config demo/config/demo-suites.json \\")
+    print("    python3 -m skill_foundry.workflow.run --config demo/config/demo-suites.json \\")
     print("        --arches demo/config/demo-arches.json --target demo --all-suites --run-id", RUN_ID, "\n")
-    _run([sys.executable, "-m", "skill_foundry.cli.run", "--config", DEMO_CONFIG,
+    _run([sys.executable, "-m", "skill_foundry.workflow.run", "--config", DEMO_CONFIG,
           "--arches", DEMO_ARCHES, "--target", "demo", "--all-suites",
           "--run-id", RUN_ID], check=False)
     print()
@@ -96,14 +96,14 @@ def step_run() -> None:
 
 
 def step_report() -> None:
-    _run([sys.executable, "-m", "skill_foundry.cli.report", "--run", RUN_DIR / "run.json",
+    _run([sys.executable, "-m", "skill_foundry.workflow.report", "--run", RUN_DIR / "run.json",
           "--out", RUN_DIR / "report"])
     print("\n  Failure as the harness sees it today (no triage knowledge):")
     _grep(RUN_DIR / "report.md", FAIL_CASE)
 
 
 def step_review() -> None:
-    _run([sys.executable, "-m", "skill_foundry.cli.review", "--run", RUN_DIR / "run.json",
+    _run([sys.executable, "-m", "skill_foundry.workflow.review", "--run", RUN_DIR / "run.json",
           "--baseline", BASELINE])
 
 
@@ -145,7 +145,7 @@ def step_apply() -> None:
 
 def step_rerun() -> None:
     print("  Re-render the SAME run.json against the improved corpus:\n")
-    _run([sys.executable, "-m", "skill_foundry.cli.report", "--run", RUN_DIR / "run.json",
+    _run([sys.executable, "-m", "skill_foundry.workflow.report", "--run", RUN_DIR / "run.json",
           "--known", SB2_KNOWN, "--out", RUN_DIR / "report-known"])
     print("\n  Failure line AFTER learning (now annotated as known):")
     _grep(RUN_DIR / "report-known.md", FAIL_CASE)
@@ -220,13 +220,13 @@ BY_KEY = {s["key"]: s for s in STEPS}
 
 # What the harness runs for you vs. what needs a human, per step.
 ROLES: dict[str, tuple[str, str, str]] = {
-    "run": ("python3 -m skill_foundry.cli.run --target demo --all-suites",
+    "run": ("python3 -m skill_foundry.workflow.run --target demo --all-suites",
             "runs the suite and normalizes the log into run.json",
             "nothing — press Enter to run"),
-    "report": ("python3 -m skill_foundry.cli.report --run <run.json>",
+    "report": ("python3 -m skill_foundry.workflow.report --run <run.json>",
                "renders report.md + report.html from run.json",
                "nothing — just read the FAIL line"),
-    "review": ("python3 -m skill_foundry.cli.review --run <run.json> --baseline …",
+    "review": ("python3 -m skill_foundry.workflow.review --run <run.json> --baseline …",
                "diffs vs baseline → regressions / fixes / perf flags",
                "nothing — read which cases regressed"),
     "teach": ("./harness teach \"wrong → correct → action\"",

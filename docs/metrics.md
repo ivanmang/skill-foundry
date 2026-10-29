@@ -70,7 +70,7 @@ even when no CA dump exists.
 
 ## Regression thresholds (diff vs baseline)
 
-`skill_foundry/cli/review.py` flags a perf regression when:
+`skill_foundry/workflow/review.py` flags a perf regression when:
 
 | Metric | Direction | Threshold |
 |---|---|---|

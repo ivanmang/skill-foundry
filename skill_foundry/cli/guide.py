@@ -339,7 +339,7 @@ def run_real_tour(name: str, target: dict) -> int:
 
     banner("2 · Run the suite(s)")
     print(c("  Every run records context (git ref, dirty flag, host, env) in run.json — reproducible on any machine.", YELLOW))
-    cmd = [sys.executable, "-m", "skill_foundry.cli.run", "--target", tname, *suite_flags, *extra_flags]
+    cmd = [sys.executable, "-m", "skill_foundry.workflow.run", "--target", tname, *suite_flags, *extra_flags]
     result = subprocess.run(cmd, cwd=HARNESS)
     if result.returncode != 0:
         print(c("\n  Some suites did not pass — we'll review next.", YELLOW))
@@ -361,7 +361,7 @@ def run_real_tour(name: str, target: dict) -> int:
             known = HARNESS / ".claude" / "skills" / tname / "references" / "known-failures.md"
             kargs = ["--known", str(known)] if known.exists() else []
             subprocess.run([
-                sys.executable, "-m", "skill_foundry.cli.report",
+                sys.executable, "-m", "skill_foundry.workflow.report",
                 "--run", str(HARNESS / "reports" / latest / "run.json"),
                 *kargs, "--out", str(out_base), "--open",
             ], cwd=HARNESS, check=False)
@@ -377,7 +377,7 @@ def run_real_tour(name: str, target: dict) -> int:
         if ask_yesno("Diff it against the pinned baseline?", "y"):
             baseline = targets.baseline_path(tname)
             subprocess.run([
-                sys.executable, "-m", "skill_foundry.cli.review",
+                sys.executable, "-m", "skill_foundry.workflow.review",
                 "--run", str(HARNESS / "reports" / latest / "run.json"),
                 "--baseline", str(baseline),
             ], cwd=HARNESS, check=False)

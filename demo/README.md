@@ -29,10 +29,10 @@ After each step the tour offers a menu (arrow keys + Enter):
 
 ## What it does
 
-1. Runs `demo/config/demo-suites.json` through the real `python3 -m skill_foundry.cli.run`
+1. Runs `demo/config/demo-suites.json` through the real `python3 -m skill_foundry.workflow.run`
    → `reports/demo-live-<ts>/run.json` + raw log.
-2. `python3 -m skill_foundry.cli.report` renders `report.md`/`report.html` (1 FAIL).
-3. `python3 -m skill_foundry.cli.review` diffs against `demo/baseline/demo-baseline.json`
+2. `python3 -m skill_foundry.workflow.report` renders `report.md`/`report.html` (1 FAIL).
+3. `python3 -m skill_foundry.workflow.review` diffs against `demo/baseline/demo-baseline.json`
    → flags a PASS→FAIL regression.
 4. The (now scripted) learning loop, in a `/tmp` sandbox:
    - `python3 -m skill_foundry.cli.teach` auto-captures the correction as a strict

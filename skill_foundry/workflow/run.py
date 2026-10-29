@@ -2,11 +2,11 @@
 """Run a declared regression suite and produce a normalized run record.
 
 Usage:
-  python3 -m skill_foundry.cli.run --suite cpu-st                 # default target: pto-isa
-  python3 -m skill_foundry.cli.run --all-suites
-  python3 -m skill_foundry.cli.run --quiet --all-suites           # summary only
-  python3 -m skill_foundry.cli.run --list                        # list suites + arches
-  python3 -m skill_foundry.cli.run --target demo --all-suites     # demo target
+  python3 -m skill_foundry.workflow.run --suite cpu-st                 # default target: pto-isa
+  python3 -m skill_foundry.workflow.run --all-suites
+  python3 -m skill_foundry.workflow.run --quiet --all-suites           # summary only
+  python3 -m skill_foundry.workflow.run --list                        # list suites + arches
+  python3 -m skill_foundry.workflow.run --target demo --all-suites     # demo target
 
 Writes reports/<run-id>/run.json plus one raw log per suite, and normalizes
 each log with parse_gtest into the suite's "results" field.

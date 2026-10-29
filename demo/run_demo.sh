@@ -58,24 +58,24 @@ EOF
 pause
 
 section "1 · USE — run the suite"
-echo "  python3 -m skill_foundry.cli.run --config demo/config/demo-suites.json \\"
+echo "  python3 -m skill_foundry.workflow.run --config demo/config/demo-suites.json \\"
 echo "      --arches demo/config/demo-arches.json --target demo --all-suites --run-id $RUN_ID"
 echo
-python3 -m skill_foundry.cli.run --config "$DEMO_CONFIG" --arches "$DEMO_ARCHES" \
+python3 -m skill_foundry.workflow.run --config "$DEMO_CONFIG" --arches "$DEMO_ARCHES" \
   --target demo --all-suites --run-id "$RUN_ID" || true   # exit 1 is expected (mock suite fails on purpose)
 echo
 echo "  ✔ produced $RUN_DIR/run.json  +  $RUN_DIR/demo-suite.log (normalized by extract-logs)"
 pause
 
 section "2 · USE — report (before learning)"
-python3 -m skill_foundry.cli.report --run "$RUN_DIR/run.json" --out "$RUN_DIR/report"
+python3 -m skill_foundry.workflow.report --run "$RUN_DIR/run.json" --out "$RUN_DIR/report"
 echo
 echo "  Failure as the harness sees it today (no triage knowledge):"
 grep -F 'VecOpTest.case_vcvt_bf16fp16_128x128' "$RUN_DIR/report.md" || true
 pause
 
 section "3 · USE — review vs the pinned baseline"
-python3 -m skill_foundry.cli.review --run "$RUN_DIR/run.json" --baseline "$BASELINE"
+python3 -m skill_foundry.workflow.review --run "$RUN_DIR/run.json" --baseline "$BASELINE"
 pause
 
 section "4 · IMPROVE — auto-capture → auto-propose → apply"
@@ -103,7 +103,7 @@ grep -F 'vcvt' "$SB2/learnings/promoted.md" || true
 pause
 
 echo "  Re-render the SAME run.json against the improved corpus:"
-python3 -m skill_foundry.cli.report --run "$RUN_DIR/run.json" \
+python3 -m skill_foundry.workflow.report --run "$RUN_DIR/run.json" \
   --known "$SB2/.claude/skills/pto-isa/references/known-failures.md" --out "$RUN_DIR/report-known"
 echo
 echo "  Failure line AFTER learning (now annotated as known):"

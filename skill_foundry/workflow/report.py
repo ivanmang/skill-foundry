@@ -2,13 +2,13 @@
 """Turn run record(s) into Markdown + self-contained HTML reports.
 
 Usage:
-  python3 -m skill_foundry.cli.report --run reports/<id>/run.json --out reports/<id>/report
-  python3 -m skill_foundry.cli.report --run a.json --run b.json --out combined/report
+  python3 -m skill_foundry.workflow.report --run reports/<id>/run.json --out reports/<id>/report
+  python3 -m skill_foundry.workflow.report --run a.json --run b.json --out combined/report
 
 Optionally annotate failures against a known-failures file (the triage corpus
 kept by the harness). Pass --known to mark matched failures as known:
 
-  python3 -m skill_foundry.cli.report --run reports/<id>/run.json \
+  python3 -m skill_foundry.workflow.report --run reports/<id>/run.json \
       --known .claude/skills/pto-isa/references/known-failures.md \
       --out reports/<id>/report
 """

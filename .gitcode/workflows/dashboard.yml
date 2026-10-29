@@ -22,9 +22,9 @@ jobs:
           token: ${{secrets.GIT_TOKEN}}
       - name: Status (JSON)
         run: |
-          python3 -m skill_foundry.cli.status --json > status.json
+          python3 -m skill_foundry.workflow.status --json > status.json
           cat status.json
       - name: Diagnose (strict)
-        run: python3 -m skill_foundry.cli.diagnose --strict
+        run: python3 -m skill_foundry.workflow.diagnose --strict
       - name: Recent runs (JSON)
-        run: python3 -m skill_foundry.cli.history --limit 10 --json
+        run: python3 -m skill_foundry.workflow.history --limit 10 --json
