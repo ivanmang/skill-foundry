@@ -19,6 +19,8 @@ import sys
 from skill_foundry.paths import ROOT as HARNESS  # noqa: E402
 from skill_foundry.cli import promote as PR  # noqa: E402 — reuse remote_web_url / create_mr
 from skill_foundry.lib import browser as _browser  # noqa: E402
+from skill_foundry.lib import gates  # noqa: E402
+from skill_foundry.lib import reviewer  # noqa: E402
 
 INBOX = HARNESS / "hub" / "inbox"
 LIVE = HARNESS / ".claude" / "skills"
@@ -37,6 +39,8 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--apply", action="store_true", help="Copy into .claude/skills/ and remove the draft.")
     ap.add_argument("--pr", action="store_true", help="--apply + commit + push + create the MR.")
     ap.add_argument("--direct", action="store_true", help="--apply + commit on the current branch + push to origin/main directly (SSH, no MR, no token).")
+    ap.add_argument("--review", action="store_true", help="Apply only after an LLM judge (SKILL_REVIEWER) APPROVES.")
+    ap.add_argument("--force", action="store_true", help="Bypass the gates (spec · secrets).")
     args = ap.parse_args(argv)
 
     names = drafts()
@@ -75,6 +79,19 @@ def main(argv: list[str] | None = None) -> int:
     if not (args.apply or args.pr or args.direct):
         print("choose --propose / --apply / --pr / --direct", file=sys.stderr)
         return 2
+
+    # ── gates: spec conformance + secrets (--force to bypass) ──
+    body = (src / "SKILL.md").read_text(encoding="utf-8", errors="replace")
+    violations = list(dict.fromkeys(gates.check_skill_spec(src) + gates.check_secrets(body)))
+    if violations and not args.force:
+        print("✗ promotion blocked by gates (fix, or use --force to override):", file=sys.stderr)
+        gates.render(violations)
+        return 2
+
+    # ── review: LLM judge (or interactive fallback) ──
+    if args.review and not reviewer.approve(f"# promote skill: {name}\n\n{body}"):
+        print("✗ review did not APPROVE — nothing applied.")
+        return 0
 
     shutil.copytree(src, dst)
     shutil.rmtree(src)

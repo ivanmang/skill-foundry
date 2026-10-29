@@ -143,11 +143,11 @@ Draft a NEW skill into hub/inbox/<name>/SKILL.md (wizard / editor for the body).
 Example: ./harness capture-skill code-review --description "Review PRs against house style"
 """,
     "promote-skill": """\
-./harness promote-skill [<name>] [--propose | --apply | --direct | --pr]
-Publish a draft from hub/inbox/ into .claude/skills/.
-  --direct  commit + push to origin/main over SSH (no MR, no token)
-  --pr      branch + push + auto-MR (glab / GITCODE_TOKEN)
-Example: ./harness promote-skill code-review --direct
+./harness promote-skill [<name>] [--propose | --apply | --direct | --pr | --review] [--force]
+Publish a draft from hub/inbox/ into .claude/skills/ (gated: spec + secrets).
+  --review  apply only after an LLM judge (SKILL_REVIEWER) APPROVES
+  --force   bypass the gates
+Example: ./harness promote-skill code-review --review --direct
 """,
     "teach": """\
 ./harness teach — log a correction (append-only)
@@ -158,13 +158,18 @@ Example: ./harness promote-skill code-review --direct
 Example: ./harness teach "vcvt mismatch -> known pattern, annotate -> promote to known-failures"
 """,
     "promote": """\
-./harness promote — publish pending learnings into skills
+./harness promote — publish pending learnings into skills (gated, add-only)
   --propose   print a reviewable diff (no write)
   --apply     write the edits locally
   --direct    commit + push to origin/main over SSH (NO MR, NO token)
-  --pr        branch + push + AUTO-CREATE the MR (glab / GITCODE_TOKEN)
+  --pr        branch + push + AUTO-CREATE the MR (auto-merge when the gates pass)
+  --review    apply only after an LLM judge (SKILL_REVIEWER) APPROVES
+  --force     bypass the gates (add-only · secrets · size)
 
-Example: ./harness promote --direct    # then teammates git pull
+Examples:
+  ./harness promote --direct                 # safe: blocked if it would remove/modify a check
+  ./harness promote --review --direct        # LLM judge, then push on APPROVE
+  ./harness promote --pr                     # MR auto-merges when CI gates are green
 """,
     "skills": """\
 ./harness skills [--search <q>] [--inbox] [--install | --uninstall] [--refresh] [--json]

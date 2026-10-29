@@ -4,18 +4,15 @@
 Proposal (default, no writes):
   python3 -m skill_foundry.cli.promote --propose
 
-Apply (writes files, marks entries promoted, logs to promoted.md + corrections.md):
-  python3 -m skill_foundry.cli.promote --apply [--branch feat/learnings-YYYYMMDD]
-  python3 -m skill_foundry.cli.promote --pr            # apply + push + CREATE the MR (remote-gated merge)
+Apply (gated, add-only):
+  python3 -m skill_foundry.cli.promote --apply          # write locally
+  python3 -m skill_foundry.cli.promote --direct         # apply + commit + push main (no MR/token)
+  python3 -m skill_foundry.cli.promote --pr             # apply + branch + push + auto-create MR
+  python3 -m skill_foundry.cli.promote --review --direct  # LLM judge, then push on APPROVE
 
-The `--pr` flow auto-creates the merge request via `glab` or the GitLab/GitCode
-REST API (GITCODE_TOKEN / GITLAB_TOKEN); otherwise it prints the MR-new URL.
-The merge itself is gated on the remote (branch protection) — not here.
-
-Target resolution:
-  - action/correct mentions "known-failure(s)"/"triage corpus"  ->  known-failures.md
-  - otherwise a matching .claude/skills/<skill>/SKILL.md          ->  its "## Gotchas"
-  - otherwise the entry is skipped as unmapped.
+Gates (block unless --force): add-only · no-secrets · size cap.
+--review runs those gates, then an LLM judge (SKILL_REVIEWER) or an interactive
+prompt; only APPROVE proceeds.
 """
 
 from __future__ import annotations
@@ -33,9 +30,11 @@ import urllib.parse
 import urllib.request
 from pathlib import Path
 
-from skill_foundry.lib import browser as _browser  # noqa: E402
-
 from skill_foundry.paths import ROOT as HARNESS  # noqa: E402
+from skill_foundry.lib import browser as _browser  # noqa: E402
+from skill_foundry.lib import gates  # noqa: E402
+from skill_foundry.lib import reviewer  # noqa: E402
+
 FIELD_ORDER = ["id", "category", "context", "skill", "wrong", "correct", "action", "status"]
 ENTRY_RE = re.compile(r"^##\s+(LRN-\d{8}-\d{3})")
 
@@ -198,8 +197,6 @@ def remote_web_url(root: Path) -> str | None:
 
 
 def mr_url(web: str, branch: str, base: str = "main") -> str:
-    # gitcode (GitLab-style) — matches gitcode's own "To create a merge request"
-    # hint: <web>/merge_requests/new?source_branch=<branch> (no "/-" prefix).
     return f"{web}/merge_requests/new?source_branch={branch}&target_branch={base}"
 
 
@@ -210,7 +207,8 @@ def _glab_create_mr(branch: str, base: str, title: str) -> str | None:
     try:
         r = subprocess.run(
             [glab, "mr", "create", "--source-branch", branch,
-             "--target-branch", base, "--title", title, "--yes"],
+             "--target-branch", base, "--title", title, "--yes",
+             "--merge-when-pipeline-succeeds"],
             capture_output=True, text=True, timeout=60)
         if r.returncode == 0:
             m = re.search(r"https?://\S*merge_requests/\d+", (r.stdout or "") + " " + (r.stderr or ""))
@@ -221,7 +219,7 @@ def _glab_create_mr(branch: str, base: str, title: str) -> str | None:
 
 
 def _api_create_mr(web: str, branch: str, base: str, title: str) -> str | None:
-    """Create a GitLab/GitCode merge request via the REST API (PRIVATE-TOKEN)."""
+    """Create a GitLab/GitCode MR via the REST API, with auto-merge on green."""
     token = os.environ.get("GITCODE_TOKEN") or os.environ.get("GITLAB_TOKEN")
     if not token:
         return None
@@ -233,6 +231,7 @@ def _api_create_mr(web: str, branch: str, base: str, title: str) -> str | None:
         api = f"{u.scheme}://{u.netloc}/api/v4/projects/{proj}/merge_requests"
         payload = urllib.parse.urlencode({
             "source_branch": branch, "target_branch": base, "title": title,
+            "merge_when_pipeline_succeeds": "true",
         }).encode()
         req = urllib.request.Request(
             api, data=payload, method="POST",
@@ -275,8 +274,10 @@ def propose_all(root: Path, lp: Path, pending: list[dict]) -> int:
 
 
 def apply_all(root: Path, lp: Path, entries: list[dict], pending: list[dict],
-              branch: str | None, push: bool, direct: bool = False) -> int:
-    changed: list[Path] = []
+              branch: str | None, push: bool, direct: bool = False,
+              force: bool = False, review: bool = False) -> int:
+    # 1. build the plan (entry, target, old, new)
+    plan: list[tuple[dict, Path, str, str]] = []
     for e in pending:
         t = resolve_target(e, root)
         if t is None:
@@ -284,6 +285,37 @@ def apply_all(root: Path, lp: Path, entries: list[dict], pending: list[dict],
             continue
         old = t.read_text(encoding="utf-8") if t.exists() else ""
         new = apply_snippet(old, t, build_snippet(e, t))
+        plan.append((e, t, old, new))
+
+    # 2. gates (add-only · secrets · size)
+    violations: list[str] = []
+    for _, _, old, new in plan:
+        violations += gates.gate(old, new)
+    violations = list(dict.fromkeys(v for v in violations if v))
+    if violations and not force:
+        print("✗ promotion blocked by gates (fix, or use --force to override):", file=sys.stderr)
+        gates.render(violations)
+        return 2
+
+    # 3. review (Tier C — LLM judge, or interactive fallback)
+    if review:
+        diffs = []
+        for e, t, old, new in plan:
+            if new != old:
+                diffs.append("\n".join(difflib.unified_diff(
+                    old.splitlines(), new.splitlines(),
+                    fromfile=f"a/{t.relative_to(root)}", tofile=f"b/{t.relative_to(root)}", lineterm="",
+                )))
+        if not diffs:
+            print("nothing to review — no pending changes.")
+            return 0
+        if not reviewer.approve("\n\n".join(diffs)):
+            print("✗ review did not APPROVE — nothing applied.")
+            return 0
+
+    # 4. write
+    changed: list[Path] = []
+    for e, t, old, new in plan:
         if new != old:
             t.parent.mkdir(parents=True, exist_ok=True)
             t.write_text(new, encoding="utf-8")
@@ -299,7 +331,6 @@ def apply_all(root: Path, lp: Path, entries: list[dict], pending: list[dict],
     add_paths += [str(lp.relative_to(root)), "learnings/promoted.md", "learnings/corrections.md"]
 
     if direct:
-        # commit on the current branch and push to origin/main directly (SSH, no MR, no token)
         subprocess.run(["git", "-C", str(root), "-c", "user.name=skill-foundry",
                         "-c", "user.email=harness@example.com", "add", *add_paths], check=True)
         subprocess.run(["git", "-C", str(root), "-c", "user.name=skill-foundry",
@@ -329,7 +360,7 @@ def apply_all(root: Path, lp: Path, entries: list[dict], pending: list[dict],
                              f"{_dt.datetime.now():%Y-%m-%d}")
                     url, created = create_mr(web, branch, "main", title)
                     if created:
-                        print(f"\n✓ Created merge request:\n  {url}")
+                        print(f"\n✓ Created merge request (auto-merge on green):\n  {url}")
                     else:
                         print(f"\nPushed branch '{branch}'. To create the MR, visit:\n  {url}\n"
                               f"  (set GITCODE_TOKEN / GITLAB_TOKEN or install glab to auto-create it)")
@@ -348,14 +379,16 @@ def apply_all(root: Path, lp: Path, entries: list[dict], pending: list[dict],
 
 
 def main(argv: list[str] | None = None) -> int:
-    ap = argparse.ArgumentParser(description="Promote pending learnings into skills.")
+    ap = argparse.ArgumentParser(description="Promote pending learnings into skills (gated, add-only).")
     ap.add_argument("--root", default=str(HARNESS), help="Harness root (default this repo).")
     ap.add_argument("--learnings", default=None, help="Path to recent.md (default <root>/learnings/recent.md).")
     ap.add_argument("--propose", action="store_true", help="Print proposed diffs (default).")
     ap.add_argument("--apply", action="store_true", help="Apply edits and mark entries promoted.")
     ap.add_argument("--branch", default=None, help="With --apply: create + commit on this branch.")
-    ap.add_argument("--pr", action="store_true", help="With --apply: push the branch and create an MR (needs GITCODE_TOKEN/glab).")
-    ap.add_argument("--direct", action="store_true", help="With --apply: commit on the current branch and push to origin/main directly over SSH (no MR, no token).")
+    ap.add_argument("--pr", action="store_true", help="With --apply: push the branch and create an MR (auto-merge on green).")
+    ap.add_argument("--direct", action="store_true", help="With --apply: commit on the current branch and push to origin/main directly (no MR, no token).")
+    ap.add_argument("--review", action="store_true", help="Apply only after an LLM judge (SKILL_REVIEWER) APPROVES the diff.")
+    ap.add_argument("--force", action="store_true", help="Bypass the gates (add-only · secrets · size).")
     args = ap.parse_args(argv)
 
     if args.direct and args.pr:
@@ -365,7 +398,7 @@ def main(argv: list[str] | None = None) -> int:
         args.apply = True
         if not args.branch:
             args.branch = f"feat/learnings-{_dt.datetime.now():%Y%m%d}"
-    if args.direct:
+    if args.direct or args.review:
         args.apply = True
 
     root = Path(args.root).resolve()
@@ -391,7 +424,8 @@ def main(argv: list[str] | None = None) -> int:
         return 0
 
     if args.apply:
-        return apply_all(root, lp, entries, active, args.branch, args.pr, args.direct)
+        return apply_all(root, lp, entries, active, args.branch, args.pr, args.direct,
+                         force=args.force, review=args.review)
     return propose_all(root, lp, active)
 
 

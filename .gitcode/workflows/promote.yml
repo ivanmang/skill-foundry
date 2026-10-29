@@ -1,0 +1,26 @@
+# Promotion gates — runs on every push / merge request. When green, the MR
+# created by `./harness promote --pr` auto-merges (merge_when_pipeline_succeeds).
+# TEMPLATE: adjust runs-on / image to your gitcode runner pool (self-hosted).
+name: promote-gates
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  JOB_promote_gates:
+    name: Promotion gates
+    runs-on: [self-hosted]   # e.g. [self-hosted, arch=x64, spec=small]
+    steps:
+      - name: Checkout
+        identifier: process_checkout
+        uses: checkout
+        with:
+          token: ${{secrets.GIT_TOKEN}}
+          fetch-depth: 0
+      - name: Fetch base
+        run: git fetch --depth=1 origin main || true
+      - name: Skill-spec + demo smoke
+        run: ./skill_foundry/cli/selfcheck.sh
+      - name: Promotion gates (add-only + secrets + spec)
+        run: python3 -m skill_foundry.lib.gates --ci
