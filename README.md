@@ -7,34 +7,120 @@ teammate's agent can discover and use.
 
 The first bundled workflow is **regression** (`run → report → review` on the
 `pto-isa` and `pto-vmi` targets), but the product is the loop:
-**capture → promote → hub → discover**. See [the Vision](docs/VISION.md) for
-the product framing, [the Architecture](docs/ARCHITECTURE.md) for the
-user/agent/harness/MCP roles & interaction, and [AGENTS.md](AGENTS.md) for the
-agent-facing contract.
+**capture → promote → hub → discover**.
 
-> **New here?** Start with the [Handbook](docs/HANDBOOK.md) (the canonical
-> reference) or the [User Journey](USER_JOURNEY.md) — then run
-> `python3 -m skill_foundry.cli.onboarding` and `python3 -m skill_foundry.cli.demo`.
-> One entry point for everything: `./harness help`.
+- [Vision](docs/VISION.md) — the product framing
+- [Architecture](docs/ARCHITECTURE.md) — user / agent / harness / MCP roles & interaction
+- [AGENTS.md](AGENTS.md) — the agent-facing contract
 
-Legend: 🟢 automatic · 🟡 human · 🔴 never automatic · `✓ / ! / ·` runnable / missing / disabled.
+> **New here?** Start with the [Handbook](docs/HANDBOOK.md) (canonical
+> reference) or the [User Journey](USER_JOURNEY.md). One entry point for
+> everything: `./harness help`.
 
 ---
 
 ## The two loops
 
 ```text
-USE      run → report → review   (python3 -m skill_foundry.workflow.* · diff vs pinned baseline)
-IMPROVE  ./harness teach → promote --direct | --pr    (corrections become skills)
+USE      run → report → review     (thin scripts · diff vs pinned baseline)
+IMPROVE  teach → promote --direct | --pr    (corrections become skills)
 ```
 
-- **USE** — run suites, extract logs, render reports, and diff against the
-  pinned baseline. Exit codes: `0` clean, `1` ran-with-failures, `2` usage.
-- **IMPROVE** — capture a correction (append-only), propose a diff (no write),
-  then apply + commit + push — `--direct` to `origin/main` (no token), or `--pr`
-  for an MR-gated review. Capture is automatic; with `--pr` the merge is reviewed.
+- **USE** — the bundled regression workflow: run suites, extract logs, render
+  reports, and diff against the pinned baseline. Run directly:
+  `python3 -m skill_foundry.workflow.run --all-suites --report --open --review`.
+- **IMPROVE** — the product loop: capture a correction (append-only), propose a
+  diff (no write), then publish. Capture is automatic; `--direct` pushes to
+  `origin/main` (no token), `--pr` keeps the merge human-gated.
 
-See both loops live in ~2 minutes: `python3 -m skill_foundry.cli.demo`.
+See both loops in ~2 minutes: `python3 -m skill_foundry.cli.demo`.
+
+---
+
+## Quick start
+
+```bash
+git clone git@gitcode.com:ivanmang/skill-foundry.git
+cd skill-foundry
+
+# the product — the skill-ops loop (all ./harness does):
+./harness skills                                   # what skills exist?
+./harness capture-skill code-review                # draft a new skill
+./harness teach "symptom -> correct -> action"     # log a correction
+./harness promote --direct                         # publish learnings (push to main)
+
+# the bundled regression workflow (thin scripts; see .claude/skills/):
+python3 -m skill_foundry.cli.onboarding            # env.sh, CANN, pto-isa (one-time)
+python3 -m skill_foundry.workflow.run --all-suites --report --open --review
+```
+
+Only `python3` + `git` are required for the harness itself. Optional: make the
+CLI available anywhere as `skill-foundry`:
+
+```bash
+pip install -e .        # needs setuptools>=64, pip>=21.3
+skill-foundry version
+```
+
+---
+
+## Set up your agent
+
+Your agent uses the harness through two things: **skills** (the knowledge) and
+**MCP** (the tools). Three ways to wire them up:
+
+### 1. Skills — project-level (zero setup)
+
+If you work *inside* this repo, skills are discovered automatically:
+
+- **Claude Code** reads `.claude/skills/`
+- **Pi** and open-standard agents read `.agents/skills/` (a symlink to the same skills)
+
+Nothing to run.
+
+### 2. Skills — always-on (any directory)
+
+Make all 8 skills available in every project:
+
+```bash
+./harness skills --install     # symlinks each skill into ~/.claude/skills/, ~/.pi/skills/, ~/.agents/skills/
+```
+
+It auto-detects which agents are installed and prints the reload hint for each.
+Remove with `./harness skills --uninstall`.
+
+### 3. Tools — MCP (optional, typed calls)
+
+Point your agent at the hosted server (or run it locally) so it can call
+`skills_list`, `skills_load`, `capture_skill`, `teach`, and `promote` as typed
+tools instead of shelling out:
+
+```jsonc
+// .mcp.json — read by any MCP-capable agent that supports project config
+{
+  "mcpServers": {
+    "skill-foundry": { "type": "http", "url": "https://pto-b10.ddns.net/mcp" }
+  }
+}
+```
+
+Or install it as a **Claude Code plugin** (bundles skills + MCP in one step):
+
+```bash
+claude plugin marketplace add ivanmang/skill-foundry
+claude plugin install skill-foundry@skill-foundry
+```
+
+To run the server locally instead (stdio): `python3 mcp/server.py`
+(needs `pip install fastmcp`).
+
+### Per-agent cheat sheet
+
+| Agent | Skills (project) | Skills (always-on) | MCP tools |
+|---|---|---|---|
+| **Claude Code** | auto (`.claude/skills/`) | `./harness skills --install` → `~/.claude/skills/`; restart or `/reload` | `claude plugin install skill-foundry@skill-foundry`, or `claude mcp add skill-foundry --url https://pto-b10.ddns.net/mcp` |
+| **Pi** | auto (`.agents/skills/`) | `./harness skills --install` → `~/.pi/skills/`; `/reload` | connect `https://pto-b10.ddns.net/mcp` in Pi's MCP config |
+| **Open-standard / other** | auto (`.agents/skills/`) | `./harness skills --install` → `~/.agents/skills/`; restart | use the `.mcp.json` above |
 
 ---
 
@@ -44,84 +130,25 @@ Six rules that matter more than they look — get these wrong and the regression
 signal itself is corrupted:
 
 1. **The pinned baseline is the ground truth.** "Regression" means *diff vs
-   `reports/baseline/<target>.json`*. Refresh it only deliberately (new suites /
+   `reports/baseline/<target>.json`*. Refresh it deliberately (new suites /
    arch changes), never casually — a bad re-pin poisons every future run.
 2. **Never auto-remove or auto-change an existing check.** The harness adds
-   entries; it never silently deletes or weakens one. Removing a check is how
-   regressions start leaking through.
+   entries; it never silently deletes or weakens one.
 3. **p99 > +15% flags a perf regression even if average is stable.** Never trust
    average alone — averages hide tail latency.
 4. **An npu-sim suite needs BOTH the CANN compile headers AND the simulator.**
-   `python3 -m skill_foundry.workflow.run --list` marks it `!` if either is missing; `python3 -m skill_foundry.lib.cann` shows why.
+   `python3 -m skill_foundry.workflow.run --list` marks it `!` if either is
+   missing; `python3 -m skill_foundry.lib.cann` shows why.
 5. **`--all-suites` auto-skips missing prereqs; an explicit `--suite` force-runs.**
-   Safe-by-default, with an explicit override.
 6. **Every run records context** (git ref, dirty flag, host, env) in `run.json`,
    so any result is reproducible on another machine.
 
 ---
 
-## Getting started
+## Reference
 
-```bash
-git clone git@gitcode.com:ivanmang/skill-foundry.git
-cd skill-foundry
-
-# 1. the product — the skill-ops loop (all ./harness does):
-./harness skills                                   # what skills exist?
-./harness capture-skill code-review                # draft a new skill
-./harness teach "symptom -> correct -> action"     # log a correction
-./harness promote --direct                         # publish learnings
-
-# 2. the bundled regression workflow (thin scripts; see .claude/skills/):
-python3 -m skill_foundry.cli.onboarding            # env.sh, CANN, pto-isa (one-time)
-python3 -m skill_foundry.workflow.run --all-suites --report --open --review
-```
-
-`bash skill_foundry/workflow/baseline.sh <target>` pins the baseline on the canonical machine (see
-[Canonical environment](#canonical-environment)); it refuses unless every suite
-PASSes (`--force` overrides).
-
----
-
-## Agent setup (skills discoverability)
-
-Skills live in one canonical place — `.claude/skills/` — and are reachable by
-any Agent-Skills-compatible agent two ways:
-
-- **Project-level** (work in the repo, zero setup): Claude Code reads
-  `.claude/skills/`; Pi and open-standard agents read `.agents/skills/` (a
-  symlink to the same skills).
-- **Always-on** (regardless of cwd): one command to link into each installed
-  agent's user dir — `./harness skills --install` (auto-detects Claude Code / Pi /
-  open-standard; `--uninstall` to remove). Then restart/reload the agent.
-
-### MCP server
-
-Any MCP-capable agent can also drive the skill-ops loop directly, no shell
-required: `mcp/server.py` exposes `skills_list`, `skills_load`, `capture_skill`,
-`teach`, and `promote` over stdio or HTTP. Hosting + runbook:
-[mcp/b10-deploy.md](mcp/b10-deploy.md).
-
-### Plugin & marketplace
-
-This repo is also a **Claude Code plugin** and a **marketplace** — teammates
-install the skills + MCP server in one step:
-
-```bash
-claude plugin marketplace add ivanmang/skill-foundry
-claude plugin install skill-foundry@skill-foundry
-```
-
-Files: `.claude-plugin/plugin.json` (manifest), `.claude-plugin/marketplace.json`
-(catalog), `.mcp.json` (MCP server), `skills/` (the skills).
-
----
-
-## Use it
-
-`./harness` is the single entry point — and it does **only the skill-ops loop**.
-The bundled regression workflow runs directly as thin scripts (the skills hold
-the knowledge).
+`./harness` does **only the skill-ops loop**. The bundled regression workflow
+runs directly as thin scripts the skills reference.
 
 ```text
 ./harness — THE PRODUCT (capture → promote → hub → discover):
@@ -132,7 +159,6 @@ the knowledge).
   skills         List/search · install · refresh        [--search, --inbox, --install, --uninstall, --refresh, --json]
   menu           Curated menu (bare ./harness default)
   selfcheck      Compile-check + skill-spec validation + demo smoke
-  help / version
 
 BUNDLED WORKFLOW — regression, run directly (the skills reference these):
   python3 -m skill_foundry.workflow.run    [--suite X | --all-suites] [--report|--open|--review] …
@@ -142,75 +168,20 @@ BUNDLED WORKFLOW — regression, run directly (the skills reference these):
   python3 -m skill_foundry.cli.guide · .demo · .onboarding   (interactive tours)
 ```
 
-Optional install — makes the CLI available anywhere as `skill-foundry`
-(`./harness` already works with no install):
-
-```bash
-pip install -e .        # needs setuptools>=64, pip>=21.3
-skill-foundry version
-```
-
-Quick start:
-
-```bash
-./harness skills                                    # what skills exist?
-./harness capture-skill code-review                 # draft a new skill
-./harness teach "symptom -> correct -> action"      # log a correction
-./harness promote --direct                          # publish learnings (push to main)
-
-# the bundled regression workflow (see .claude/skills/ for full knowledge):
-python3 -m skill_foundry.workflow.run --all-suites --report --open --review
-```
-
 ### What's automatic vs human
-
-Four roles, shown on every demo step and applying to the real flow:
 
 | Role | What it does |
 |---|---|
 | 🟢 **scripts (automatic, agent-driven)** | run, extract logs, report, review, dry-run previews |
 | 🟢 **harness (automatic)** | capture a correction, propose a diff, apply + commit + push (`--direct` to main, or `--pr` creates the MR) |
-| 🤖 **AI / agent (automatic, on trigger)** | auto-captures a correction when you correct it (`"no / actually / remember …"`) and replies with the `LRN-…` id; triages per the skill |
-| 🟡 **you (remote gate)** | the triage *content* (`wrong → correct → action`) and **merging the MR on the remote** (branch protection) |
+| 🤖 **AI / agent (on trigger)** | auto-captures when you correct it (`"no / actually / remember …"`); triages per the skill |
+| 🟡 **you (gate)** | the triage *content* (`wrong → correct → action`) and merging the MR (`--pr` only) |
 | 🔴 **never automatic** | remove or change an existing check |
 
-`python3 -m skill_foundry.cli.demo` shows this per step with a **"Who does what"** box
-(command / harness / you). Capture and apply are automatic — `--direct` pushes
-straight to `origin/main` (no token); `--pr` auto-creates the MR and the
-**merge** is the gate on the remote.
-
-**Why the line is drawn there**: auto-*append* is safe — `learnings/recent.md`
-is the harness's own scratch memory (append-only, cheap to discard). Auto-*edit*
-is not — `SKILL.md` + `known-failures.md` are the team's shared source of truth
-every future run reads. So the harness auto-applies and pushes — `--direct`
-straight to `main` (fast, tokenless) or `--pr` with the **merge remote-gated**
-(branch protection). Either way it only *adds*; it never removes or changes an
-existing check. Same line Claude Code draws:
-it auto-writes its memory but never auto-edits your `CLAUDE.md`. A machine that
-silently rewrites shared knowledge turns its own mistakes into everyone's blind
-spots — e.g. a wrong "known failure" would annotate real regressions as known and
-hide them.
-
-### Guided tour
-
-```bash
-python3 -m skill_foundry.cli.guide           # interactive step-by-step tour of the real flow
-python3 -m skill_foundry.cli.demo            # interactive sandboxed demo (no hardware, step-by-step)
-python3 -m skill_foundry.cli.demo --straight # demo straight through (for presenting / CI)
-```
-
-The guide walks you through env check → choose suites → run → report → review →
-teach → promote, asking before each step. Interactive menus — the **demo/real**
-choice, **suite**, **testcase**, **gtest filter**, **CANN package**, and
-**output mode** — use arrow keys (`↑`/`↓` + Enter, highlighted selection; `q` to
-skip) and fall back to numbered prompts when piped. If `ASCEND_HOME_PATH` is
-unset, the CANN picker lists each installed package with which arches it can
-compile vs simulate.
-
-The demo (`python3 -m skill_foundry.cli.demo`) drives the **real** workflow scripts against a mock
-gtest runner, one step at a time. Each step is a framed block with a progress
-bar, a step map (`✓` done · `▶` current · `·` upcoming), a **"Who does what"**
-box, and a menu: **run & continue / skip / back / jump / explain / quit**.
+**Why the line is there:** auto-*append* is safe (scratch memory, cheap to
+discard); auto-*edit* is not (`SKILL.md` + `known-failures.md` are the shared
+source of truth every run reads). So promotion only *adds* — `--direct` to
+`main`, or `--pr` with the merge remote-gated.
 
 ---
 
@@ -245,6 +216,8 @@ demo/                     sandboxed walkthrough (config, fixtures, run_demo.sh, 
 env.example.sh            copy to env.sh for machine-local CANN / pto-isa paths
 ```
 
+---
+
 ## Decisions (as agreed)
 
 - Dedicated team repo `https://gitcode.com/ivanmang/skill-foundry.git`.
@@ -253,8 +226,10 @@ env.example.sh            copy to env.sh for machine-local CANN / pto-isa paths
 - Perf regression flag: **p99 +15%** even if average is stable.
 - The 11 existing `pto-isa/agents/skills` are kept as-is (referenced, not migrated).
 - M1 scope = **CPU-ST + NPU-sim** (A5 / A3 / A6, matching the A6/v200 workflow).
-- **Automation boundary**: capture auto, promotion propose/apply + `--direct`
-  push or `--pr` MR-gated, never auto-remove/change an existing check.
+- **Automation boundary**: capture auto; promotion `--direct` push or `--pr`
+  MR-gated; never auto-remove/change an existing check.
+
+---
 
 ## Conformance & portability
 
@@ -266,7 +241,7 @@ env.example.sh            copy to env.sh for machine-local CANN / pto-isa paths
   skills. Skills reference them from the harness root (`python3 -m skill_foundry...`),
   and `./harness` maps only the product (skill-ops) verbs onto
   `skill_foundry/cli/`; the regression workflow modules live in
-  `skill_foundry/workflow/` and are run directly (`python3 -m …`).
+  `skill_foundry/workflow/` and are run directly.
   Consequence: these are *co-located repo skills* — they work when this repo is
   checked out and used as the working directory, but a single skill folder copied
   alone into another tool's skills dir is **not** self-contained.
@@ -274,24 +249,25 @@ env.example.sh            copy to env.sh for machine-local CANN / pto-isa paths
   `skill_foundry/lib/validate_skills.py` against the open spec (or run it directly:
   `python3 -m skill_foundry.lib.validate_skills`).
 
+---
+
 ## Canonical environment
 
-Set machine-local paths in `env.sh` (copy `env.example.sh`) and
-`source ./env.sh` before npu suites; cpu-st / static suites run without it.
-`python3 -m skill_foundry.workflow.run --list` tells you exactly what's runnable on the current machine.
+Set machine-local paths in `env.sh` (copy `env.example.sh`) and `source ./env.sh`
+before npu suites; cpu-st / static suites run without it.
+`python3 -m skill_foundry.workflow.run --list` tells you what's runnable here.
 
 | Tier | Where | Notes |
 |---|---|---|
 | CPU-ST | machine with clang++>=15 **or** g++>=13 | e.g. ecs / yellow / b10 |
-| NPU-sim (A5/A3/A6) | a CANN toolkit with **both** compile headers (`include/pto/npu/<arch>`) **and** the simulator (`tools/simulator/<soc>`) | A6 sim lives on yellow (`dav_9201`); see `python3 -m skill_foundry.lib.cann` for which installed CANN covers which arch |
+| NPU-sim (A5/A3/A6) | a CANN toolkit with **both** compile headers (`include/pto/npu/<arch>`) **and** the simulator (`tools/simulator/<soc>`) | A6 sim lives on yellow (`dav_9201`); see `python3 -m skill_foundry.lib.cann` |
 
-See `.claude/skills/pto-isa/references/env.md` for the arch/soc/env table.
+---
 
 ## Learning loop
 
 Capture is automated; promotion is automatic — `--direct` pushes to `main`
-(no token), and `--pr` opens an MR whose **merge is remote-gated**
-(branch protection).
+(no token), and `--pr` opens an MR whose **merge is remote-gated**.
 
 ```bash
 # 1. capture (strict LRN-… entry in learnings/recent.md)
@@ -303,29 +279,25 @@ Capture is automated; promotion is automatic — `--direct` pushes to `main`
 # 2. propose a minimal diff (optional review, no write)
 ./harness promote --propose
 
-# 3. apply + commit + push to origin/main directly — no MR, no token
+# 3. publish — direct push (no token) or MR-gated
 ./harness promote --direct
-#    (or MR-gated: ./harness promote --pr — needs GITCODE_TOKEN/glab)
+#    (or ./harness promote --pr — needs GITCODE_TOKEN/glab)
 ```
 
-`--pr` auto-creates the MR via `glab` or the GitCode API (`GITCODE_TOKEN` /
-`GITLAB_TOKEN`); otherwise it prints the MR-new URL for you to click. Set branch
-protection on the repo so the merge itself is the review gate.
+See `.claude/skills/skill-maintainer/SKILL.md` and the live walkthrough:
+`python3 -m skill_foundry.cli.demo` (narration in `demo/NARRATION.md`).
 
-`.gitcode/workflows/promote-learnings.yml` surfaces pending learnings nightly;
-`.gitcode/workflows/selfcheck.yml` runs `./harness selfcheck` on push/PR.
-
-See `.claude/skills/skill-maintainer/SKILL.md` and run the live walkthrough:
-`python3 -m skill_foundry.cli.demo` (interactive; narration in `demo/NARRATION.md`).
+---
 
 ## Troubleshooting
 
 | Symptom | Fix |
 |---|---|
 | `ASCEND_HOME_PATH not set` on npu/costmodel/comm suites | `cp env.example.sh env.sh && source ./env.sh` |
-| cpu-st: `Could not find a suitable compiler` | run on ecs / yellow / b10 (needs clang++>=15 or g++>=13) |
-| npu-sim suite shows `!` in `python3 -m skill_foundry.workflow.run --list` | `python3 -m skill_foundry.lib.cann` — the chosen CANN must have both headers and the simulator |
+| cpu-st: `Could not find a suitable compiler` | run on ecs / yellow / b10 (clang++>=15 or g++>=13) |
+| npu-sim suite shows `!` in `python3 -m skill_foundry.workflow.run --list` | `python3 -m skill_foundry.lib.cann` — need BOTH headers and simulator |
 | `target repo not found` | `export PTO_ISA_REPO=~/pto-isa` |
-| bare `python3 -m skill_foundry.workflow.run` returns exit 2 | pass `--suite <name>` or `--all-suites` |
-| `baseline` refuses to pin | some suite did not PASS — fix it, or use `--force` |
-| `report --open` → xdg-open errors / no browser | handled: WSL opens via `explorer.exe`; otherwise prints the path (+ Windows path on WSL) |
+| bare `python3 -m skill_foundry.workflow.run` exits 2 | pass `--suite <name>` or `--all-suites` |
+| `baseline` refuses to pin | a suite didn't PASS — fix it, or `--force` |
+| `report --open` → xdg-open errors / no browser | handled: WSL opens via `explorer.exe`; else prints the path |
+| skills not showing up in the agent | run `./harness skills --install`, then restart/reload the agent |
