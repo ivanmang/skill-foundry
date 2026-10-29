@@ -185,9 +185,8 @@ EX/IPC/dual/stalls (vmi-dashboard schema).
 ```bash
 ./harness status                       # 1. is everything ready?
 ./harness run --all-suites --dry-run   # 2. what will this do?
-./harness run --all-suites --quiet     # 3. do it (summary only)
-./harness report --open                # 4. read failures (known ones annotated)
-./harness review                       # 5. the regression signal (vs baseline)
+./harness run --all-suites --report --open --review   # 3. run + report + review (one command)
+#   (report/review also run standalone: ./harness report / ./harness review)
 
 # if something new failed and you triaged it:
 ./harness teach "symptom -> correct -> action"   # 6. capture (auto, append-only)

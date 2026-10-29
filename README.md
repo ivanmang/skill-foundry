@@ -69,8 +69,10 @@ cd skill-foundry
 ./harness demo                  # 3. interactive walkthrough (no hardware needed)
 ./harness run --all-suites --dry-run   # 4. preview what will run
 ./harness run --all-suites --quiet     # 5. run everything runnable
-./harness report --open          # 6. open the report in your browser
-./harness review                 # 7. diff vs the pinned baseline
+# steps 5–7 in one command:
+#   ./harness run --all-suites --report --open --review
+./harness report --open          # 6. open the report in your browser (standalone)
+./harness review                 # 7. diff vs the pinned baseline (standalone)
 ```
 
 `./harness baseline <target>` pins the baseline on the canonical machine (see
@@ -156,6 +158,7 @@ Quick start:
 
 ```bash
 ./harness list                                     # what can I run?
+./harness run --all-suites --report --open --review  # run + report + review in one
 ./harness run --all-suites --quiet                 # run everything, summary only
 ./harness run --suite cpu-st                       # one suite
 ./harness run --suite npu-sim-a5 --testcase tpartargmax       # one testcase

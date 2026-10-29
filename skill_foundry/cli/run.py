@@ -409,9 +409,11 @@ def list_all(cfg_path: Path, arches_path: Path, target: str, fmt: str) -> int:
     return 0
 
 
-def _print_next_steps(record: dict, failed: bool, as_json: bool) -> None:
+def _print_next_steps(record: dict, failed: bool, as_json: bool, chained: bool = False) -> None:
     n_failed = sum(1 for s in record["suites"] if s.get("status") != "PASS")
-    if failed:
+    if chained:
+        lines = [f"⚠ {n_failed} suite(s) failed." if failed else "✓ all passed."]
+    elif failed:
         lines = [
             f"⚠ {n_failed} suite(s) failed.",
             "next: ./harness report --open   (see the failure)   → triage → ./harness teach \"…\"",
@@ -428,6 +430,30 @@ def _print_next_steps(record: dict, failed: bool, as_json: bool) -> None:
         print()
         for line in lines:
             print("  " + line)
+
+
+def _chain_after_run(run_json, target: str, do_report: bool, do_open: bool, do_review: bool) -> None:
+    """Run report/review in-process right after a run — the one-command USE loop."""
+    if do_report:
+        from skill_foundry.cli import report as report_mod
+        argv = ["--run", str(run_json)]
+        known = HARNESS / ".claude" / "skills" / target / "references" / "known-failures.md"
+        if known.exists():
+            argv += ["--known", str(known)]
+        if do_open:
+            argv += ["--open"]
+        print()
+        try:
+            report_mod.main(argv)
+        except SystemExit as exc:
+            print(f"report skipped: {exc}", file=sys.stderr)
+    if do_review:
+        from skill_foundry.cli import review as review_mod
+        print()
+        try:
+            review_mod.main(["--run", str(run_json)])
+        except SystemExit as exc:
+            print(f"review skipped: {exc}", file=sys.stderr)
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -448,6 +474,9 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--run-id", default=None, help="Run id; defaults to <ts>-<target>.")
     ap.add_argument("--config", default=str(HARNESS / "config" / "suites.json"))
     ap.add_argument("--arches", default=str(HARNESS / "config" / "arches.json"))
+    ap.add_argument("--report", action="store_true", help="Render report.md/.html after the run (auto-annotates known failures).")
+    ap.add_argument("--open", action="store_true", help="Open the HTML report in a browser (implies --report).")
+    ap.add_argument("--review", action="store_true", help="Diff the run vs the pinned baseline after the run.")
     args = ap.parse_args(argv)
 
     cfg = load_json(Path(args.config))
@@ -575,7 +604,10 @@ def main(argv: list[str] | None = None) -> int:
         print(f"\nWrote {run_json}")
 
     failed = any(s.get("status") != "PASS" for s in record["suites"])
-    _print_next_steps(record, failed, args.json)
+    chaining = args.report or args.open or args.review
+    _print_next_steps(record, failed, args.json, chaining)
+    if chaining:
+        _chain_after_run(run_json, args.target, args.report or args.open, args.open, args.review)
     return 1 if failed else 0
 
 

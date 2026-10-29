@@ -174,6 +174,7 @@ only deliberately (new suites, arch changes), never casually.
 ```bash
 ./harness list                                # what can I run on THIS machine? (auto-detected)
 
+./harness run --all-suites --report --open --review   # the whole USE loop: run + report + review, one command
 ./harness run --all-suites --quiet            # everything runnable, summary only
 ./harness run --all-suites --tui              # live spinner + per-suite pass/fail
 ./harness run --all-suites --json             # machine-readable summary
@@ -214,6 +215,9 @@ suggestions + "type a command" + `q` for the shell).
 
 ## Step 4 — Read the report
 
+(`./harness run --all-suites --report` already renders this right after the run;
+running `report` standalone below is for re-rendering a past `run.json`.)
+
 ```bash
 ./harness report             # latest run
 ./harness report --open      # latest run, in the browser
@@ -241,6 +245,9 @@ saving you the triage time.
 ---
 
 ## Step 5 — Review vs the baseline (the regression signal)
+
+(`./harness run --all-suites --review` diffs automatically after the run;
+running `review` standalone below is for re-checking a past run.)
 
 ```bash
 ./harness review              # latest run vs baseline
@@ -390,6 +397,7 @@ loop, and every teammate gets it via git.
 | Which CANN supports which arch | `./harness cann [--scan] [--json]` |
 | Pin / refresh baseline | `./harness baseline [--force] <target>` |
 | Run all suites | `./harness run --all-suites [--quiet\|--tui\|--json\|--parallel]` |
+| Run + report + review | `./harness run --all-suites --report --open --review` |
 | Run one suite | `./harness run --suite cpu-st` |
 | Run one testcase | `./harness run --suite npu-sim-a5 --testcase tpartargmax` |
 | Run a gtest filter | `./harness run --suite cpu-st --testcase tadd --filter 'TADDTest.case_*'` |

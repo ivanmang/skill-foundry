@@ -114,7 +114,7 @@ CAPTURE & PUBLISH — the skill-ops loop:
   skills    List/search skills · install into agents · refresh the catalog  [--search, --inbox, --install, --uninstall, --refresh, --json]
 
 USE — the bundled regression workflow:
-  run       Run a declared suite               [--suite | --all-suites] [--testcase] [--filter] [--quiet|--tui|--json] [--dry-run] [--parallel]
+  run       Run a declared suite               [--suite | --all-suites] [--testcase] [--filter] [--quiet|--tui|--json] [--dry-run] [--parallel] [--report|--open|--review]
   report    Render a run to Markdown + HTML    [--run (default: latest), --known, --out, --open]
   review    Diff a run vs the pinned baseline  [--run (default: latest), --baseline, --out]
 
@@ -163,10 +163,14 @@ VERB_HELP: dict[str, str] = {
   --quiet          summary only   --tui live spinner   --json machine output
   --dry-run        print what WOULD run and exit (no run.json)
   --parallel       run independent suites concurrently (implies per-suite quiet)
+  --report         render report.md/.html after the run (auto-annotates known failures)
+  --open           like --report + open the HTML in a browser
+  --review         diff vs the pinned baseline after the run
 
 Examples:
   ./harness run --all-suites --dry-run
   ./harness run --all-suites --quiet
+  ./harness run --all-suites --report --open --review   # the whole USE loop, one command
   ./harness run --suite npu-sim-a5 --testcase tpartargmax
   ./harness run --suite cpu-st --testcase tadd --filter 'TADDTest.case_*'
 """,
