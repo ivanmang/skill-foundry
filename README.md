@@ -1,19 +1,19 @@
-# Regression Harness
+# Skill Harness
 
-A shared, self-improving **regression harness** built on open Agent Skills
-(`SKILL.md`), wrapping a single entry point (`./harness`) around run → extract →
-report → review, plus a learning loop that promotes corrections back into the
-skills.
+A **skill-ops platform** built on open Agent Skills (`SKILL.md`): agents and
+humans capture reusable knowledge as Skills during work, and it flows — through
+an MR-gated promote step — into a shared hub every teammate's agent can
+discover and use.
 
-First target: **pto-isa** (CPU + NPU-sim), plus **pto-vmi** (CCE + DSL) as a
-second target. Any target expressible as a suite matrix can be added with one
-`targets.<name>` config block + an adapter skill — see
-[How to add a target](docs/HANDBOOK.md#how-to-add-a-target).
+The first bundled workflow is **regression** (`run → report → review` on the
+`pto-isa` and `pto-vmi` targets), but the product is the loop:
+**capture → promote → hub → discover**. See [the Vision](docs/VISION.md) for
+the architecture, [AGENTS.md](AGENTS.md) for the agent-facing contract.
 
 > **New here?** Start with the [Handbook](docs/HANDBOOK.md) (the canonical
 > reference), the [User Journey](USER_JOURNEY.md), or read
 > [the Story](docs/STORY.md) — then run `./harness onboarding` and
-> `./harness demo`. If you're an **agent**, read [AGENTS.md](AGENTS.md) first.
+> `./harness demo`.
 > One entry point for everything: `./harness help`.
 
 Legend: 🟢 automatic · 🟡 human · 🔴 never automatic · `✓ / ! / ·` runnable / missing / disabled.
@@ -105,6 +105,9 @@ any Agent-Skills-compatible agent two ways:
 ./harness review    diff vs baseline      [--run (default latest), --baseline, --out]
 ./harness teach     log a correction      ["wrong -> correct -> action" | wizard | --edit]
 ./harness promote   learnings → skills    [--propose | --apply | --pr]
+./harness capture-skill  draft a new skill   [--description, --dry-run]
+./harness promote-skill  draft → skills     [--propose | --apply | --pr]
+./harness skills    list/search skills    [--search, --inbox, --refresh, --json]
 ./harness baseline  re-pin baseline <target>.json  [--force] [target]
 ./harness history   recent runs           [--limit, --json]
 ./harness clean     remove run dirs       [--dry-run, --keep N]

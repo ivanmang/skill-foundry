@@ -54,6 +54,9 @@ _harness_complete() {
 
     case "${COMP_WORDS[1]}" in
         promote) COMPREPLY=( $(compgen -W "$opts_promote" -- "$cur") ) ;;
+        capture-skill) COMPREPLY=( $(compgen -W "$opts_capture_skill" -- "$cur") ) ;;
+        promote-skill) COMPREPLY=( $(compgen -W "$opts_promote_skill" -- "$cur") ) ;;
+        skills) COMPREPLY=( $(compgen -W "$opts_skills" -- "$cur") ) ;;
         report)  COMPREPLY=( $(compgen -W "$opts_report" -- "$cur") ) ;;
         review)  COMPREPLY=( $(compgen -W "$opts_review" -- "$cur") ) ;;
         teach)   COMPREPLY=( $(compgen -W "$opts_teach" -- "$cur") ) ;;

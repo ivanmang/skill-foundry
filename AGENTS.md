@@ -20,9 +20,12 @@ is the only human gate.
    - review flags a gap (missing check, wrong threshold, un-triaged failure)
    - an external tool / command behaves unexpectedly
    Reply with the `LRN-…` id you logged.
-4. **Promote captured lessons** with `./harness promote --pr` — it auto-applies
-   the edits, commits, pushes, and **creates the MR**. The merge is gated on the
-   remote (branch protection); **never self-merge**.
+   For a **brand-new skill** (not a lesson about an existing one), draft it with
+   `./harness capture-skill <name>`, then promote it.
+4. **Promote captured lessons** with `./harness promote --pr` (learnings) or
+   `./harness promote-skill <name> --pr` (new skills) — auto-applies, commits,
+   pushes, and **creates the MR**. The merge is gated on the remote (branch
+   protection); **never self-merge**.
 5. **Never remove or change an existing check** — the harness only adds.
 
 ## Capture vs promote
@@ -43,6 +46,9 @@ is the only human gate.
 ./harness review                    # diff vs the pinned baseline
 ./harness teach "wrong -> correct -> action"
 ./harness promote --propose | --pr
+./harness capture-skill <name>           # draft a NEW skill
+./harness promote-skill <name> --pr      # publish it (MR-gated)
+./harness skills [--search q] [--inbox]  # discover skills
 ./harness demo                      # sandboxed walkthrough (no hardware)
 ./harness help [verb]
 ```
