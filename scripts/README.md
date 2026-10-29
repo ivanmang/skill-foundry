@@ -21,11 +21,9 @@ directly.
 | `baseline` | `make_baseline.sh` | Re-pin `reports/baseline/<target>.json` |
 | `history` | `history.py` | List recent runs |
 | `clean` | `clean.py` | Remove run dirs (keeps baseline) |
-| `open` | `open_report.py` | Open a run's report.html |
 | `validate` | `validate.py` | Check suites/arches/cann configs |
 | `status` | `status.py` | One-glance dashboard (env, suites, baseline, learnings, last run) |
 | `diagnose` | `diagnose.py` | Check this machine + print exact fixes |
-| `targets` | `targets_cli.py` | List configured targets (name, label, repo, suites) |
 | `capture-skill` | `capture_skill.py` | Draft a NEW skill into `skills/inbox/` |
 | `promote-skill` | `promote_skill.py` | Promote a draft into `.claude/skills/` (+ MR) |
 | `skills` | `skills_cli.py` | List/search skills · `--install`/`--uninstall` · `--refresh` |
@@ -50,7 +48,7 @@ directly.
 - `validate_skills.py` — checks every SKILL.md against the open Agent Skills spec (used by selfcheck).
 - `status.py` / `diagnose.py` / `tui.py` — status dashboard, env health check, and full-screen dashboard (share `capabilities` + `_runs`).
 - `perf_metrics.py` — per-case timing (p50/p99/max) + CAModel metrics (EX/IPC/vf_real/dual/stalls, vmi-dashboard schema).
-- `targets.py` / `targets_cli.py` — the target registry + `./harness targets` listing (used by run/guide/status/diagnose/onboarding).
+- `targets.py` — the target registry (labels, repo env/clone, testcase dirs, arches) used by run/guide/status/diagnose/onboarding.
 - `capture_skill.py` / `promote_skill.py` / `skills_cli.py` — draft, promote, and
   browse skills (skills_cli also subsumes `install_skills.py` via `--install`).
 - `onboarding.py` / `menu.py` — guided first-run setup and the bare-`./harness` menu (reuse `guide.py` helpers).

@@ -22,7 +22,6 @@ _harness_complete() {
     local opts_history="--limit --json"
     local opts_status="--json --target"
     local opts_diagnose="--json --strict"
-    local opts_targets="--json"
     local opts_capture_skill="--description --dry-run"
     local opts_promote_skill="--propose --apply --pr"
     local opts_skills="--search --inbox --refresh --json --install --uninstall"
@@ -66,7 +65,6 @@ _harness_complete() {
         history) COMPREPLY=( $(compgen -W "$opts_history" -- "$cur") ) ;;
         status)  COMPREPLY=( $(compgen -W "$opts_status" -- "$cur") ) ;;
         diagnose) COMPREPLY=( $(compgen -W "$opts_diagnose" -- "$cur") ) ;;
-        targets)  COMPREPLY=( $(compgen -W "$opts_targets" -- "$cur") ) ;;
         list)
             if [[ "$prev" == "--format" ]]; then COMPREPLY=( $(compgen -W "$fmts" -- "$cur") ); return 0; fi
             COMPREPLY=( $(compgen -W "--target --format --config --arches" -- "$cur") ) ;;

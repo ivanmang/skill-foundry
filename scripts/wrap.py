@@ -89,10 +89,6 @@ NEXT: dict[str, list[tuple[str, list[str]]]] = {
         ("📊  status", ["status"]),
     ],
     "clean": [("📊  status", ["status"])],
-    "open": [
-        ("🔍  review", ["review"]),
-        ("🧠  teach a correction", ["teach"]),
-    ],
     "validate": [("📊  status", ["status"])],
 }
 

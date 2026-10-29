@@ -105,7 +105,6 @@ Agent-Skills-compatible agent:
 | Command | Purpose |
 |---|---|
 | `./harness status` | one-glance dashboard (env, suites, baseline, learnings, last run) |
-| `./harness targets` | list configured targets (name, label, repo, suites) |
 | `./harness diagnose` | check this machine + print the exact fix for each issue |
 | `./harness onboarding` | guided first-run setup |
 | `./harness tui` | full-screen dashboard (interactive) |
@@ -123,7 +122,7 @@ Agent-Skills-compatible agent:
 | `./harness cann` | which CANN supports which arch (headers vs simulator) |
 | `./harness guide` | interactive tour of the real flow |
 | `./harness demo` | interactive sandboxed walkthrough |
-| `./harness history` / `clean` / `open` / `validate` | housekeeping |
+| `./harness history` / `clean` / `validate` | housekeeping |
 | `./harness selfcheck` | compile-check + skill-spec validation + demo smoke |
 | `./harness help [verb]` · `./harness version` | this help / per-verb examples / version |
 

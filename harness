@@ -6,12 +6,10 @@
 #   ./harness review [--run <id>/run.json]
 #   ./harness teach "symptom -> correct -> action" | (wizard) | --edit
 #   ./harness promote --propose | --apply | --pr
+#   ./harness capture-skill <name> | promote-skill <name> | skills
 #   ./harness baseline [--force] [target]
-#   ./harness history [--limit N] [--json]
-#   ./harness clean [--dry-run] [--keep N]
-#   ./harness open [run-id]
-#   ./harness validate
-#   ./harness status | diagnose | onboarding | tui | menu
+#   ./harness history [--limit N] [--json] | clean [--dry-run] [--keep N]
+#   ./harness validate | status | diagnose | onboarding | tui | menu
 #   ./harness guide | demo | list | cann | selfcheck
 #   ./harness help [verb] | version [--short]
 #   ./harness (bare) -> interactive menu (help when piped)
@@ -48,9 +46,8 @@ USE — the bundled regression workflow:
 
 SETUP:
   onboarding  Guided first-run setup
-  status      One-glance dashboard             [--json, --target]
+  status      One-glance dashboard (all targets)  [--json, --target]
   diagnose    Check env + print exact fixes    [--json, --strict]
-  targets     List configured targets          [--json]
   cann        Which CANN supports which arch   [--home, --scan, --json]
 
 INTERACTIVE:
@@ -63,7 +60,6 @@ BASELINE & HOUSEKEEPING:
   baseline  Re-pin reports/baseline/<target>.json  [--force] [target]
   history   List recent runs                   [--limit N, --json]
   clean     Remove run dirs (keeps baseline)   [--dry-run, --keep N]
-  open      Open a run's report.html           [run-id (default: latest)]
   validate  Check suites/arches/cann configs
   list      List suites + arches               [--target, --format text|markdown|html]
   selfcheck Compile-check + skill-spec validation + demo smoke
@@ -170,12 +166,6 @@ EOF
 Example: ./harness status
 EOF
     ;;
-    targets) cat <<'EOF'
-./harness targets — list configured targets (name, label, repo, suites)
-  --json  machine output
-Examples: ./harness targets           ./harness targets --json
-EOF
-    ;;
     diagnose) cat <<'EOF'
 ./harness diagnose — check this machine and print the exact fix for each issue
   --json    machine output
@@ -255,11 +245,9 @@ case "$CMD" in
   baseline) exec "$HARNESS/scripts/make_baseline.sh" "$@" ;;
   history)  exec python3 "$HARNESS/scripts/history.py" "$@" ;;
   clean)    exec python3 "$HARNESS/scripts/clean.py" "$@" ;;
-  open)     exec python3 "$HARNESS/scripts/open_report.py" "$@" ;;
   validate) exec python3 "$HARNESS/scripts/validate.py" "$@" ;;
   status)   exec python3 "$HARNESS/scripts/status.py" "$@" ;;
   diagnose) exec python3 "$HARNESS/scripts/diagnose.py" "$@" ;;
-  targets)  exec python3 "$HARNESS/scripts/targets_cli.py" "$@" ;;
   onboarding) exec python3 "$HARNESS/scripts/onboarding.py" "$@" ;;
   tui)      exec python3 "$HARNESS/scripts/tui.py" "$@" ;;
   menu)     exec python3 "$HARNESS/scripts/menu.py" "$@" ;;

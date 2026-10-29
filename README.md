@@ -110,11 +110,9 @@ any Agent-Skills-compatible agent two ways:
 ./harness baseline  re-pin baseline <target>.json  [--force] [target]
 ./harness history   recent runs           [--limit, --json]
 ./harness clean     remove run dirs       [--dry-run, --keep N]
-./harness open      open report.html      [run-id (default latest)]
 ./harness validate  check config files
-./harness status    one-glance dashboard   [--json]
+./harness status    one-glance dashboard (all targets)  [--json, --target]
 ./harness diagnose  check env + fixes      [--json, --strict]
-./harness targets   list configured targets [--json]
 ./harness skills    list/search skills    [--search, --inbox, --install, --uninstall, --refresh, --json]
 ./harness onboarding  guided first-run setup
 ./harness tui       full-screen dashboard (interactive)

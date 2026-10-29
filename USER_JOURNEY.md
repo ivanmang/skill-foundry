@@ -395,7 +395,6 @@ loop, and every teammate gets it via git.
 | Diff vs baseline | `./harness review` (default: latest run) |
 | List recent runs | `./harness history` |
 | Clean run dirs | `./harness clean [--dry-run] [--keep N]` |
-| Open report.html | `./harness open [<run-id>]` |
 | Validate config | `./harness validate` |
 | Capture correction | `./harness teach "… -> … -> …"` (or wizard) |
 | Propose promotion | `./harness promote --propose` |

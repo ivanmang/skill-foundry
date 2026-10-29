@@ -6,10 +6,9 @@ Project-level discovery already works via the repo's `.agents/skills/` symlink
 each skill into the *user-level* skills dir of each detected agent, so the
 harness's skills are always-on regardless of working directory.
 
-Usage:
-  ./harness install-skills            # link skills into each detected agent's skills dir
-  ./harness install-skills --dry-run  # show what would be done
-  ./harness install-skills --uninstall  # remove the symlinks (never a real dir)
+Usage (via the `skills` verb):
+  ./harness skills --install    # link skills into each detected agent's skills dir
+  ./harness skills --uninstall  # remove the symlinks (never a real dir)
 """
 
 from __future__ import annotations
