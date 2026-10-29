@@ -48,8 +48,9 @@ is the only human gate.
 ./harness report --open             # per-case metrics + log links
 ./harness review                    # diff vs the pinned baseline
 ./harness teach "wrong -> correct -> action"
-./harness promote --propose | --pr
+./harness promote --propose | --direct | --pr
 ./harness capture-skill <name>           # draft a NEW skill
+./harness promote-skill <name> --direct  # publish it (direct push, no token)
 ./harness promote-skill <name> --pr      # publish it (MR-gated)
 ./harness skills [--search q] [--inbox]  # discover skills
 ./harness demo                      # sandboxed walkthrough (no hardware)

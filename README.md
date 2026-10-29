@@ -292,8 +292,9 @@ remote-gated** (branch protection).
 # 2. propose a minimal diff (optional review, no write)
 ./harness promote --propose
 
-# 3. apply + commit + push + auto-create the MR — you merge it on the remote
-./harness promote --pr
+# 3. apply + commit + push to origin/main directly — no MR, no token
+./harness promote --direct
+#    (or MR-gated: ./harness promote --pr — needs GITCODE_TOKEN/glab)
 ```
 
 `--pr` auto-creates the MR via `glab` or the GitCode API (`GITCODE_TOKEN` /

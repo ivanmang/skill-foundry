@@ -132,11 +132,13 @@ def teach(wrong: str, correct: str, action: str) -> str:
 def promote(mode: str = "propose", skill_name: str = "") -> str:
     """Promote pending learnings (or a named skill draft) into skills.
 
-    mode: 'propose' (diff, no write) | 'apply' (write locally) | 'pr' (apply+push+create MR).
+    mode: 'propose' (diff, no write) | 'apply' (write locally) |
+          'direct' (commit + push to origin/main over SSH, no MR/token) |
+          'pr' (branch + push + create the MR, needs GITCODE_TOKEN/glab).
     Give skill_name to promote that skills/inbox/ draft; otherwise promotes learnings.
     """
-    if mode not in ("propose", "apply", "pr"):
-        return "error: mode must be propose | apply | pr"
+    if mode not in ("propose", "apply", "direct", "pr"):
+        return "error: mode must be propose | apply | direct | pr"
     if skill_name:
         return _run("promote-skill", skill_name, f"--{mode}")
     return _run("promote", f"--{mode}")

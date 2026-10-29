@@ -18,7 +18,7 @@ pinned baseline that makes "regression" a mechanical diff.
 
 ```text
 USE      ./harness run → report → review   (diff vs pinned baseline)
-IMPROVE  ./harness teach → promote --pr    (corrections become skills)
+IMPROVE  ./harness teach → promote --direct | --pr    (corrections become skills)
 ```
 
 ---
@@ -113,10 +113,10 @@ Agent-Skills-compatible agent:
 | `./harness report` | run.json → `report.md`/`.html` (`--open`, `--known`) |
 | `./harness review` | diff a run vs the pinned baseline (p99 + CA metrics) |
 | `./harness capture-skill` | draft a NEW skill into `skills/inbox/` |
-| `./harness promote-skill` | promote a draft into `.claude/skills/` (`--propose`/`--apply`/`--pr`) |
+| `./harness promote-skill` | promote a draft into `.claude/skills/` (`--propose`/`--apply`/`--direct`/`--pr`) |
 | `./harness skills` | list/search skills · `--install` / `--uninstall` into agents · `--refresh` the catalog |
 | `./harness teach` | log a correction (append-only) |
-| `./harness promote` | pending learnings → skills (`--propose` / `--apply` / `--pr`) |
+| `./harness promote` | pending learnings → skills (`--propose` / `--apply` / `--direct` / `--pr`) |
 | `./harness baseline` | re-pin `reports/baseline/<target>.json` (per target) |
 | `./harness list` | suites + arches with auto-detected availability |
 | `./harness cann` | which CANN supports which arch (headers vs simulator) |
@@ -195,8 +195,9 @@ EX/IPC/dual/stalls (vmi-dashboard schema).
 
 # if something new failed and you triaged it:
 ./harness teach "symptom -> correct -> action"   # 6. capture (auto, append-only)
-./harness promote --propose            # 7. review the proposed diff (no write)
-./harness promote --pr                 # 8. apply + branch + push + MR (human merges)
+./harness promote --propose            # 7. review the proposed diff (no write, optional)
+./harness promote --direct             # 8. apply + commit + push to origin/main (no MR, no token)
+./harness promote --pr                 #    …or MR-gated (human merges; needs GITCODE_TOKEN/glab)
 ```
 
 Exit codes: `0` clean, `1` ran-with-failures, `2` usage.

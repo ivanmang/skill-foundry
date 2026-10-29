@@ -34,9 +34,9 @@ usage: ./harness <command> [args]
 
 CAPTURE & PUBLISH — the skill-ops loop:
   capture-skill  Draft a NEW skill into skills/inbox/  [--description, --dry-run]
-  promote-skill  Promote a draft into .claude/skills/  [--propose | --apply | --pr]
+  promote-skill  Promote a draft into .claude/skills/  [--propose | --apply | --pr | --direct]
   teach     Log a correction (a lesson about an existing skill)  ["wrong -> correct -> action" | wizard | --edit]
-  promote   Promote learnings into skills        [--propose | --apply | --pr]
+  promote   Promote learnings into skills        [--propose | --apply | --pr | --direct]
   skills    List/search skills · install into agents · refresh the catalog  [--search, --inbox, --install, --uninstall, --refresh, --json]
 
 USE — the bundled regression workflow:
@@ -130,12 +130,13 @@ Example: ./harness teach "vcvt mismatch -> known pattern, annotate -> promote to
 EOF
     ;;
     promote) cat <<'EOF'
-./harness promote — promote pending learnings into skills (merge is remote-gated)
+./harness promote — promote pending learnings into skills
   --propose   print a reviewable diff (no write)
   --apply     write the edits locally
-  --pr        apply + branch + commit + push + AUTO-CREATE the MR (glab / GITCODE_TOKEN)
+  --direct    commit + push to origin/main over SSH (NO MR, NO token)
+  --pr        branch + push + AUTO-CREATE the MR (glab / GITCODE_TOKEN)
 
-Example: ./harness promote --pr    # then merge the MR on the remote
+Example: ./harness promote --direct    # then teammates git pull
 EOF
     ;;
     capture-skill) cat <<'EOF'
@@ -145,9 +146,11 @@ Example: ./harness capture-skill code-review --description "Review PRs against h
 EOF
     ;;
     promote-skill) cat <<'EOF'
-./harness promote-skill [<name>] [--propose | --apply | --pr]
-Promote a draft from skills/inbox/ into .claude/skills/ (+ auto-MR with --pr).
-Example: ./harness promote-skill code-review --pr
+./harness promote-skill [<name>] [--propose | --apply | --direct | --pr]
+Promote a draft from skills/inbox/ into .claude/skills/.
+  --direct  commit + push to origin/main over SSH (no MR, no token)
+  --pr      branch + push + auto-MR (glab / GITCODE_TOKEN)
+Example: ./harness promote-skill code-review --direct
 EOF
     ;;
     skills) cat <<'EOF'

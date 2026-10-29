@@ -276,7 +276,7 @@ def propose_all(root: Path, lp: Path, pending: list[dict]) -> int:
 
 
 def apply_all(root: Path, lp: Path, entries: list[dict], pending: list[dict],
-              branch: str | None, push: bool) -> int:
+              branch: str | None, push: bool, direct: bool = False) -> int:
     changed: list[Path] = []
     for e in pending:
         t = resolve_target(e, root)
@@ -296,9 +296,24 @@ def apply_all(root: Path, lp: Path, entries: list[dict], pending: list[dict],
     header, _ = split_header(lp.read_text(encoding="utf-8"))
     lp.write_text(header.rstrip() + "\n\n" + serialize_entries(entries) + "\n", encoding="utf-8")
 
-    if branch:
-        add_paths = [str(t.relative_to(root)) for t in changed]
-        add_paths += [str(lp.relative_to(root)), "learnings/promoted.md", "learnings/corrections.md"]
+    add_paths = [str(t.relative_to(root)) for t in changed]
+    add_paths += [str(lp.relative_to(root)), "learnings/promoted.md", "learnings/corrections.md"]
+
+    if direct:
+        # commit on the current branch and push to origin/main directly (SSH, no MR, no token)
+        subprocess.run(["git", "-C", str(root), "-c", "user.name=skill-foundry",
+                        "-c", "user.email=harness@example.com", "add", *add_paths], check=True)
+        subprocess.run(["git", "-C", str(root), "-c", "user.name=skill-foundry",
+                        "-c", "user.email=harness@example.com", "commit",
+                        "-m", f"chore: promote learnings ({len(changed)} entries)"], check=True)
+        print(f"Committed {len(changed)} file(s) on the current branch.")
+        pushed = subprocess.run(["git", "-C", str(root), "push", "origin", "HEAD"])
+        if pushed.returncode == 0:
+            print("Pushed directly to origin/main over SSH — no MR, no token.")
+        else:
+            print(f"\nPush failed (exit {pushed.returncode}) — push manually:"
+                  f"\n  git -C {root} push origin HEAD", file=sys.stderr)
+    elif branch:
         subprocess.run(["git", "-C", str(root), "-c", "user.name=skill-foundry",
                         "-c", "user.email=harness@example.com", "checkout", "-b", branch], check=True)
         subprocess.run(["git", "-C", str(root), "add", *add_paths], check=True)
@@ -340,13 +355,19 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--propose", action="store_true", help="Print proposed diffs (default).")
     ap.add_argument("--apply", action="store_true", help="Apply edits and mark entries promoted.")
     ap.add_argument("--branch", default=None, help="With --apply: create + commit on this branch.")
-    ap.add_argument("--pr", action="store_true", help="With --apply: push the branch and print a merge-request URL.")
+    ap.add_argument("--pr", action="store_true", help="With --apply: push the branch and create an MR (needs GITCODE_TOKEN/glab).")
+    ap.add_argument("--direct", action="store_true", help="With --apply: commit on the current branch and push to origin/main directly over SSH (no MR, no token).")
     args = ap.parse_args(argv)
 
+    if args.direct and args.pr:
+        print("--direct and --pr are mutually exclusive", file=sys.stderr)
+        return 2
     if args.pr:
         args.apply = True
         if not args.branch:
             args.branch = f"feat/learnings-{_dt.datetime.now():%Y%m%d}"
+    if args.direct:
+        args.apply = True
 
     root = Path(args.root).resolve()
     lp = Path(args.learnings).resolve() if args.learnings else root / "learnings" / "recent.md"
@@ -371,7 +392,7 @@ def main(argv: list[str] | None = None) -> int:
         return 0
 
     if args.apply:
-        return apply_all(root, lp, entries, active, args.branch, args.pr)
+        return apply_all(root, lp, entries, active, args.branch, args.pr, args.direct)
     return propose_all(root, lp, active)
 
 

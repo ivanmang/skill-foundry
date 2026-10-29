@@ -14,7 +14,7 @@ _harness_complete() {
 
     local cmds="run report review teach promote capture-skill promote-skill skills baseline history clean open validate status diagnose targets onboarding tui menu guide demo list cann selfcheck help version"
     local opts_run="--target --suite --all-suites --testcase --filter --quiet --tui --json --dry-run --parallel --list --format --run-id --config --arches"
-    local opts_promote="--propose --apply --branch --pr --root --learnings"
+    local opts_promote="--propose --apply --branch --pr --direct --root --learnings"
     local opts_report="--run --known --out --open"
     local opts_review="--run --baseline --out"
     local opts_teach="--edit --category --context --skill --wrong --correct --action --file --id --dry-run"
@@ -23,7 +23,7 @@ _harness_complete() {
     local opts_status="--json --target"
     local opts_diagnose="--json --strict"
     local opts_capture_skill="--description --dry-run"
-    local opts_promote_skill="--propose --apply --pr"
+    local opts_promote_skill="--propose --apply --pr --direct"
     local opts_skills="--search --inbox --refresh --json --install --uninstall"
     local fmts="text markdown html"
 

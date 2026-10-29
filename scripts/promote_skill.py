@@ -38,6 +38,7 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--propose", action="store_true", help="Show what would be copied (no write).")
     ap.add_argument("--apply", action="store_true", help="Copy into .claude/skills/ and remove the draft.")
     ap.add_argument("--pr", action="store_true", help="--apply + commit + push + create the MR.")
+    ap.add_argument("--direct", action="store_true", help="--apply + commit on the current branch + push to origin/main directly (SSH, no MR, no token).")
     args = ap.parse_args(argv)
 
     names = drafts()
@@ -73,15 +74,27 @@ def main(argv: list[str] | None = None) -> int:
         print(f"  - {src.relative_to(HARNESS)} (draft removed)")
         return 0
 
-    if not (args.apply or args.pr):
-        print("choose --propose / --apply / --pr", file=sys.stderr)
+    if not (args.apply or args.pr or args.direct):
+        print("choose --propose / --apply / --pr / --direct", file=sys.stderr)
         return 2
 
     shutil.copytree(src, dst)
     shutil.rmtree(src)
     print(f"✓ promoted {name} → {dst}")
 
-    if args.pr:
+    if args.direct:
+        subprocess.run(["git", "-C", str(HARNESS), "add", "-A",
+                        str(LIVE.relative_to(HARNESS)), str(INBOX.relative_to(HARNESS))], check=True)
+        subprocess.run(["git", "-C", str(HARNESS), "-c", "user.name=skill-foundry",
+                        "-c", "user.email=harness@example.com",
+                        "commit", "-m", f"feat: promote skill {name}"], check=True)
+        pushed = subprocess.run(["git", "-C", str(HARNESS), "push", "origin", "HEAD"])
+        if pushed.returncode == 0:
+            print("Pushed directly to origin/main over SSH — no MR, no token.")
+        else:
+            print(f"\nPush failed (exit {pushed.returncode}) — push manually: git -C {HARNESS} push origin HEAD",
+                  file=sys.stderr)
+    elif args.pr:
         branch = f"feat/skill-{name}-{_dt.datetime.now():%Y%m%d}"
         subprocess.run(["git", "-C", str(HARNESS), "add", "-A",
                         str(LIVE.relative_to(HARNESS)), str(INBOX.relative_to(HARNESS))], check=True)
