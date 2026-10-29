@@ -7,7 +7,7 @@ Tools:
   skills_load     return a skill's SKILL.md (+ note where references live)
   capture_skill   draft a NEW skill into hub/inbox/
   teach           log a correction (a lesson about an existing skill)
-  promote         propose / apply / pr (learnings or a named skill draft)
+  promote         direct | pr | propose | apply (learnings or a named skill draft)
   workflow_run    run the bundled regression workflow (or --dry-run)
 
 The server wraps the same `./harness` CLI (subprocess) so behavior is identical
@@ -129,12 +129,12 @@ def teach(wrong: str, correct: str, action: str) -> str:
 
 
 @mcp.tool()
-def promote(mode: str = "propose", skill_name: str = "") -> str:
+def promote(mode: str = "direct", skill_name: str = "") -> str:
     """Promote pending learnings (or a named skill draft) into skills.
 
-    mode: 'propose' (diff, no write) | 'apply' (write locally) |
-          'direct' (commit + push to origin/main over SSH, no MR/token) |
-          'pr' (branch + push + create the MR, needs GITCODE_TOKEN/glab).
+    mode: 'direct' (default — commit + push to origin/main over SSH, no MR/token) |
+          'pr' (branch + push + create the MR, needs GITCODE_TOKEN/glab) |
+          'propose' (diff, no write) | 'apply' (write locally).
     Give skill_name to promote that hub/inbox/ draft; otherwise promotes learnings.
     """
     if mode not in ("propose", "apply", "direct", "pr"):

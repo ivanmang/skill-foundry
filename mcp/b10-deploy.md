@@ -130,7 +130,7 @@ steps section; or run `sudo bash mcp/deploy.sh` (it auto-detects sudo).
 |---|---|---|
 | `status` | b10 local | hub state: skills, learnings, catalog, git |
 | `skills_list` / `skills_load` | b10 local | discovery is live |
-| `capture_skill` / `teach` / `promote` | b10 local | writes the b10 clone; `promote --pr` uses `GITCODE_TOKEN` → auto-MR |
+| `capture_skill` / `teach` / `promote` | b10 local | writes the b10 clone; `promote` defaults to `mode=direct` (SSH push to `main`, no token); `mode=pr` uses `GITCODE_TOKEN` → auto-MR |
 | `workflow_status` | **ecs** | the compute host's env/suites/baseline/last-run |
 | `workflow_run` | **ecs** | runs the regression workflow where the toolchain is |
 
