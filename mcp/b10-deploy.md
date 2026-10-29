@@ -33,10 +33,9 @@ The script prompts for: `GITCODE_TOKEN`, compute-host SSH alias (default `ecs`),
 compute checkout path (default `~/skill-foundry`). It writes `env.sh` (mode 600),
 installs a systemd unit, enables it on `127.0.0.1:8000`, and self-verifies.
 
-> On ecs, make sure the checkout exists (or rename the existing one) at
-> `~/skill-foundry`, or set `MCP_COMPUTE_PATH` to where it actually is
-> (e.g. `~/regression-harness` until you rename). And b10 must be able to
-> `ssh ecs` non-interactively (same key the daily-refresh already uses).
+> On ecs, the checkout must be at `~/skill-foundry` (or set `MCP_COMPUTE_PATH`
+> to where it actually is). And b10 must be able to `ssh ecs` non-interactively
+> (same key the daily-refresh already uses).
 
 ## Manual steps (what deploy.sh does)
 
