@@ -56,7 +56,7 @@ def _remote_run(*argv: str, timeout: int = 3600) -> str:
     """Run `./harness <argv>` on COMPUTE_HOST via SSH (skill-foundry checkout)."""
     if not COMPUTE_HOST:
         return "error: MCP_COMPUTE_HOST not set — no compute host configured"
-    cmd = f"cd {shlex.quote(COMPUTE_PATH)} && ./harness {shlex.join(argv)}"
+    cmd = f"cd {shlex.quote(COMPUTE_PATH)} && source ./env.sh 2>/dev/null; ./harness {shlex.join(argv)}"
     try:
         r = subprocess.run(
             ["ssh", COMPUTE_HOST, cmd], capture_output=True, text=True, timeout=timeout,
