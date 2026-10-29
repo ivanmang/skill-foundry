@@ -117,7 +117,7 @@ Each step is a **framed block** that makes the workflow self-explanatory:
   steps     ▶run  ·report  ·review  ·teach  ·propose  ·apply  ·rerun  ·takeaway
 
   What this step does
-    One command runs the demo suite through the REAL run_suite.py → run.json.
+    One command runs the demo suite through the REAL run.py → run.json.
 
   Who does what
     ▸ command   python3 -m skill_foundry.cli.run --target demo --all-suites
@@ -381,7 +381,7 @@ loop, and every teammate gets it via git.
 |---|---|
 | Interactive walkthrough (no hardware) | `./harness demo` (or `--straight`; `--demo` in `guide`) |
 | Interactive tour (real flow) | `./harness guide` |
-| One-glance dashboard | `./harness status` (or `./harness tui`) |
+| One-glance dashboard | `./harness status` |
 | Diagnose this machine | `./harness diagnose [--strict]` |
 | Guided setup | `./harness onboarding` |
 | List suites + arches + availability | `./harness list [--format markdown\|html]` |

@@ -13,9 +13,6 @@ A shared, self-improving skill-foundry built on open **Agent Skills**
 (the USE loop) and **teach → promote → MR** (the IMPROVE loop), against a
 pinned baseline that makes "regression" a mechanical diff.
 
-> Want the human angle? Read [docs/STORY.md](STORY.md) — a short story about a
-> developer, a pi agent, and the harness.
-
 ```text
 USE      ./harness run → report → review   (diff vs pinned baseline)
 IMPROVE  ./harness teach → promote --direct | --pr    (corrections become skills)
@@ -107,7 +104,6 @@ Agent-Skills-compatible agent:
 | `./harness status` | one-glance dashboard (env, suites, baseline, learnings, last run) |
 | `./harness diagnose` | check this machine + print the exact fix for each issue |
 | `./harness onboarding` | guided first-run setup |
-| `./harness tui` | full-screen dashboard (interactive) |
 | `./harness menu` | curated interactive menu (also the bare `./harness` default) |
 | `./harness run` | run suites (`--all-suites`, `--suite X`, `--testcase`, `--filter`, `--quiet`, `--tui`, `--json`, `--dry-run`, `--parallel`) |
 | `./harness report` | run.json → `report.md`/`.html` (`--open`, `--known`) |

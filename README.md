@@ -11,9 +11,8 @@ The first bundled workflow is **regression** (`run → report → review` on the
 the architecture, [AGENTS.md](AGENTS.md) for the agent-facing contract.
 
 > **New here?** Start with the [Handbook](docs/HANDBOOK.md) (the canonical
-> reference), the [User Journey](USER_JOURNEY.md), or read
-> [the Story](docs/STORY.md) — then run `./harness onboarding` and
-> `./harness demo`.
+> reference) or the [User Journey](USER_JOURNEY.md) — then run
+> `./harness onboarding` and `./harness demo`.
 > One entry point for everything: `./harness help`.
 
 Legend: 🟢 automatic · 🟡 human · 🔴 never automatic · `✓ / ! / ·` runnable / missing / disabled.
@@ -135,7 +134,6 @@ Files: `.claude-plugin/plugin.json` (manifest), `.claude-plugin/marketplace.json
 ./harness diagnose  check env + fixes      [--json, --strict]
 ./harness skills    list/search skills    [--search, --inbox, --install, --uninstall, --refresh, --json]
 ./harness onboarding  guided first-run setup
-./harness tui       full-screen dashboard (interactive)
 ./harness menu      curated menu (bare ./harness default)
 ./harness list      suites + arches       [--target, --format text|markdown|html]
 ./harness cann      which CANN → which arch  [--home, --scan, --json]

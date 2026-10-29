@@ -28,7 +28,6 @@ modules directly.
 | `promote-skill` | `cli/promote_skill.py` | Promote a draft into `.claude/skills/` (+ MR / direct) |
 | `skills` | `cli/skills.py` | List/search skills · `--install`/`--uninstall` · `--refresh` |
 | `onboarding` | `cli/onboarding.py` | Guided first-run setup |
-| `tui` | `cli/tui.py` | Full-screen dashboard (interactive) |
 | `menu` | `cli/menu.py` | Curated interactive menu (bare `./harness` default) |
 | `demo` | `cli/demo.py` | Interactive step-by-step sandboxed walkthrough |
 | `guide` | `cli/guide.py` | Interactive step-by-step tour |

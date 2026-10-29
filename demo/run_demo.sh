@@ -115,7 +115,7 @@ cat <<EOF
 Run artifacts:  $RUN_DIR/run.json, report.md, report-known.md, demo-suite.log
 Sandbox (loop): $SANDBOX
 
-- USE:      run.py → parse_gtest → build_report → diff_runs
+- USE:      run.py → parse_gtest.py → report.py → review.py
 - IMPROVE:  teach / session_digest.py (capture) →
             promote.py --propose (draft diff) → --apply → annotated next report
 

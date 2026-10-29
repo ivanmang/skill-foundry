@@ -30,7 +30,6 @@ VERB_MODULES: dict[str, tuple[str, list[str] | None]] = {
     "status": ("skill_foundry.cli.status", None),
     "diagnose": ("skill_foundry.cli.diagnose", None),
     "onboarding": ("skill_foundry.cli.onboarding", None),
-    "tui": ("skill_foundry.cli.tui", None),
     "menu": ("skill_foundry.cli.menu", None),
     "guide": ("skill_foundry.cli.guide", None),
     "demo": ("skill_foundry.cli.demo", None),
@@ -48,7 +47,7 @@ SHELL_VERBS: dict[str, str] = {
 # Verbs that manage their own terminal and must not be wrapped by the
 # "What next?" loop (run straight through).
 NON_WRAP = {
-    "menu", "tui", "help", "-h", "--help",
+    "menu", "help", "-h", "--help",
     "version", "--version", "-V", "__complete", "selfcheck",
 }
 
@@ -128,7 +127,6 @@ SETUP:
 INTERACTIVE:
   guide     Interactive step-by-step tour      [--demo]
   demo      Sandboxed walkthrough (interactive) [--straight]
-  tui       Full-screen dashboard (interactive)
   menu      Curated interactive menu (bare ./harness default)
 
 BASELINE & HOUSEKEEPING:
@@ -268,9 +266,5 @@ Example: ./harness cann
     "onboarding": """\
 ./harness onboarding — guided first-run setup (detect env, write env.sh, pick CANN, verify pto-isa)
 Example: ./harness onboarding
-""",
-    "tui": """\
-./harness tui — full-screen dashboard (status + action menu)
-Example: ./harness tui
 """,
 }

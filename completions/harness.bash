@@ -12,7 +12,7 @@ _harness_complete() {
     cur="${COMP_WORDS[COMP_CWORD]}"
     prev="${COMP_WORDS[COMP_CWORD-1]}"
 
-    local cmds="run report review teach promote capture-skill promote-skill skills baseline history clean open validate status diagnose targets onboarding tui menu guide demo list cann selfcheck help version"
+    local cmds="run report review teach promote capture-skill promote-skill skills baseline history clean validate status diagnose onboarding menu guide demo list cann selfcheck help version"
     local opts_run="--target --suite --all-suites --testcase --filter --quiet --tui --json --dry-run --parallel --list --format --run-id --config --arches"
     local opts_promote="--propose --apply --branch --pr --direct --root --learnings"
     local opts_report="--run --known --out --open"
