@@ -17,8 +17,8 @@ Produce a reviewable, human-readable report from normalized results.
 1. Generate from one or more run records:
 
    ```bash
-   ./harness report --run reports/<run-id>/run.json --out reports/<run-id>/report
-   ./harness report --run reports/<run-id>/run.json \
+   python3 -m skill_foundry.workflow.report --run reports/<run-id>/run.json --out reports/<run-id>/report
+   python3 -m skill_foundry.workflow.report --run reports/<run-id>/run.json \
      --known .claude/skills/pto-isa/references/known-failures.md \
      --out reports/<run-id>/report
    ```

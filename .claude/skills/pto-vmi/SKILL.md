@@ -29,14 +29,14 @@ skill documents the commands, env, and triage.
 | CCE ST (A5) | bisheng + camodel (M2 — see the daily-refresh runner) |
 | TileLang ST (A5) | `bash scripts/sim_dsl.sh tilelang/<kernel>` |
 
-Via the harness (recommended — one entry point):
+Via the workflow script (normalizes to run.json + reports + diffs):
 
 ```bash
-./harness status                          # what can run here (auto-detected)
-./harness list --target pto-vmi
-./harness run --target pto-vmi --suite dsl-st --testcase SoftmaxGradKernel --dry-run
-./harness run --target pto-vmi --suite dsl-st --testcase SoftmaxGradKernel
-./harness run --target pto-vmi --all-suites --parallel
+python3 -m skill_foundry.workflow.status                          # what can run here (auto-detected)
+python3 -m skill_foundry.workflow.run --list --target pto-vmi
+python3 -m skill_foundry.workflow.run --target pto-vmi --suite dsl-st --testcase SoftmaxGradKernel --dry-run
+python3 -m skill_foundry.workflow.run --target pto-vmi --suite dsl-st --testcase SoftmaxGradKernel
+python3 -m skill_foundry.workflow.run --target pto-vmi --all-suites --parallel
 ```
 
 ## Env
@@ -53,7 +53,7 @@ The vmi-dashboard compares CCE vs VMI per kernel on cycle-accurate metrics from
 `core0.veccore0.instr_log.dump`: EX / SU / LD / ST / pred / scalar / dma,
 dual-issue, stalls, IPC / EX-IPC / vf_real, and EX subcategories. The harness
 records the same metrics per suite (`skill_foundry/lib/perf_metrics.py`) when the dump is
-present, and `./harness review` flags vf_real/EX up >15% or IPC down >15%.
+present, and `python3 -m skill_foundry.workflow.review` flags vf_real/EX up >15% or IPC down >15%.
 
 ## Triage
 

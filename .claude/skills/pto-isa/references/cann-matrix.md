@@ -5,9 +5,9 @@ Which CANN package can **compile** for and **simulate** which pto-isa arch.
 Check any machine with:
 
 ```bash
-./harness cann                 # ASCEND_HOME_PATH or scan ~/Ascend
-./harness cann --home /path/to/toolkit
-./harness cann --scan --json
+python3 -m skill_foundry.lib.cann                 # ASCEND_HOME_PATH or scan ~/Ascend
+python3 -m skill_foundry.lib.cann --home /path/to/toolkit
+python3 -m skill_foundry.lib.cann --scan --json
 ```
 
 This reads two indicators from the toolkit:

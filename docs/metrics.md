@@ -82,7 +82,7 @@ even when no CA dump exists.
 
 ## Report sections
 
-`./harness report` renders:
+`python3 -m skill_foundry.workflow.report` renders:
 
 1. **Summary** — per-suite pass/fail/skip/total/status/duration.
 2. **Failures** — failed cases, annotated **known** when matched.

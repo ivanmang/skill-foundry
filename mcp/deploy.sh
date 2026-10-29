@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Deploy the skill-foundry MCP server on b10 (public gateway) with ecs as the
+# Deploy the skill-foundry MCP server on b10 (public gateway) — skill-ops loop
 # compute host. Run ON b10:
 #
 #   bash mcp/deploy.sh              # from inside a checkout, or:
@@ -39,17 +39,17 @@ TOKEN="${GITCODE_TOKEN:-}"
 if [[ -z "$TOKEN" && -t 0 ]]; then
   read -rsp "GITCODE_TOKEN (glpat-…; Enter to skip — auto-MR disabled): " TOKEN || true; echo
 fi
-CHOST="${MCP_COMPUTE_HOST:-ecs}"
-CPATH="${MCP_COMPUTE_PATH:-~/skill-foundry}"
+CHOST=""
+CPATH=""
 umask 077
 {
   [[ -n "$TOKEN" ]] && echo "export GITCODE_TOKEN=\"$TOKEN\""
-  echo "export MCP_COMPUTE_HOST=\"$CHOST\""
-  echo "export MCP_COMPUTE_PATH=\"$CPATH\""
+
+
 } > "$INSTALL_DIR/env.sh"
 chmod 600 "$INSTALL_DIR/env.sh"
 if [[ -z "$TOKEN" ]]; then
-  echo "  ⚠ no GITCODE_TOKEN — discovery/capture/teach/run work; promote --pr (auto-MR) is disabled until you add it to $INSTALL_DIR/env.sh"
+  echo "  ⚠ no GITCODE_TOKEN — discovery/capture/teach/promote work; promote --pr (auto-MR) is disabled until you add it to $INSTALL_DIR/env.sh"
 else
   echo "  ✓ wrote $INSTALL_DIR/env.sh (600, with GITCODE_TOKEN)"
 fi
@@ -58,7 +58,7 @@ say "5/6 · launch"
 if sudo -n true 2>/dev/null; then
   sudo tee "$SYSTEMD_UNIT" >/dev/null <<EOF
 [Unit]
-Description=skill-foundry MCP server (b10 gateway, ecs compute)
+Description=skill-foundry MCP server (skill-ops loop)
 After=network.target
 
 [Service]
@@ -97,4 +97,4 @@ echo "  Agent config:"
 echo '  { "mcpServers": { "skill-foundry": { "url": "https://pto-b10.ddns.net/mcp" } } }'
 echo
 echo "  Verify compute proxy:"
-echo "    curl -H 'Authorization: Bearer <t>' https://pto-b10.ddns.net/mcp  (workflow_status tool)"
+echo "    curl -H 'Authorization: Bearer <t>' https://pto-b10.ddns.net/mcp  (skills_list tool)"

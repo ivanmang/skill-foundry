@@ -40,7 +40,7 @@ And six rules that keep the regression signal honest:
    refresh only deliberately (new suites / arch changes), never casually.
 2. Never auto-remove or auto-change an existing check — the harness only adds.
 3. p99 > +15% flags a perf regression even if the average is stable.
-4. npu-sim needs BOTH compile headers AND the simulator (see `./harness list` / `cann`).
+4. npu-sim needs BOTH compile headers AND the simulator (see `python3 -m skill_foundry.workflow.run --list` / `cann`).
 5. `--all-suites` auto-skips missing prereqs; an explicit `--suite` force-runs.
 6. Every run records context (git ref, dirty flag, host, env) → reproducible.
 
@@ -65,22 +65,22 @@ git clone git@gitcode.com:ivanmang/skill-foundry.git
 cd skill-foundry
 
 # one command sets up env.sh, picks a CANN, and verifies pto-isa (interactive)
-./harness onboarding
+python3 -m skill_foundry.cli.onboarding
 #   or do it by hand:  cp env.example.sh env.sh && source ./env.sh
 
 # see everything the harness can do
 ./harness help
-./harness status        # one-glance dashboard
-./harness demo          # interactive walkthrough (no hardware needed)
-./harness guide         # interactive tour of the real flow
-./harness cann          # which installed CANN supports which arch
+python3 -m skill_foundry.workflow.status        # one-glance dashboard
+python3 -m skill_foundry.cli.demo          # interactive walkthrough (no hardware needed)
+python3 -m skill_foundry.cli.guide         # interactive tour of the real flow
+python3 -m skill_foundry.lib.cann          # which installed CANN supports which arch
 
 # optional: tab-completion
 source completions/harness.bash   # add to ~/.bashrc
 ```
 
 Requirements are only `python3` + `git` for the harness itself. The *targets*
-have their own needs — and `./harness list` auto-detects them on any machine:
+have their own needs — and `python3 -m skill_foundry.workflow.run --list` auto-detects them on any machine:
 
 | Suite | Needs |
 |---|---|
@@ -96,9 +96,9 @@ have their own needs — and `./harness list` auto-detects them on any machine:
 ## Step 1 — Try it in 2 minutes (no hardware)
 
 ```bash
-./harness demo                # interactive, step-by-step (arrow keys + Enter)
-./harness demo --straight     # straight through (CI / a quick skim)
-./harness guide --demo        # same interactive tour via the guide entry
+python3 -m skill_foundry.cli.demo                # interactive, step-by-step (arrow keys + Enter)
+python3 -m skill_foundry.cli.demo --straight     # straight through (CI / a quick skim)
+python3 -m skill_foundry.cli.guide --demo        # same interactive tour via the guide entry
 PAUSE=1 ./demo/run_demo.sh    # scene-by-scene with a pause (for presenting)
 ```
 
@@ -139,7 +139,7 @@ The first three steps are **USE**, the next four are **IMPROVE** — and the
 "Who does what" box marks where a human is needed (teach = your triage call,
 apply auto-creates the MR; merge = you on the remote).
 
-The interactive `./harness guide` (without `--demo`) walks the **real** pto-isa
+The interactive `python3 -m skill_foundry.cli.guide` (without `--demo`) walks the **real** pto-isa
 flow the same way: env check → choose suites → run → report → review → teach →
 promote. Its interactive menus — **demo/real**, **suite**, **testcase**, **gtest
 filter**, **CANN package**, and **output mode** — use arrow keys (`↑`/`↓` +
@@ -154,7 +154,7 @@ which arches it can compile (headers) vs simulate.
 On a canonical machine (see the table in Step 0):
 
 ```bash
-./harness baseline pto-isa   # or: ./harness baseline <target>
+bash skill_foundry/workflow/baseline.sh pto-isa   # or: bash skill_foundry/workflow/baseline.sh <target>
 # runs all enabled (and runnable) suites, copies the result to
 # reports/baseline/<target>.json
 # (refuses to pin if any suite did not PASS — use --force to override)
@@ -172,28 +172,28 @@ only deliberately (new suites, arch changes), never casually.
 ## Step 3 — Everyday: run a regression
 
 ```bash
-./harness list                                # what can I run on THIS machine? (auto-detected)
+python3 -m skill_foundry.workflow.run --list                                # what can I run on THIS machine? (auto-detected)
 
-./harness run --all-suites --report --open --review   # the whole USE loop: run + report + review, one command
-./harness run --all-suites --quiet            # everything runnable, summary only
-./harness run --all-suites --tui              # live spinner + per-suite pass/fail
-./harness run --all-suites --json             # machine-readable summary
-./harness run --all-suites --parallel         # independent suites concurrently
-./harness run --suite cpu-st                  # one suite (force, even if prereqs missing)
-./harness run --suite npu-sim-a5 --testcase tpartargmax        # one testcase
-./harness run --suite cpu-st --testcase tadd --filter 'TADDTest.case_*'  # one gtest case
+python3 -m skill_foundry.workflow.run --all-suites --report --open --review   # the whole USE loop: run + report + review, one command
+python3 -m skill_foundry.workflow.run --all-suites --quiet            # everything runnable, summary only
+python3 -m skill_foundry.workflow.run --all-suites --tui              # live spinner + per-suite pass/fail
+python3 -m skill_foundry.workflow.run --all-suites --json             # machine-readable summary
+python3 -m skill_foundry.workflow.run --all-suites --parallel         # independent suites concurrently
+python3 -m skill_foundry.workflow.run --suite cpu-st                  # one suite (force, even if prereqs missing)
+python3 -m skill_foundry.workflow.run --suite npu-sim-a5 --testcase tpartargmax        # one testcase
+python3 -m skill_foundry.workflow.run --suite cpu-st --testcase tadd --filter 'TADDTest.case_*'  # one gtest case
 
 # one testcase (raw pto-isa runner)
 python3 tests/script/run_st.py -r sim -v a5 -t tadd -g 'TADDTest.case_*'
 ```
 
-`run` requires an explicit `--suite` or `--all-suites` — a bare `./harness run`
+`run` requires an explicit `--suite` or `--all-suites` — a bare `python3 -m skill_foundry.workflow.run`
 prints the enabled suites and exits 2 (no accidental full run). `--all-suites`
 auto-skips suites whose prerequisites aren't present on this machine (compiler /
 CANN / simulator / device / MPI) and prints why; an explicit `--suite`
 force-runs regardless.
 
-`./harness list` shows the same auto-detection inline: `[✓]` = enabled and
+`python3 -m skill_foundry.workflow.run --list` shows the same auto-detection inline: `[✓]` = enabled and
 runnable, `[!]` = enabled but missing prereqs (the reason is printed), `[ ]` =
 disabled. Use it as the first thing on any new machine.
 
@@ -215,14 +215,14 @@ suggestions + "type a command" + `q` for the shell).
 
 ## Step 4 — Read the report
 
-(`./harness run --all-suites --report` already renders this right after the run;
+(`python3 -m skill_foundry.workflow.run --all-suites --report` already renders this right after the run;
 running `report` standalone below is for re-rendering a past `run.json`.)
 
 ```bash
-./harness report             # latest run
-./harness report --open      # latest run, in the browser
+python3 -m skill_foundry.workflow.report             # latest run
+python3 -m skill_foundry.workflow.report --open      # latest run, in the browser
 # explicit:
-./harness report --run reports/<run-id>/run.json \
+python3 -m skill_foundry.workflow.report --run reports/<run-id>/run.json \
   --known .claude/skills/pto-isa/references/known-failures.md \
   --out reports/<run-id>/report
 ```
@@ -246,12 +246,12 @@ saving you the triage time.
 
 ## Step 5 — Review vs the baseline (the regression signal)
 
-(`./harness run --all-suites --review` diffs automatically after the run;
+(`python3 -m skill_foundry.workflow.run --all-suites --review` diffs automatically after the run;
 running `review` standalone below is for re-checking a past run.)
 
 ```bash
-./harness review              # latest run vs baseline
-./harness review --run reports/<run-id>/run.json   # a specific run
+python3 -m skill_foundry.workflow.review              # latest run vs baseline
+python3 -m skill_foundry.workflow.review --run reports/<run-id>/run.json   # a specific run
 ```
 
 ```text
@@ -355,7 +355,7 @@ merge it on the remote**; branch protection is the gate.
 Re-run the *same* `run.json` through the report with the improved corpus:
 
 ```bash
-./harness report --run reports/<run-id>/run.json \
+python3 -m skill_foundry.workflow.report --run reports/<run-id>/run.json \
   --known .claude/skills/pto-isa/references/known-failures.md \
   --out reports/<run-id>/report
 ```
@@ -378,9 +378,9 @@ loop, and every teammate gets it via git.
 | Nightly | `.gitcode/workflows/promote-learnings.yml` surfaces pending learnings |
 | On push/PR | `.gitcode/workflows/selfcheck.yml` runs `./harness selfcheck` |
 | Weekly / on demand | reviewer merges `feat/learnings-*` MRs (with `--pr`); `--direct` just lands on `main` |
-| After suite changes | `./harness baseline <target>` to re-pin the baseline |
+| After suite changes | `bash skill_foundry/workflow/baseline.sh <target>` to re-pin the baseline |
 | After a correction | re-run one representative case to verify it improved triage |
-| Housekeeping | `./harness clean --keep 3` / `./harness history` / `make check` |
+| Housekeeping | `python3 -m skill_foundry.workflow.clean --keep 3` / `python3 -m skill_foundry.workflow.history` / `make check` |
 
 ---
 
@@ -388,24 +388,24 @@ loop, and every teammate gets it via git.
 
 | Goal | Command |
 |---|---|
-| Interactive walkthrough (no hardware) | `./harness demo` (or `--straight`; `--demo` in `guide`) |
-| Interactive tour (real flow) | `./harness guide` |
-| One-glance dashboard | `./harness status` |
-| Diagnose this machine | `./harness diagnose [--strict]` |
-| Guided setup | `./harness onboarding` |
-| List suites + arches + availability | `./harness list [--format markdown\|html]` |
-| Which CANN supports which arch | `./harness cann [--scan] [--json]` |
-| Pin / refresh baseline | `./harness baseline [--force] <target>` |
-| Run all suites | `./harness run --all-suites [--quiet\|--tui\|--json\|--parallel]` |
-| Run + report + review | `./harness run --all-suites --report --open --review` |
-| Run one suite | `./harness run --suite cpu-st` |
-| Run one testcase | `./harness run --suite npu-sim-a5 --testcase tpartargmax` |
-| Run a gtest filter | `./harness run --suite cpu-st --testcase tadd --filter 'TADDTest.case_*'` |
-| Report | `./harness report [--open]` (default: latest run) |
-| Diff vs baseline | `./harness review` (default: latest run) |
-| List recent runs | `./harness history` |
-| Clean run dirs | `./harness clean [--dry-run] [--keep N]` |
-| Validate config | `./harness validate` |
+| Interactive walkthrough (no hardware) | `python3 -m skill_foundry.cli.demo` (or `--straight`; `--demo` in `guide`) |
+| Interactive tour (real flow) | `python3 -m skill_foundry.cli.guide` |
+| One-glance dashboard | `python3 -m skill_foundry.workflow.status` |
+| Diagnose this machine | `python3 -m skill_foundry.workflow.diagnose [--strict]` |
+| Guided setup | `python3 -m skill_foundry.cli.onboarding` |
+| List suites + arches + availability | `python3 -m skill_foundry.workflow.run --list [--format markdown\|html]` |
+| Which CANN supports which arch | `python3 -m skill_foundry.lib.cann [--scan] [--json]` |
+| Pin / refresh baseline | `bash skill_foundry/workflow/baseline.sh [--force] <target>` |
+| Run all suites | `python3 -m skill_foundry.workflow.run --all-suites [--quiet\|--tui\|--json\|--parallel]` |
+| Run + report + review | `python3 -m skill_foundry.workflow.run --all-suites --report --open --review` |
+| Run one suite | `python3 -m skill_foundry.workflow.run --suite cpu-st` |
+| Run one testcase | `python3 -m skill_foundry.workflow.run --suite npu-sim-a5 --testcase tpartargmax` |
+| Run a gtest filter | `python3 -m skill_foundry.workflow.run --suite cpu-st --testcase tadd --filter 'TADDTest.case_*'` |
+| Report | `python3 -m skill_foundry.workflow.report [--open]` (default: latest run) |
+| Diff vs baseline | `python3 -m skill_foundry.workflow.review` (default: latest run) |
+| List recent runs | `python3 -m skill_foundry.workflow.history` |
+| Clean run dirs | `python3 -m skill_foundry.workflow.clean [--dry-run] [--keep N]` |
+| Validate config | `python3 -m skill_foundry.workflow.validate` |
 | Capture correction | `./harness teach "… -> … -> …"` (or wizard) |
 | Propose promotion | `./harness promote --propose` |
 | Apply + publish | `./harness promote --direct` (or `--pr` for an MR) |
@@ -459,8 +459,8 @@ straight to `main` (fast, tokenless) or `--pr` with a human merge.
 |---|---|
 | `ASCEND_HOME_PATH not set` on npu/costmodel/comm | `cp env.example.sh env.sh && source ./env.sh` |
 | cpu-st `Could not find a suitable compiler` | run on ecs / yellow / b10 (clang++>=15 or g++>=13) |
-| npu-sim suite shows `!` in `./harness list` | `./harness cann` — the chosen CANN must have both headers and the simulator |
+| npu-sim suite shows `!` in `python3 -m skill_foundry.workflow.run --list` | `python3 -m skill_foundry.lib.cann` — the chosen CANN must have both headers and the simulator |
 | `target repo not found` | `export PTO_ISA_REPO=~/pto-isa` |
-| bare `./harness run` exits 2 | pass `--suite <name>` or `--all-suites` |
-| `./harness baseline` refuses to pin | a suite didn't PASS — fix it, or `--force` |
-| `./harness list demo` says unknown target | demo uses its own config: `./harness list --target demo --config demo/config/demo-suites.json --arches demo/config/demo-arches.json` |
+| bare `python3 -m skill_foundry.workflow.run` exits 2 | pass `--suite <name>` or `--all-suites` |
+| `bash skill_foundry/workflow/baseline.sh` refuses to pin | a suite didn't PASS — fix it, or `--force` |
+| `python3 -m skill_foundry.workflow.run --list demo` says unknown target | demo uses its own config: `python3 -m skill_foundry.workflow.run --list --target demo --config demo/config/demo-suites.json --arches demo/config/demo-arches.json` |

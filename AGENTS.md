@@ -1,20 +1,21 @@
 # AGENTS.md
 
-This is a **skill-foundry** (skill-ops platform) — agents and humans capture
-reusable knowledge as Skills during work, and it flows through a promote step
-(`--direct` push or `--pr` MR) into a shared hub every teammate's agent can
-use. Regression is the first bundled workflow. You (the agent) are the
-conductor; `./harness` is the tool; the user is the only human gate.
+This is **skill-foundry** — a skill-ops platform. The harness (`./harness`) does
+**only the skill-ops loop** (capture → promote → hub → discover). Everything else
+— including the bundled regression workflow — is **knowledge in the skills**,
+executed via thin scripts the skills reference. You (the agent) are the
+conductor; the user is the only human gate.
 
 ## Your workflow
 
 1. **Read the skills first** — they are your instruction set, under
-   `.claude/skills/` (also reachable via `.agents/skills/`). Start with
-   the target adapter (`pto-isa` / `pto-vmi`) and the pipeline skills
-   (`run-testcase` → `extract-logs` → `generate-report` →
-   `review-inconsistencies`).
-2. **Drive everything through `./harness`** — never hand-edit test results or
-   re-implement the pipeline.
+   `.claude/skills/` (also reachable via `.agents/skills/`). They are
+   self-contained knowledge: each one tells you *what to run* and *how to
+   triage*, using real test commands and thin helper scripts
+   (`python3 -m skill_foundry.workflow.*`, `skill_foundry.lib.*`).
+2. **Use `./harness` ONLY for the skill-ops loop** — `capture-skill`,
+   `promote-skill`, `teach`, `promote`, `skills`. Never route the regression
+   workflow through the harness; run its scripts directly per the skills.
 3. **Capture every reusable lesson** with `./harness teach` automatically when
    any of these happen:
    - the user corrects you (`"no / wrong / actually / don't / remember …"`)
@@ -32,43 +33,40 @@ conductor; `./harness` is the tool; the user is the only human gate.
 
 ## Capture vs promote
 
-- Capture is **automatic and continuous** — log lessons as they surface during
-  development; nothing changes until promoted.
-- Promotion is **automatic to the MR** — `--pr` does the apply/commit/push/create;
-  the human merge is the gate.
-- Draft from a run's failures with `session_digest.py --run <run.json> --apply`.
+- Capture is **automatic and continuous** — log lessons as they surface;
+  nothing changes until promoted.
+- Promotion is **automatic** — `--direct` pushes to `main`; `--pr` opens an MR.
+- Draft from a run's failures with
+  `python3 -m skill_foundry.lib.session_digest --run <run.json> --apply`.
 
 ## Key commands
 
 ```bash
-./harness status                    # is the machine ready? (auto-detected)
-./harness run --all-suites --dry-run / --quiet / --parallel
-./harness run --suite <s> --testcase <t> --filter <g>
-./harness report --open             # per-case metrics + log links
-./harness review                    # diff vs the pinned baseline
-./harness teach "wrong -> correct -> action"
-./harness promote --propose | --direct | --pr
+# THE PRODUCT — the skill-ops loop (the only harness verbs)
 ./harness capture-skill <name>           # draft a NEW skill
-./harness promote-skill <name> --direct  # publish it (direct push, no token)
-./harness promote-skill <name> --pr      # publish it (MR-gated)
+./harness teach "wrong -> correct -> action"
+./harness promote --direct | --pr        # publish learnings
+./harness promote-skill <name> --direct  # publish a draft
 ./harness skills [--search q] [--inbox]  # discover skills
-./harness demo                      # sandboxed walkthrough (no hardware)
-./harness help [verb]
+
+# BUNDLED WORKFLOW — run these thin scripts directly (per the skills)
+python3 -m skill_foundry.workflow.run --all-suites --report --open --review
+python3 -m skill_foundry.workflow.status   # readiness
+python3 -m skill_foundry.lib.cann          # CANN/arch detection
 ```
 
 ## Layout
 
-- `.claude/skills/` — the skills (read them first)
-- `config/` — targets (`suites.json`), arches, CANN matrix (source of truth)
-- `learnings/recent.md` — captured pending lessons
+- `.claude/skills/` — the knowledge (read them first; they are the workflow)
+- `skill_foundry/workflow/` — thin, runnable regression scripts the skills call
+- `skill_foundry/lib/` — thin stable helpers (parse/diff/perf/targets)
+- `skill_foundry/cli/` — the harness: the skill-ops loop + shell
+- `hub/` — skill drafts; `learnings/` — captured lessons
 - `reports/baseline/<target>.json` — pinned baseline (regression = diff vs it)
-- `docs/` — handbook, metrics reference, vision
 
 ## Rules
 
 - Exit codes: `0` clean · `1` ran-with-failures · `2` usage.
-- `--all-suites` auto-skips suites whose prereqs are missing; an explicit
-  `--suite` force-runs.
 - npu-sim needs BOTH compile headers AND the simulator; p99 +15% flags a perf
   regression even if average is stable.
 - The baseline is the ground truth — refresh it only deliberately.

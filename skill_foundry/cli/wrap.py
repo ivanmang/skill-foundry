@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
 """Wrap a harness verb, then guide the user to what's next — in one process.
 
-After `./harness run` / `report` / `status` / … finishes, the user gets a
-"What next?" menu instead of dropping back to the shell. The verb itself runs
-in-process via `skill_foundry.dispatch` (no subprocess), and the menu loop
-re-dispatches in the same process.
+After `./harness capture-skill` / `teach` / `promote` / … finishes, the user
+gets a "What next?" menu instead of dropping back to the shell. The verb runs
+in-process via `skill_foundry.dispatch`; the menu re-dispatches in-process.
 """
 
 from __future__ import annotations
@@ -14,22 +13,11 @@ import sys
 from skill_foundry import dispatch
 from skill_foundry.cli import guide
 
-# Natural next steps per verb: (label, argv) — shown first, then generic options.
+# Natural next steps for the skill-ops loop (the whole product surface).
 NEXT: dict[str, list[tuple[str, list[str]]]] = {
-    "run": [
-        ("📄  open the report", ["report", "--open"]),
-        ("🔍  review vs baseline", ["review"]),
-        ("🧠  teach a correction", ["teach"]),
-        ("📊  status", ["status"]),
-    ],
-    "report": [
-        ("🔍  review vs baseline", ["review"]),
-        ("🧠  teach a correction", ["teach"]),
-        ("🚀  run again (dry-run)", ["run", "--all-suites", "--dry-run"]),
-    ],
-    "review": [
-        ("🧠  teach a correction", ["teach"]),
-        ("📄  open the report", ["report", "--open"]),
+    "capture-skill": [
+        ("⬆  publish the draft", ["promote-skill"]),
+        ("📚  browse skills", ["skills"]),
     ],
     "teach": [
         ("🟢  publish to main (--direct)", ["promote", "--direct"]),
@@ -40,10 +28,6 @@ NEXT: dict[str, list[tuple[str, list[str]]]] = {
         ("📚  browse skills (discover what you published)", ["skills"]),
         ("🧠  teach another", ["teach"]),
     ],
-    "capture-skill": [
-        ("⬆  publish the draft", ["promote-skill"]),
-        ("📚  browse skills", ["skills"]),
-    ],
     "promote-skill": [
         ("📚  browse skills", ["skills"]),
         ("🛠  capture another", ["capture-skill"]),
@@ -52,45 +36,6 @@ NEXT: dict[str, list[tuple[str, list[str]]]] = {
         ("🛠  capture a new skill", ["capture-skill"]),
         ("⬆  promote pending learnings", ["promote", "--direct"]),
     ],
-    "status": [
-        ("🚀  run (dry-run preview)", ["run", "--all-suites", "--dry-run"]),
-        ("🎬  sandboxed demo", ["demo"]),
-        ("🔧  diagnose this machine", ["diagnose"]),
-    ],
-    "diagnose": [
-        ("🚀  run (dry-run preview)", ["run", "--all-suites", "--dry-run"]),
-        ("🧭  onboarding", ["onboarding"]),
-    ],
-    "demo": [
-        ("🚀  run the real thing (dry-run)", ["run", "--all-suites", "--dry-run"]),
-        ("🧭  guided tour", ["guide"]),
-    ],
-    "guide": [
-        ("📊  status", ["status"]),
-        ("🚀  run (dry-run preview)", ["run", "--all-suites", "--dry-run"]),
-    ],
-    "list": [
-        ("🚀  run (dry-run preview)", ["run", "--all-suites", "--dry-run"]),
-        ("🔧  diagnose this machine", ["diagnose"]),
-    ],
-    "cann": [
-        ("📊  status", ["status"]),
-        ("🚀  run (dry-run preview)", ["run", "--all-suites", "--dry-run"]),
-    ],
-    "baseline": [
-        ("📊  status", ["status"]),
-        ("🚀  run", ["run", "--all-suites", "--quiet"]),
-    ],
-    "onboarding": [
-        ("📊  status", ["status"]),
-        ("🎬  sandboxed demo", ["demo"]),
-    ],
-    "history": [
-        ("📄  open latest report", ["report", "--open"]),
-        ("📊  status", ["status"]),
-    ],
-    "clean": [("📊  status", ["status"])],
-    "validate": [("📊  status", ["status"])],
 }
 
 TYPE = "⌨  type a command…"
@@ -128,7 +73,6 @@ def main(argv: list[str] | None = None) -> int:
             ("🛠  capture a new skill", ["capture-skill"]),
             ("📚  browse skills", ["skills"]),
             ("⬆  promote pending learnings", ["promote", "--direct"]),
-            ("📊  status", ["status"]),
         ]
         options = suggestions + [(TYPE, "TYPE"), (FULL, "FULL"), (SHELL, None)]
         status = guide.c("ok", guide.GREEN) if rc == 0 else guide.c(f"exit {rc}", guide.YELLOW)

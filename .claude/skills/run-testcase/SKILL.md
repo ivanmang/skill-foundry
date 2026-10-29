@@ -23,16 +23,16 @@ run record. Do **not** hand-edit test results.
    - target repo git commit + dirty status
    - harness git commit
    - toolchain / CANN version when relevant
-3. Run through `./harness run` (requires an explicit `--suite` or `--all-suites`):
+3. Run through `python3 -m skill_foundry.workflow.run` (requires an explicit `--suite` or `--all-suites`):
 
    ```bash
-   ./harness status                          # pre-flight: what can run here
-   ./harness run --all-suites --dry-run      # preview (no run.json)
-   ./harness run --suite cpu-st                          # one suite
-   ./harness run --all-suites --quiet                    # everything, summary only
-   ./harness run --all-suites --parallel                 # independent suites concurrently
-   ./harness run --suite npu-sim-a5 --testcase tpartargmax      # one testcase
-   ./harness run --suite cpu-st --testcase tadd --filter 'TADDTest.case_*'  # one gtest case
+   python3 -m skill_foundry.workflow.status                          # pre-flight: what can run here
+   python3 -m skill_foundry.workflow.run --all-suites --dry-run      # preview (no run.json)
+   python3 -m skill_foundry.workflow.run --suite cpu-st                          # one suite
+   python3 -m skill_foundry.workflow.run --all-suites --quiet                    # everything, summary only
+   python3 -m skill_foundry.workflow.run --all-suites --parallel                 # independent suites concurrently
+   python3 -m skill_foundry.workflow.run --suite npu-sim-a5 --testcase tpartargmax      # one testcase
+   python3 -m skill_foundry.workflow.run --suite cpu-st --testcase tadd --filter 'TADDTest.case_*'  # one gtest case
    ```
 
 4. The driver writes `reports/<run-id>/run.json` and the raw log, and runs

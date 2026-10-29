@@ -12,7 +12,7 @@ the architecture, [AGENTS.md](AGENTS.md) for the agent-facing contract.
 
 > **New here?** Start with the [Handbook](docs/HANDBOOK.md) (the canonical
 > reference) or the [User Journey](USER_JOURNEY.md) — then run
-> `./harness onboarding` and `./harness demo`.
+> `python3 -m skill_foundry.cli.onboarding` and `python3 -m skill_foundry.cli.demo`.
 > One entry point for everything: `./harness help`.
 
 Legend: 🟢 automatic · 🟡 human · 🔴 never automatic · `✓ / ! / ·` runnable / missing / disabled.
@@ -22,7 +22,7 @@ Legend: 🟢 automatic · 🟡 human · 🔴 never automatic · `✓ / ! / ·` r
 ## The two loops
 
 ```text
-USE      ./harness run → report → review   (diff vs pinned baseline)
+USE      run → report → review   (python3 -m skill_foundry.workflow.* · diff vs pinned baseline)
 IMPROVE  ./harness teach → promote --direct | --pr    (corrections become skills)
 ```
 
@@ -32,7 +32,7 @@ IMPROVE  ./harness teach → promote --direct | --pr    (corrections become skil
   then apply + commit + push — `--direct` to `origin/main` (no token), or `--pr`
   for an MR-gated review. Capture is automatic; with `--pr` the merge is reviewed.
 
-See both loops live in ~2 minutes: `./harness demo`.
+See both loops live in ~2 minutes: `python3 -m skill_foundry.cli.demo`.
 
 ---
 
@@ -50,7 +50,7 @@ signal itself is corrupted:
 3. **p99 > +15% flags a perf regression even if average is stable.** Never trust
    average alone — averages hide tail latency.
 4. **An npu-sim suite needs BOTH the CANN compile headers AND the simulator.**
-   `./harness list` marks it `!` if either is missing; `./harness cann` shows why.
+   `python3 -m skill_foundry.workflow.run --list` marks it `!` if either is missing; `python3 -m skill_foundry.lib.cann` shows why.
 5. **`--all-suites` auto-skips missing prereqs; an explicit `--suite` force-runs.**
    Safe-by-default, with an explicit override.
 6. **Every run records context** (git ref, dirty flag, host, env) in `run.json`,
@@ -64,18 +64,18 @@ signal itself is corrupted:
 git clone git@gitcode.com:ivanmang/skill-foundry.git
 cd skill-foundry
 
-./harness onboarding            # 1. guided setup: env.sh, CANN, pto-isa
-./harness status                # 2. one-glance dashboard — is this machine ready?
-./harness demo                  # 3. interactive walkthrough (no hardware needed)
-./harness run --all-suites --dry-run   # 4. preview what will run
-./harness run --all-suites --quiet     # 5. run everything runnable
+python3 -m skill_foundry.cli.onboarding            # 1. guided setup: env.sh, CANN, pto-isa
+python3 -m skill_foundry.workflow.status                # 2. one-glance dashboard — is this machine ready?
+python3 -m skill_foundry.cli.demo                  # 3. interactive walkthrough (no hardware needed)
+python3 -m skill_foundry.workflow.run --all-suites --dry-run   # 4. preview what will run
+python3 -m skill_foundry.workflow.run --all-suites --quiet     # 5. run everything runnable
 # steps 5–7 in one command:
-#   ./harness run --all-suites --report --open --review
-./harness report --open          # 6. open the report in your browser (standalone)
-./harness review                 # 7. diff vs the pinned baseline (standalone)
+#   python3 -m skill_foundry.workflow.run --all-suites --report --open --review
+python3 -m skill_foundry.workflow.report --open          # 6. open the report in your browser (standalone)
+python3 -m skill_foundry.workflow.review                 # 7. diff vs the pinned baseline (standalone)
 ```
 
-`./harness baseline <target>` pins the baseline on the canonical machine (see
+`bash skill_foundry/workflow/baseline.sh <target>` pins the baseline on the canonical machine (see
 [Canonical environment](#canonical-environment)); it refuses unless every suite
 PASSes (`--force` overrides).
 
@@ -117,33 +117,27 @@ Files: `.claude-plugin/plugin.json` (manifest), `.claude-plugin/marketplace.json
 
 ## Use it
 
-`./harness` is the single entry point:
+`./harness` is the single entry point — and it does **only the skill-ops loop**.
+The bundled regression workflow runs directly as thin scripts (the skills hold
+the knowledge).
 
 ```text
-./harness run       Run suites            [--suite X | --all-suites] [--quiet | --tui | --json] [--dry-run] [--parallel] [--testcase T | --filter G]
-./harness report    run.json → MD + HTML  [--run (default latest), --known, --out, --open]
-./harness review    diff vs baseline      [--run (default latest), --baseline, --out]
-./harness teach     log a correction      ["wrong -> correct -> action" | wizard | --edit]
-./harness promote   learnings → skills    [--propose | --apply | --direct | --pr]
-./harness capture-skill  draft a new skill   [--description, --dry-run]
-./harness promote-skill  draft → skills     [--propose | --apply | --direct | --pr]
-./harness skills    list/search skills    [--search, --inbox, --install, --uninstall, --refresh, --json]
-./harness baseline  re-pin baseline <target>.json  [--force] [target]
-./harness history   recent runs           [--limit, --json]
-./harness clean     remove run dirs       [--dry-run, --keep N]
-./harness validate  check config files
-./harness status    one-glance dashboard (all targets)  [--json, --target]
-./harness diagnose  check env + fixes      [--json, --strict]
-./harness skills    list/search skills    [--search, --inbox, --install, --uninstall, --refresh, --json]
-./harness onboarding  guided first-run setup
-./harness menu      curated menu (bare ./harness default)
-./harness list      suites + arches       [--target, --format text|markdown|html]
-./harness cann      which CANN → which arch  [--home, --scan, --json]
-./harness guide     interactive tour of the real flow  [--demo]
-./harness demo      interactive sandboxed walkthrough  [--straight]
-./harness selfcheck compile-check + skill-spec validation + demo smoke
-./harness help      show this — ./harness help <verb> for examples
-./harness version   show the harness version   [--short]
+./harness — THE PRODUCT (capture → promote → hub → discover):
+  capture-skill  Draft a NEW skill into hub/inbox/      [--description, --dry-run]
+  promote-skill  Publish a draft into .claude/skills/   [--propose | --apply | --direct | --pr]
+  teach          Log a correction                       ["wrong -> correct -> action" | wizard | --edit]
+  promote        Publish learnings into skills          [--propose | --apply | --direct | --pr]
+  skills         List/search · install · refresh        [--search, --inbox, --install, --uninstall, --refresh, --json]
+  menu           Curated menu (bare ./harness default)
+  selfcheck      Compile-check + skill-spec validation + demo smoke
+  help / version
+
+BUNDLED WORKFLOW — regression, run directly (the skills reference these):
+  python3 -m skill_foundry.workflow.run    [--suite X | --all-suites] [--report|--open|--review] …
+  python3 -m skill_foundry.workflow.report · .review · .status · .diagnose · .history · .clean · .validate
+  bash skill_foundry/workflow/baseline.sh  [--force] <target>
+  python3 -m skill_foundry.lib.cann        (which CANN → which arch)
+  python3 -m skill_foundry.cli.guide · .demo · .onboarding   (interactive tours)
 ```
 
 Optional install — makes the CLI available anywhere as `skill-foundry`
@@ -157,38 +151,14 @@ skill-foundry version
 Quick start:
 
 ```bash
-./harness list                                     # what can I run?
-./harness run --all-suites --report --open --review  # run + report + review in one
-./harness run --all-suites --quiet                 # run everything, summary only
-./harness run --suite cpu-st                       # one suite
-./harness run --suite npu-sim-a5 --testcase tpartargmax       # one testcase
-./harness run --suite cpu-st --testcase tadd --filter 'TADDTest.case_*'   # one gtest case
-./harness report --run reports/<id>/run.json \
-  --known .claude/skills/pto-isa/references/known-failures.md --out reports/<id>/report
-./harness report --open                 # latest run → browser
-./harness review                         # latest run vs baseline
-./harness history                        # recent runs
-./harness clean --keep 3                 # purge old runs, keep 3 (keeps the baseline)
-make check                               # run the self-check
+./harness skills                                    # what skills exist?
+./harness capture-skill code-review                 # draft a new skill
+./harness teach "symptom -> correct -> action"      # log a correction
+./harness promote --direct                          # publish learnings (push to main)
 
-source completions/harness.bash          # tab-completion (add to ~/.bashrc)
+# the bundled regression workflow (see .claude/skills/ for full knowledge):
+python3 -m skill_foundry.workflow.run --all-suites --report --open --review
 ```
-
-- `run` requires an explicit `--suite` **or** `--all-suites`; a bare `run` prints
-  the enabled suites and exits 2.
-- `./harness list` auto-detects availability per environment: `[✓]` = enabled
-  and runnable, `[!]` = enabled but missing prereqs (with the reason), `[ ]` =
-  disabled. `--all-suites` runs only the runnable ones and prints why the rest
-  were skipped; an explicit `--suite` force-runs regardless.
-- Exit codes: **0** clean, **1** ran-with-failures, **2** usage error.
-- In an interactive terminal, every verb ends with a guided **"What next?"** menu —
-  the natural next step for what you just ran, a **"type a command"** option, the
-  full verb menu, or `q` to return to the shell. Skipped automatically when piped / in CI.
-- Reports include a summary table, failures (annotated **known**), per-case
-  **timing** (min/p50/p99/max), and — when a CAModel dump is present — a
-  **Performance (CA metrics)** table (EX/IPC/vf_real/dual/stalls, modeled on the
-  vmi-dashboard). See [docs/metrics.md](docs/metrics.md).
-
 ### What's automatic vs human
 
 Four roles, shown on every demo step and applying to the real flow:
@@ -200,7 +170,7 @@ Four roles, shown on every demo step and applying to the real flow:
 | 🟡 **you (remote gate)** | the triage *content* (`wrong → correct → action`) and **merging the MR on the remote** (branch protection) |
 | 🔴 **never automatic** | remove or change an existing check |
 
-`./harness demo` shows this per step with a **"Who does what"** box
+`python3 -m skill_foundry.cli.demo` shows this per step with a **"Who does what"** box
 (command / harness / you). Capture and apply are automatic — `--direct` pushes
 straight to `origin/main` (no token); `--pr` auto-creates the MR and the
 **merge** is the gate on the remote.
@@ -220,9 +190,9 @@ hide them.
 ### Guided tour
 
 ```bash
-./harness guide           # interactive step-by-step tour of the real flow
-./harness demo            # interactive sandboxed demo (no hardware, step-by-step)
-./harness demo --straight # demo straight through (for presenting / CI)
+python3 -m skill_foundry.cli.guide           # interactive step-by-step tour of the real flow
+python3 -m skill_foundry.cli.demo            # interactive sandboxed demo (no hardware, step-by-step)
+python3 -m skill_foundry.cli.demo --straight # demo straight through (for presenting / CI)
 ```
 
 The guide walks you through env check → choose suites → run → report → review →
@@ -233,7 +203,7 @@ skip) and fall back to numbered prompts when piped. If `ASCEND_HOME_PATH` is
 unset, the CANN picker lists each installed package with which arches it can
 compile vs simulate.
 
-The demo (`./harness demo`) drives the **real** harness scripts against a mock
+The demo (`python3 -m skill_foundry.cli.demo`) drives the **real** harness scripts against a mock
 gtest runner, one step at a time. Each step is a framed block with a progress
 bar, a step map (`✓` done · `▶` current · `·` upcoming), a **"Who does what"**
 box, and a menu: **run & continue / skip / back / jump / explain / quit**.
@@ -303,12 +273,12 @@ env.example.sh            copy to env.sh for machine-local CANN / pto-isa paths
 
 Set machine-local paths in `env.sh` (copy `env.example.sh`) and
 `source ./env.sh` before npu suites; cpu-st / static suites run without it.
-`./harness list` tells you exactly what's runnable on the current machine.
+`python3 -m skill_foundry.workflow.run --list` tells you exactly what's runnable on the current machine.
 
 | Tier | Where | Notes |
 |---|---|---|
 | CPU-ST | machine with clang++>=15 **or** g++>=13 | e.g. ecs / yellow / b10 |
-| NPU-sim (A5/A3/A6) | a CANN toolkit with **both** compile headers (`include/pto/npu/<arch>`) **and** the simulator (`tools/simulator/<soc>`) | A6 sim lives on yellow (`dav_9201`); see `./harness cann` for which installed CANN covers which arch |
+| NPU-sim (A5/A3/A6) | a CANN toolkit with **both** compile headers (`include/pto/npu/<arch>`) **and** the simulator (`tools/simulator/<soc>`) | A6 sim lives on yellow (`dav_9201`); see `python3 -m skill_foundry.lib.cann` for which installed CANN covers which arch |
 
 See `.claude/skills/pto-isa/references/env.md` for the arch/soc/env table.
 
@@ -340,7 +310,7 @@ protection on the repo so the merge itself is the review gate.
 `.gitcode/workflows/selfcheck.yml` runs `./harness selfcheck` on push/PR.
 
 See `.claude/skills/skill-maintainer/SKILL.md` and run the live walkthrough:
-`./harness demo` (interactive; narration in `demo/NARRATION.md`).
+`python3 -m skill_foundry.cli.demo` (interactive; narration in `demo/NARRATION.md`).
 
 ## Troubleshooting
 
@@ -348,8 +318,8 @@ See `.claude/skills/skill-maintainer/SKILL.md` and run the live walkthrough:
 |---|---|
 | `ASCEND_HOME_PATH not set` on npu/costmodel/comm suites | `cp env.example.sh env.sh && source ./env.sh` |
 | cpu-st: `Could not find a suitable compiler` | run on ecs / yellow / b10 (needs clang++>=15 or g++>=13) |
-| npu-sim suite shows `!` in `./harness list` | `./harness cann` — the chosen CANN must have both headers and the simulator |
+| npu-sim suite shows `!` in `python3 -m skill_foundry.workflow.run --list` | `python3 -m skill_foundry.lib.cann` — the chosen CANN must have both headers and the simulator |
 | `target repo not found` | `export PTO_ISA_REPO=~/pto-isa` |
-| bare `./harness run` returns exit 2 | pass `--suite <name>` or `--all-suites` |
+| bare `python3 -m skill_foundry.workflow.run` returns exit 2 | pass `--suite <name>` or `--all-suites` |
 | `baseline` refuses to pin | some suite did not PASS — fix it, or use `--force` |
 | `report --open` → xdg-open errors / no browser | handled: WSL opens via `explorer.exe`; otherwise prints the path (+ Windows path on WSL) |

@@ -18,7 +18,7 @@ The regression signal lives here. Diff a run against `reports/baseline/<target>.
 1. Run the diff:
 
    ```bash
-   ./harness review --run reports/<run-id>/run.json
+   python3 -m skill_foundry.workflow.review --run reports/<run-id>/run.json
    ```
 
 2. Classify every delta:
@@ -39,7 +39,7 @@ The regression signal lives here. Diff a run against `reports/baseline/<target>.
 ## Gotchas
 
 - A seed baseline (`"generated": false`) has no case data — the first real run
-  should be **promoted** to baseline (`./harness baseline`), not diffed.
+  should be **promoted** to baseline (`bash skill_foundry/workflow/baseline.sh`), not diffed.
 - Durations only exist where the parser captured them; treat missing durations
   as "no perf data", never as zero.
 - Different hosts have different speeds — only compare runs from the same

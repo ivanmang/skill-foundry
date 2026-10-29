@@ -30,15 +30,15 @@ commands, env, and triage.
 | NPU-sim A3 | `python3 tests/script/run_st.py -r sim -v a3 -t all` |
 | NPU-sim A6 | `python3 tests/script/run_st.py -r sim -v a6 -t all` |
 
-Via the harness (recommended — one entry point):
+Via the workflow script (normalizes to run.json + reports + diffs):
 
 ```bash
-./harness status                       # what can run here (auto-detected)
-./harness run --all-suites --dry-run   # preview before running
-./harness run --all-suites --parallel  # runnable suites concurrently
-./harness run --suite npu-sim-a5 --testcase tpartargmax          # one testcase
-./harness run --suite npu-sim-a5 --testcase tadd --filter 'TADDTest.case_*'
-./harness run --suite cpu-st --testcase tadd --filter 'TADDTest.case_*'
+python3 -m skill_foundry.workflow.status                       # what can run here (auto-detected)
+python3 -m skill_foundry.workflow.run --all-suites --dry-run   # preview before running
+python3 -m skill_foundry.workflow.run --all-suites --parallel  # runnable suites concurrently
+python3 -m skill_foundry.workflow.run --suite npu-sim-a5 --testcase tpartargmax          # one testcase
+python3 -m skill_foundry.workflow.run --suite npu-sim-a5 --testcase tadd --filter 'TADDTest.case_*'
+python3 -m skill_foundry.workflow.run --suite cpu-st --testcase tadd --filter 'TADDTest.case_*'
 ```
 
 Single testcase / filter (raw pto-isa runner):

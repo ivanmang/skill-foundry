@@ -1,9 +1,11 @@
 # Deploy skill-foundry MCP on b10
 
-b10 (`pto-b10.ddns.net`) is the public gateway; **ecs** (`115.175.35.144`) is the
-compute host with CANN 9.1.0 + A5/A3 simulators. The MCP server lives on b10 and
-SSHs to ecs for `workflow_run` / `workflow_status`. Skills/learnings/git live in
-the b10 checkout; the MR-gate (`GITCODE_TOKEN`) is centralized on b10.
+b10 (`pto-b10.ddns.net`) is the public gateway. The MCP server lives on b10 and
+exposes **only the skill-ops loop** (skills list/load, capture, teach, promote).
+The bundled regression workflow is *not* in the harness — teammates run it on
+their own machines via the thin scripts (see `.claude/skills/`). Skills /
+learnings / git live in the b10 checkout; the MR-gate (`GITCODE_TOKEN`) is
+centralized on b10.
 
 ## Topology
 
@@ -11,8 +13,7 @@ the b10 checkout; the MR-gate (`GITCODE_TOKEN`) is centralized on b10.
 agent (any machine) ── https://pto-b10.ddns.net/mcp ──▶ b10 (gateway)
                                                         │  mcp/server.py (FastMCP)
                                                         │  skill-foundry clone
-                                                        │  GITCODE_TOKEN (auto-MR)
-                                                        └── ssh ecs ──▶ ./harness run/status
+                                                        │  GITCODE_TOKEN (auto-MR, --pr)
 ```
 
 ## Quick start (on b10)
@@ -29,15 +30,10 @@ Or if you already have the checkout on b10:
 ssh b10 'bash ~/skill-foundry/mcp/deploy.sh'
 ```
 
-The script prompts for: `GITCODE_TOKEN`, compute-host SSH alias (default `ecs`),
-compute checkout path (default `~/skill-foundry`). It writes `env.sh` (mode 600),
+The script prompts for `GITCODE_TOKEN`. It writes `env.sh` (mode 600),
 launches the server in the background via `nohup` (pid in `mcp.pid`, log in
 `mcp.log`), and self-verifies. If b10 has passwordless sudo, it installs a
 systemd unit instead (see [Persistence](#persistence)).
-
-> On ecs, the checkout must be at `~/skill-foundry` (or set `MCP_COMPUTE_PATH`
-> to where it actually is). And b10 must be able to `ssh ecs` non-interactively
-> (same key the daily-refresh already uses).
 
 ## Manual steps (what deploy.sh does)
 
@@ -49,8 +45,6 @@ pip install -r mcp/requirements.txt
 
 cat > env.sh <<'EOF'
 export GITCODE_TOKEN="glpat-…"
-export MCP_COMPUTE_HOST="ecs"
-export MCP_COMPUTE_PATH="~/skill-foundry"
 EOF
 chmod 600 env.sh
 
@@ -128,11 +122,8 @@ steps section; or run `sudo bash mcp/deploy.sh` (it auto-detects sudo).
 
 | Tool | Where it runs | Notes |
 |---|---|---|
-| `status` | b10 local | hub state: skills, learnings, catalog, git |
 | `skills_list` / `skills_load` | b10 local | discovery is live |
 | `capture_skill` / `teach` / `promote` | b10 local | writes the b10 clone; `promote` defaults to `mode=direct` (SSH push to `main`, no token); `mode=pr` uses `GITCODE_TOKEN` → auto-MR |
-| `workflow_status` | **ecs** | the compute host's env/suites/baseline/last-run |
-| `workflow_run` | **ecs** | runs the regression workflow where the toolchain is |
 
 ## Ops
 

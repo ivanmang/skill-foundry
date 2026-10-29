@@ -1,11 +1,9 @@
 #!/usr/bin/env python3
 """Bare `./harness` entry: a curated interactive menu (falls back to help when piped).
 
-The menu is the *front door*, so it leads with the product (the skill-ops loop)
-and keeps the bundled regression workflow to two entries. The rest of the verbs
-(status / diagnose / onboarding / history / clean / validate / cann / list /
-selfcheck) stay available under `./harness help` and the post-verb "What next?"
-menu.
+The harness is ONLY the skill-ops loop (capture → promote → hub → discover),
+so this front door lists exactly that. The bundled regression workflow lives as
+directly-runnable scripts the skills reference (see .claude/skills/), not here.
 
 Usage:
   ./harness                # (with no args) shows this menu on a TTY
@@ -20,17 +18,10 @@ from skill_foundry import dispatch
 from skill_foundry.cli import guide
 
 ITEMS = [
-    # ── THE PRODUCT — capture → promote → hub → discover ──
     ("🛠  capture a new skill", ["capture-skill"]),
     ("🧠  log a correction (teach)", ["teach"]),
     ("⬆  promote pending learnings", ["promote", "--direct"]),
     ("📚  browse skills (list/search)", ["skills"]),
-
-    # ── BUNDLED — the regression workflow (the example domain) ──
-    ("🚀  run the regression (guided)", ["guide"]),
-    ("🎬  sandboxed demo — no hardware", ["demo"]),
-
-    # ── everything else lives under ./harness help ──
     ("❓  help", ["help"]),
 ]
 
@@ -41,7 +32,7 @@ def main(argv: list[str] | None = None) -> int:
         return dispatch.dispatch("help", [])
 
     guide.banner("skill-foundry")
-    print("  capture → promote → hub → discover  (regression is a bundled workflow).\n")
+    print("  capture → promote → hub → discover.\n")
     choice = guide.select_menu(
         guide.c("What would you like to do?  (↑/↓ choose · Enter select · q quit)", guide.BOLD),
         ITEMS,

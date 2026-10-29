@@ -17,7 +17,7 @@ skill is the wiring and the handoff.
 ## Steps
 
 1. **Run** — `run-testcase` for the target's enabled suites
-   (`./harness run --all-suites`, or a narrow `--suite`/`--testcase`).
+   (`python3 -m skill_foundry.workflow.run --all-suites`, or a narrow `--suite`/`--testcase`).
 2. **Extract** — confirm `run.json` contains per-suite `results` (the driver
    does this automatically; re-run `extract-logs` only if a parse failed).
 3. **Report** — `generate-report` to `report.md` + `report.html`.
@@ -37,7 +37,7 @@ skill is the wiring and the handoff.
 
 Log with `./harness teach "wrong -> correct -> action"` (it writes the strict
 `LRN-…` entry automatically), then hand to `skill-maintainer` to promote.
-`skill-maintainer` runs `./harness promote --pr`, which auto-applies, commits,
+`skill-maintainer` runs `./harness promote --direct`, which auto-applies, commits,
 pushes, and creates the MR — the human merges it on the remote.
 
 ```markdown

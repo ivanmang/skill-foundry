@@ -39,10 +39,11 @@ The CLI shell (interactive UX, not domain logic):
 
 ## `workflow/` — BUNDLED WORKFLOW: regression (run → report → review)
 
-The regression workflow is a *consumer* of the platform, not the platform.
-Its drivers live here; the `./harness` verbs they serve are:
+The regression workflow is a *consumer* of the platform, not the platform. Its
+drivers live here as **directly-runnable thin scripts** (not `./harness` verbs);
+the skills hold the workflow knowledge and reference these:
 
-| Verb | Module | Purpose |
+| Script | Module | Purpose |
 |---|---|---|
 | `run` | `workflow/run.py` | Run suites → `run.json` + logs |
 | `list` | `workflow/run.py --list` | List suites + arches with availability |
@@ -92,7 +93,7 @@ call.
 
 ## Extras
 
-- `./harness run --all-suites --report --open --review` — the whole USE loop, one command.
-- `./harness run --suite X --testcase T [--filter G]` — single testcase / gtest filter.
+- `python3 -m skill_foundry.workflow.run --all-suites --report --open --review` — the whole USE loop, one command.
+- `python3 -m skill_foundry.workflow.run --suite X --testcase T [--filter G]` — single testcase / gtest filter.
 - `./harness promote --direct` — push to `origin/main` (no MR, no token); `--pr` MR-gated.
 - `make check` — run the self-check locally.
