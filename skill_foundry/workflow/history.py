@@ -2,9 +2,9 @@
 """List recent runs with a per-suite pass/fail summary.
 
 Usage:
-  ./harness history               # recent runs, newest first
-  ./harness history --limit 10
-  ./harness history --json
+  python3 -m skill_foundry.workflow.history               # recent runs, newest first
+  python3 -m skill_foundry.workflow.history --limit 10
+  python3 -m skill_foundry.workflow.history --json
 """
 
 from __future__ import annotations

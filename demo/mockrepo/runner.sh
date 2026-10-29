@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Mock gtest runner for the harness demo. Deterministic output: 2 pass, 1 fail.
+# Mock gtest runner for the skill-foundry demo. Deterministic output: 2 pass, 1 fail.
 set -u
 
 echo "[ RUN      ] VecOpTest.case_add_128x128"

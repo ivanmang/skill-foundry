@@ -2,7 +2,7 @@
 """Validate the harness config files (suites.json / arches.json / cann.json).
 
 Usage:
-  ./harness validate
+  python3 -m skill_foundry.workflow.validate
 """
 
 from __future__ import annotations

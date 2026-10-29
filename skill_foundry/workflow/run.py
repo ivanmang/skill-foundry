@@ -416,12 +416,12 @@ def _print_next_steps(record: dict, failed: bool, as_json: bool, chained: bool =
     elif failed:
         lines = [
             f"⚠ {n_failed} suite(s) failed.",
-            "next: ./harness report --open   (see the failure)   → triage → ./harness teach \"…\"",
+            "next: python3 -m skill_foundry.workflow.report --open   (see the failure)   → triage → ./harness teach \"…\"",
         ]
     else:
         lines = [
             "✓ all passed.",
-            "next: ./harness report --open   or   ./harness review   (diff vs baseline)",
+            "next: python3 -m skill_foundry.workflow.report --open   or   python3 -m skill_foundry.workflow.review   (diff vs baseline)",
         ]
     if as_json:
         for line in lines:
@@ -493,7 +493,7 @@ def main(argv: list[str] | None = None) -> int:
 
     repo = resolve_repo(target_cfg)
     if not repo.exists():
-        usage_error(f"target repo not found: {repo} (set {target_cfg.get('repo_env', 'PTO_ISA_REPO')} or source ./env.sh — see ./harness diagnose)")
+        usage_error(f"target repo not found: {repo} (set {target_cfg.get('repo_env', 'PTO_ISA_REPO')} or source ./env.sh — see python3 -m skill_foundry.workflow.diagnose)")
 
     if args.run_id:
         sane = re.sub(r"[^A-Za-z0-9._-]+", "-", args.run_id).strip(".-")
@@ -508,7 +508,7 @@ def main(argv: list[str] | None = None) -> int:
         usage_error(
             "specify --suite <name> or --all-suites.\n"
             f"Enabled suites for '{args.target}': {enabled or 'none'}\n"
-            "see ./harness list (what can run) or ./harness diagnose (what's missing)"
+            "see python3 -m skill_foundry.workflow.run --list (what can run) or python3 -m skill_foundry.workflow.diagnose (what's missing)"
         )
 
     if args.all_suites and (args.testcase or args.filter):
@@ -529,7 +529,7 @@ def main(argv: list[str] | None = None) -> int:
             else:
                 print(f"  skip {s['name']}: {reason}")
         if not runnable and not args.dry_run:
-            usage_error("none of the enabled suites are runnable in this environment; see ./harness list / ./harness diagnose.")
+            usage_error("none of the enabled suites are runnable in this environment; see python3 -m skill_foundry.workflow.run --list / python3 -m skill_foundry.workflow.diagnose.")
         suites = runnable
 
     if args.dry_run:

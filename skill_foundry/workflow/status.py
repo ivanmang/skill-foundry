@@ -2,9 +2,9 @@
 """One-glance dashboard: environment, per-target suites, baseline, learnings, last run.
 
 Usage:
-  ./harness status              # all targets
-  ./harness status --target X   # one target
-  ./harness status --json       # machine-readable
+  python3 -m skill_foundry.workflow.status              # all targets
+  python3 -m skill_foundry.workflow.status --target X   # one target
+  python3 -m skill_foundry.workflow.status --json       # machine-readable
 """
 
 from __future__ import annotations
@@ -144,7 +144,7 @@ def render(data: dict) -> None:
             age = f"{b['age_days']}d ago" if b["age_days"] is not None else "?"
             print(f"  {mark(True)} baseline  {b['run_id']}, {age} — refresh only deliberately")
         else:
-            print(f"  {mark(False)} baseline  none — ./harness baseline {t['name']}")
+            print(f"  {mark(False)} baseline  none — bash skill_foundry/workflow/baseline.sh {t['name']}")
         for s in t["suites"]:
             sym = "✓" if (s["enabled"] and s["runnable"]) else ("!" if s["enabled"] else "·")
             color = GREEN if (s["enabled"] and s["runnable"]) else (YELLOW if s["enabled"] else "")
@@ -161,15 +161,15 @@ def render(data: dict) -> None:
     if lr:
         st = c("FAIL" if lr["failed"] else "PASS", RED if lr["failed"] else GREEN)
         print(f"  {lr['run_id']} [{lr['target']}] · {lr['suites']} · {st}")
-        print("  next: ./harness report --open" + ("" if lr["failed"] else "  (or ./harness review)"))
+        print("  next: python3 -m skill_foundry.workflow.report --open" + ("" if lr["failed"] else "  (or python3 -m skill_foundry.workflow.review)"))
     else:
-        print("  none yet — run: ./harness run --all-suites --quiet")
+        print("  none yet — run: python3 -m skill_foundry.workflow.run --all-suites --quiet")
 
     print()
 
 
 def main(argv: list[str] | None = None) -> int:
-    ap = argparse.ArgumentParser(description="One-glance harness status.")
+    ap = argparse.ArgumentParser(description="One-glance status.")
     ap.add_argument("--target", default=None, help="Show only this target.")
     ap.add_argument("--json", action="store_true", help="Emit JSON.")
     args = ap.parse_args(argv)

@@ -7,8 +7,8 @@ is interactive — after every step you choose what to do next (run / next /
 previous / jump / explain / quit) with arrow keys.
 
 Usage:
-  ./harness demo                 # interactive, step-by-step
-  ./harness demo --straight      # run demo/run_demo.sh straight through
+  python3 -m skill_foundry.cli.demo                 # interactive, step-by-step
+  python3 -m skill_foundry.cli.demo --straight      # run demo/run_demo.sh straight through
 """
 
 from __future__ import annotations
@@ -218,7 +218,7 @@ STEPS: list[dict] = [
 ]
 BY_KEY = {s["key"]: s for s in STEPS}
 
-# What the harness runs for you vs. what needs a human, per step.
+# What the scripts run for you vs. what needs a human, per step.
 ROLES: dict[str, tuple[str, str, str]] = {
     "run": ("python3 -m skill_foundry.workflow.run --target demo --all-suites",
             "runs the suite and normalizes the log into run.json",
@@ -238,7 +238,7 @@ ROLES: dict[str, tuple[str, str, str]] = {
     "apply": ("./harness promote --pr",
               "applies + commits + pushes + auto-creates the MR (glab / GITCODE_TOKEN)",
               "merge the MR on the remote (branch protection gates it)"),
-    "rerun": ("./harness report --run <run.json> --known …",
+    "rerun": ("python3 -m skill_foundry.workflow.report --run <run.json> --known …",
               "re-renders with the new corpus → failure annotated 'known'",
               "nothing — watch the line flip to 'known'"),
     "takeaway": ("—",
@@ -353,7 +353,7 @@ def intro() -> None:
     3. p99 > +15% flags a perf regression even if the average looks stable —
        never trust average alone.
     4. An npu-sim suite needs BOTH the CANN compile headers AND the simulator —
-       ./harness list marks it ! if either is missing.
+       python3 -m skill_foundry.workflow.run --list marks it ! if either is missing.
     5. --all-suites auto-skips missing prereqs; an explicit --suite force-runs.
     6. Every run records context (git ref, dirty flag, host, env), so any
        result is reproducible on another machine.

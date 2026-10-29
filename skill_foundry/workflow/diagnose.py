@@ -2,9 +2,9 @@
 """Diagnose what's missing / broken on this machine and print the exact fix.
 
 Usage:
-  ./harness diagnose            # check everything, print ✓/✗ + fixes
-  ./harness diagnose --json     # machine-readable
-  ./harness diagnose --strict   # exit 1 if any issue (for CI)
+  python3 -m skill_foundry.workflow.diagnose            # check everything, print ✓/✗ + fixes
+  python3 -m skill_foundry.workflow.diagnose --json     # machine-readable
+  python3 -m skill_foundry.workflow.diagnose --strict   # exit 1 if any issue (for CI)
 """
 
 from __future__ import annotations
@@ -58,7 +58,7 @@ def collect_issues() -> list[dict]:
         "check": "ASCEND_HOME_PATH",
         "ok": bool(ascend),
         "detail": ascend or "not set",
-        "fix": "cp env.example.sh env.sh && source ./env.sh  (or pick one in ./harness guide)",
+        "fix": "cp env.example.sh env.sh && source ./env.sh  (or pick one in python3 -m skill_foundry.cli.guide)",
     })
 
     # per target: repo checkout + each enabled suite's prereqs
@@ -83,9 +83,9 @@ def collect_issues() -> list[dict]:
                 if mode == "cpu":
                     fix = "install clang++ (>=15) or g++ (>=13) — or run cpu-st on ecs/yellow/b10"
                 elif mode in ("npu-sim", "npu", "costmodel", "comm"):
-                    fix = "set ASCEND_HOME_PATH (npu-sim also needs BOTH headers and simulator — ./harness cann)"
+                    fix = "set ASCEND_HOME_PATH (npu-sim also needs BOTH headers and simulator — python3 -m skill_foundry.lib.cann)"
                 else:
-                    fix = "see ./harness list"
+                    fix = "see python3 -m skill_foundry.workflow.run --list"
                 issues.append({
                     "check": f"{name}/{s['name']}",
                     "ok": False,
@@ -100,14 +100,14 @@ def collect_issues() -> list[dict]:
             "check": f"baseline {name}",
             "ok": bpath.exists(),
             "detail": "present" if bpath.exists() else "missing",
-            "fix": f"run: ./harness baseline {name}  (on a canonical machine where all suites PASS)",
+            "fix": f"run: bash skill_foundry/workflow/baseline.sh {name}  (on a canonical machine where all suites PASS)",
         })
 
     return issues
 
 
 def render(issues: list[dict], strict: bool) -> int:
-    print(c(" harness diagnose", BOLD))
+    print(c(" diagnose", BOLD))
     bad = 0
     for it in issues:
         mark_ = mark(it["ok"])

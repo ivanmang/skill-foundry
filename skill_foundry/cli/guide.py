@@ -2,8 +2,8 @@
 """Interactive, step-by-step guide through the skill-foundry.
 
 Usage:
-  ./harness guide            # guided tour (asks before each step)
-  ./harness guide --demo     # jump straight to the sandboxed demo tour
+  python3 -m skill_foundry.cli.guide            # guided tour (asks before each step)
+  python3 -m skill_foundry.cli.guide --demo     # jump straight to the sandboxed demo tour
 """
 
 from __future__ import annotations
@@ -408,7 +408,7 @@ def run_real_tour(name: str, target: dict) -> int:
             else:
                 subprocess.run([sys.executable, "-m", "skill_foundry.cli.promote", "--pr"], cwd=HARNESS)
 
-    nxt = "./harness run --all-suites --quiet" + ("  and  ./harness promote --direct" if pending else "")
+    nxt = "python3 -m skill_foundry.workflow.run --all-suites --quiet" + ("  and  ./harness promote --direct" if pending else "")
     print(c(f"\n✓ Done. Next time: {nxt}", GREEN))
     return 0
 

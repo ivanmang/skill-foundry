@@ -2,9 +2,9 @@
 """Remove run directories under reports/ (always keeps the pinned baseline).
 
 Usage:
-  ./harness clean                 # remove all run dirs
-  ./harness clean --dry-run       # show what would be removed
-  ./harness clean --keep 5        # keep the 5 most recent runs
+  python3 -m skill_foundry.workflow.clean                 # remove all run dirs
+  python3 -m skill_foundry.workflow.clean --dry-run       # show what would be removed
+  python3 -m skill_foundry.workflow.clean --keep 5        # keep the 5 most recent runs
 """
 
 from __future__ import annotations

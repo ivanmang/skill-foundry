@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Normalize gtest / ctest / run_cpu.py / run_st.py logs into a results object.
 
-Internal — used by run.py. Prefer `./harness run` over running this directly.
+Internal — used by run.py. Prefer `python3 -m skill_foundry.workflow.run` over running this directly.
 
 Output shape:
 {

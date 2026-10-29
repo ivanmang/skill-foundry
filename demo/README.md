@@ -10,8 +10,8 @@ A self-contained, non-destructive live demo of the skill-foundry.
 ## Run it
 
 ```bash
-./harness demo                # interactive, step-by-step (arrow keys + Enter)
-./harness demo --straight     # straight through (CI / quick skim)
+python3 -m skill_foundry.cli.demo                # interactive, step-by-step (arrow keys + Enter)
+python3 -m skill_foundry.cli.demo --straight     # straight through (CI / quick skim)
 PAUSE=1 ./demo/run_demo.sh    # scene-by-scene with a pause (for presenting)
 ```
 

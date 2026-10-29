@@ -2,10 +2,10 @@
 """Detect which pto-isa arch a given CANN toolkit can compile for and simulate.
 
 Usage:
-  ./harness cann                 # analyze ASCEND_HOME_PATH, then scan ~/Ascend
-  ./harness cann --home /path/to/cann-9.1.0
-  ./harness cann --scan          # scan ~/Ascend and /usr/local/Ascend
-  ./harness cann --json
+  python3 -m skill_foundry.lib.cann                 # analyze ASCEND_HOME_PATH, then scan ~/Ascend
+  python3 -m skill_foundry.lib.cann --home /path/to/cann-9.1.0
+  python3 -m skill_foundry.lib.cann --scan          # scan ~/Ascend and /usr/local/Ascend
+  python3 -m skill_foundry.lib.cann --json
 
 Basis:
   - headers: include/pto/npu/<arch>  -> which arches the toolkit compiles for

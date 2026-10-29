@@ -1,6 +1,6 @@
 # Report metrics — reference
 
-The harness report now captures **performance metrics**, modeled on the
+The report now captures **performance metrics**, modeled on the
 `vmi-dashboard` (CCE-vs-VMI CA report). This page is the reference for what
 each metric means and how it's derived.
 
