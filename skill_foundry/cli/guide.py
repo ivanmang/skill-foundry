@@ -391,10 +391,11 @@ def run_real_tour(name: str, target: dict) -> int:
         subprocess.run([sys.executable, "-m", "skill_foundry.cli.teach"], cwd=HARNESS)
 
     banner("6 · Promote pending learnings")
-    print(c("  Capture is automatic; promotion is AUTO — the MR merge is remote-gated.", BOLD))
+    print(c("  Capture is automatic; promotion is AUTO — `--direct` pushes to main (no token), `--pr` opens an MR.", BOLD))
     print("    🟢 '--propose' DRAFTS a diff (no write) — optional review.")
-    print("    🟢 '--pr' applies + commits + pushes + AUTO-CREATES the MR (glab / GITCODE_TOKEN).")
-    print("    🟡 you merge the MR on the remote (branch protection gates it).")
+    print("    🟢 '--direct' applies + commits + pushes straight to origin/main (no token).")
+    print("    🟢 '--pr' applies + branch + push + AUTO-CREATES the MR (glab / GITCODE_TOKEN).")
+    print("    🟡 with `--pr`, you merge the MR on the remote (branch protection gates it).")
     print(c("  RED line: the harness never auto-REMOVES or auto-CHANGES an existing check — it only ADDS.", RED))
     pending = pending_learning_count()
     if pending == 0:
@@ -402,12 +403,12 @@ def run_real_tour(name: str, target: dict) -> int:
     else:
         print(c(f"  {pending} pending learning(s) ready to promote.", GREEN))
         if ask_yesno("Promote them?", "y"):
-            if ask_yesno("Apply + push + auto-create the MR (--pr)? (n = propose only)", "y"):
-                subprocess.run([sys.executable, "-m", "skill_foundry.cli.promote", "--pr"], cwd=HARNESS)
+            if ask_yesno("Push straight to main (--direct)? (n = --pr for an MR)", "y"):
+                subprocess.run([sys.executable, "-m", "skill_foundry.cli.promote", "--direct"], cwd=HARNESS)
             else:
-                subprocess.run([sys.executable, "-m", "skill_foundry.cli.promote", "--propose"], cwd=HARNESS)
+                subprocess.run([sys.executable, "-m", "skill_foundry.cli.promote", "--pr"], cwd=HARNESS)
 
-    nxt = "./harness run --all-suites --quiet" + ("  and  ./harness promote --pr" if pending else "")
+    nxt = "./harness run --all-suites --quiet" + ("  and  ./harness promote --direct" if pending else "")
     print(c(f"\n✓ Done. Next time: {nxt}", GREEN))
     return 0
 

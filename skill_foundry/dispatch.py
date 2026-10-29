@@ -59,6 +59,16 @@ NON_WRAP = {
 }
 
 
+def verbs() -> list[str]:
+    """User-facing verb names (for menus + completion), sorted."""
+    hidden = {"__complete", "complete"}
+    return sorted(
+        [k for k in VERB_MODULES if k not in hidden]
+        + list(SHELL_VERBS)
+        + ["help", "version"]
+    )
+
+
 def version(short: bool = False) -> str:
     """Return the harness version string (VERSION file + git describe)."""
     ver = _version()

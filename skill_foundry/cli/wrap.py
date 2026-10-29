@@ -13,7 +13,6 @@ import sys
 
 from skill_foundry import dispatch
 from skill_foundry.cli import guide
-from skill_foundry.cli import menu
 
 # Natural next steps per verb: (label, argv) — shown first, then generic options.
 NEXT: dict[str, list[tuple[str, list[str]]]] = {
@@ -33,12 +32,25 @@ NEXT: dict[str, list[tuple[str, list[str]]]] = {
         ("📄  open the report", ["report", "--open"]),
     ],
     "teach": [
-        ("🟢  propose a diff", ["promote", "--propose"]),
-        ("📊  status", ["status"]),
+        ("🟢  publish to main (--direct)", ["promote", "--direct"]),
+        ("👀  review the diff first (--propose)", ["promote", "--propose"]),
+        ("📚  browse skills", ["skills"]),
     ],
     "promote": [
-        ("📊  status", ["status"]),
+        ("📚  browse skills (discover what you published)", ["skills"]),
         ("🧠  teach another", ["teach"]),
+    ],
+    "capture-skill": [
+        ("⬆  publish the draft", ["promote-skill"]),
+        ("📚  browse skills", ["skills"]),
+    ],
+    "promote-skill": [
+        ("📚  browse skills", ["skills"]),
+        ("🛠  capture another", ["capture-skill"]),
+    ],
+    "skills": [
+        ("🛠  capture a new skill", ["capture-skill"]),
+        ("⬆  promote pending learnings", ["promote", "--direct"]),
     ],
     "status": [
         ("🚀  run (dry-run preview)", ["run", "--all-suites", "--dry-run"]),
@@ -114,9 +126,9 @@ def main(argv: list[str] | None = None) -> int:
         verb = first[0]
         suggestions = NEXT.get(verb, []) or [
             ("🛠  capture a new skill", ["capture-skill"]),
+            ("📚  browse skills", ["skills"]),
+            ("⬆  promote pending learnings", ["promote", "--direct"]),
             ("📊  status", ["status"]),
-            ("🚀  run (dry-run preview)", ["run", "--all-suites", "--dry-run"]),
-            ("📄  open latest report", ["report", "--open"]),
         ]
         options = suggestions + [(TYPE, "TYPE"), (FULL, "FULL"), (SHELL, None)]
         status = guide.c("ok", guide.GREEN) if rc == 0 else guide.c(f"exit {rc}", guide.YELLOW)
@@ -132,7 +144,10 @@ def main(argv: list[str] | None = None) -> int:
                 return 0
             continue
         if choice == "FULL":
-            pick = guide.select_menu(guide.c("Run a command:", guide.BOLD), menu.ITEMS)
+            pick = guide.select_menu(
+                guide.c("Run a command:", guide.BOLD),
+                [(v, [v]) for v in dispatch.verbs()],
+            )
             if not pick:
                 continue
             first = pick
