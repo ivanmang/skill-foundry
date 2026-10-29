@@ -2,11 +2,11 @@
 """Run a declared regression suite and produce a normalized run record.
 
 Usage:
-  python3 skill_foundry/cli/run.py --suite cpu-st                 # default target: pto-isa
-  python3 skill_foundry/cli/run.py --all-suites
-  python3 skill_foundry/cli/run.py --quiet --all-suites           # summary only
-  python3 skill_foundry/cli/run.py --list                        # list suites + arches
-  python3 skill_foundry/cli/run.py --target demo --all-suites     # demo target
+  python3 -m skill_foundry.cli.run --suite cpu-st                 # default target: pto-isa
+  python3 -m skill_foundry.cli.run --all-suites
+  python3 -m skill_foundry.cli.run --quiet --all-suites           # summary only
+  python3 -m skill_foundry.cli.run --list                        # list suites + arches
+  python3 -m skill_foundry.cli.run --target demo --all-suites     # demo target
 
 Writes reports/<run-id>/run.json plus one raw log per suite, and normalizes
 each log with parse_gtest into the suite's "results" field.
@@ -28,8 +28,7 @@ import threading
 import time
 from pathlib import Path
 
-HARNESS = Path(__file__).resolve().parents[2]
-sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+from skill_foundry.paths import ROOT as HARNESS  # noqa: E402
 
 from skill_foundry.lib import parse_gtest  # noqa: E402
 from skill_foundry.lib import capabilities  # noqa: E402

@@ -2,7 +2,7 @@
 """Validate SKILL.md files against the open Agent Skills spec.
 
 Usage:
-  python3 skill_foundry/lib/validate_skills.py [--root <skills-dir>] [--quiet]
+  python3 -m skill_foundry.lib.validate_skills [--root <skills-dir>] [--quiet]
 
 Reference: https://agentskills.io/specification
 
@@ -23,7 +23,7 @@ import argparse
 import re
 from pathlib import Path
 
-HARNESS = Path(__file__).resolve().parents[2]
+from skill_foundry.paths import ROOT as HARNESS  # noqa: E402
 DEFAULT_ROOT = HARNESS / ".claude" / "skills"
 
 NAME_RE = re.compile(r"^[a-z0-9-]+$")

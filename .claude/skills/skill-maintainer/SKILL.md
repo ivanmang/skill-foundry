@@ -19,7 +19,7 @@ git-tracked edit.** This skill never rewrites skills blindly.
 | Action | Command |
 |---|---|
 | Log a correction (capture) | `./harness teach` (wizard) · `./harness teach "… -> … -> …"` (shorthand) · `./harness teach --edit` (editor) |
-| Draft from a run (auto-capture) | `python3 skill_foundry/lib/session_digest.py --run reports/<id>/run.json [--apply]` |
+| Draft from a run (auto-capture) | `python3 -m skill_foundry.lib.session_digest --run reports/<id>/run.json [--apply]` |
 | Propose promotion (diff, no write) | `./harness promote --propose` |
 | Apply promotion | `./harness promote --apply [--branch feat/learnings-<date>]` (or `--pr` to apply + push + auto-create the MR) |
 

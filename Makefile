@@ -10,7 +10,7 @@ check:
 	./skill_foundry/cli/selfcheck.sh
 
 validate:
-	python3 skill_foundry/cli/validate.py
+	python3 -m skill_foundry.cli.validate
 
 help:
 	@./harness help

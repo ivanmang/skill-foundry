@@ -10,11 +10,9 @@ from __future__ import annotations
 import os
 import shutil
 import subprocess
-import sys
-from pathlib import Path
 
-HARNESS = Path(__file__).resolve().parents[2]
-sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+from skill_foundry.paths import ROOT as HARNESS  # noqa: E402
+from skill_foundry import dispatch  # noqa: E402
 from skill_foundry.cli import guide  # noqa: E402 — reuse banner / c / ask / ask_yesno / select_menu / choose_cann
 from skill_foundry.lib import targets  # noqa: E402
 
@@ -97,7 +95,7 @@ def main(argv: list[str] | None = None) -> int:
 
     guide.banner("5 · See it work (optional)")
     if guide.ask_yesno("Run the 2-minute sandboxed demo (no hardware needed)?", "y"):
-        subprocess.run([str(HARNESS / "harness"), "demo"])
+        dispatch.dispatch("demo", [])
     print()
 
     print(guide.c("  ✓ Done. Next steps:", guide.GREEN))

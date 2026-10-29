@@ -11,12 +11,11 @@ from __future__ import annotations
 import os
 import subprocess
 import sys
-from pathlib import Path
 
-HARNESS = Path(__file__).resolve().parents[2]
-sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+from skill_foundry.paths import ROOT as HARNESS  # noqa: E402
+from skill_foundry import dispatch  # noqa: E402
 from skill_foundry.cli import guide  # noqa: E402 — reuse _read_key
-import status  # noqa: E402 — reuse collect()
+from skill_foundry.cli import status  # noqa: E402 — reuse collect()
 from skill_foundry.lib.term import BOLD, RESET, mark  # noqa: E402
 
 ACTIONS: list[tuple[str, list[str] | None]] = [
@@ -72,7 +71,7 @@ def render(selected: int) -> None:
 
 def main(argv: list[str] | None = None) -> int:
     if not sys.stdin.isatty():
-        return subprocess.run([str(HARNESS / "harness"), "status"]).returncode
+        return dispatch.dispatch("status", [])
 
     selected = 0
     while True:
@@ -90,7 +89,7 @@ def main(argv: list[str] | None = None) -> int:
             sys.stdout.flush()
             env = dict(os.environ)
             env["HARNESS_WRAPPED"] = "1"
-            subprocess.run([str(HARNESS / "harness"), *action], env=env)
+            subprocess.run([sys.executable, "-m", "skill_foundry", *action], env=env, cwd=HARNESS)
             try:
                 input("\n  Press Enter to return to the dashboard...")
             except (EOFError, KeyboardInterrupt):

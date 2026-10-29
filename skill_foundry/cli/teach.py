@@ -2,11 +2,11 @@
 """Friendly entry point for logging a correction.
 
 Usage:
-  ./skill_foundry/cli/teach.py                                    # interactive wizard
-  ./skill_foundry/cli/teach.py "symptom -> correct -> action"       # free-text shorthand
-  ./skill_foundry/cli/teach.py "symptom -> fix"                    # 2 parts: wrong + action
-  ./skill_foundry/cli/teach.py --edit                             # open $EDITOR with a template
-  ./skill_foundry/cli/teach.py --wrong "…" --correct "…" --action "…"   # explicit flags
+  python3 -m skill_foundry.cli.teach                                    # interactive wizard
+  python3 -m skill_foundry.cli.teach "symptom -> correct -> action"       # free-text shorthand
+  python3 -m skill_foundry.cli.teach "symptom -> fix"                    # 2 parts: wrong + action
+  python3 -m skill_foundry.cli.teach --edit                             # open $EDITOR with a template
+  python3 -m skill_foundry.cli.teach --wrong "…" --correct "…" --action "…"   # explicit flags
 
 Smart defaults: context defaults to the latest reports/*/run.json run-id, and
 skill defaults to that run's target (falling back to pto-isa). Under the hood
@@ -25,8 +25,7 @@ import sys
 import tempfile
 from pathlib import Path
 
-HARNESS = Path(__file__).resolve().parents[2]
-sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+from skill_foundry.paths import ROOT as HARNESS  # noqa: E402
 from skill_foundry.lib import log_correction  # noqa: E402
 
 DEFAULT_SKILL = "pto-isa"

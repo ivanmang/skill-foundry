@@ -13,11 +13,8 @@ import argparse
 import json
 import os
 import shutil
-import sys
-from pathlib import Path
 
-HARNESS = Path(__file__).resolve().parents[2]
-sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+from skill_foundry.paths import ROOT as HARNESS  # noqa: E402
 
 from skill_foundry.lib import capabilities  # noqa: E402
 from skill_foundry.lib import targets  # noqa: E402

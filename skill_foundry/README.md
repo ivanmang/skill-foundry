@@ -57,9 +57,14 @@ modules directly.
 
 - Exit codes: `0` success, `1` ran-but-not-clean, `2` usage error.
 - Errors go to stderr; machine-readable output is JSON where `--json` is offered.
-- Every module computes the repo root as `Path(__file__).resolve().parents[2]` and
-  prepends it to `sys.path` so `from skill_foundry.lib import …` works when the
-  module is run as a script (it is a package, not an installed distribution).
+- Repo locations come from `skill_foundry/paths.py` (single source of truth);
+  modules import `ROOT` from there instead of recomputing it from `__file__`.
+- Run via `./harness` (or `python3 -m skill_foundry`) — a single in-process
+  dispatcher (`skill_foundry/__main__.py` + `skill_foundry/dispatch.py`) maps each
+  verb onto a module's `main()` with no per-verb subprocess and no per-module
+  `sys.path` hacks.
+- Optional: `pip install -e .` (setuptools>=64, pip>=21.3) adds the
+  `skill-foundry` console script, so the same CLI works from any directory.
 
 ## Extras
 

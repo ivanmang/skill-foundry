@@ -4,7 +4,7 @@
 Internal — prefer `./harness teach` (wizard / shorthand / editor).
 
 Usage:
-  python3 skill_foundry/lib/log_correction.py \
+  python3 -m skill_foundry.lib.log_correction \
     --category correction --context demo-live-... --skill pto-isa \
     --wrong "device vcvt round-field mismatch" \
     --correct "known vcvt pattern; annotate instead of re-triage" \
@@ -20,7 +20,7 @@ import datetime as _dt
 import re
 from pathlib import Path
 
-HARNESS = Path(__file__).resolve().parents[2]
+from skill_foundry.paths import ROOT as HARNESS  # noqa: E402
 DEFAULT_FILE = HARNESS / "learnings" / "recent.md"
 CATEGORIES = {"correction", "error", "knowledge_gap", "feature"}
 PLACEHOLDER = "(No entries yet.)"

@@ -24,8 +24,8 @@ jobs:
       - name: Propose pending learnings
         run: |
           echo "===== pending learnings (proposed diffs) ====="
-          python3 skill_foundry/cli/promote.py --propose || true
+          python3 -m skill_foundry.cli.promote --propose || true
           echo ""
           echo "To apply + open a PR:"
-          echo "  python3 skill_foundry/cli/promote.py --apply --branch feat/learnings-$(date +%Y%m%d)"
+          echo "  python3 -m skill_foundry.cli.promote --apply --branch feat/learnings-$(date +%Y%m%d)"
           echo "  git push -u origin feat/learnings-$(date +%Y%m%d)"

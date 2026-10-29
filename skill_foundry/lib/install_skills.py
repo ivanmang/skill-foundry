@@ -17,7 +17,7 @@ import argparse
 import sys
 from pathlib import Path
 
-HARNESS = Path(__file__).resolve().parents[2]
+from skill_foundry.paths import ROOT as HARNESS  # noqa: E402
 SKILLS = HARNESS / ".claude" / "skills"
 
 # label, parent config dir (detection), reload hint

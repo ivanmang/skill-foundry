@@ -6,8 +6,8 @@ regressions (avg + p99). Perf rule: flag when p99 rises >15% even if avg stays
 stable.
 
 Usage:
-  python3 skill_foundry/cli/review.py --run reports/<run-id>/run.json
-  python3 skill_foundry/cli/review.py --run reports/<run-id>/run.json \
+  python3 -m skill_foundry.cli.review --run reports/<run-id>/run.json
+  python3 -m skill_foundry.cli.review --run reports/<run-id>/run.json \
       --baseline reports/<other>/run.json
 """
 
@@ -19,11 +19,9 @@ import math
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 from skill_foundry.lib import runs as _runs  # noqa: E402
 from skill_foundry.lib import targets  # noqa: E402
 
-HARNESS = Path(__file__).resolve().parents[2]
 P99_PCT = 15.0
 PERF_PCT = 15.0  # CA-metric thresholds: cycles/EX up >15%, IPC down >15%
 

@@ -1,30 +1,19 @@
 #!/usr/bin/env python3
-"""Wrap a harness verb, then guide the user to what's next.
+"""Wrap a harness verb, then guide the user to what's next — in one process.
 
-In an interactive terminal the dispatcher execs this instead of the verb, so
-after `./harness run` / `report` / `status` / … finishes, the user gets a
-"What next?" menu instead of dropping back to the shell.
-
-The menu is context-aware (suggests the natural next step for the verb they just
-ran) and also lets them type any command themselves, open the full verb menu, or
-quit to the shell.
-
-The dispatcher sets HARNESS_WRAPPED=1 before exec'ing this; child verbs inherit
-it and run unwrapped, so the loop here is the single one.
+After `./harness run` / `report` / `status` / … finishes, the user gets a
+"What next?" menu instead of dropping back to the shell. The verb itself runs
+in-process via `skill_foundry.dispatch` (no subprocess), and the menu loop
+re-dispatches in the same process.
 """
 
 from __future__ import annotations
 
-import os
-import subprocess
 import sys
-from pathlib import Path
 
-HARNESS = Path(__file__).resolve().parents[2]
-sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
-from skill_foundry.cli import guide  # noqa: E402 — select_menu / ask
-import menu  # noqa: E402 — ITEMS
-
+from skill_foundry import dispatch
+from skill_foundry.cli import guide
+from skill_foundry.cli import menu
 
 # Natural next steps per verb: (label, argv) — shown first, then generic options.
 NEXT: dict[str, list[tuple[str, list[str]]]] = {
@@ -111,18 +100,15 @@ def _type_command() -> list[str] | None:
 def main(argv: list[str] | None = None) -> int:
     args = argv if argv is not None else sys.argv[1:]
     if not args:
-        return subprocess.call([str(HARNESS / "harness"), "menu"])
+        return dispatch.dispatch("menu", [])
 
     if not sys.stdin.isatty() or not sys.stdout.isatty():
         # piped/CI: run verb straight through, no menu
-        return subprocess.call([str(HARNESS / "harness"), *args])
-
-    env = dict(os.environ)
-    env["HARNESS_WRAPPED"] = "1"
+        return dispatch.dispatch(args[0], args[1:])
 
     first = args
     while True:
-        rc = subprocess.call([str(HARNESS / "harness"), *first], env=env)
+        rc = dispatch.dispatch(first[0], first[1:])
         print()
 
         verb = first[0]

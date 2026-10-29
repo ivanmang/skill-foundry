@@ -5,8 +5,8 @@ Scans a run.json for FAILed cases and emits strict-format entries for anything
 not already logged in the learnings file. With --apply it appends them.
 
 Usage:
-  python3 skill_foundry/lib/session_digest.py --run reports/<id>/run.json           # print drafts
-  python3 skill_foundry/lib/session_digest.py --run reports/<id>/run.json --apply   # append
+  python3 -m skill_foundry.lib.session_digest --run reports/<id>/run.json           # print drafts
+  python3 -m skill_foundry.lib.session_digest --run reports/<id>/run.json --apply   # append
 """
 
 from __future__ import annotations
@@ -14,13 +14,11 @@ from __future__ import annotations
 import argparse
 import datetime as _dt
 import json
-import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 from skill_foundry.lib import log_correction  # noqa: E402
 
-HARNESS = Path(__file__).resolve().parents[2]
+from skill_foundry.paths import ROOT as HARNESS  # noqa: E402
 
 
 def draft_entries(record: dict) -> list[dict]:

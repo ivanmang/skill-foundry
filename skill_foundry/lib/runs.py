@@ -5,7 +5,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-HARNESS = Path(__file__).resolve().parents[2]
+from skill_foundry.paths import ROOT as HARNESS  # noqa: E402
 
 
 def runs_dir() -> Path:

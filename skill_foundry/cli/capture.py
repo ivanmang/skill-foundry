@@ -17,7 +17,7 @@ import sys
 import tempfile
 from pathlib import Path
 
-HARNESS = Path(__file__).resolve().parents[2]
+from skill_foundry.paths import ROOT as HARNESS  # noqa: E402
 INBOX = HARNESS / "hub" / "inbox"
 LIVE = HARNESS / ".claude" / "skills"
 NAME_RE = re.compile(r"^[a-z0-9-]+$")

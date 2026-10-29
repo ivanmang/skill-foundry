@@ -2,11 +2,11 @@
 """Promote pending learnings into skills / known-failures as a proposal or an edit.
 
 Proposal (default, no writes):
-  python3 skill_foundry/cli/promote.py --propose
+  python3 -m skill_foundry.cli.promote --propose
 
 Apply (writes files, marks entries promoted, logs to promoted.md + corrections.md):
-  python3 skill_foundry/cli/promote.py --apply [--branch feat/learnings-YYYYMMDD]
-  python3 skill_foundry/cli/promote.py --pr            # apply + push + CREATE the MR (remote-gated merge)
+  python3 -m skill_foundry.cli.promote --apply [--branch feat/learnings-YYYYMMDD]
+  python3 -m skill_foundry.cli.promote --pr            # apply + push + CREATE the MR (remote-gated merge)
 
 The `--pr` flow auto-creates the merge request via `glab` or the GitLab/GitCode
 REST API (GITCODE_TOKEN / GITLAB_TOKEN); otherwise it prints the MR-new URL.
@@ -33,10 +33,9 @@ import urllib.parse
 import urllib.request
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 from skill_foundry.lib import browser as _browser  # noqa: E402
 
-HARNESS = Path(__file__).resolve().parents[2]
+from skill_foundry.paths import ROOT as HARNESS  # noqa: E402
 FIELD_ORDER = ["id", "category", "context", "skill", "wrong", "correct", "action", "status"]
 ENTRY_RE = re.compile(r"^##\s+(LRN-\d{8}-\d{3})")
 

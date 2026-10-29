@@ -19,8 +19,7 @@ import time
 import tty
 from pathlib import Path
 
-HARNESS = Path(__file__).resolve().parents[2]
-sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+from skill_foundry.paths import ROOT as HARNESS  # noqa: E402
 from skill_foundry.lib import cann as detect_cann  # noqa: E402
 from skill_foundry.lib import capabilities  # noqa: E402
 from skill_foundry.lib import runs as _runs  # noqa: E402
@@ -340,7 +339,7 @@ def run_real_tour(name: str, target: dict) -> int:
 
     banner("2 · Run the suite(s)")
     print(c("  Every run records context (git ref, dirty flag, host, env) in run.json — reproducible on any machine.", YELLOW))
-    cmd = [sys.executable, "skill_foundry/cli/run.py", "--target", tname, *suite_flags, *extra_flags]
+    cmd = [sys.executable, "-m", "skill_foundry.cli.run", "--target", tname, *suite_flags, *extra_flags]
     result = subprocess.run(cmd, cwd=HARNESS)
     if result.returncode != 0:
         print(c("\n  Some suites did not pass — we'll review next.", YELLOW))
@@ -362,7 +361,7 @@ def run_real_tour(name: str, target: dict) -> int:
             known = HARNESS / ".claude" / "skills" / tname / "references" / "known-failures.md"
             kargs = ["--known", str(known)] if known.exists() else []
             subprocess.run([
-                sys.executable, "skill_foundry/cli/report.py",
+                sys.executable, "-m", "skill_foundry.cli.report",
                 "--run", str(HARNESS / "reports" / latest / "run.json"),
                 *kargs, "--out", str(out_base), "--open",
             ], cwd=HARNESS, check=False)
@@ -378,7 +377,7 @@ def run_real_tour(name: str, target: dict) -> int:
         if ask_yesno("Diff it against the pinned baseline?", "y"):
             baseline = targets.baseline_path(tname)
             subprocess.run([
-                sys.executable, "skill_foundry/cli/review.py",
+                sys.executable, "-m", "skill_foundry.cli.review",
                 "--run", str(HARNESS / "reports" / latest / "run.json"),
                 "--baseline", str(baseline),
             ], cwd=HARNESS, check=False)
@@ -389,7 +388,7 @@ def run_real_tour(name: str, target: dict) -> int:
     print(c("  Capture is automatic + append-only: it writes to learnings/recent.md (your memory).", YELLOW))
     print(c("    Auto-APPEND is safe — the harness logs lessons freely, nothing else changes.", YELLOW))
     if latest and ask_yesno("Log a correction for any new failure?", "n"):
-        subprocess.run([str(HARNESS / "skill_foundry" / "cli" / "teach.py")])
+        subprocess.run([sys.executable, "-m", "skill_foundry.cli.teach"], cwd=HARNESS)
 
     banner("6 · Promote pending learnings")
     print(c("  Capture is automatic; promotion is AUTO — the MR merge is remote-gated.", BOLD))
@@ -404,9 +403,9 @@ def run_real_tour(name: str, target: dict) -> int:
         print(c(f"  {pending} pending learning(s) ready to promote.", GREEN))
         if ask_yesno("Promote them?", "y"):
             if ask_yesno("Apply + push + auto-create the MR (--pr)? (n = propose only)", "y"):
-                subprocess.run([sys.executable, "skill_foundry/cli/promote.py", "--pr"], cwd=HARNESS)
+                subprocess.run([sys.executable, "-m", "skill_foundry.cli.promote", "--pr"], cwd=HARNESS)
             else:
-                subprocess.run([sys.executable, "skill_foundry/cli/promote.py", "--propose"], cwd=HARNESS)
+                subprocess.run([sys.executable, "-m", "skill_foundry.cli.promote", "--propose"], cwd=HARNESS)
 
     nxt = "./harness run --all-suites --quiet" + ("  and  ./harness promote --pr" if pending else "")
     print(c(f"\n✓ Done. Next time: {nxt}", GREEN))
@@ -416,14 +415,14 @@ def run_real_tour(name: str, target: dict) -> int:
 def main(argv: list[str] | None = None) -> int:
     args = argv if argv is not None else sys.argv[1:]
     if "--demo" in args:
-        return subprocess.run([sys.executable, str(HARNESS / "skill_foundry" / "cli" / "demo.py")]).returncode
+        return subprocess.run([sys.executable, "-m", "skill_foundry.cli.demo"], cwd=HARNESS).returncode
     print(c("\n skill-foundry · guided tour ", BOLD))
     mode = select_menu(
         "Start with:",
         [("Sandboxed demo (no hardware, step-by-step)", "demo"), ("Real target tour", "real")],
     ) or "demo"
     if mode == "demo":
-        return subprocess.run([sys.executable, str(HARNESS / "skill_foundry" / "cli" / "demo.py")]).returncode
+        return subprocess.run([sys.executable, "-m", "skill_foundry.cli.demo"], cwd=HARNESS).returncode
 
     cfg = targets.load_config()
     names = targets.list_targets(cfg)

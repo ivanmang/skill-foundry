@@ -146,6 +146,14 @@ Files: `.claude-plugin/plugin.json` (manifest), `.claude-plugin/marketplace.json
 ./harness version   show the harness version   [--short]
 ```
 
+Optional install — makes the CLI available anywhere as `skill-foundry`
+(`./harness` already works with no install):
+
+```bash
+pip install -e .        # needs setuptools>=64, pip>=21.3
+skill-foundry version
+```
+
 Quick start:
 
 ```bash
@@ -274,14 +282,14 @@ env.example.sh            copy to env.sh for machine-local CANN / pto-isa paths
   <=64 chars; description <=1024 chars), plus optional `license` + `compatibility`.
 - **Scripts are co-located in the `skill_foundry/` package**, not inside a single
   skill folder, because the run/extract/diff/report drivers are shared by several
-  skills. Skills reference them from the harness root (`python3 skill_foundry/...`),
+  skills. Skills reference them from the harness root (`python3 -m skill_foundry...`),
   and the `./harness` entry point maps each verb onto its `skill_foundry/cli/` driver.
   Consequence: these are *co-located repo skills* — they work when this repo is
   checked out and used as the working directory, but a single skill folder copied
   alone into another tool's skills dir is **not** self-contained.
 - **Conformance is machine-checked**: `./harness selfcheck` runs
   `skill_foundry/lib/validate_skills.py` against the open spec (or run it directly:
-  `python3 skill_foundry/lib/validate_skills.py`).
+  `python3 -m skill_foundry.lib.validate_skills`).
 
 ## Canonical environment
 

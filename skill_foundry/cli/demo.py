@@ -23,8 +23,7 @@ import textwrap
 import time
 from pathlib import Path
 
-HARNESS = Path(__file__).resolve().parents[2]
-sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+from skill_foundry.paths import ROOT as HARNESS  # noqa: E402
 from skill_foundry.cli import guide  # noqa: E402 — reuse select_menu / banner / c / ask
 
 DEMO_CONFIG = HARNESS / "demo" / "config" / "demo-suites.json"
@@ -87,9 +86,9 @@ def setup() -> None:
 
 def step_run() -> None:
     print("  Running (exit 1 is expected — the mock suite fails one case on purpose):\n")
-    print("    python3 skill_foundry/cli/run.py --config demo/config/demo-suites.json \\")
+    print("    python3 -m skill_foundry.cli.run --config demo/config/demo-suites.json \\")
     print("        --arches demo/config/demo-arches.json --target demo --all-suites --run-id", RUN_ID, "\n")
-    _run([sys.executable, "skill_foundry/cli/run.py", "--config", DEMO_CONFIG,
+    _run([sys.executable, "-m", "skill_foundry.cli.run", "--config", DEMO_CONFIG,
           "--arches", DEMO_ARCHES, "--target", "demo", "--all-suites",
           "--run-id", RUN_ID], check=False)
     print()
@@ -97,24 +96,24 @@ def step_run() -> None:
 
 
 def step_report() -> None:
-    _run([sys.executable, "skill_foundry/cli/report.py", "--run", RUN_DIR / "run.json",
+    _run([sys.executable, "-m", "skill_foundry.cli.report", "--run", RUN_DIR / "run.json",
           "--out", RUN_DIR / "report"])
     print("\n  Failure as the harness sees it today (no triage knowledge):")
     _grep(RUN_DIR / "report.md", FAIL_CASE)
 
 
 def step_review() -> None:
-    _run([sys.executable, "skill_foundry/cli/review.py", "--run", RUN_DIR / "run.json",
+    _run([sys.executable, "-m", "skill_foundry.cli.review", "--run", RUN_DIR / "run.json",
           "--baseline", BASELINE])
 
 
 def step_teach() -> None:
-    print("  (auto-capture) skill_foundry/cli/teach.py records the correction in strict LRN-… format:\n")
-    _run([sys.executable, "skill_foundry/cli/teach.py",
+    print("  (auto-capture) python3 -m skill_foundry.cli.teach records the correction in strict LRN-… format:\n")
+    _run([sys.executable, "-m", "skill_foundry.cli.teach",
           f"device vcvt round-field mismatch in {FAIL_CASE} -> known vcvt round-field pattern; annotate instead of re-triage -> promote vcvt round-field swap into known-failures",
           "--file", SB2 / "learnings" / "recent.md"])
     print("\n  (auto-draft alternative) session_digest.py drafts the same entry straight from run.json:")
-    _run([sys.executable, "skill_foundry/lib/session_digest.py", "--run", RUN_DIR / "run.json",
+    _run([sys.executable, "-m", "skill_foundry.lib.session_digest", "--run", RUN_DIR / "run.json",
           "--file", SB2 / "learnings" / "recent.md"], check=False)
     print("\n  Latest pending entry in the sandbox recent.md:")
     text = (SB2 / "learnings" / "recent.md").read_text(encoding="utf-8")
@@ -125,12 +124,12 @@ def step_teach() -> None:
 def step_propose() -> None:
     print("  (auto-propose) promote.py turns the pending entry into a reviewable diff "
           "(no write yet):\n")
-    _run([sys.executable, "skill_foundry/cli/promote.py", "--root", SB2, "--propose"])
+    _run([sys.executable, "-m", "skill_foundry.cli.promote", "--root", SB2, "--propose"])
 
 
 def step_apply() -> None:
     print("  (apply) write the edit into the sandbox known-failures.md:\n")
-    _run([sys.executable, "skill_foundry/cli/promote.py", "--root", SB2, "--apply"])
+    _run([sys.executable, "-m", "skill_foundry.cli.promote", "--root", SB2, "--apply"])
     before_txt = (SB2 / ".claude" / "skills" / "pto-isa" / "references" / "known-failures.before.md").read_text(encoding="utf-8")
     after_txt = SB2_KNOWN.read_text(encoding="utf-8")
     n_before = sum(1 for line in before_txt.splitlines() if line.startswith("### ") and "vcvt" in line)
@@ -146,7 +145,7 @@ def step_apply() -> None:
 
 def step_rerun() -> None:
     print("  Re-render the SAME run.json against the improved corpus:\n")
-    _run([sys.executable, "skill_foundry/cli/report.py", "--run", RUN_DIR / "run.json",
+    _run([sys.executable, "-m", "skill_foundry.cli.report", "--run", RUN_DIR / "run.json",
           "--known", SB2_KNOWN, "--out", RUN_DIR / "report-known"])
     print("\n  Failure line AFTER learning (now annotated as known):")
     _grep(RUN_DIR / "report-known.md", FAIL_CASE)
@@ -189,7 +188,7 @@ STEPS: list[dict] = [
               "never report average alone.",
          run=step_review),
     dict(key="teach", short="teach", needs=("review",), title="Improve — auto-capture the correction",
-         what="A person says 'that's a known vcvt round-field issue'. The AI logs it automatically (skill_foundry/cli/teach.py) as a strict, parseable LRN-… entry.",
+         what="A person says 'that's a known vcvt round-field issue'. The AI logs it automatically (python3 -m skill_foundry.cli.teach) as a strict, parseable LRN-… entry.",
          more="Capture is automatic and append-only: when you correct the agent ('no / actually / remember …'), "
               "it runs ./harness teach by itself and replies with the LRN-… id — one command, strict format, no freeform editing. "
               "session_digest.py can even draft the same entry straight from the run's failures.",
@@ -221,13 +220,13 @@ BY_KEY = {s["key"]: s for s in STEPS}
 
 # What the harness runs for you vs. what needs a human, per step.
 ROLES: dict[str, tuple[str, str, str]] = {
-    "run": ("python3 skill_foundry/cli/run.py --target demo --all-suites",
+    "run": ("python3 -m skill_foundry.cli.run --target demo --all-suites",
             "runs the suite and normalizes the log into run.json",
             "nothing — press Enter to run"),
-    "report": ("python3 skill_foundry/cli/report.py --run <run.json>",
+    "report": ("python3 -m skill_foundry.cli.report --run <run.json>",
                "renders report.md + report.html from run.json",
                "nothing — just read the FAIL line"),
-    "review": ("python3 skill_foundry/cli/review.py --run <run.json> --baseline …",
+    "review": ("python3 -m skill_foundry.cli.review --run <run.json> --baseline …",
                "diffs vs baseline → regressions / fixes / perf flags",
                "nothing — read which cases regressed"),
     "teach": ("./harness teach \"wrong → correct → action\"",

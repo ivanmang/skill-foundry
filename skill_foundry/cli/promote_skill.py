@@ -15,10 +15,8 @@ import datetime as _dt
 import shutil
 import subprocess
 import sys
-from pathlib import Path
 
-HARNESS = Path(__file__).resolve().parents[2]
-sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+from skill_foundry.paths import ROOT as HARNESS  # noqa: E402
 from skill_foundry.cli import promote as PR  # noqa: E402 — reuse remote_web_url / create_mr
 from skill_foundry.lib import browser as _browser  # noqa: E402
 

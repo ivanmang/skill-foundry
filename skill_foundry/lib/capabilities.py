@@ -16,7 +16,7 @@ import subprocess
 import time
 from pathlib import Path
 
-HARNESS = Path(__file__).resolve().parents[2]
+from skill_foundry.paths import ROOT as HARNESS  # noqa: E402
 _CACHE_FILE = HARNESS / ".cache" / "cann-lanes.json"
 _CACHE_TTL = 300  # seconds; headers/simulators change rarely, but a re-scan is cheap
 

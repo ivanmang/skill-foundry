@@ -18,7 +18,7 @@ the pipeline. This is the single normalization point.
 1. Point the parser at one log file (or a run directory):
 
    ```bash
-   python3 skill_foundry/lib/parse_gtest.py --log reports/<run-id>/<suite>.log \
+   python3 -m skill_foundry.lib.parse_gtest --log reports/<run-id>/<suite>.log \
      --suite <suite> --out reports/<run-id>/<suite>.results.json
    ```
 

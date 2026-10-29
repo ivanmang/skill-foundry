@@ -2,13 +2,13 @@
 """Turn run record(s) into Markdown + self-contained HTML reports.
 
 Usage:
-  python3 skill_foundry/cli/report.py --run reports/<id>/run.json --out reports/<id>/report
-  python3 skill_foundry/cli/report.py --run a.json --run b.json --out combined/report
+  python3 -m skill_foundry.cli.report --run reports/<id>/run.json --out reports/<id>/report
+  python3 -m skill_foundry.cli.report --run a.json --run b.json --out combined/report
 
 Optionally annotate failures against a known-failures file (the triage corpus
 kept by the harness). Pass --known to mark matched failures as known:
 
-  python3 skill_foundry/cli/report.py --run reports/<id>/run.json \
+  python3 -m skill_foundry.cli.report --run reports/<id>/run.json \
       --known .claude/skills/pto-isa/references/known-failures.md \
       --out reports/<id>/report
 """
@@ -21,12 +21,10 @@ import json
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 from skill_foundry.lib import runs as _runs  # noqa: E402
 from skill_foundry.lib import browser as _browser  # noqa: E402
 from skill_foundry.lib.term import fmt_dur  # noqa: E402
 
-HARNESS = Path(__file__).resolve().parents[2]
 
 
 def load(path: str) -> dict:

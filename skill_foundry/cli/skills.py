@@ -18,11 +18,8 @@ from __future__ import annotations
 import argparse
 import datetime as _dt
 import json
-import sys
-from pathlib import Path
 
-HARNESS = Path(__file__).resolve().parents[2]
-sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+from skill_foundry.paths import ROOT as HARNESS  # noqa: E402
 from skill_foundry.lib import validate_skills  # noqa: E402 — reuse its frontmatter parser
 
 LIVE = HARNESS / ".claude" / "skills"

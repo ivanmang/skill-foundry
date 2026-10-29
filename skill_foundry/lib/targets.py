@@ -20,7 +20,7 @@ import json
 import os
 from pathlib import Path
 
-HARNESS = Path(__file__).resolve().parents[2]
+from skill_foundry.paths import ROOT as HARNESS  # noqa: E402
 CONFIG = HARNESS / "config" / "suites.json"
 DEFAULT_ARCHES = HARNESS / "config" / "arches.json"
 BASELINES_DIR = HARNESS / "reports" / "baseline"

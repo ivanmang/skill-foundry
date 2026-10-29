@@ -11,9 +11,8 @@ from __future__ import annotations
 
 import argparse
 import shutil
-from pathlib import Path
 
-HARNESS = Path(__file__).resolve().parents[2]
+from skill_foundry.paths import ROOT as HARNESS  # noqa: E402
 
 
 def main(argv: list[str] | None = None) -> int:

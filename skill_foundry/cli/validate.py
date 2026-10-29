@@ -9,9 +9,8 @@ from __future__ import annotations
 
 import json
 import sys
-from pathlib import Path
 
-HARNESS = Path(__file__).resolve().parents[2]
+from skill_foundry.paths import ROOT as HARNESS  # noqa: E402
 CONFIG = HARNESS / "config"
 
 

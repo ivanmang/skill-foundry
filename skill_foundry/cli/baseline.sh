@@ -22,9 +22,10 @@ done
 
 STAMP="$(date +%Y%m%d-%H%M%S)"
 RUN_ID="baseline-${STAMP}"
+cd "$HARNESS_DIR"
 
 echo "Regenerating pinned baseline for target '${TARGET}' (run ${RUN_ID})..."
-python3 "$HARNESS_DIR/skill_foundry/cli/run.py" --target "$TARGET" --all-suites --run-id "$RUN_ID"
+python3 -m skill_foundry.cli.run --target "$TARGET" --all-suites --run-id "$RUN_ID"
 
 SRC="$HARNESS_DIR/reports/$RUN_ID/run.json"
 DST="$HARNESS_DIR/reports/baseline/${TARGET}.json"

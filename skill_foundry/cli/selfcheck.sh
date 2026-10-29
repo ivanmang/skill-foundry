@@ -12,7 +12,7 @@ echo "== bash syntax =="
 bash -n harness skill_foundry/cli/baseline.sh skill_foundry/cli/selfcheck.sh demo/run_demo.sh completions/harness.bash
 
 echo "== skill spec conformance =="
-python3 skill_foundry/lib/validate_skills.py
+python3 -m skill_foundry.lib.validate_skills
 
 echo "== demo smoke =="
 rm -rf reports/demo-live-*

@@ -8,14 +8,10 @@ Usage:
 
 from __future__ import annotations
 
-import os
-import subprocess
 import sys
-from pathlib import Path
 
-HARNESS = Path(__file__).resolve().parents[2]
-sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
-from skill_foundry.cli import guide  # noqa: E402 — reuse select_menu / banner / c
+from skill_foundry import dispatch
+from skill_foundry.cli import guide
 
 ITEMS = [
     ("🛠  capture a new skill", ["capture-skill"]),
@@ -34,7 +30,7 @@ ITEMS = [
 def main(argv: list[str] | None = None) -> int:
     if not sys.stdin.isatty():
         # piped: fall back to plain help
-        return subprocess.run([str(HARNESS / "harness"), "help"]).returncode
+        return dispatch.dispatch("help", [])
 
     guide.banner("skill harness")
     print("  One entry point for capturing skills and running the regression workflow.\n")
@@ -44,9 +40,7 @@ def main(argv: list[str] | None = None) -> int:
     )
     if not choice:
         return 0
-    env = dict(os.environ)
-    env["HARNESS_WRAPPED"] = "1"
-    return subprocess.run([str(HARNESS / "harness"), *choice], env=env).returncode
+    return dispatch.dispatch(choice[0], choice[1:])
 
 
 if __name__ == "__main__":
