@@ -66,15 +66,15 @@ signal itself is corrupted:
 git clone git@gitcode.com:ivanmang/skill-foundry.git
 cd skill-foundry
 
-python3 -m skill_foundry.cli.onboarding            # 1. guided setup: env.sh, CANN, pto-isa
-python3 -m skill_foundry.workflow.status                # 2. one-glance dashboard — is this machine ready?
-python3 -m skill_foundry.cli.demo                  # 3. interactive walkthrough (no hardware needed)
-python3 -m skill_foundry.workflow.run --all-suites --dry-run   # 4. preview what will run
-python3 -m skill_foundry.workflow.run --all-suites --quiet     # 5. run everything runnable
-# steps 5–7 in one command:
-#   python3 -m skill_foundry.workflow.run --all-suites --report --open --review
-python3 -m skill_foundry.workflow.report --open          # 6. open the report in your browser (standalone)
-python3 -m skill_foundry.workflow.review                 # 7. diff vs the pinned baseline (standalone)
+# 1. the product — the skill-ops loop (all ./harness does):
+./harness skills                                   # what skills exist?
+./harness capture-skill code-review                # draft a new skill
+./harness teach "symptom -> correct -> action"     # log a correction
+./harness promote --direct                         # publish learnings
+
+# 2. the bundled regression workflow (thin scripts; see .claude/skills/):
+python3 -m skill_foundry.cli.onboarding            # env.sh, CANN, pto-isa (one-time)
+python3 -m skill_foundry.workflow.run --all-suites --report --open --review
 ```
 
 `bash skill_foundry/workflow/baseline.sh <target>` pins the baseline on the canonical machine (see
@@ -97,9 +97,9 @@ any Agent-Skills-compatible agent two ways:
 
 ### MCP server
 
-Any MCP-capable agent can also talk to the harness directly, no shell required:
-`mcp/server.py` exposes `status`, `skills.list/search/load`, `capture-skills`,
-`teach`, `promote`, and `workflow.run` over stdio or HTTP. Hosting + runbook:
+Any MCP-capable agent can also drive the skill-ops loop directly, no shell
+required: `mcp/server.py` exposes `skills_list`, `skills_load`, `capture_skill`,
+`teach`, and `promote` over stdio or HTTP. Hosting + runbook:
 [mcp/b10-deploy.md](mcp/b10-deploy.md).
 
 ### Plugin & marketplace
@@ -161,13 +161,15 @@ Quick start:
 # the bundled regression workflow (see .claude/skills/ for full knowledge):
 python3 -m skill_foundry.workflow.run --all-suites --report --open --review
 ```
+
 ### What's automatic vs human
 
 Four roles, shown on every demo step and applying to the real flow:
 
 | Role | What it does |
 |---|---|
-| 🟢 **harness (automatic)** | run, extract logs, report, review, capture a correction, propose a diff, apply + commit + push (`--direct` to main, or `--pr` creates the MR), dry-run previews |
+| 🟢 **scripts (automatic, agent-driven)** | run, extract logs, report, review, dry-run previews |
+| 🟢 **harness (automatic)** | capture a correction, propose a diff, apply + commit + push (`--direct` to main, or `--pr` creates the MR) |
 | 🤖 **AI / agent (automatic, on trigger)** | auto-captures a correction when you correct it (`"no / actually / remember …"`) and replies with the `LRN-…` id; triages per the skill |
 | 🟡 **you (remote gate)** | the triage *content* (`wrong → correct → action`) and **merging the MR on the remote** (branch protection) |
 | 🔴 **never automatic** | remove or change an existing check |
@@ -205,7 +207,7 @@ skip) and fall back to numbered prompts when piped. If `ASCEND_HOME_PATH` is
 unset, the CANN picker lists each installed package with which arches it can
 compile vs simulate.
 
-The demo (`python3 -m skill_foundry.cli.demo`) drives the **real** harness scripts against a mock
+The demo (`python3 -m skill_foundry.cli.demo`) drives the **real** workflow scripts against a mock
 gtest runner, one step at a time. Each step is a framed block with a progress
 bar, a step map (`✓` done · `▶` current · `·` upcoming), a **"Who does what"**
 box, and a menu: **run & continue / skip / back / jump / explain / quit**.
@@ -262,8 +264,9 @@ env.example.sh            copy to env.sh for machine-local CANN / pto-isa paths
 - **Scripts are co-located in the `skill_foundry/` package**, not inside a single
   skill folder, because the run/extract/diff/report drivers are shared by several
   skills. Skills reference them from the harness root (`python3 -m skill_foundry...`),
-  and the `./harness` entry point maps each verb onto its module in
-  `skill_foundry/cli/` (product) or `skill_foundry/workflow/` (regression).
+  and `./harness` maps only the product (skill-ops) verbs onto
+  `skill_foundry/cli/`; the regression workflow modules live in
+  `skill_foundry/workflow/` and are run directly (`python3 -m …`).
   Consequence: these are *co-located repo skills* — they work when this repo is
   checked out and used as the working directory, but a single skill folder copied
   alone into another tool's skills dir is **not** self-contained.
@@ -286,8 +289,9 @@ See `.claude/skills/pto-isa/references/env.md` for the arch/soc/env table.
 
 ## Learning loop
 
-Capture is automated; promotion is automated to the MR, and the **merge is
-remote-gated** (branch protection).
+Capture is automated; promotion is automatic — `--direct` pushes to `main`
+(no token), and `--pr` opens an MR whose **merge is remote-gated**
+(branch protection).
 
 ```bash
 # 1. capture (strict LRN-… entry in learnings/recent.md)

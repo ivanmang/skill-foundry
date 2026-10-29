@@ -14,8 +14,8 @@ without hardware.
 The harness turns *"run the regression"* from a repeated instruction into:
 
 - **Skills** (`.claude/skills/`) that tell any agent *how* to run/triage/report.
-- **Drivers** behind a **single entry point** (`./harness …`) that do the
-  run → extract → report → review.
+- **Thin scripts** (`python3 -m skill_foundry.workflow.*`) that do the
+  run → extract → report → review (run directly, guided by the skills).
 - A **pinned baseline** (`reports/baseline/<target>.json`) so "regression" =
   *diff vs baseline*.
 - A **learning loop** (`./harness teach` to capture, `./harness promote` to
@@ -30,7 +30,8 @@ IMPROVE  capture → propose → apply → push (--direct) or MR (--pr) → next
 
 And a simple rule of thumb for who does what:
 
-- 🟢 **harness does** — run, extract, report, review, capture, propose.
+- 🟢 **the scripts do** — run, extract, report, review (driven by the agent).
+- 🟢 **harness does** — capture, propose, promote (the skill-ops loop).
 - 🟡 **you / a reviewer do** — the triage judgment (`teach`); and with `--pr`,
   merging the MR (with `--direct` the push is automatic and tokenless).
 
@@ -102,7 +103,7 @@ python3 -m skill_foundry.cli.guide --demo        # same interactive tour via the
 PAUSE=1 ./demo/run_demo.sh    # scene-by-scene with a pause (for presenting)
 ```
 
-This runs the **real** harness scripts against a mock gtest runner and walks the
+This runs the **real** workflow scripts against a mock gtest runner and walks the
 entire journey (run → report → review → correct → promote → re-run) in 8 steps.
 Everything happens in `/tmp` + the gitignored `reports/`, so the repo stays clean.
 
@@ -287,7 +288,8 @@ correct the agent's triage — go to Step 7 and teach it.
 ## Step 7 — Teach it (the learning loop)
 
 You found something the harness didn't know. Capture it, propose the fix, and
-promote it — capture is automatic, promotion is reviewed.
+promote it — capture is automatic, promotion is automatic (`--direct`) or
+reviewed (`--pr`).
 
 > Most of the time you don't type a command at all: the skills tell the agent
 > to log it automatically when you correct it ("remember …", "no, that's
@@ -417,7 +419,7 @@ loop, and every teammate gets it via git.
 
 | Step | Automation | Who |
 |---|---|---|
-| Run / extract / report / review / dry-run | 🟢 automatic | harness |
+| Run / extract / report / review / dry-run | 🟢 automatic | scripts (agent-driven) |
 | Capture a correction (`recent.md`, append-only) | 🟢 automatic | harness **or** the AI (when you correct it) |
 | Draft promotion (diff, no write) | 🟢 automatic | harness |
 | Apply + commit + push (`--direct` to `main`) | 🟢 automatic | harness |
