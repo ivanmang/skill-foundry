@@ -91,6 +91,7 @@ def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description="Capture a new skill draft into skills/inbox/.")
     ap.add_argument("name", nargs="?", help="Skill name (lowercase-hyphen).")
     ap.add_argument("--description", default=None, help="Description (what + when to use).")
+    ap.add_argument("--body", default=None, help="Instructions body (Markdown); skips the editor.")
     ap.add_argument("--dry-run", action="store_true", help="Print the SKILL.md without writing.")
     args = ap.parse_args(argv)
 
@@ -108,7 +109,9 @@ def main(argv: list[str] | None = None) -> int:
         print(f"error: description exceeds 1024 chars ({len(description)})", file=sys.stderr)
         return 2
 
-    if args.description and args.dry_run is False and not sys.stdin.isatty():
+    if args.body is not None:
+        body = args.body
+    elif args.description and not sys.stdin.isatty():
         # non-interactive with --description: empty body is acceptable
         body = ""
     else:

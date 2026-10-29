@@ -92,6 +92,13 @@ any Agent-Skills-compatible agent two ways:
   agent's user dir — `./harness skills --install` (auto-detects Claude Code / Pi /
   open-standard; `--uninstall` to remove). Then restart/reload the agent.
 
+### MCP server
+
+Any MCP-capable agent can also talk to the harness directly, no shell required:
+`mcp/server.py` exposes `status`, `skills.list/search/load`, `capture-skills`,
+`teach`, `promote`, and `workflow.run` over stdio or HTTP. Hosting + runbook:
+[mcp/b10-deploy.md](mcp/b10-deploy.md).
+
 ---
 
 ## Use it
@@ -219,6 +226,9 @@ box, and a menu: **run & continue / skip / back / jump / explain / quit**.
   full-analysis-pipeline/ Orchestrate run -> extract -> report -> review -> maintainer
   skill-maintainer/       Learning/correction loop
   pto-isa/                Target adapter (+ references/: env, suite matrix, cann matrix, known-failures)
+  pto-vmi/                Target adapter (CCE/DSL + CA metrics)
+skills/                   inbox/ (skill drafts) + catalog.json (generated index)
+mcp/                      MCP server (server.py + b10 deploy runbook)
 config/                   suites.json + arches.json + cann.json (source of truth)
 scripts/                  drivers (see scripts/README.md: user verbs vs internals)
 completions/              bash tab-completion for ./harness
