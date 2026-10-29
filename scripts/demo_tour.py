@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Interactive, step-by-step sandboxed demo tour of the regression harness.
+"""Interactive, step-by-step sandboxed demo tour of the skill-foundry.
 
 No hardware / CANN / compiler needed: it drives the *real* harness scripts
 against a mock gtest runner. Unlike demo/run_demo.sh (straight-through), this

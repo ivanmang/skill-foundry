@@ -1,3 +1,7 @@
+__pycache__/
+*.pyc
+.cache/
+.ruff_cache/
 # Generated run artifacts — everything under reports/ except the pinned baselines
 reports/*
 !reports/

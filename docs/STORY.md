@@ -1,7 +1,7 @@
 # The Story — a pi agent, a developer, and the harness
 
 A short story about how a **developer** and a **pi agent** actually use the
-regression harness. Everything below is how it really works — the commands are
+skill-foundry. Everything below is how it really works — the commands are
 real, the roles are real, only the names are made up.
 
 ---

@@ -1,7 +1,7 @@
 # Bash tab-completion for ./harness
 #
 # Install (add to ~/.bashrc):
-#   source /path/to/regression-harness/completions/harness.bash
+#   source /path/to/skill-foundry/completions/harness.bash
 #
 # Then: ./harness <TAB>
 _HARNESS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"

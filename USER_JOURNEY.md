@@ -61,8 +61,8 @@ You'll usually wear the first hat, sometimes the last two.
 ## Step 0 — One-time setup
 
 ```bash
-git clone git@gitcode.com:ivanmang/regression-harness.git
-cd regression-harness
+git clone git@gitcode.com:ivanmang/skill-foundry.git
+cd skill-foundry
 
 # one command sets up env.sh, picks a CANN, and verifies pto-isa (interactive)
 ./harness onboarding

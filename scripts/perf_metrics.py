@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Performance metrics for the regression harness — modeled on the vmi-dashboard.
+"""Performance metrics for the skill-foundry — modeled on the vmi-dashboard.
 
 The vmi-dashboard compares CCE vs VMI per kernel on cycle-accurate (CA) metrics:
   - unit counts:      EX (RVECEX) / SU / LD / ST / predicate / scalar / dma / flowctrl / membar

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# regression-harness — single entry point.
+# skill-foundry — single entry point.
 #
 #   ./harness run [--quiet] [--all-suites|--suite X] [--target T] [--testcase T] [--filter G] [--dry-run]
 #   ./harness report [--run <id>/run.json] [--known <file>] [--out <base>] [--open]
@@ -24,7 +24,7 @@ version() {
   if [[ "${1:-}" == "--short" ]]; then
     echo "$ver"
   else
-    echo "regression-harness $ver ($sha)"
+    echo "skill-foundry $ver ($sha)"
   fi
 }
 

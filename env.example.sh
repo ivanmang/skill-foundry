@@ -1,4 +1,4 @@
-# Machine-local environment for the regression harness.
+# Machine-local environment for the skill-foundry.
 #
 # Copy this to env.sh (gitignored) and edit for your machine, then:
 #   source ./env.sh

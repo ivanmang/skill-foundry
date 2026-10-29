@@ -40,7 +40,7 @@ def render(selected: int) -> None:
     env = data["env"]
     asc = env["ascend_version"] or env["ascend"] or "unset"
     lines: list[str] = []
-    lines.append(BOLD + "══ regression-harness · dashboard ══" + RESET)
+    lines.append(BOLD + "══ skill-foundry · dashboard ══" + RESET)
     lines.append(
         f"  env      python3 {mark(env['python3'])}  git {mark(env['git'])}  "
         f"ASCEND {asc}  pto-isa {mark(env['pto_isa'])}"

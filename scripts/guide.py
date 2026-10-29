@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Interactive, step-by-step guide through the regression harness.
+"""Interactive, step-by-step guide through the skill-foundry.
 
 Usage:
   ./harness guide            # guided tour (asks before each step)
@@ -417,7 +417,7 @@ def main(argv: list[str] | None = None) -> int:
     args = argv if argv is not None else sys.argv[1:]
     if "--demo" in args:
         return subprocess.run([sys.executable, str(HARNESS / "scripts" / "demo_tour.py")]).returncode
-    print(c("\n regression-harness · guided tour ", BOLD))
+    print(c("\n skill-foundry · guided tour ", BOLD))
     mode = select_menu(
         "Start with:",
         [("Sandboxed demo (no hardware, step-by-step)", "demo"), ("Real target tour", "real")],

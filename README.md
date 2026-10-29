@@ -62,8 +62,8 @@ signal itself is corrupted:
 ## Getting started
 
 ```bash
-git clone git@gitcode.com:ivanmang/regression-harness.git
-cd regression-harness
+git clone git@gitcode.com:ivanmang/skill-foundry.git
+cd skill-foundry
 
 ./harness onboarding            # 1. guided setup: env.sh, CANN, pto-isa
 ./harness status                # 2. one-glance dashboard — is this machine ready?
@@ -240,7 +240,7 @@ env.example.sh            copy to env.sh for machine-local CANN / pto-isa paths
 
 ## Decisions (as agreed)
 
-- Dedicated team repo `https://gitcode.com/ivanmang/regression-harness.git`.
+- Dedicated team repo `https://gitcode.com/ivanmang/skill-foundry.git`.
 - **Pinned baseline** committed at `reports/baseline/<target>.json`; all other
   `reports/*` artifacts are gitignored.
 - Perf regression flag: **p99 +15%** even if average is stable.

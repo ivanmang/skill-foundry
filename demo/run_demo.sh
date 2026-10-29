@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Self-contained live demo of the regression harness.
+# Self-contained live demo of the skill-foundry.
 #
 # Runs the REAL harness scripts against a MOCK gtest runner, so it works on any
 # machine (no CANN, no compiler requirements). Non-destructive: run artifacts go

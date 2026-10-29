@@ -299,10 +299,10 @@ def apply_all(root: Path, lp: Path, entries: list[dict], pending: list[dict],
     if branch:
         add_paths = [str(t.relative_to(root)) for t in changed]
         add_paths += [str(lp.relative_to(root)), "learnings/promoted.md", "learnings/corrections.md"]
-        subprocess.run(["git", "-C", str(root), "-c", "user.name=regression-harness",
+        subprocess.run(["git", "-C", str(root), "-c", "user.name=skill-foundry",
                         "-c", "user.email=harness@example.com", "checkout", "-b", branch], check=True)
         subprocess.run(["git", "-C", str(root), "add", *add_paths], check=True)
-        subprocess.run(["git", "-C", str(root), "-c", "user.name=regression-harness",
+        subprocess.run(["git", "-C", str(root), "-c", "user.name=skill-foundry",
                         "-c", "user.email=harness@example.com", "commit",
                         "-m", f"chore: promote learnings ({len(changed)} entries)"], check=True)
         print(f"Committed on branch '{branch}' ({len(changed)} file(s) changed).")

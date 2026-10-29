@@ -8,8 +8,8 @@ teammate a single live endpoint for skills + workflows.
 
 ```bash
 ssh b10
-git clone git@gitcode.com:ivanmang/regression-harness.git ~/regression-harness
-cd ~/regression-harness
+git clone git@gitcode.com:ivanmang/skill-foundry.git ~/skill-foundry
+cd ~/skill-foundry
 python3 -m venv .venv-mcp && source .venv-mcp/bin/activate
 pip install -r mcp/requirements.txt
 ```
@@ -28,7 +28,7 @@ export GITCODE_TOKEN="glpat-…"
 ## 3. Run the server (HTTP, for remote agents)
 
 ```bash
-cd ~/regression-harness
+cd ~/skill-foundry
 fastmcp run mcp/server.py --transport http --host 0.0.0.0 --port 8000
 ```
 
@@ -44,8 +44,8 @@ Description=harness-mcp
 After=network.target
 [Service]
 User=ivanmang
-WorkingDirectory=/home/ivanmang/regression-harness
-ExecStart=/home/ivanmang/regression-harness/.venv-mcp/bin/fastmcp run mcp/server.py --transport http --host 0.0.0.0 --port 8000
+WorkingDirectory=/home/ivanmang/skill-foundry
+ExecStart=/home/ivanmang/skill-foundry/.venv-mcp/bin/fastmcp run mcp/server.py --transport http --host 0.0.0.0 --port 8000
 Environment=GITCODE_TOKEN=glpat-…
 Restart=on-failure
 [Install]
@@ -103,7 +103,7 @@ python mcp/server.py          # or: fastmcp run mcp/server.py
 ```
 
 ```json
-{ "mcpServers": { "harness": { "command": "python", "args": ["mcp/server.py"], "cwd": "/path/to/regression-harness" } } }
+{ "mcpServers": { "harness": { "command": "python", "args": ["mcp/server.py"], "cwd": "/path/to/skill-foundry" } } }
 ```
 
 This runs the server on the agent's machine (state-changing tools need the repo

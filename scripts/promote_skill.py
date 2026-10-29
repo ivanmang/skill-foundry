@@ -85,10 +85,10 @@ def main(argv: list[str] | None = None) -> int:
         branch = f"feat/skill-{name}-{_dt.datetime.now():%Y%m%d}"
         subprocess.run(["git", "-C", str(HARNESS), "add", "-A",
                         str(LIVE.relative_to(HARNESS)), str(INBOX.relative_to(HARNESS))], check=True)
-        subprocess.run(["git", "-C", str(HARNESS), "-c", "user.name=regression-harness",
+        subprocess.run(["git", "-C", str(HARNESS), "-c", "user.name=skill-foundry",
                         "-c", "user.email=harness@example.com",
                         "checkout", "-b", branch], check=True)
-        subprocess.run(["git", "-C", str(HARNESS), "-c", "user.name=regression-harness",
+        subprocess.run(["git", "-C", str(HARNESS), "-c", "user.name=skill-foundry",
                         "-c", "user.email=harness@example.com",
                         "commit", "-m", f"feat: promote skill {name}"], check=True)
         print(f"Committed on branch '{branch}'.")

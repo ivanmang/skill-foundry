@@ -24,9 +24,9 @@ CONSUME  (every teammate's agent)      discover via skills / MCP, load SKILL.md 
 
 ## What changes
 
-- **Reframe** — from "regression harness" to "skill ops". Regression
-  (`config/suites.json` targets + report/review/diff) becomes a bundled
-  workflow, one domain among many.
+- **Reframe** — from "regression harness" to "skill-foundry" (a skill-ops
+  platform). Regression (`config/suites.json` targets + report/review/diff)
+  becomes a bundled workflow, one domain among many.
 - **Generalize capture** — knowledge can become a *learning* (`teach`) or a
   *new skill* (`capture-skill`), not just a regression triage note.
 - **Add a hub** — `skills/catalog.json` + `./harness skills` for discovery.

@@ -8,7 +8,7 @@ USER_JOURNEY is the narrative walkthrough.)
 
 ## What this is
 
-A shared, self-improving regression harness built on open **Agent Skills**
+A shared, self-improving skill-foundry built on open **Agent Skills**
 (`SKILL.md`). One entry point — `./harness` — wraps **run → report → review**
 (the USE loop) and **teach → promote → MR** (the IMPROVE loop), against a
 pinned baseline that makes "regression" a mechanical diff.
@@ -73,8 +73,8 @@ are recorded when a CAModel instruction dump is present. See
 ## Getting started
 
 ```bash
-git clone git@gitcode.com:ivanmang/regression-harness.git
-cd regression-harness
+git clone git@gitcode.com:ivanmang/skill-foundry.git
+cd skill-foundry
 
 ./harness onboarding   # guided: detect env, write env.sh, pick CANN, verify pto-isa
 ./harness status       # one-glance dashboard — is this machine ready?

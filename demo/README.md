@@ -1,6 +1,6 @@
 # Demo
 
-A self-contained, non-destructive live demo of the regression harness.
+A self-contained, non-destructive live demo of the skill-foundry.
 
 - **No hardware / compiler / CANN needed** — it drives the *real* harness
   scripts against a mock gtest runner.
