@@ -153,9 +153,9 @@ runs directly as thin scripts the skills reference.
 ```text
 ./harness — THE PRODUCT (capture → promote → hub → discover):
   capture-skill  Draft a NEW skill into hub/inbox/      [--description, --dry-run]
-  promote-skill  Publish a draft into .claude/skills/   [--propose | --apply | --direct | --pr | --review] [--force]
+  promote-skill  Publish a draft into .claude/skills/   [--propose | --apply | --direct | --pr] [--no-review] [--force]
   teach          Log a correction                       ["wrong -> correct -> action" | wizard | --edit]
-  promote        Publish learnings into skills          [--propose | --apply | --direct | --pr | --review] [--force]
+  promote        Publish learnings into skills          [--propose | --apply | --direct | --pr] [--no-review] [--force]
   skills         List/search · install · refresh        [--search, --inbox, --install, --uninstall, --refresh, --json]
   menu           Curated menu (bare ./harness default)
   selfcheck      Compile-check + skill-spec validation + demo smoke
@@ -173,7 +173,7 @@ BUNDLED WORKFLOW — regression, run directly (the skills reference these):
 | Role | What it does |
 |---|---|
 | 🟢 **scripts (automatic, agent-driven)** | run, extract logs, report, review, dry-run previews |
-| 🟢 **harness (automatic, gated)** | capture a correction, propose a diff, apply + commit + push (add-only · no-secrets · size); `--direct` to main, or `--pr` auto-merges on green CI |
+| 🟢 **harness (automatic, gated + LLM-reviewed)** | capture a correction, propose a diff, apply + commit + push (add-only · no-secrets · size; LLM judge APPROVEs first); `--direct` to main, or `--pr` auto-merges on green CI |
 | 🤖 **AI / agent (on trigger)** | auto-captures when you correct it (`"no / actually / remember …"`); triages per the skill |
 | 🟡 **you (gate)** | the triage *content* (`wrong → correct → action`) and merging the MR (`--pr` only) |
 | 🔴 **never automatic** | remove or change an existing check |
@@ -266,9 +266,10 @@ before npu suites; cpu-st / static suites run without it.
 
 ## Learning loop
 
-Capture is automated; promotion is **gated and automatic** — every promote runs
-the gates (add-only · no-secrets · size · spec), then either pushes `--direct`
-(no token) or opens a `--pr` that **auto-merges when the CI gates are green**.
+Capture is automated; promotion is **gated, LLM-reviewed, and automatic** —
+every promote runs the gates (add-only · no-secrets · size · spec) *and* an LLM
+judge (`SKILL_REVIEWER`) before applying. `--no-review` skips the judge;
+`--force` bypasses the gates. `--pr` then **auto-merges when CI gates are green**.
 
 ```bash
 # 1. capture (strict LRN-… entry in learnings/recent.md)
@@ -280,11 +281,10 @@ the gates (add-only · no-secrets · size · spec), then either pushes `--direct
 # 2. propose a minimal diff (optional review, no write)
 ./harness promote --propose
 
-# 3. publish — gated, direct push (no token) or MR-gated
+# 3. publish — gated + LLM-reviewed (judge APPROVEs before anything is written)
 ./harness promote --direct
 #    (or ./harness promote --pr — auto-merges when CI gates pass)
-#    (or ./harness promote --review --direct — an LLM judge APPROVEs first)
-#    (--force bypasses the gates)
+#    (--no-review skips the judge; --force bypasses the mechanical gates)
 ```
 
 See `.claude/skills/skill-maintainer/SKILL.md` and the live walkthrough:

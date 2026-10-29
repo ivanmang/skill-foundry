@@ -1,8 +1,10 @@
-"""Promotion reviewer — an LLM judge (or interactive fallback) for `--review` mode.
+"""Promotion reviewer — an LLM judge (or interactive fallback) for every promotion.
 
-Set SKILL_REVIEWER to a shell command that reads the diff on **stdin** and
-prints a single verdict word — APPROVE, HOLD, or REJECT. If unset, `--review`
-falls back to an interactive prompt (you — slower, but no LLM dependency).
+Review is ON by default for `promote` / `promote-skill`: the gates run, then the
+judge must APPROVE before anything is applied. Set SKILL_REVIEWER to a shell
+command that reads the diff on **stdin** and prints a single verdict word —
+APPROVE, HOLD, or REJECT. If unset, review falls back to an interactive prompt
+(you — slower, but no LLM dependency); pass `--no-review` to skip the judge.
 
 Example (Claude Code CLI):
   export SKILL_REVIEWER='claude -p "You are a strict skill reviewer. Review the
@@ -32,6 +34,11 @@ def llm_verdict(diff_text: str) -> str | None:
     out = ((r.stdout or "") + " " + (r.stderr or "")).upper()
     m = re.search(r"\b(APPROVE|HOLD|REJECT)\b", out)
     return m.group(1).lower() if m else None
+
+
+def can_review() -> bool:
+    """True if a review can actually happen: an LLM reviewer is configured, or stdin is interactive."""
+    return bool(os.environ.get("SKILL_REVIEWER")) or sys.stdin.isatty()
 
 
 def approve(diff_text: str) -> bool:

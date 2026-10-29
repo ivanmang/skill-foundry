@@ -92,7 +92,7 @@ python3 -m skill_foundry.cli.promote --root "$SB2" --propose
 pause
 
 echo "  (apply) write the edit into the sandbox known-failures.md:"
-python3 -m skill_foundry.cli.promote --root "$SB2" --apply
+python3 -m skill_foundry.cli.promote --root "$SB2" --apply --no-review
 echo
 echo "  Mechanical effect — known-failure signatures go 0 → 1:"
 printf '    before: %s known-failure signatures\n' "$(grep -Ec '^### .*vcvt' "$SB2/.claude/skills/pto-isa/references/known-failures.before.md" || true)"

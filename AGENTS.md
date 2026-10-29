@@ -27,16 +27,21 @@ for the full roles & interaction model.
    For a **brand-new skill** (not a lesson about an existing one), draft it with
    `./harness capture-skill <name>`, then promote it.
 4. **Promote captured lessons** with `./harness promote --direct` (learnings) or
-   `./harness promote-skill <name> --direct` (new skills) — auto-applies, commits,
-   pushes to `origin/main` (no token). For an MR-gated path use `--pr`; the merge
-   is then gated on the remote (branch protection); **never self-merge**.
+   `./harness promote-skill <name> --direct` (new skills). Promotion is **gated
+   and LLM-reviewed by default**: the mechanical gates (add-only · no-secrets ·
+   size · spec) run, then an LLM judge (`SKILL_REVIEWER`) must APPROVE before
+   anything is written — in a non-interactive session you need `SKILL_REVIEWER`
+   set, or it fails closed. `--no-review` skips the judge (gates still run);
+   `--force` bypasses the gates. For an MR-gated path use `--pr` (auto-merges
+   when CI gates are green); **never self-merge**.
 5. **Never remove or change an existing check** — the harness only adds.
 
 ## Capture vs promote
 
 - Capture is **automatic and continuous** — log lessons as they surface;
   nothing changes until promoted.
-- Promotion is **automatic** — `--direct` pushes to `main`; `--pr` opens an MR.
+- Promotion is **gated + LLM-reviewed, then automatic** — `--direct` pushes to
+  `main`; `--pr` opens an MR that auto-merges on green CI.
 - Draft from a run's failures with
   `python3 -m skill_foundry.lib.session_digest --run <run.json> --apply`.
 

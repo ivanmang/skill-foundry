@@ -39,7 +39,7 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--apply", action="store_true", help="Copy into .claude/skills/ and remove the draft.")
     ap.add_argument("--pr", action="store_true", help="--apply + commit + push + create the MR.")
     ap.add_argument("--direct", action="store_true", help="--apply + commit on the current branch + push to origin/main directly (SSH, no MR, no token).")
-    ap.add_argument("--review", action="store_true", help="Apply only after an LLM judge (SKILL_REVIEWER) APPROVES.")
+    ap.add_argument("--no-review", action="store_true", help="Skip the LLM/human review (gates still run).")
     ap.add_argument("--force", action="store_true", help="Bypass the gates (spec · secrets).")
     args = ap.parse_args(argv)
 
@@ -88,10 +88,14 @@ def main(argv: list[str] | None = None) -> int:
         gates.render(violations)
         return 2
 
-    # ── review: LLM judge (or interactive fallback) ──
-    if args.review and not reviewer.approve(f"# promote skill: {name}\n\n{body}"):
-        print("✗ review did not APPROVE — nothing applied.")
-        return 0
+    # ── review (default on): LLM judge, or interactive fallback ──
+    if not args.no_review:
+        if not reviewer.can_review():
+            print("✗ review required but no SKILL_REVIEWER and no TTY — set SKILL_REVIEWER, or pass --no-review.", file=sys.stderr)
+            return 2
+        if not reviewer.approve(f"# promote skill: {name}\n\n{body}"):
+            print("✗ review did not APPROVE — nothing applied.")
+            return 0
 
     shutil.copytree(src, dst)
     shutil.rmtree(src)

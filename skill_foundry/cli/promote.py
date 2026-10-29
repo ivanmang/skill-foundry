@@ -4,15 +4,14 @@
 Proposal (default, no writes):
   python3 -m skill_foundry.cli.promote --propose
 
-Apply (gated, add-only):
+Apply (gated + LLM-reviewed by default):
   python3 -m skill_foundry.cli.promote --apply          # write locally
   python3 -m skill_foundry.cli.promote --direct         # apply + commit + push main (no MR/token)
   python3 -m skill_foundry.cli.promote --pr             # apply + branch + push + auto-create MR
-  python3 -m skill_foundry.cli.promote --review --direct  # LLM judge, then push on APPROVE
 
-Gates (block unless --force): add-only · no-secrets · size cap.
---review runs those gates, then an LLM judge (SKILL_REVIEWER) or an interactive
-prompt; only APPROVE proceeds.
+Every apply runs the gates (add-only · no-secrets · size) AND an LLM judge
+(SKILL_REVIEWER) or an interactive prompt; only APPROVE proceeds. `--no-review`
+skips the judge; `--force` bypasses the gates.
 """
 
 from __future__ import annotations
@@ -275,7 +274,7 @@ def propose_all(root: Path, lp: Path, pending: list[dict]) -> int:
 
 def apply_all(root: Path, lp: Path, entries: list[dict], pending: list[dict],
               branch: str | None, push: bool, direct: bool = False,
-              force: bool = False, review: bool = False) -> int:
+              force: bool = False, review: bool = True) -> int:
     # 1. build the plan (entry, target, old, new)
     plan: list[tuple[dict, Path, str, str]] = []
     for e in pending:
@@ -297,7 +296,7 @@ def apply_all(root: Path, lp: Path, entries: list[dict], pending: list[dict],
         gates.render(violations)
         return 2
 
-    # 3. review (Tier C — LLM judge, or interactive fallback)
+    # 3. review (Tier C — mandatory by default: LLM judge, or interactive fallback)
     if review:
         diffs = []
         for e, t, old, new in plan:
@@ -309,6 +308,10 @@ def apply_all(root: Path, lp: Path, entries: list[dict], pending: list[dict],
         if not diffs:
             print("nothing to review — no pending changes.")
             return 0
+        if not reviewer.can_review():
+            print("✗ review required but no SKILL_REVIEWER and no TTY — "
+                  "set SKILL_REVIEWER, or pass --no-review to skip.", file=sys.stderr)
+            return 2
         if not reviewer.approve("\n\n".join(diffs)):
             print("✗ review did not APPROVE — nothing applied.")
             return 0
@@ -387,7 +390,7 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--branch", default=None, help="With --apply: create + commit on this branch.")
     ap.add_argument("--pr", action="store_true", help="With --apply: push the branch and create an MR (auto-merge on green).")
     ap.add_argument("--direct", action="store_true", help="With --apply: commit on the current branch and push to origin/main directly (no MR, no token).")
-    ap.add_argument("--review", action="store_true", help="Apply only after an LLM judge (SKILL_REVIEWER) APPROVES the diff.")
+    ap.add_argument("--no-review", action="store_true", help="Skip the LLM/human review (mechanical gates still run).")
     ap.add_argument("--force", action="store_true", help="Bypass the gates (add-only · secrets · size).")
     args = ap.parse_args(argv)
 
@@ -398,7 +401,7 @@ def main(argv: list[str] | None = None) -> int:
         args.apply = True
         if not args.branch:
             args.branch = f"feat/learnings-{_dt.datetime.now():%Y%m%d}"
-    if args.direct or args.review:
+    if args.direct:
         args.apply = True
 
     root = Path(args.root).resolve()
@@ -425,7 +428,7 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.apply:
         return apply_all(root, lp, entries, active, args.branch, args.pr, args.direct,
-                         force=args.force, review=args.review)
+                         force=args.force, review=not args.no_review)
     return propose_all(root, lp, active)
 
 

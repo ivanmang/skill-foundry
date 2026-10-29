@@ -33,8 +33,8 @@ CONSUME  (every teammate's agent)      discover via skills / MCP, load SKILL.md 
   *new skill* (`capture-skill`), not just a regression triage note.
 - **Add a hub** — `hub/catalog.json` + `./harness skills` for discovery.
 - **Add hosting** — an MCP server (`mcp/server.py`) as the live interface, with git as
-  the source of truth. Exposes status / skills.list/search/load / capture / teach /
-  promote / workflow.run over stdio or HTTP. Hosting runbook: `mcp/b10-deploy.md`.
+  the source of truth. Exposes `skills_list` / `skills_load` / `capture_skill` /
+  `teach` / `promote` over stdio or HTTP. Hosting runbook: `mcp/b10-deploy.md`.
 
 ## The two kinds of capture
 
