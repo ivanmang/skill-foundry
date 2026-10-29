@@ -8,7 +8,9 @@ teammate's agent can discover and use.
 The first bundled workflow is **regression** (`run → report → review` on the
 `pto-isa` and `pto-vmi` targets), but the product is the loop:
 **capture → promote → hub → discover**. See [the Vision](docs/VISION.md) for
-the architecture, [AGENTS.md](AGENTS.md) for the agent-facing contract.
+the product framing, [the Architecture](docs/ARCHITECTURE.md) for the
+user/agent/harness/MCP roles & interaction, and [AGENTS.md](AGENTS.md) for the
+agent-facing contract.
 
 > **New here?** Start with the [Handbook](docs/HANDBOOK.md) (the canonical
 > reference) or the [User Journey](USER_JOURNEY.md) — then run

@@ -4,7 +4,8 @@ This is **skill-foundry** — a skill-ops platform. The harness (`./harness`) do
 **only the skill-ops loop** (capture → promote → hub → discover). Everything else
 — including the bundled regression workflow — is **knowledge in the skills**,
 executed via thin scripts the skills reference. You (the agent) are the
-conductor; the user is the only human gate.
+conductor; the user is the only human gate. See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
+for the full roles & interaction model.
 
 ## Your workflow
 
