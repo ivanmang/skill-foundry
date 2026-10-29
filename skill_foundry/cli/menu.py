@@ -32,7 +32,7 @@ def main(argv: list[str] | None = None) -> int:
         # piped: fall back to plain help
         return dispatch.dispatch("help", [])
 
-    guide.banner("skill harness")
+    guide.banner("skill-foundry")
     print("  One entry point for capturing skills and running the regression workflow.\n")
     choice = guide.select_menu(
         guide.c("What would you like to do?  (↑/↓ choose · Enter select · q quit)", guide.BOLD),

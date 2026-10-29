@@ -1,9 +1,9 @@
-# Skill Harness
+# skill-foundry
 
 A **skill-ops platform** built on open Agent Skills (`SKILL.md`): agents and
 humans capture reusable knowledge as Skills during work, and it flows — through
-an MR-gated promote step — into a shared hub every teammate's agent can
-discover and use.
+a promote step (`--direct` push or `--pr` MR) — into a shared hub every
+teammate's agent can discover and use.
 
 The first bundled workflow is **regression** (`run → report → review` on the
 `pto-isa` and `pto-vmi` targets), but the product is the loop:
@@ -23,14 +23,14 @@ Legend: 🟢 automatic · 🟡 human · 🔴 never automatic · `✓ / ! / ·` r
 
 ```text
 USE      ./harness run → report → review   (diff vs pinned baseline)
-IMPROVE  ./harness teach → promote --pr    (corrections become skills)
+IMPROVE  ./harness teach → promote --direct | --pr    (corrections become skills)
 ```
 
 - **USE** — run suites, extract logs, render reports, and diff against the
   pinned baseline. Exit codes: `0` clean, `1` ran-with-failures, `2` usage.
 - **IMPROVE** — capture a correction (append-only), propose a diff (no write),
-  then apply + open an MR — gated on human review. Capture is automatic;
-  promotion is always reviewed.
+  then apply + commit + push — `--direct` to `origin/main` (no token), or `--pr`
+  for an MR-gated review. Capture is automatic; with `--pr` the merge is reviewed.
 
 See both loops live in ~2 minutes: `./harness demo`.
 
@@ -122,10 +122,10 @@ Files: `.claude-plugin/plugin.json` (manifest), `.claude-plugin/marketplace.json
 ./harness report    run.json → MD + HTML  [--run (default latest), --known, --out, --open]
 ./harness review    diff vs baseline      [--run (default latest), --baseline, --out]
 ./harness teach     log a correction      ["wrong -> correct -> action" | wizard | --edit]
-./harness promote   learnings → skills    [--propose | --apply | --pr]
+./harness promote   learnings → skills    [--propose | --apply | --direct | --pr]
 ./harness capture-skill  draft a new skill   [--description, --dry-run]
-./harness promote-skill  draft → skills     [--propose | --apply | --pr]
-./harness skills    list/search skills    [--search, --inbox, --refresh, --json]
+./harness promote-skill  draft → skills     [--propose | --apply | --direct | --pr]
+./harness skills    list/search skills    [--search, --inbox, --install, --uninstall, --refresh, --json]
 ./harness baseline  re-pin baseline <target>.json  [--force] [target]
 ./harness history   recent runs           [--limit, --json]
 ./harness clean     remove run dirs       [--dry-run, --keep N]
@@ -192,20 +192,23 @@ Four roles, shown on every demo step and applying to the real flow:
 
 | Role | What it does |
 |---|---|
-| 🟢 **harness (automatic)** | run, extract logs, report, review, capture a correction, propose a diff, apply + commit + push + create the MR, dry-run previews |
+| 🟢 **harness (automatic)** | run, extract logs, report, review, capture a correction, propose a diff, apply + commit + push (`--direct` to main, or `--pr` creates the MR), dry-run previews |
 | 🤖 **AI / agent (automatic, on trigger)** | auto-captures a correction when you correct it (`"no / actually / remember …"`) and replies with the `LRN-…` id; triages per the skill |
 | 🟡 **you (remote gate)** | the triage *content* (`wrong → correct → action`) and **merging the MR on the remote** (branch protection) |
 | 🔴 **never automatic** | remove or change an existing check |
 
 `./harness demo` shows this per step with a **"Who does what"** box
-(command / harness / you). Capture and apply are automatic — `--pr`
-auto-creates the MR; the **merge** is the gate, and it lives on the remote.
+(command / harness / you). Capture and apply are automatic — `--direct` pushes
+straight to `origin/main` (no token); `--pr` auto-creates the MR and the
+**merge** is the gate on the remote.
 
 **Why the line is drawn there**: auto-*append* is safe — `learnings/recent.md`
 is the harness's own scratch memory (append-only, cheap to discard). Auto-*edit*
 is not — `SKILL.md` + `known-failures.md` are the team's shared source of truth
-every future run reads. So the harness auto-applies and auto-opens the MR, but
-the **merge stays remote-gated** (branch protection). Same line Claude Code draws:
+every future run reads. So the harness auto-applies and pushes — `--direct`
+straight to `main` (fast, tokenless) or `--pr` with the **merge remote-gated**
+(branch protection). Either way it only *adds*; it never removes or changes an
+existing check. Same line Claude Code draws:
 it auto-writes its memory but never auto-edits your `CLAUDE.md`. A machine that
 silently rewrites shared knowledge turns its own mistakes into everyone's blind
 spots — e.g. a wrong "known failure" would annotate real regressions as known and
@@ -247,6 +250,7 @@ box, and a menu: **run & continue / skip / back / jump / explain / quit**.
   pto-isa/                Target adapter (+ references/: env, suite matrix, cann matrix, known-failures)
   pto-vmi/                Target adapter (CCE/DSL + CA metrics)
 skills/                   → .claude/skills/ (plugin-standard skills dir)
+.agents/skills/           → .claude/skills/ (Pi + open-standard agents)
 hub/                      inbox/ (skill drafts) + catalog.json (generated index)
 .claude-plugin/           plugin.json + marketplace.json (Claude Code plugin + marketplace)
 .mcp.json                 MCP server config (bundled into the plugin)
@@ -255,6 +259,7 @@ config/                   suites.json + arches.json + cann.json (source of truth
 skill_foundry/            the Python package (see skill_foundry/README.md)
   cli/                    one module per `./harness` verb
   lib/                    shared internals (runs/term/cann/targets/…)
+pyproject.toml            package metadata + `skill-foundry` console script
 completions/              bash tab-completion for ./harness
 learnings/                corrections.md / recent.md / promoted.md
 reports/baseline/         pinned <target>.json (committed); other reports gitignored
@@ -270,8 +275,8 @@ env.example.sh            copy to env.sh for machine-local CANN / pto-isa paths
 - Perf regression flag: **p99 +15%** even if average is stable.
 - The 11 existing `pto-isa/agents/skills` are kept as-is (referenced, not migrated).
 - M1 scope = **CPU-ST + NPU-sim** (A5 / A3 / A6, matching the A6/v200 workflow).
-- **Automation boundary**: capture auto, promotion propose/apply + MR-gated,
-  never auto-remove/change an existing check.
+- **Automation boundary**: capture auto, promotion propose/apply + `--direct`
+  push or `--pr` MR-gated, never auto-remove/change an existing check.
 
 ## Conformance & portability
 

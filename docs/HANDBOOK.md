@@ -1,4 +1,4 @@
-# Skill Harness — Handbook
+# skill-foundry — Handbook
 
 The canonical reference. This one document is the source of truth for how to
 use the harness and why it's shaped the way it is. (README is the short index;
@@ -223,16 +223,17 @@ Exit codes: `0` clean, `1` ran-with-failures, `2` usage.
   right file — `known-failures.md` (if the entry says "known-failure"/"triage
   corpus") or a skill's `## Gotchas` — and **writes nothing**. Duplicates and
   already-present entries are skipped (marked `rejected`).
-- **Apply** (`./harness promote --pr`) writes the edit, flips the entry to
+- **Apply** (`./harness promote --direct`) writes the edit, flips the entry to
   `promoted`, appends a summary to `promoted.md` + an audit block to
-  `corrections.md`, commits on `feat/learnings-<date>`, pushes, and **auto-creates
-  the MR** (via `glab` or the GitCode API with `GITCODE_TOKEN`/`GITLAB_TOKEN`;
-  otherwise it prints the MR-new URL). **You merge it on the remote** — branch
-  protection is the gate.
+  `corrections.md`, commits on the current branch, and pushes `origin HEAD`
+  (SSH key — no token). `--pr` instead commits on `feat/learnings-<date>`,
+  pushes, and **auto-creates the MR** (via `glab` or the GitCode API with
+  `GITCODE_TOKEN`/`GITLAB_TOKEN`; otherwise it prints the MR-new URL). **You
+  merge it on the remote** — branch protection is the gate.
 
 Files: `learnings/recent.md` (pending log) · `promoted.md` (promoted log) ·
 `corrections.md` (audit trail). Skills + `known-failures.md` are the shared
-corpus that only changes via a merged MR.
+corpus that changes only through a promotion (`--direct` push or a merged MR).
 
 ---
 

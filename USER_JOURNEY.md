@@ -1,4 +1,4 @@
-# Skill Harness — User Journey
+# skill-foundry — User Journey
 
 From first clone to a self-improving regression loop, end to end. Every command
 below is real; the mock demo lets you experience the whole journey in ~2 minutes
@@ -14,7 +14,7 @@ without hardware.
 The harness turns *"run the regression"* from a repeated instruction into:
 
 - **Skills** (`.claude/skills/`) that tell any agent *how* to run/triage/report.
-- **Scripts** behind a **single entry point** (`./harness …`) that do the
+- **Drivers** behind a **single entry point** (`./harness …`) that do the
   run → extract → report → review.
 - A **pinned baseline** (`reports/baseline/<target>.json`) so "regression" =
   *diff vs baseline*.
@@ -25,14 +25,14 @@ Two loops, always:
 
 ```text
 USE      run → extract → report → review (diff vs baseline)
-IMPROVE  capture → propose → apply → MR → next run is smarter
+IMPROVE  capture → propose → apply → push (--direct) or MR (--pr) → next run is smarter
 ```
 
 And a simple rule of thumb for who does what:
 
 - 🟢 **harness does** — run, extract, report, review, capture, propose.
-- 🟡 **you / a reviewer do** — the triage judgment (`teach`), merging the MR
-  (`promote --pr`).
+- 🟡 **you / a reviewer do** — the triage judgment (`teach`); and with `--pr`,
+  merging the MR (with `--direct` the push is automatic and tokenless).
 
 And six rules that keep the regression signal honest:
 
@@ -326,18 +326,20 @@ It renders a **reviewable git-style diff** into the right place (a new
 skips duplicates / entries already present in the target file. Nothing is
 written yet.
 
-### 7c. Apply + auto-create MR (merge is remote-gated)
+### 7c. Apply + publish (`--direct` to main, or `--pr` for an MR)
 
 ```bash
-./harness promote --pr     # apply + branch + commit + push + auto-create the MR
+./harness promote --direct   # apply + commit + push straight to origin/main (no token)
+./harness promote --pr       # …or MR-gated: branch + commit + push + auto-create the MR
 ```
 
-One command finishes the loop: it writes the edit, marks the entry
-`promoted` in `recent.md`, appends a summary to `promoted.md`, logs a dated
-block in `corrections.md`, commits on a `feat/learnings-<date>` branch, pushes,
-and **creates the merge request** (via `glab` or the GitCode API with
-`GITCODE_TOKEN`/`GITLAB_TOKEN`; otherwise it prints the MR-new URL). **You
-merge the MR on the remote** — branch protection is the gate.
+One command finishes the loop: it writes the edit, marks the entry `promoted`,
+appends a summary to `promoted.md`, and logs a dated block in `corrections.md`.
+`--direct` commits on the current branch and pushes `origin HEAD` (SSH key, no
+token). `--pr` commits on a `feat/learnings-<date>` branch, pushes, and
+**creates the merge request** (via `glab` or the GitCode API with
+`GITCODE_TOKEN`/`GITLAB_TOKEN`; otherwise it prints the MR-new URL) — **you
+merge it on the remote**; branch protection is the gate.
 
 ---
 
@@ -368,7 +370,7 @@ loop, and every teammate gets it via git.
 |---|---|
 | Nightly | `.gitcode/workflows/promote-learnings.yml` surfaces pending learnings |
 | On push/PR | `.gitcode/workflows/selfcheck.yml` runs `./harness selfcheck` |
-| Weekly / on demand | reviewer merges `feat/learnings-*` MRs |
+| Weekly / on demand | reviewer merges `feat/learnings-*` MRs (with `--pr`); `--direct` just lands on `main` |
 | After suite changes | `./harness baseline <target>` to re-pin the baseline |
 | After a correction | re-run one representative case to verify it improved triage |
 | Housekeeping | `./harness clean --keep 3` / `./harness history` / `make check` |
@@ -398,7 +400,7 @@ loop, and every teammate gets it via git.
 | Validate config | `./harness validate` |
 | Capture correction | `./harness teach "… -> … -> …"` (or wizard) |
 | Propose promotion | `./harness promote --propose` |
-| Apply + MR | `./harness promote --pr` |
+| Apply + publish | `./harness promote --direct` (or `--pr` for an MR) |
 | Self-check | `./harness selfcheck` |
 
 ---
@@ -410,8 +412,9 @@ loop, and every teammate gets it via git.
 | Run / extract / report / review / dry-run | 🟢 automatic | harness |
 | Capture a correction (`recent.md`, append-only) | 🟢 automatic | harness **or** the AI (when you correct it) |
 | Draft promotion (diff, no write) | 🟢 automatic | harness |
-| Apply + commit + push + **create the MR** | 🟢 automatic | harness |
-| **Merge the MR** | 🟡 remote-gated (branch protection) | you / a reviewer |
+| Apply + commit + push (`--direct` to `main`) | 🟢 automatic | harness |
+| Apply + commit + push + **create the MR** (`--pr`) | 🟢 automatic | harness |
+| **Merge the MR** (with `--pr`) | 🟡 remote-gated (branch protection) | you / a reviewer |
 | Remove / change an existing check | 🔴 never automatic | — |
 
 Capture is triggered by `./harness teach` or by the agent reacting to your
@@ -427,7 +430,8 @@ Auto-edit is expensive and risky — `SKILL.md` + `known-failures.md` are the
 team's shared source of truth that every future run reads. The worst failure
 mode isn't a bad memory entry; it's a wrong "known failure" that silently
 annotates a real regression as known and hides it. So the machine may grow its
-memory freely, but shared knowledge only changes when a human merges the MR.
+memory freely, but shared knowledge changes through a promotion — `--direct`
+straight to `main` (fast, tokenless) or `--pr` with a human merge.
 
 ---
 

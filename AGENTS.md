@@ -1,11 +1,10 @@
 # AGENTS.md
 
-This is a **skill harness** (skill-ops platform) — agents and humans capture
-reusable knowledge as Skills during work, and it flows through an MR-gated
-promote step into a shared hub every teammate's agent can use. Regression is
-the first bundled workflow.
-platform. You (the agent) are the conductor; `./harness` is the tool; the user
-is the only human gate.
+This is a **skill-foundry** (skill-ops platform) — agents and humans capture
+reusable knowledge as Skills during work, and it flows through a promote step
+(`--direct` push or `--pr` MR) into a shared hub every teammate's agent can
+use. Regression is the first bundled workflow. You (the agent) are the
+conductor; `./harness` is the tool; the user is the only human gate.
 
 ## Your workflow
 
@@ -25,10 +24,10 @@ is the only human gate.
    Reply with the `LRN-…` id you logged.
    For a **brand-new skill** (not a lesson about an existing one), draft it with
    `./harness capture-skill <name>`, then promote it.
-4. **Promote captured lessons** with `./harness promote --pr` (learnings) or
-   `./harness promote-skill <name> --pr` (new skills) — auto-applies, commits,
-   pushes, and **creates the MR**. The merge is gated on the remote (branch
-   protection); **never self-merge**.
+4. **Promote captured lessons** with `./harness promote --direct` (learnings) or
+   `./harness promote-skill <name> --direct` (new skills) — auto-applies, commits,
+   pushes to `origin/main` (no token). For an MR-gated path use `--pr`; the merge
+   is then gated on the remote (branch protection); **never self-merge**.
 5. **Never remove or change an existing check** — the harness only adds.
 
 ## Capture vs promote
@@ -63,7 +62,7 @@ is the only human gate.
 - `config/` — targets (`suites.json`), arches, CANN matrix (source of truth)
 - `learnings/recent.md` — captured pending lessons
 - `reports/baseline/<target>.json` — pinned baseline (regression = diff vs it)
-- `docs/` — handbook, metrics reference, story
+- `docs/` — handbook, metrics reference, vision
 
 ## Rules
 

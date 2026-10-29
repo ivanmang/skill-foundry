@@ -29,16 +29,16 @@ After each step the tour offers a menu (arrow keys + Enter):
 
 ## What it does
 
-1. Runs `demo/config/demo-suites.json` through the real `skill_foundry/cli/run.py`
+1. Runs `demo/config/demo-suites.json` through the real `python3 -m skill_foundry.cli.run`
    → `reports/demo-live-<ts>/run.json` + raw log.
-2. `skill_foundry/cli/report.py` renders `report.md`/`report.html` (1 FAIL).
-3. `skill_foundry/cli/review.py` diffs against `demo/baseline/demo-baseline.json`
+2. `python3 -m skill_foundry.cli.report` renders `report.md`/`report.html` (1 FAIL).
+3. `python3 -m skill_foundry.cli.review` diffs against `demo/baseline/demo-baseline.json`
    → flags a PASS→FAIL regression.
 4. The (now scripted) learning loop, in a `/tmp` sandbox:
-   - `skill_foundry/cli/teach.py` auto-captures the correction as a strict
+   - `python3 -m skill_foundry.cli.teach` auto-captures the correction as a strict
      `LRN-…` entry in `learnings/recent.md`.
-   - `skill_foundry/lib/session_digest.py` drafts the same entry straight from run.json.
-   - `skill_foundry/cli/promote.py --propose` turns it into a reviewable diff,
+   - `python3 -m skill_foundry.lib.session_digest` drafts the same entry straight from run.json.
+   - `python3 -m skill_foundry.cli.promote --propose` turns it into a reviewable diff,
      `--apply` writes it into `known-failures.md`, marks the entry `promoted`
      in `recent.md`, and appends a summary to `promoted.md` + an audit block to
      `corrections.md`.

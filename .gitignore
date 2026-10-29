@@ -9,10 +9,6 @@ reports/*
 reports/baseline/*
 !reports/baseline/*.json
 
-# Python
-__pycache__/
-*.pyc
-
 # Capability-detection cache
 .cache/
 
