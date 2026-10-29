@@ -31,7 +31,9 @@ ssh b10 'bash ~/skill-foundry/mcp/deploy.sh'
 
 The script prompts for: `GITCODE_TOKEN`, compute-host SSH alias (default `ecs`),
 compute checkout path (default `~/skill-foundry`). It writes `env.sh` (mode 600),
-installs a systemd unit, enables it on `127.0.0.1:8000`, and self-verifies.
+launches the server in the background via `nohup` (pid in `mcp.pid`, log in
+`mcp.log`), and self-verifies. If b10 has passwordless sudo, it installs a
+systemd unit instead (see [Persistence](#persistence)).
 
 > On ecs, the checkout must be at `~/skill-foundry` (or set `MCP_COMPUTE_PATH`
 > to where it actually is). And b10 must be able to `ssh ecs` non-interactively
@@ -70,16 +72,45 @@ sudo systemctl daemon-reload && sudo systemctl enable --now skill-foundry-mcp
 curl -fsS http://127.0.0.1:8000/mcp
 ```
 
-## Security (REQUIRED)
+## Security & HTTPS (REQUIRED)
 
-Put a reverse proxy with **auth + TLS** in front — never expose `127.0.0.1:8000`:
+Put a reverse proxy with **auth + TLS** in front — never expose `127.0.0.1:8000`.
+Caddy is the simplest: it auto-provisions a Let's Encrypt cert.
 
-```text
-client → https://pto-b10.ddns.net/mcp → nginx/caddy → 127.0.0.1:8000
-                                (bearer token / basic auth / mTLS)
+```bash
+sudo bash mcp/tls-setup.sh                    # installs caddy + writes the config
+# prompts for the auth password; caddy hash-password generates the hash
 ```
 
-`GITCODE_TOKEN` stays in b10's `env.sh` (mode 600), never in laptops or the repo.
+The config (`mcp/Caddyfile`) does:
+
+```caddyfile
+pto-b10.ddns.net {
+    basicauth { team <bcrypt-hash> }
+    reverse_proxy 127.0.0.1:8000
+}
+```
+
+Requires ports 80/443 forwarded to b10 and the DDNS record resolving. For a
+bearer-token auth instead of basic auth, swap the `basicauth` block for a header
+check. `GITCODE_TOKEN` stays in b10's `env.sh` (mode 600), never in laptops or
+the repo.
+
+## Persistence
+
+Deployed without sudo via **cron `@reboot`** + `mcp/start.sh`:
+
+```bash
+# installed on b10:
+@reboot sleep 15 && /home/ivanmang/skill-foundry/mcp/start.sh
+
+# manual restart / logs:
+bash ~/skill-foundry/mcp/start.sh
+tail -f ~/skill-foundry/mcp.log
+```
+
+If you prefer systemd and have passwordless sudo, the unit is in the Manual
+steps section; or run `sudo bash mcp/deploy.sh` (it auto-detects sudo).
 
 ## Teammates' agent config
 
@@ -106,10 +137,11 @@ client → https://pto-b10.ddns.net/mcp → nginx/caddy → 127.0.0.1:8000
 ## Ops
 
 ```bash
-sudo systemctl status skill-foundry-mcp       # health
-journalctl -u skill-foundry-mcp -f            # logs
-sudo systemctl restart skill-foundry-mcp      # after updating the checkout
+pgrep -f 'mcp/server[.]py'                  # is it running?
+tail -f ~/skill-foundry/mcp.log              # logs
+bash ~/skill-foundry/mcp/start.sh            # restart
+crontab -l                                   # the @reboot entry
 ```
 
 To update the server after a new release: `cd ~/skill-foundry && git pull` then
-`sudo systemctl restart skill-foundry-mcp`.
+`bash mcp/start.sh`.

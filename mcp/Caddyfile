@@ -1,0 +1,12 @@
+# Caddy reverse proxy in front of the skill-foundry MCP server.
+# Caddy auto-provisions + renews a Let's Encrypt cert for the domain.
+# Requires: ports 80/443 reachable and pto-b10.ddns.net resolving to b10's IP.
+
+pto-b10.ddns.net {
+    # Basic auth (generate the hash with: caddy hash-password)
+    basicauth {
+        team $2a$14$REPLACE_ME_WITH_HASH
+    }
+
+    reverse_proxy 127.0.0.1:8000
+}
