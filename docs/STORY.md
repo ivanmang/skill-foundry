@@ -143,6 +143,28 @@ machine runs and remembers; only the human decides what's true.
 
 ---
 
+## Interlude — Capture happens *while* you develop, not after
+
+The capture loop doesn't wait for a full regression run. It fires the moment a
+lesson surfaces, mid-debug, in the same conversation:
+
+> **Maya (developing a kernel):** "Run `SoftmaxGradKernel` on the A5 sim."
+> **Pi:** `./harness run --target pto-vmi --suite dsl-st --testcase SoftmaxGradKernel` → FAIL
+> **Pi (triages):** "Compile error — `pto.static_range()` fully unrolled to SLDI/SSTI. Looks new."
+> **Maya:** "No, that's the known unroll bug — use `pto.range()`."
+> **Pi (auto):** `./harness teach "pto.static_range unroll -> use pto.range() -> promote to known-failures"`
+> **Pi:** "logged `LRN-20261029-001`."
+
+Maya keeps coding. The lesson is already captured — promotion can happen
+whenever: `./harness promote --pr` at the end of the day (or right then), the
+MR created, and the merge is her one click on GitCode.
+
+That's the loop during development: **run → triage → correct → agent teaches →
+keep going.** Capture is free, so it happens every time; promotion is the only
+step that waits for a human.
+
+---
+
 ## Act IV — From memory to skill
 
 Now the lesson sits in `learnings/recent.md` with `status: pending`. To turn it
