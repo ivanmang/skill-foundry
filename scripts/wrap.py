@@ -131,6 +131,7 @@ def main(argv: list[str] | None = None) -> int:
 
         verb = first[0]
         suggestions = NEXT.get(verb, []) or [
+            ("🛠  capture a new skill", ["capture-skill"]),
             ("📊  status", ["status"]),
             ("🚀  run (dry-run preview)", ["run", "--all-suites", "--dry-run"]),
             ("📄  open latest report", ["report", "--open"]),

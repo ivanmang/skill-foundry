@@ -18,12 +18,13 @@ sys.path.insert(0, str(HARNESS / "scripts"))
 import guide  # noqa: E402 — reuse select_menu / banner / c
 
 ITEMS = [
-    ("📊  status — one-glance dashboard", ["status"]),
-    ("🚀  run tests — guided tour", ["guide"]),
-    ("🎬  sandboxed demo — no hardware", ["demo"]),
-    ("📄  open the latest report", ["report", "--open"]),
-    ("🔍  review latest vs baseline", ["review"]),
+    ("🛠  capture a new skill", ["capture-skill"]),
+    ("📚  browse skills (list/search)", ["skills"]),
     ("🧠  log a correction (teach)", ["teach"]),
+    ("🚀  run tests — guided tour", ["guide"]),
+    ("📊  status — one-glance dashboard", ["status"]),
+    ("🔍  review latest vs baseline", ["review"]),
+    ("🎬  sandboxed demo — no hardware", ["demo"]),
     ("🔧  diagnose this machine", ["diagnose"]),
     ("🧭  onboarding — first-run setup", ["onboarding"]),
     ("❓  help", ["help"]),
@@ -35,8 +36,8 @@ def main(argv: list[str] | None = None) -> int:
         # piped: fall back to plain help
         return subprocess.run([str(HARNESS / "harness"), "help"]).returncode
 
-    guide.banner("regression-harness")
-    print("  One entry point for running, reporting, reviewing, and learning.\n")
+    guide.banner("skill harness")
+    print("  One entry point for capturing skills and running the regression workflow.\n")
     choice = guide.select_menu(
         guide.c("What would you like to do?  (↑/↓ choose · Enter select · q quit)", guide.BOLD),
         ITEMS,

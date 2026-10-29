@@ -34,26 +34,23 @@ usage() {
   cat <<'EOF'
 usage: ./harness <command> [args]
 
-USE — run → report → review:
+CAPTURE & PUBLISH — the skill-ops loop:
+  capture-skill  Draft a NEW skill into skills/inbox/  [--description, --dry-run]
+  promote-skill  Promote a draft into .claude/skills/  [--propose | --apply | --pr]
+  teach     Log a correction (a lesson about an existing skill)  ["wrong -> correct -> action" | wizard | --edit]
+  promote   Promote learnings into skills        [--propose | --apply | --pr]
+  skills    List/search skills · install into agents · refresh the catalog  [--search, --inbox, --install, --uninstall, --refresh, --json]
+
+USE — the bundled regression workflow:
   run       Run a declared suite               [--suite | --all-suites] [--testcase] [--filter] [--quiet|--tui|--json] [--dry-run] [--parallel]
   report    Render a run to Markdown + HTML    [--run (default: latest), --known, --out, --open]
   review    Diff a run vs the pinned baseline  [--run (default: latest), --baseline, --out]
-
-IMPROVE — teach → promote:
-  teach     Log a correction                   ["wrong -> correct -> action" | wizard | --edit]
-  promote   Propose or apply learnings         [--propose | --apply | --pr]
-
-SKILLS — capture new skills:
-  capture-skill  Draft a new skill in skills/inbox/  [--description, --dry-run]
-  promote-skill  Promote a draft into .claude/skills/  [--propose | --apply | --pr]
-  skills         List/search skills + refresh the catalog  [--search, --inbox, --refresh, --json]
 
 SETUP:
   onboarding  Guided first-run setup
   status      One-glance dashboard             [--json, --target]
   diagnose    Check env + print exact fixes    [--json, --strict]
   targets     List configured targets          [--json]
-  install-skills  Link skills into each agent's user dir  [--dry-run, --uninstall]
   cann        Which CANN supports which arch   [--home, --scan, --json]
 
 INTERACTIVE:
@@ -75,6 +72,8 @@ BASELINE & HOUSEKEEPING:
   version   Show the harness version           [--short]
 
 Examples:
+  ./harness capture-skill code-review          # draft a new skill
+  ./harness skills --search review             # discover skills
   ./harness status
   ./harness run --all-suites --dry-run      # preview before the real run
   ./harness run --suite npu-sim-a5 --testcase tpartargmax
@@ -156,10 +155,12 @@ Example: ./harness promote-skill code-review --pr
 EOF
     ;;
     skills) cat <<'EOF'
-./harness skills [--search <q>] [--inbox] [--refresh] [--json]
-List/search skills (published .claude/skills/ + drafts skills/inbox/); --refresh
-regenerates skills/catalog.json.
-Examples: ./harness skills           ./harness skills --inbox
+./harness skills [--search <q>] [--inbox] [--install | --uninstall] [--refresh] [--json]
+List/search skills (published .claude/skills/ + drafts skills/inbox/).
+  --refresh   regenerate skills/catalog.json
+  --install   symlink skills into each detected agent's user dir
+  --uninstall remove the harness skill symlinks
+Examples: ./harness skills --search review      ./harness skills --install
 EOF
     ;;
     status) cat <<'EOF'
@@ -173,15 +174,6 @@ EOF
 ./harness targets — list configured targets (name, label, repo, suites)
   --json  machine output
 Examples: ./harness targets           ./harness targets --json
-EOF
-    ;;
-    install-skills) cat <<'EOF'
-./harness install-skills — make the harness skills discoverable by each installed agent
-  --dry-run    show what would be linked
-  --uninstall  remove the harness skill symlinks
-Project-level discovery works via .claude/skills/ + .agents/skills/; this links
-into user dirs (Claude Code ~/.claude/skills, Pi ~/.pi/skills, open ~/.agents/skills).
-Example: ./harness install-skills
 EOF
     ;;
     diagnose) cat <<'EOF'
@@ -268,7 +260,6 @@ case "$CMD" in
   status)   exec python3 "$HARNESS/scripts/status.py" "$@" ;;
   diagnose) exec python3 "$HARNESS/scripts/diagnose.py" "$@" ;;
   targets)  exec python3 "$HARNESS/scripts/targets_cli.py" "$@" ;;
-  install-skills) exec python3 "$HARNESS/scripts/install_skills.py" "$@" ;;
   onboarding) exec python3 "$HARNESS/scripts/onboarding.py" "$@" ;;
   tui)      exec python3 "$HARNESS/scripts/tui.py" "$@" ;;
   menu)     exec python3 "$HARNESS/scripts/menu.py" "$@" ;;

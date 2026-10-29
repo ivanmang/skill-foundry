@@ -89,9 +89,8 @@ any Agent-Skills-compatible agent two ways:
   `.claude/skills/`; Pi and open-standard agents read `.agents/skills/` (a
   symlink to the same skills).
 - **Always-on** (regardless of cwd): one command to link into each installed
-  agent's user dir — `./harness install-skills` (auto-detects Claude Code / Pi /
-  open-standard; `--dry-run` to preview, `--uninstall` to remove). Then
-  restart/reload the agent.
+  agent's user dir — `./harness skills --install` (auto-detects Claude Code / Pi /
+  open-standard; `--uninstall` to remove). Then restart/reload the agent.
 
 ---
 
@@ -116,7 +115,7 @@ any Agent-Skills-compatible agent two ways:
 ./harness status    one-glance dashboard   [--json]
 ./harness diagnose  check env + fixes      [--json, --strict]
 ./harness targets   list configured targets [--json]
-./harness install-skills  link skills into each agent's user dir  [--dry-run, --uninstall]
+./harness skills    list/search skills    [--search, --inbox, --install, --uninstall, --refresh, --json]
 ./harness onboarding  guided first-run setup
 ./harness tui       full-screen dashboard (interactive)
 ./harness menu      curated menu (bare ./harness default)

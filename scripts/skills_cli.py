@@ -66,12 +66,18 @@ def refresh_catalog() -> None:
 
 
 def main(argv: list[str] | None = None) -> int:
-    ap = argparse.ArgumentParser(description="List/search skills and refresh the catalog.")
+    ap = argparse.ArgumentParser(description="List/search skills, install into agents, refresh the catalog.")
     ap.add_argument("--search", default=None, help="Filter by name/description substring.")
     ap.add_argument("--inbox", action="store_true", help="Show drafts only.")
     ap.add_argument("--refresh", action="store_true", help="Regenerate skills/catalog.json.")
+    ap.add_argument("--install", action="store_true", help="Symlink skills into each detected agent's user dir.")
+    ap.add_argument("--uninstall", action="store_true", help="Remove the harness skill symlinks.")
     ap.add_argument("--json", action="store_true")
     args = ap.parse_args(argv)
+
+    if args.install or args.uninstall:
+        import install_skills
+        return install_skills.main(["--uninstall"] if args.uninstall else [])
 
     if args.refresh:
         refresh_catalog()

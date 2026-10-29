@@ -1,4 +1,4 @@
-# PTO Regression Harness — User Journey
+# Skill Harness — User Journey
 
 From first clone to a self-improving regression loop, end to end. Every command
 below is real; the mock demo lets you experience the whole journey in ~2 minutes

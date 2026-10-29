@@ -1,4 +1,4 @@
-# Regression Harness — Handbook
+# Skill Harness — Handbook
 
 The canonical reference. This one document is the source of truth for how to
 use the harness and why it's shaped the way it is. (README is the short index;
@@ -94,9 +94,9 @@ Agent-Skills-compatible agent:
 
 - **Project-level** — Claude Code reads `.claude/skills/`; Pi and open-standard
   agents read `.agents/skills/` (a symlink to the same skills). Zero setup.
-- **Always-on** — `./harness install-skills` links each skill into the
+- **Always-on** — `./harness skills --install` links each skill into the
   installed agents' user dirs (`~/.claude/skills/`, `~/.pi/skills/`,
-  `~/.agents/skills/`); `--dry-run` previews, `--uninstall` removes. Restart/reload.
+  `~/.agents/skills/`); `--uninstall` removes them. Restart/reload.
 
 ---
 
@@ -106,7 +106,6 @@ Agent-Skills-compatible agent:
 |---|---|
 | `./harness status` | one-glance dashboard (env, suites, baseline, learnings, last run) |
 | `./harness targets` | list configured targets (name, label, repo, suites) |
-| `./harness install-skills` | link skills into each agent's user dir (`.claude`/`.pi`/`.agents`) |
 | `./harness diagnose` | check this machine + print the exact fix for each issue |
 | `./harness onboarding` | guided first-run setup |
 | `./harness tui` | full-screen dashboard (interactive) |
@@ -114,6 +113,9 @@ Agent-Skills-compatible agent:
 | `./harness run` | run suites (`--all-suites`, `--suite X`, `--testcase`, `--filter`, `--quiet`, `--tui`, `--json`, `--dry-run`, `--parallel`) |
 | `./harness report` | run.json → `report.md`/`.html` (`--open`, `--known`) |
 | `./harness review` | diff a run vs the pinned baseline (p99 + CA metrics) |
+| `./harness capture-skill` | draft a NEW skill into `skills/inbox/` |
+| `./harness promote-skill` | promote a draft into `.claude/skills/` (`--propose`/`--apply`/`--pr`) |
+| `./harness skills` | list/search skills · `--install` / `--uninstall` into agents · `--refresh` the catalog |
 | `./harness teach` | log a correction (append-only) |
 | `./harness promote` | pending learnings → skills (`--propose` / `--apply` / `--pr`) |
 | `./harness baseline` | re-pin `reports/baseline/<target>.json` (per target) |

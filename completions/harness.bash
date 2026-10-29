@@ -12,7 +12,7 @@ _harness_complete() {
     cur="${COMP_WORDS[COMP_CWORD]}"
     prev="${COMP_WORDS[COMP_CWORD-1]}"
 
-    local cmds="run report review teach promote baseline history clean open validate status diagnose targets install-skills onboarding tui menu guide demo list cann selfcheck help version"
+    local cmds="run report review teach promote capture-skill promote-skill skills baseline history clean open validate status diagnose targets onboarding tui menu guide demo list cann selfcheck help version"
     local opts_run="--target --suite --all-suites --testcase --filter --quiet --tui --json --dry-run --parallel --list --format --run-id --config --arches"
     local opts_promote="--propose --apply --branch --pr --root --learnings"
     local opts_report="--run --known --out --open"
@@ -23,7 +23,9 @@ _harness_complete() {
     local opts_status="--json --target"
     local opts_diagnose="--json --strict"
     local opts_targets="--json"
-    local opts_install="--dry-run --uninstall"
+    local opts_capture_skill="--description --dry-run"
+    local opts_promote_skill="--propose --apply --pr"
+    local opts_skills="--search --inbox --refresh --json --install --uninstall"
     local fmts="text markdown html"
 
     if [[ $COMP_CWORD -eq 1 ]]; then
@@ -65,7 +67,6 @@ _harness_complete() {
         status)  COMPREPLY=( $(compgen -W "$opts_status" -- "$cur") ) ;;
         diagnose) COMPREPLY=( $(compgen -W "$opts_diagnose" -- "$cur") ) ;;
         targets)  COMPREPLY=( $(compgen -W "$opts_targets" -- "$cur") ) ;;
-        install-skills) COMPREPLY=( $(compgen -W "$opts_install" -- "$cur") ) ;;
         list)
             if [[ "$prev" == "--format" ]]; then COMPREPLY=( $(compgen -W "$fmts" -- "$cur") ); return 0; fi
             COMPREPLY=( $(compgen -W "--target --format --config --arches" -- "$cur") ) ;;

@@ -1,6 +1,9 @@
 # AGENTS.md
 
-This is a **regression harness** — a shared, self-improving test-and-learning
+This is a **skill harness** (skill-ops platform) — agents and humans capture
+reusable knowledge as Skills during work, and it flows through an MR-gated
+promote step into a shared hub every teammate's agent can use. Regression is
+the first bundled workflow.
 platform. You (the agent) are the conductor; `./harness` is the tool; the user
 is the only human gate.
 
