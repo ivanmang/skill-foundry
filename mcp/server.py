@@ -28,6 +28,8 @@ Run (hosted on b10, HTTP):
 
 from __future__ import annotations
 
+import os
+import shlex
 import subprocess
 import sys
 from pathlib import Path
@@ -43,6 +45,30 @@ except ImportError:  # pragma: no cover
     raise SystemExit(1)
 
 mcp = FastMCP("harness-mcp")
+
+# Compute-host proxy: when set, workflow.run/status run over SSH on that host
+# (e.g. b10 hosts the MCP server; ecs has the CANN toolchain + simulators).
+COMPUTE_HOST = os.environ.get("MCP_COMPUTE_HOST", "")      # SSH alias, e.g. "ecs"
+COMPUTE_PATH = os.environ.get("MCP_COMPUTE_PATH", "~/skill-foundry")
+
+
+def _remote_run(*argv: str, timeout: int = 3600) -> str:
+    """Run `./harness <argv>` on COMPUTE_HOST via SSH (skill-foundry checkout)."""
+    if not COMPUTE_HOST:
+        return "error: MCP_COMPUTE_HOST not set — no compute host configured"
+    cmd = f"cd {shlex.quote(COMPUTE_PATH)} && ./harness {shlex.join(argv)}"
+    try:
+        r = subprocess.run(
+            ["ssh", COMPUTE_HOST, cmd], capture_output=True, text=True, timeout=timeout,
+        )
+    except subprocess.TimeoutExpired:
+        return f"error: remote harness command timed out after {timeout}s: {' '.join(argv)}"
+    except FileNotFoundError:
+        return "error: ssh not found on this host"
+    out = (r.stdout or "").rstrip()
+    if r.stderr:
+        out = (out + "\n" + r.stderr.rstrip()) if out else r.stderr.rstrip()
+    return out
 
 
 def _run(*argv: str, timeout: int = 3600) -> str:
@@ -117,9 +143,17 @@ def promote(mode: str = "propose", skill_name: str = "") -> str:
 
 
 @mcp.tool()
+def workflow_status() -> str:
+    """Compute host's dashboard (env, suites, baseline, learnings, last run)."""
+    if COMPUTE_HOST:
+        return _remote_run("status", "--json")
+    return _run("status", "--json")
+
+
+@mcp.tool()
 def workflow_run(target: str = "pto-isa", suite: str = "", all_suites: bool = False,
                  testcase: str = "", filter: str = "", dry_run: bool = False) -> str:
-    """Run the bundled regression workflow (a declared suite / --all-suites)."""
+    """Run the bundled regression workflow on the compute host (or locally)."""
     args = ["run", "--target", target]
     if all_suites:
         args.append("--all-suites")
@@ -130,6 +164,8 @@ def workflow_run(target: str = "pto-isa", suite: str = "", all_suites: bool = Fa
     if filter:
         args += ["--filter", filter]
     args.append("--dry-run" if dry_run else "--quiet")
+    if COMPUTE_HOST:
+        return _remote_run(*args)
     return _run(*args)
 
 

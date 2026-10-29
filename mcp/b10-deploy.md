@@ -1,110 +1,116 @@
-# Deploy harness-mcp on b10
+# Deploy skill-foundry MCP on b10
 
-b10 (`pto-b10.ddns.net:8022`) is the team's dashboard host — an always-on box
-that already serves the vmi-dashboard. Hosting `harness-mcp` there gives every
-teammate a single live endpoint for skills + workflows.
+b10 (`pto-b10.ddns.net`) is the public gateway; **ecs** (`115.175.35.144`) is the
+compute host with CANN 9.1.0 + A5/A3 simulators. The MCP server lives on b10 and
+SSHs to ecs for `workflow_run` / `workflow_status`. Skills/learnings/git live in
+the b10 checkout; the MR-gate (`GITCODE_TOKEN`) is centralized on b10.
 
-## 1. Get the repo + deps on b10
+## Topology
+
+```text
+agent (any machine) ── https://pto-b10.ddns.net/mcp ──▶ b10 (gateway)
+                                                        │  mcp/server.py (FastMCP)
+                                                        │  skill-foundry clone
+                                                        │  GITCODE_TOKEN (auto-MR)
+                                                        └── ssh ecs ──▶ ./harness run/status
+```
+
+## Quick start (on b10)
 
 ```bash
+scp mcp/deploy.sh b10:~/          # from your laptop
 ssh b10
+bash ~/deploy.sh                   # clone + venv + env.sh + systemd + verify
+```
+
+Or if you already have the checkout on b10:
+
+```bash
+ssh b10 'bash ~/skill-foundry/mcp/deploy.sh'
+```
+
+The script prompts for: `GITCODE_TOKEN`, compute-host SSH alias (default `ecs`),
+compute checkout path (default `~/skill-foundry`). It writes `env.sh` (mode 600),
+installs a systemd unit, enables it on `127.0.0.1:8000`, and self-verifies.
+
+> On ecs, make sure the checkout exists (or rename the existing one) at
+> `~/skill-foundry`, or set `MCP_COMPUTE_PATH` to where it actually is
+> (e.g. `~/regression-harness` until you rename). And b10 must be able to
+> `ssh ecs` non-interactively (same key the daily-refresh already uses).
+
+## Manual steps (what deploy.sh does)
+
+```bash
 git clone git@gitcode.com:ivanmang/skill-foundry.git ~/skill-foundry
 cd ~/skill-foundry
 python3 -m venv .venv-mcp && source .venv-mcp/bin/activate
 pip install -r mcp/requirements.txt
-```
 
-## 2. Configure the environment
-
-```bash
-cp env.example.sh env.sh
-# edit: ASCEND_HOME_PATH (if b10 has CANN — usually NOT; see workflow note)
-#       PTO_ISA_REPO / PTO_VMI_REPO (only if workflows run locally — usually NOT)
-
-# the one secret that must live here, not on laptops:
+cat > env.sh <<'EOF'
 export GITCODE_TOKEN="glpat-…"
-```
+export MCP_COMPUTE_HOST="ecs"
+export MCP_COMPUTE_PATH="~/skill-foundry"
+EOF
+chmod 600 env.sh
 
-## 3. Run the server (HTTP, for remote agents)
-
-```bash
-cd ~/skill-foundry
-fastmcp run mcp/server.py --transport http --host 0.0.0.0 --port 8000
-```
-
-Verify: `curl http://127.0.0.1:8000/mcp` (and from a teammate's machine against
-`http://pto-b10.ddns.net:<port>/mcp`, with the firewall allowing it).
-
-For a long-running service:
-
-```bash
-# systemd unit /etc/systemd/system/harness-mcp.service
+sudo tee /etc/systemd/system/skill-foundry-mcp.service >/dev/null <<'EOF'
 [Unit]
-Description=harness-mcp
+Description=skill-foundry MCP server
 After=network.target
 [Service]
 User=ivanmang
 WorkingDirectory=/home/ivanmang/skill-foundry
-ExecStart=/home/ivanmang/skill-foundry/.venv-mcp/bin/fastmcp run mcp/server.py --transport http --host 0.0.0.0 --port 8000
-Environment=GITCODE_TOKEN=glpat-…
+EnvironmentFile=/home/ivanmang/skill-foundry/env.sh
+ExecStart=/home/ivanmang/skill-foundry/.venv-mcp/bin/fastmcp run mcp/server.py --transport http --host 127.0.0.1 --port 8000
 Restart=on-failure
 [Install]
 WantedBy=multi-user.target
+EOF
+
+sudo systemctl daemon-reload && sudo systemctl enable --now skill-foundry-mcp
+curl -fsS http://127.0.0.1:8000/mcp
 ```
 
-```bash
-sudo systemctl enable --now harness-mcp
+## Security (REQUIRED)
+
+Put a reverse proxy with **auth + TLS** in front — never expose `127.0.0.1:8000`:
+
+```text
+client → https://pto-b10.ddns.net/mcp → nginx/caddy → 127.0.0.1:8000
+                                (bearer token / basic auth / mTLS)
 ```
 
-## 4. Point teammates' agents at it
+`GITCODE_TOKEN` stays in b10's `env.sh` (mode 600), never in laptops or the repo.
 
-Each agent's MCP config (e.g. Claude Desktop / Codex / Pi / Zed) adds:
+## Teammates' agent config
 
 ```json
 {
   "mcpServers": {
-    "harness": { "url": "http://pto-b10.ddns.net:8000/mcp" }
+    "skill-foundry": { "url": "https://pto-b10.ddns.net/mcp" }
   }
 }
 ```
 
-No clone, no `env.sh`, no token on the teammate's machine.
+(Add any auth header your proxy requires.)
 
-## 5. Security (REQUIRED)
+## Tools (what they see)
 
-- **Auth**: put the MCP server behind a reverse proxy (nginx/caddy) with a
-  bearer token or mTLS. Do NOT expose the raw port to the internet.
-- **Secrets**: `GITCODE_TOKEN` only in the b10 env file (`env.sh` is gitignored;
-  systemd `Environment=` or an env file, never committed).
-- **Network**: the sim host (ecs) is on a restricted network; b10 already SSHs
-  to it for the daily dashboard refresh. Reuse that path for `workflow_run`.
+| Tool | Where it runs | Notes |
+|---|---|---|
+| `status` | b10 local | hub state: skills, learnings, catalog, git |
+| `skills_list` / `skills_load` | b10 local | discovery is live |
+| `capture_skill` / `teach` / `promote` | b10 local | writes the b10 clone; `promote --pr` uses `GITCODE_TOKEN` → auto-MR |
+| `workflow_status` | **ecs** | the compute host's env/suites/baseline/last-run |
+| `workflow_run` | **ecs** | runs the regression workflow where the toolchain is |
 
-## 6. workflow.run — b10 has no CANN
-
-b10 is a dashboard box, not a compute box. So `workflow_run` on b10 should
-**proxy to ecs**, not run locally. Two options:
-
-1. Run the MCP server **on ecs** instead (ecs has CANN 9.1.0 + A5/A3 sims) and
-   have b10 (or a reverse proxy) forward `/mcp` to it. This is the cleanest —
-   then `workflow_run` executes where the toolchain is.
-2. Keep the server on b10 and have it `ssh ecs './harness run …'` for
-   `workflow_run` (add an `mcp/proxy.sh` wrapper if you take this route).
-
-**Recommendation**: host the MCP server on **ecs** (it can run both skills and
-workflows), and use b10 as the public reverse-proxy / TLS terminator in front of
-it. That keeps compute next to the toolchain and b10 in its dashboard role.
-
-## 7. Local (no server) alternative
-
-Any agent can also attach directly over **stdio**:
+## Ops
 
 ```bash
-python mcp/server.py          # or: fastmcp run mcp/server.py
+sudo systemctl status skill-foundry-mcp       # health
+journalctl -u skill-foundry-mcp -f            # logs
+sudo systemctl restart skill-foundry-mcp      # after updating the checkout
 ```
 
-```json
-{ "mcpServers": { "harness": { "command": "python", "args": ["mcp/server.py"], "cwd": "/path/to/skill-foundry" } } }
-```
-
-This runs the server on the agent's machine (state-changing tools need the repo
-+ env there).
+To update the server after a new release: `cd ~/skill-foundry && git pull` then
+`sudo systemctl restart skill-foundry-mcp`.
