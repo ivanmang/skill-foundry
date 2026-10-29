@@ -3,13 +3,13 @@
 
 Sources:
   - published: .claude/skills/*/SKILL.md   (live skills)
-  - drafts:    skills/inbox/*/SKILL.md     (pending promotion)
+  - drafts:    hub/inbox/*/SKILL.md     (pending promotion)
 
 Usage:
   ./harness skills                 # list all
   ./harness skills --inbox         # drafts only
   ./harness skills --search <q>    # filter by name/description/tags
-  ./harness skills --refresh       # regenerate skills/catalog.json from the live skills
+  ./harness skills --refresh       # regenerate hub/catalog.json from the live skills
   ./harness skills --json
 """
 
@@ -26,8 +26,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import validate_skills  # noqa: E402 — reuse its frontmatter parser
 
 LIVE = HARNESS / ".claude" / "skills"
-INBOX = HARNESS / "skills" / "inbox"
-CATALOG = HARNESS / "skills" / "catalog.json"
+INBOX = HARNESS / "hub" / "inbox"
+CATALOG = HARNESS / "hub" / "catalog.json"
 
 
 def collect() -> list[dict]:
@@ -69,7 +69,7 @@ def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description="List/search skills, install into agents, refresh the catalog.")
     ap.add_argument("--search", default=None, help="Filter by name/description substring.")
     ap.add_argument("--inbox", action="store_true", help="Show drafts only.")
-    ap.add_argument("--refresh", action="store_true", help="Regenerate skills/catalog.json.")
+    ap.add_argument("--refresh", action="store_true", help="Regenerate hub/catalog.json.")
     ap.add_argument("--install", action="store_true", help="Symlink skills into each detected agent's user dir.")
     ap.add_argument("--uninstall", action="store_true", help="Remove the harness skill symlinks.")
     ap.add_argument("--json", action="store_true")

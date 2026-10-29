@@ -112,7 +112,7 @@ Agent-Skills-compatible agent:
 | `./harness run` | run suites (`--all-suites`, `--suite X`, `--testcase`, `--filter`, `--quiet`, `--tui`, `--json`, `--dry-run`, `--parallel`) |
 | `./harness report` | run.json → `report.md`/`.html` (`--open`, `--known`) |
 | `./harness review` | diff a run vs the pinned baseline (p99 + CA metrics) |
-| `./harness capture-skill` | draft a NEW skill into `skills/inbox/` |
+| `./harness capture-skill` | draft a NEW skill into `hub/inbox/` |
 | `./harness promote-skill` | promote a draft into `.claude/skills/` (`--propose`/`--apply`/`--direct`/`--pr`) |
 | `./harness skills` | list/search skills · `--install` / `--uninstall` into agents · `--refresh` the catalog |
 | `./harness teach` | log a correction (append-only) |

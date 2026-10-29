@@ -1,0 +1,6 @@
+{
+  "name": "skill-foundry",
+  "version": "0.6.0",
+  "description": "Skill-ops platform — capture, promote, and share Agent Skills (bundled regression workflow: pto-isa / pto-vmi)",
+  "author": { "name": "ivanmang" }
+}

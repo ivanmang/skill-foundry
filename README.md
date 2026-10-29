@@ -99,6 +99,19 @@ Any MCP-capable agent can also talk to the harness directly, no shell required:
 `teach`, `promote`, and `workflow.run` over stdio or HTTP. Hosting + runbook:
 [mcp/b10-deploy.md](mcp/b10-deploy.md).
 
+### Plugin & marketplace
+
+This repo is also a **Claude Code plugin** and a **marketplace** — teammates
+install the skills + MCP server in one step:
+
+```bash
+claude plugin marketplace add ivanmang/skill-foundry
+claude plugin install skill-foundry@skill-foundry
+```
+
+Files: `.claude-plugin/plugin.json` (manifest), `.claude-plugin/marketplace.json`
+(catalog), `.mcp.json` (MCP server), `skills/` (the skills).
+
 ---
 
 ## Use it
@@ -227,8 +240,11 @@ box, and a menu: **run & continue / skip / back / jump / explain / quit**.
   skill-maintainer/       Learning/correction loop
   pto-isa/                Target adapter (+ references/: env, suite matrix, cann matrix, known-failures)
   pto-vmi/                Target adapter (CCE/DSL + CA metrics)
-skills/                   inbox/ (skill drafts) + catalog.json (generated index)
-mcp/                      MCP server (server.py + b10 deploy runbook)
+skills/                   → .claude/skills/ (plugin-standard skills dir)
+hub/                      inbox/ (skill drafts) + catalog.json (generated index)
+.claude-plugin/           plugin.json + marketplace.json (Claude Code plugin + marketplace)
+.mcp.json                 MCP server config (bundled into the plugin)
+mcp/                      MCP server (server.py + deploy/start/tls scripts + runbook)
 config/                   suites.json + arches.json + cann.json (source of truth)
 scripts/                  drivers (see scripts/README.md: user verbs vs internals)
 completions/              bash tab-completion for ./harness

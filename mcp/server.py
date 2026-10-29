@@ -5,7 +5,7 @@ Tools:
   status          one-glance dashboard (JSON)
   skills_list     list/search skills (published + drafts)
   skills_load     return a skill's SKILL.md (+ note where references live)
-  capture_skill   draft a NEW skill into skills/inbox/
+  capture_skill   draft a NEW skill into hub/inbox/
   teach           log a correction (a lesson about an existing skill)
   promote         propose / apply / pr (learnings or a named skill draft)
   workflow_run    run the bundled regression workflow (or --dry-run)
@@ -118,7 +118,7 @@ def skills_load(name: str) -> str:
 
 @mcp.tool()
 def capture_skill(name: str, description: str, body: str = "") -> str:
-    """Draft a NEW skill into skills/inbox/<name>/SKILL.md (promote it later)."""
+    """Draft a NEW skill into hub/inbox/<name>/SKILL.md (promote it later)."""
     return _run("capture-skill", name, "--description", description, "--body", body)
 
 
@@ -135,7 +135,7 @@ def promote(mode: str = "propose", skill_name: str = "") -> str:
     mode: 'propose' (diff, no write) | 'apply' (write locally) |
           'direct' (commit + push to origin/main over SSH, no MR/token) |
           'pr' (branch + push + create the MR, needs GITCODE_TOKEN/glab).
-    Give skill_name to promote that skills/inbox/ draft; otherwise promotes learnings.
+    Give skill_name to promote that hub/inbox/ draft; otherwise promotes learnings.
     """
     if mode not in ("propose", "apply", "direct", "pr"):
         return "error: mode must be propose | apply | direct | pr"

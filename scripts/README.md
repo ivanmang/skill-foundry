@@ -24,7 +24,7 @@ directly.
 | `validate` | `validate.py` | Check suites/arches/cann configs |
 | `status` | `status.py` | One-glance dashboard (env, suites, baseline, learnings, last run) |
 | `diagnose` | `diagnose.py` | Check this machine + print exact fixes |
-| `capture-skill` | `capture_skill.py` | Draft a NEW skill into `skills/inbox/` |
+| `capture-skill` | `capture_skill.py` | Draft a NEW skill into `hub/inbox/` |
 | `promote-skill` | `promote_skill.py` | Promote a draft into `.claude/skills/` (+ MR) |
 | `skills` | `skills_cli.py` | List/search skills · `--install`/`--uninstall` · `--refresh` |
 | `onboarding` | `onboarding.py` | Guided first-run setup |

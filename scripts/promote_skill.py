@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Promote a skill draft from skills/inbox/ into .claude/skills/ (+ MR).
+"""Promote a skill draft from hub/inbox/ into .claude/skills/ (+ MR).
 
 Usage:
   ./harness promote-skill                 # list drafts and pick one (TTY)
@@ -22,7 +22,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import promote_recent as PR  # noqa: E402 — reuse remote_web_url / create_mr
 import _browser  # noqa: E402
 
-INBOX = HARNESS / "skills" / "inbox"
+INBOX = HARNESS / "hub" / "inbox"
 LIVE = HARNESS / ".claude" / "skills"
 
 
@@ -43,7 +43,7 @@ def main(argv: list[str] | None = None) -> int:
 
     names = drafts()
     if not names:
-        print("No skill drafts in skills/inbox/ — run: ./harness capture-skill <name>")
+        print("No skill drafts in hub/inbox/ — run: ./harness capture-skill <name>")
         return 0
 
     name = args.name

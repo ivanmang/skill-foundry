@@ -10,7 +10,7 @@ product is the loop:
 ```text
 CAPTURE  (ambient, during any work)   agent corrects you → ./harness teach / capture-skill
 CURATE   (MR-gated)                    promote --propose → promote --pr (apply + push + create MR)
-HUB      (shared)                      git repo + skills/catalog.json + MCP server
+HUB      (shared)                      git repo + hub/catalog.json + MCP server
 CONSUME  (every teammate's agent)      discover via skills / MCP, load SKILL.md on demand
 ```
 
@@ -29,7 +29,7 @@ CONSUME  (every teammate's agent)      discover via skills / MCP, load SKILL.md 
   becomes a bundled workflow, one domain among many.
 - **Generalize capture** — knowledge can become a *learning* (`teach`) or a
   *new skill* (`capture-skill`), not just a regression triage note.
-- **Add a hub** — `skills/catalog.json` + `./harness skills` for discovery.
+- **Add a hub** — `hub/catalog.json` + `./harness skills` for discovery.
 - **Add hosting** — an MCP server (`mcp/server.py`) as the live interface, with git as
   the source of truth. Exposes status / skills.list/search/load / capture / teach /
   promote / workflow.run over stdio or HTTP. Hosting runbook: `mcp/b10-deploy.md`.
@@ -39,7 +39,7 @@ CONSUME  (every teammate's agent)      discover via skills / MCP, load SKILL.md 
 | Verb | Produces | Promoted into |
 |---|---|---|
 | `./harness teach "wrong → correct → action"` | a `LRN-…` entry in `learnings/recent.md` | `known-failures.md` or a skill's `## Gotchas` |
-| `./harness capture-skill <name>` | a draft in `skills/inbox/<name>/SKILL.md` | `.claude/skills/<name>/` |
+| `./harness capture-skill <name>` | a draft in `hub/inbox/<name>/SKILL.md` | `.claude/skills/<name>/` |
 
 Both promote through the same MR-gated path, so shared knowledge only changes
 when a human merges.

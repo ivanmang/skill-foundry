@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Capture a NEW skill draft into skills/inbox/ for later promotion.
+"""Capture a NEW skill draft into hub/inbox/ for later promotion.
 
 Usage:
   ./harness capture-skill <name>                 # wizard (description + editor for body)
@@ -18,7 +18,7 @@ import tempfile
 from pathlib import Path
 
 HARNESS = Path(__file__).resolve().parent.parent
-INBOX = HARNESS / "skills" / "inbox"
+INBOX = HARNESS / "hub" / "inbox"
 LIVE = HARNESS / ".claude" / "skills"
 NAME_RE = re.compile(r"^[a-z0-9-]+$")
 LICENSE = "CANN Open Software License Agreement Version 2.0"
@@ -88,7 +88,7 @@ def render_skill(name: str, description: str, body: str) -> str:
 
 
 def main(argv: list[str] | None = None) -> int:
-    ap = argparse.ArgumentParser(description="Capture a new skill draft into skills/inbox/.")
+    ap = argparse.ArgumentParser(description="Capture a new skill draft into hub/inbox/.")
     ap.add_argument("name", nargs="?", help="Skill name (lowercase-hyphen).")
     ap.add_argument("--description", default=None, help="Description (what + when to use).")
     ap.add_argument("--body", default=None, help="Instructions body (Markdown); skips the editor.")
@@ -127,7 +127,7 @@ def main(argv: list[str] | None = None) -> int:
     dest.mkdir(parents=True, exist_ok=True)
     (dest / "SKILL.md").write_text(text, encoding="utf-8")
     print(f"✓ captured draft → {dest / 'SKILL.md'}")
-    print(f"  next: ./harness promote-skill {name} --propose   (then --pr to create the MR)")
+    print(f"  next: ./harness promote-skill {name} --direct   (or --pr for an MR-gated review)")
     return 0
 
 

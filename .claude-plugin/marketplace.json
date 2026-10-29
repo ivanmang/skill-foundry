@@ -1,0 +1,12 @@
+{
+  "name": "skill-foundry",
+  "description": "Agent skills + MCP server for the team's regression and skill-ops workflows",
+  "owner": { "name": "ivanmang" },
+  "plugins": [
+    {
+      "name": "skill-foundry",
+      "source": "./",
+      "description": "Bundled skills (run-testcase, extract-logs, generate-report, review-inconsistencies, pto-isa, pto-vmi, skill-maintainer) + harness MCP server"
+    }
+  ]
+}

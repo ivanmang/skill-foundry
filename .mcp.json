@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "skill-foundry": {
+      "type": "http",
+      "url": "https://pto-b10.ddns.net/mcp"
+    }
+  }
+}
