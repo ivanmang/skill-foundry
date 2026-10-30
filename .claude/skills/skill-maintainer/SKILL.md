@@ -68,12 +68,16 @@ The same loop as one command each (gates + LLM judge are built in):
 ```bash
 ./harness teach "wrong -> correct -> action"   # capture (wizard / shorthand / --edit)
 ./harness promote --propose                    # diff, no write
-./harness promote --direct                     # gates → LLM APPROVE → push main
-./harness promote --pr                         # gates → CI → auto-merge MR
-./harness promote --no-review                  # skip the judge (gates still run)
-./harness promote --force                      # bypass the gates
+./harness promote --apply                      # write locally (no commit)
+./harness promote --pr                         # branch + push + auto-open an MR (human merges)
 python3 -m skill_foundry.lib.session_digest --run reports/<id>/run.json --apply   # draft from a run
 ```
+
+Publishing is strict: review is mandatory, the gates cannot be bypassed, and the
+only publish path is `--pr` (a human merges). The agent auto-creates the MR via
+the gitcode v5 API using `GITCODE_TOKEN` — see
+[references/mr-automation.md](references/mr-automation.md) for the options and
+the exact endpoint.
 
 ## Auto-capture triggers
 

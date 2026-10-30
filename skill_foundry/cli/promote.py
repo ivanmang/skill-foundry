@@ -289,8 +289,33 @@ def _api_create_mr(web: str, branch: str, base: str, title: str) -> str | None:
         return None
 
 
+def _gitcode_create_pr(owner: str, repo: str, head: str, base: str, title: str, token: str) -> str | None:
+    """Create a gitcode pull request via the v5 API; return its html_url."""
+    url = (f"https://api.gitcode.com/api/v5/repos/{owner}/{repo}/pulls"
+           f"?access_token={urllib.parse.quote(token)}")
+    payload = json.dumps({"title": title, "head": head, "base": base}).encode()
+    req = urllib.request.Request(url, data=payload, method="POST",
+                                 headers={"Content-Type": "application/json"})
+    with urllib.request.urlopen(req, timeout=60) as resp:
+        data = json.loads(resp.read().decode())
+    return data.get("html_url") or data.get("web_url")
+
+
 def create_mr(web: str, branch: str, base: str, title: str) -> tuple[str, bool]:
-    """Create (or otherwise locate) an MR URL. Returns (url, created)."""
+    """Create an MR/PR on the platform. Returns (url, created).
+
+    gitcode (this repo's remote) uses its own v5 API with ``access_token``; the
+    standard GitLab API and glab do not work against it.
+    """
+    token = os.environ.get("GITCODE_TOKEN") or os.environ.get("GITLAB_TOKEN")
+    m = re.search(r"gitcode\.com/([^/]+)/([^/]+?)(?:\.git)?$", web or "")
+    if m and token:
+        try:
+            url = _gitcode_create_pr(m.group(1), m.group(2), branch, base, title, token)
+            if url:
+                return url, True
+        except Exception:
+            pass
     url = _glab_create_mr(branch, base, title)
     if url:
         return url, True
