@@ -1,6 +1,7 @@
 ---
 name: ops-perf-preparation
 description: Isolated-demo preprocessing for performance tasks: strip the project while preserving the invocation, establish build/load evidence, and verify baseline precision with TTK. Dispatched by ops-perf-optimize.
+category: perf-optimize
 ---
 
 # 前处理

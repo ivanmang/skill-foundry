@@ -2,6 +2,7 @@
 name: ops-incremental
 description: Incremental development entry for existing Ascend C operators: feature completion, fixes, compatibility, tests, or docs. Analyzes requirements, reuses workflow modules, and generates a task-specific workflow.yaml for workflow-orchestrator.
 disable-model-invocation: true
+category: ops-dev
 ---
 
 ## 流程

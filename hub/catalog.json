@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated": "2026-10-30T03:54:10.671197+00:00",
+  "generated": "2026-10-30T04:02:44.777556+00:00",
   "skills": [
     {
       "name": "aclnn-doc-gen",
@@ -64,7 +64,7 @@
     },
     {
       "name": "ascendc-api-retrieval",
-      "description": "Search the Ascend C operator development API documentation.",
+      "description": "Search/reference Ascend C operator development API documentation (LocalTensor, GlobalTensor, TPipe, TQue, DataCopy, vector/matrix/math/tiling/sync APIs). Use before generating any Ascend C code or answering Ascend C API questions. Primary: the RAG retrieval service. Fallback (no service): local asc-devkit files then online community search via scripts/.",
       "status": "published"
     },
     {
@@ -115,11 +115,6 @@
     {
       "name": "cake-code-review",
       "description": "Review AscendC kernel code for structural red-line violations (P0\u2013P3) and algorithm correctness. Use after dsl-lowering, before ascendc-evaluation. Outputs rectification report; guides fix \u2192 recompile \u2192 unit test \u2192 system test.",
-      "status": "published"
-    },
-    {
-      "name": "cake-docs-search",
-      "description": "Ascend C development resource retrieval: search a local API doc index, sample-code map, and online docs fallback to locate development material (API usage, samples, compatibility, official portals). Self-developed code, originally published as ascendc-docs-search in CAKE2.",
       "status": "published"
     },
     {

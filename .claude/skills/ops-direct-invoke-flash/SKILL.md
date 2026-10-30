@@ -23,6 +23,7 @@ hooks:
           if: "Edit(*.asc)|Write(*.asc)"
           timeout: 5
           statusMessage: "Verifying kernel code conventions..."
+category: ops-dev
 ---
 
 # Ascend C 核函数从零构建工作流

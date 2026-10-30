@@ -1,6 +1,7 @@
 ---
 name: tool-perf-optimize
 description: Ascend C operator performance optimization strategy: Tiling modeling + multi-level flow analysis (device/cluster/core) using simulation diagrams + profiling data; a 4-step pipeline that fixes Tiling parameters. Directions come from tool-perf-analysis; reference implementations from tool-perf-practice. Triggers: operator perf tuning, flow analysis, Tiling correction, bound diagnosis, MC2 fused-op optimization, cluster-flow balancing.
+category: perf-analysis
 ---
 
 # Ascend C 算子性能优化流水分析

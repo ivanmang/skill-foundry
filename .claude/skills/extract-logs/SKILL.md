@@ -6,6 +6,7 @@ description: >
   run, or when asked to extract or normalize test logs into structured results.
 license: CANN Open Software License Agreement Version 2.0
 compatibility: Requires python3. A standalone parser ships in scripts/parse_gtest.py.
+category: regression
 ---
 
 # Extract Logs

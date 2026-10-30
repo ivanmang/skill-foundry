@@ -3,6 +3,7 @@ name: aog-perf-eval
 description: Dual-method (profiler + wall-clock) performance evaluation for an AscendC operator in an op-gen output directory (output/{project}/src/kernels/{op}/). Uses torch_npu.profiler (V5 kernel_details.csv) plus wall-clock timing.
 argument-hint: >-
   {output_dir}（例如 output/npukernelbench-a3/src/kernels/1_GELU）
+category: ascendc-dev
 ---
 
 # /aog-perf-eval — AscendC 算子双方法性能评估

@@ -1,6 +1,7 @@
 ---
 name: ops-perf-analysis
 description: Baseline profiling, per-case bottleneck diagnosis, and plan design for frozen performance tasks. Produces an analysis report, precise implementation contract, and scope to freeze. Dispatched by ops-perf-optimize.
+category: perf-optimize
 ---
 
 # 诊断分析

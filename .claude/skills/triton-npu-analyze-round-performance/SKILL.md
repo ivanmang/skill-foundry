@@ -1,6 +1,7 @@
 ---
 name: triton-npu-analyze-round-performance
 description: Use when an optimize round needs deep performance diagnosis from round-local profile and optional IR evidence, especially to explain scalar/vector/cube imbalance, frequent data movement, weak pipeline overlap, or other signals that should be traced back to problems in the current operator implementation.
+category: triton
 ---
 
 # Analyze Optimize Round Performance

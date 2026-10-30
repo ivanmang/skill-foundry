@@ -2,6 +2,7 @@
 name: easyasc-codegen
 disable-model-invocation: true
 description: Run easyasc's codegen on the DSL produced by dsl-baseline-generation-easyasc, build the resulting AscendC project, and soft-link the produced custom_opp_*.run into the location CAKE's evaluation expects. This stage replaces dsl-lowering in the cake workflow. Real AscendC codegen is a2 (ascend910b) only — for a5 the skill refuses and the op stays simulator-only / report-only. Outputs are isolated under easyasc_workspace/{op_name}_raw/, and this skill also creates the {Op}Custom/build_out/ sentinel directory consumed by easyasc-dsl-bridge.
+category: ascendc-dev
 ---
 
 ## What I do

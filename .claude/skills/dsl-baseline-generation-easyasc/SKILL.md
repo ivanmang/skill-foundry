@@ -2,6 +2,7 @@
 name: dsl-baseline-generation-easyasc
 disable-model-invocation: true
 description: Generate initial easyasc-DSL code (Python @kernel() with GMTensor/Tensor/Var primitives) from functional PyTorch. Default target is `from easyasc.a2 import *` (ascend910b) — A2 exposes both Vector UB-only primitives AND cube primitives (DBuff/Position.L0C/matmul/GetCubeNum), so both Vector and CV/matmul operators can be authored without switching to A5. Use after functional-conversion in the cake workflow.
+category: ascendc-dev
 ---
 
 ## What I do

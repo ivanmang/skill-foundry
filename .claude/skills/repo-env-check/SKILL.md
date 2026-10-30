@@ -1,6 +1,7 @@
 ---
 name: repo-env-check
 description: For requirement alignment: provide conda/Python and CANN candidates, check the chosen development environment, and record authorization and evidence.
+category: repo-ops
 ---
 
 # 仓库环境检查

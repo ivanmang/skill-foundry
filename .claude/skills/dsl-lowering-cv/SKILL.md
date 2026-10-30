@@ -13,6 +13,7 @@ subagent:
     cube_pass:          { model: opus,   timeout: 600,  max_iterations: 12 }
     vector_pass:        { model: opus,   timeout: 600,  max_iterations: 12 }
     entry_pass:         { model: sonnet, timeout: 180,  max_iterations: 5 }
+category: ascendc-dev
 ---
 
 

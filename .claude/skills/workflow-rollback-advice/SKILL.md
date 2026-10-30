@@ -1,6 +1,7 @@
 ---
 name: workflow-rollback-advice
 description: Generate failure analysis / redo advice for workflow rollback: analyze the failed task's session records and historical artifacts.
+category: workflow
 ---
 
 # Workflow Rollback Advice

@@ -16,6 +16,7 @@ version: 1.0.0
 metadata:
   author: tzh
   category: doc-generation
+category: doc-gen
 ---
 
 # ACLNN 文档生成技能

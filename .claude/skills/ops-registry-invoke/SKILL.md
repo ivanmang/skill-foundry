@@ -1,6 +1,7 @@
 ---
 name: ops-registry-invoke
 description: ACLNN operator development workflow entry.
+category: ops-dev
 ---
 
 # ACLNN 算子开发工作流入口

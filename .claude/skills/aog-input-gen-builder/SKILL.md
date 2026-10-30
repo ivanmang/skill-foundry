@@ -15,6 +15,7 @@ description: >
   cover the patterns seen in ops #3, #5, #6, #11, #20, #24, #25. Complex
   cases (FFT op#23, variable-length lists) still need manual authoring
   but should be rare.
+category: ascendc-dev
 ---
 
 # /aog-input-gen-builder

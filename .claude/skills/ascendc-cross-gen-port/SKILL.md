@@ -7,6 +7,7 @@ argument-hint: >
   推荐：KernelBench 风格 golden（算子实现 .py，如 model.py + 测试集合 test_case.json，同 stem
   JSON/JSONL sidecar）。
   目标架构可用自然语言给出（arch35 / 950PR / A5 / arch20 / 310P / 310P3 / 200x / dav-m200），来源架构自动识别，无需指定。
+category: ascendc-dev
 ---
 
 # ascendc-cross-gen-port — 跨代际移植入口

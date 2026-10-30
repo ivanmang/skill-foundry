@@ -1,6 +1,7 @@
 ---
 name: triton-npu-retrieve-patterns
 description: Deterministic offline retrieval of candidate optimization patterns for submitted symptom IDs, mapped through the language knowledge skill's symptom contract. Use when routing observed Ascend NPU performance symptoms to candidate optimization patterns. Advisory only.
+category: triton
 ---
 
 # Retrieve Patterns (Symptom)

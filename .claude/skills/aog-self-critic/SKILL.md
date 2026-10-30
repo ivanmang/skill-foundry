@@ -9,6 +9,7 @@ description: >
   Status: MVP skeleton (2026-04-21). Full pattern catalog pending DEBT-031
   cross-session retrospective analysis — until then, the checks below are
   seeded from the user's explicit feedback memories.
+category: ascendc-dev
 ---
 
 # /aog-self-critic

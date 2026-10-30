@@ -4,6 +4,7 @@ description: Forward->backward AscendC operator generation entry. From a differe
 argument-hint: >
   输入：forward（正向规格 .py，定义可微 `forward` 函数 + `BACKWARD_SPEC` dict）；
   target（自然语言目标芯片，可选，如 "a3"/"a5"/"arch35"）。
+category: ascendc-dev
 ---
 
 # ascendc-backward-gen — 正向→反向生成入口

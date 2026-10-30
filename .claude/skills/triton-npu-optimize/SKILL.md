@@ -1,6 +1,7 @@
 ---
 name: triton-npu-optimize
 description: Iteratively optimize an Ascend NPU operator through correctness and performance gates. Use for multi-round optimization with a canonical baseline, tracked evidence, and profiler-backed diagnosis.
+category: triton
 ---
 
 # Optimize

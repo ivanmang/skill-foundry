@@ -1,6 +1,7 @@
 ---
 name: triton-npu-op-coding-guide
 description: Per-category Triton-Ascend operator-writing guidance — writing essentials, common mistakes with fixes, and recommended skeleton patterns. Use when implementing or converting a Triton Ascend NPU operator and category-specific coding guidance is needed. Reference-only; does not define workflow.
+category: triton
 ---
 
 # Op Coding Guide

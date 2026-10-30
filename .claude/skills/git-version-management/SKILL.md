@@ -2,6 +2,7 @@
 name: git-version-management
 disable-model-invocation: true
 description: Git version management for operator workspaces: initialization, per-stage commits, worktree parallel isolation, and audit tracing.
+category: repo-ops
 ---
 
 ## 概述

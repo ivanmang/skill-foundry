@@ -2,6 +2,7 @@
 name: dsl-easyasc-post
 disable-model-invocation: true
 description: Post-process easyasc's native AscendC codegen output (op_host/, op_kernel/, build_out/) into cake's expected `output/{op}/{Op}Custom/` layout so ascend-evaluation can consume it. Reads codegen_status.json from dsl-easyasc-codegen; refuses to run on a5 path or when ascendc_generated=false.
+category: ascendc-dev
 ---
 
 # dsl-easyasc-post

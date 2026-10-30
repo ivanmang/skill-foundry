@@ -2,6 +2,7 @@
 name: dsl-easyasc-codegen
 disable-model-invocation: true
 description: Author AscendC kernels via the easyasc Python DSL — write @kernel functions, smoke-test in easyasc's simulator against a PyTorch reference, then either compile to AscendC (a2 path) or stop at simulator validation (a5 path). Hand off to dsl-easyasc-post when AscendC artifacts are produced.
+category: ascendc-dev
 ---
 
 # dsl-easyasc-codegen

@@ -1,6 +1,7 @@
 ---
 name: ascendc-markdown-quality-checker
 description: AscendC-specific Markdown quality check: structural integrity, language fluency, spec compliance, correctness. Triggers: AscendC + Markdown + quality check.
+category: doc-quality
 ---
 
 # AscendC API质检技能

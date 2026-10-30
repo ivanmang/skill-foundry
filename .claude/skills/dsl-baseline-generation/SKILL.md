@@ -2,6 +2,7 @@
 name: dsl-baseline-generation
 disable-model-invocation: true
 description: Generate initial AscendDSL code (class structure, compute, tiling) from functional PyTorch for pure Vector operators. Use after ascend-call-generation creates the project scaffold.
+category: ascendc-dev
 ---
 
 ## What I do

@@ -7,6 +7,7 @@ description: >
   (3) After context compaction or reset — read PROGRESS.md first to recover state.
   Also call when the user asks about current progress or status.
 allowed-tools: Read, Write, Edit, Bash, TaskCreate, TaskGet, TaskUpdate, TaskList
+category: ascendc-dev
 ---
 
 # Task Progress Tracking

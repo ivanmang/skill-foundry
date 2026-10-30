@@ -6,6 +6,7 @@ description: >
   MUST use when: (1) Starting any skill step, (2) Completing any skill step,
   (3) Final summary to correlate skills with outcomes.
 allowed-tools: Read, Write, Edit, Bash
+category: ascendc-dev
 ---
 
 # Skill Trace — 技能调用追踪

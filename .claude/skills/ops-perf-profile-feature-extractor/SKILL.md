@@ -1,6 +1,7 @@
 ---
 name: ops-perf-profile-feature-extractor
 description: Complex-operator performance feature extraction. When simple profile metrics (aggregate counters, torch profiler duration) are insufficient, extract diagnostic-level features (pipeline flow graph, per-instruction timing, dependencies and bubbles). Dispatched by ops-perf-optimize.
+category: perf-optimize
 ---
 
 # 性能特征提取（流水图）

@@ -1,6 +1,7 @@
 ---
 name: tool-perf-collect
 description: On-device NPU performance collection and speedup comparison vs a reference (msprof compare/quick modes; outputs performance.json + a markdown comparison). Collection + comparison only; analysis -> tool-perf-analysis; optimization strategy -> tool-perf-optimize; visualization -> tool-perf-report. Triggers: on-device performance, operator perf test, hardware perf verification, NPU profiling collection, speedup comparison.
+category: perf-analysis
 ---
 
 # 上板性能采集与调优

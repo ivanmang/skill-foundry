@@ -1,6 +1,7 @@
 ---
 name: repo-requirement
 description: Centrally align operator requirements, conda/Python and CANN environments, and modification permissions into a task contract reusable across retries.
+category: repo-ops
 ---
 
 # 直调算子需求对齐

@@ -1,6 +1,7 @@
 ---
 name: ascendc-evaluation
 description: Multi-case operator evaluation with precision testing and performance profiling, use when you want to evaluate the performance and correctness of your AscendC operator implementation.
+category: ascendc-dev
 ---
 
 ## What I do

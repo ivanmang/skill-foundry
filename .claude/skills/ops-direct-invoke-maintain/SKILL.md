@@ -1,6 +1,7 @@
 ---
 name: ops-direct-invoke-maintain
 description: Maintain the ops-direct-invoke workflow's architecture and design: the PM entry, the ops-direct-invoke-* roles, the workflow skills, and the .cannbot/plugins/ops-direct-invoke/ plugin assets.
+category: ops-dev
 ---
 
 # ops-direct-invoke 工作流维护

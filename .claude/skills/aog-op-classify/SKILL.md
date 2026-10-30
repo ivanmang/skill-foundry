@@ -6,6 +6,7 @@ description: >
   output. Invoked by the Python orchestrator at Phase O1.7, or by a human for
   one-off inspection: `Skill(name="aog-op-classify", args="workspace/{op}")`.
   Use when Phase O1.7 needs operator classification and KB recommendations.
+category: ascendc-dev
 ---
 
 # /aog-op-classify (v2)

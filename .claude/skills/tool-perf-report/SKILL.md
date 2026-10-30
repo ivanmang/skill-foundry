@@ -1,6 +1,7 @@
 ---
 name: tool-perf-report
 description: msOpProf -> self-contained interactive HTML performance report (Details, Roofline, Timeline, Cache, Source, on-chip memory, Warp Stall, instruction timeline, raw data). Collection -> tool-perf-collect; interpretation -> tool-perf-analysis. Triggers: generate a visualization report from collected data, view a perf module, rebuild a report from an existing collection dir.
+category: perf-analysis
 ---
 
 # msOpProf 采集与可视化

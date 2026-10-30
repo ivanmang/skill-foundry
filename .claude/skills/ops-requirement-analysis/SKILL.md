@@ -2,6 +2,7 @@
 name: ops-requirement-analysis
 description: Produce a REQUIREMENTS.md for a to-be-developed operator: op-name resolution -> model / competitor (TF-PyTorch) / CANN-proposal research -> requirement summary. Triggers on operator requirement docs.
 disable-model-invocation: true
+category: ops-dev
 ---
 
 # 算子需求分析 Skill

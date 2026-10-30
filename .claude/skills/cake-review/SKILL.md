@@ -6,6 +6,7 @@ description: >
   and skill/agent document quality.
   Produces a REVIEW.md in the kernel output directory.
   Use when a formal review of the kernel generation process is needed, or when manually triggered by the user.
+category: ascendc-dev
 ---
 
 # Cake Review Skill

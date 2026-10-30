@@ -1,6 +1,7 @@
 ---
 name: ops-perf-implementation
 description: Isolated-scheme implementation, functional and performance gating, candidate final selection, and full demo acceptance for performance tasks. Dispatched by ops-perf-optimize.
+category: perf-optimize
 ---
 
 # 实施验证

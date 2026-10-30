@@ -1,6 +1,7 @@
 ---
 name: triton-npu-analyze-ir
 description: Use when an agent needs to capture, archive, or inspect Triton Ascend compiler IR for an operator workflow, especially to analyze dumped Triton or Bisheng IR stages, reason about likely performance issues from generated IR artifacts, or collect complete IR from a local or remote execution.
+category: triton
 ---
 
 # Ascend Operator IR Analyzer

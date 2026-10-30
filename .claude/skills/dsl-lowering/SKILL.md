@@ -6,6 +6,7 @@ subagent:
   enabled: true
   agent_type: general
   reason: "Multi-pass transformation with compilation requires autonomous error recovery; subagent keeps orchestrator context clean."
+category: ascendc-dev
 ---
 
 

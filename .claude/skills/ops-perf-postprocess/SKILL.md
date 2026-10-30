@@ -1,6 +1,7 @@
 ---
 name: ops-perf-postprocess
 description: Re-integrate the accepted performance demo into the original project, protect non-target chip families, and check both full suites for regression plus original-code routing. Dispatched by ops-perf-optimize.
+category: perf-optimize
 ---
 
 # 后处理

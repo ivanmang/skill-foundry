@@ -1,6 +1,7 @@
 ---
 name: repo-coding-rules
 description: CANN Bench candidate-operator implementation authenticity, wrapper boundaries, project interfaces, and Ascend C code-quality requirements. Use when coding, fixing, or reviewing.
+category: repo-ops
 ---
 
 # 仓库编码规则

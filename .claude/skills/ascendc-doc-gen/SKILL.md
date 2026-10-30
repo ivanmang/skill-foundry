@@ -6,6 +6,7 @@ description: Generate Huawei CANN AscendC API reference docs from C++ headers: c
 metadata:
   author: tzh
   category: doc-generation
+category: doc-gen
 ---
 
 # AscendC API 文档生成

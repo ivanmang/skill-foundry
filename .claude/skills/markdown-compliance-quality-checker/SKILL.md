@@ -7,6 +7,7 @@ version: 1.0.0
 metadata:
   author: Huawei Technologies Co., Ltd.
   category: utility-doc
+category: doc-quality
 ---
 
 # 生态资料合规性质检技能

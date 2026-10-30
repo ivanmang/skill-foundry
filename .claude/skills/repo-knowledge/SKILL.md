@@ -1,6 +1,7 @@
 ---
 name: repo-knowledge
 description: CANN Bench direct-invoke operator project knowledge: evaluation tasks, source-submission interface, precision and scoring contracts.
+category: repo-ops
 ---
 
 # 仓库领域知识

@@ -1,6 +1,7 @@
 ---
 name: triton-npu-gen-bench
 description: Generate benchmark code for an Ascend NPU operator. Use when there is a need to create a new benchmark file for a given operator.
+category: triton
 ---
 
 # Bench Gen

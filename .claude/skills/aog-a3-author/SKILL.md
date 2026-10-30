@@ -9,6 +9,7 @@ description: >
   Use when Phase O2.4 needs to construct a missing A3 reference runner.
   Usage:
     /aog-a3-author {op_dir} {workspace}     # parse op_dir, emit scripts to workspace
+category: ascendc-dev
 ---
 
 # /aog-a3-author

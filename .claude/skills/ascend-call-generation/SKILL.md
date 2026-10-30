@@ -2,6 +2,7 @@
 name: ascend-call-generation
 disable-model-invocation: true
 description: Generate AscendC project scaffold (pybind, CMake, host code, kernel skeleton) from functional PyTorch for pure Vector operators. Use after functional-conversion, before dsl-baseline-generation.
+category: ascendc-dev
 ---
 
 ## What I do

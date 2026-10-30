@@ -2,6 +2,7 @@
 name: workflow-dispatch
 description: Architecture routing dispatch for operator-development workflows.
 disable-model-invocation: true
+category: workflow
 ---
 
 # 工作流架构路由

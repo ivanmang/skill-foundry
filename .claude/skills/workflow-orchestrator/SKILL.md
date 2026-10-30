@@ -2,6 +2,7 @@
 name: workflow-orchestrator
 description: Run a development workflow defined in workflow.yaml.
 disable-model-invocation: true
+category: workflow
 ---
 
 # Workflow Orchestrator

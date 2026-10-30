@@ -7,6 +7,7 @@ description: >
   suite for a target such as pto-isa.
 license: CANN Open Software License Agreement Version 2.0
 compatibility: Requires python3 and git. NPU-sim suites additionally require a CANN toolkit with BOTH the compile headers AND the matching simulator.
+category: regression
 ---
 
 # Run Testcase

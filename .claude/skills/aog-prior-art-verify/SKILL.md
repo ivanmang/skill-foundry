@@ -1,6 +1,7 @@
 ---
 name: aog-prior-art-verify
 description: Use when an arch22→arch35 migration can reuse an existing arch35 candidate. Scan, provenance-stage, build, measure, and learn from it without replacing the selected independent truth or customer-facing verification.
+category: ascendc-dev
 ---
 
 # Prior-art candidate verification

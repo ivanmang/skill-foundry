@@ -7,6 +7,7 @@ description: >
   asked to review a run or compare it to the baseline.
 license: CANN Open Software License Agreement Version 2.0
 compatibility: Requires python3. The comparison rules are deterministic and portable.
+category: regression
 ---
 
 # Review Inconsistencies

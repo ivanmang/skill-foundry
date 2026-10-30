@@ -9,6 +9,7 @@ description: >
   (4) managing multiple remote targets (A2/910B + A3/910C)
   (5) setting up hdspace tunnel or Docker SSH connections
   (6) troubleshooting remote compile/run issues (507033, ctypes, rsync)
+category: ascendc-dev
 ---
 
 # Remote NPU Development

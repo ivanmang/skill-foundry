@@ -9,6 +9,7 @@ argument-hint: >
   batch: --batch --scan-roots ROOTS; audit: --scan; validate: --validate ID;
   learn: --learn [url] [--hw-spec].
 context: inline
+category: ascendc-dev
 ---
 
 # AscendC knowledge maintenance

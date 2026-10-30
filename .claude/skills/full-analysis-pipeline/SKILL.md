@@ -7,6 +7,7 @@ description: >
   to run the full analysis pipeline or a complete regression analysis.
 license: CANN Open Software License Agreement Version 2.0
 compatibility: Requires python3 and git. Each stage is portable; the accelerator path needs the skill-foundry checkout.
+category: regression
 ---
 
 # Full Analysis Pipeline

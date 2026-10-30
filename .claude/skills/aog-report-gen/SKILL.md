@@ -12,6 +12,7 @@ description: >
     /aog-report-gen {project_name}              # refresh tables in existing REPORT.md
     /aog-report-gen {project_name} --init       # create REPORT.md from template if absent
     /aog-report-gen {project_name} --audit      # dry-run: check sections + freshness, no edits
+category: ascendc-dev
 ---
 
 # /aog-report-gen

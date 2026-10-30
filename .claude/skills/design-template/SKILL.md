@@ -2,6 +2,7 @@
 name: design-template
 description: Use when rendering one bundled ACLNN operator design document from a caller-selected .md.templ file into a caller-provided output path; not for implementing kernels, creating executable tests, or authoring requirements.
 disable-model-invocation: true
+category: ops-dev
 ---
 
 # Design Template

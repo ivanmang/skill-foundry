@@ -1,11 +1,6 @@
 ---
 name: ascendc-api-retrieval
-description: Search the Ascend C operator development API documentation.
-  Use this skill whenever the user asks about Ascend C kernel-side programming —
-  including LocalTensor, GlobalTensor, TPipe, TQue, DataCopy, vector/matrix compute APIs
-  (Add/Mul/Matmul/Mmad), math APIs (Log/Exp/Sin/Softmax), tiling APIs (GET_TILING_DATA),
-  synchronization (SetFlag/WaitFlag/SyncAll), or any other Ascend C __aicore__ kernel interface.
-  Must be called before generating any Ascend C code or answering any Ascend C API question.
+description: Search/reference Ascend C operator development API documentation (LocalTensor, GlobalTensor, TPipe, TQue, DataCopy, vector/matrix/math/tiling/sync APIs). Use before generating any Ascend C code or answering Ascend C API questions. Primary: the RAG retrieval service. Fallback (no service): local asc-devkit files then online community search via scripts/.
 license: Apache-2.0
 metadata:
   author: CANN Team
@@ -15,6 +10,7 @@ metadata:
 # Ascend C API 检索技能
 
 你接入了覆盖华为昇腾 Ascend C 算子开发接口的**官方文档检索服务**。
+category: knowledge
 
 作为 Agent，你需要完成四个阶段：**上下文获取 → 规划 → 检索 → 生成**。用户上下文获取阶段负责收集用户和 Agent 的信息；规划阶段负责确定查询词；检索阶段负责调用RAG检索服务获取相关文档；生成阶段基于检索返回的文档内容作答。
 
@@ -589,3 +585,19 @@ Ascend C 提供了以下接口实现 [功能] 操作：
 > 以上追问无需重新检索，直接从会话内已有文档内容回答。
 
 ---
+---
+
+## 兜底：本地 + 在线搜索（无 RAG 服务时）
+
+当 RAG 检索服务不可用时，按以下优先级查找（本地优先，在线兜底）：
+
+1. `asc-devkit/docs/zh/api/` — `find asc-devkit/docs/zh/api/ -name "*.md"` 智能搜索
+2. `asc-devkit/examples/` — 示例代码
+3. `asc-devkit/impl/` — 实现代码
+4. 在线搜索（华为昇腾社区）— 运行 `scripts/` 中的脚本（推荐版本 8.5.0）
+
+⚠️ API 变体：Ascend C 有大量数字后缀变体（`Add.md` vs `Add-25.md`），同名 API 的
+不同变体功能可能完全不同——先 `find ... -name "APIName*.md"` 列出所有变体，再逐一
+确认每个变体的签名/参数/功能。
+
+本地资源路径、示例目录索引与兼容性信息见 `references/`；在线搜索脚本见 `scripts/`。

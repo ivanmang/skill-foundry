@@ -1,6 +1,7 @@
 ---
 name: ascendc-op-debug
 description: Unified AscendC operator runtime debugging. Diagnose precision errors, runtime crashes, hangs, and multi-core inconsistencies via a hypothesis-driven protocol with 3-layer evidence (code review -> log analysis -> tools).
+category: ascendc-dev
 ---
 
 # ascendc-op-debug — AscendC 算子 Runtime 调试 Skill

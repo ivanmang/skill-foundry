@@ -1,6 +1,7 @@
 ---
 name: ops-perf-acceptance-criteria
 description: Shared acceptance criteria for performance-optimization stages: collection protocol, precision, jitter/net-gain, and generalization ratio. Provides judgment criteria only (does not execute). Dispatched by the ops-perf-optimize workflow per stage.
+category: perf-optimize
 ---
 
 # 性能任务共享验证

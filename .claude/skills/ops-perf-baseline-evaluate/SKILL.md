@@ -1,6 +1,7 @@
 ---
 name: ops-perf-baseline-evaluate
 description: For accepted operator performance tasks: check environment/NPU, freeze or generate cases, and produce per-case baseline targets. Baseline-evaluation stage only. Dispatched by ops-perf-optimize.
+category: perf-optimize
 ---
 
 # 基线评估
