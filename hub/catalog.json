@@ -1,10 +1,50 @@
 {
   "version": 1,
-  "generated": "2026-10-30T03:43:36.292001+00:00",
+  "generated": "2026-10-30T03:54:10.671197+00:00",
   "skills": [
     {
       "name": "aclnn-doc-gen",
       "description": "Generate Huawei CANN ACLNN operator API reference documentation. Use when asked to: generate ACLNN operator docs; analyze chip/product support differences; extract operator info (parameters, constraints, formulas); compare related interfaces (V1 vs V2, WeightNz variants); or understand an operator's function/params/constraints from its source directory. Follows the external orchestration flow (preprocess -> extract+compare in parallel -> formula+generate_skeleton in parallel -> review).",
+      "status": "published"
+    },
+    {
+      "name": "aog-a3-author",
+      "description": "Generate per-op `run_a3_reference.py` + `input_gen.py` + `manifest.json` for an arch22\u2192arch35 migration workspace by parsing the upstream ops-nn op directory's `examples/test_aclnn_{op}.cpp` (aclnn signature) and `op_host/{op}_proto.cpp` (output shape inference). Eliminates the per-op manual-authoring step that blocks `phase_o25_a3_ref` from running on new ops. Use when Phase O2.4 needs to construct a missing A3 reference runner. Usage: /aog-a3-author {op_dir} {workspace}     # parse op_dir, emit scripts to workspace",
+      "status": "published"
+    },
+    {
+      "name": "aog-input-gen-builder",
+      "description": "Phase O2.5 input_gen.py + edge dataset generator for the bundled orchestrator. Reads a source-architecture AscendC package or a differentiable forward spec, infers the case_gen SCHEMA (tensor_inputs, scalar_inputs, shape_derive, invariants), and emits a ready-to-run input_gen.py under `workspace/{op}/`. Running that script produces the edge_inputs.pt + manifest.json artifacts the workflow_critic enforces at `O2_5.B.*` \u2014 removing the \"hand-write input_gen.py per op\" burden that used to make orchestrators reach for `.workflow_exception_O2_5` waivers. Use when Phase O2.5 needs deterministic edge inputs for a new operator. Status: V1 (2026-04-24). Three templates (simple / fused / scalar-shaped) cover the patterns seen in ops #3, #5, #6, #11, #20, #24, #25. Complex cases (FFT op#23, variable-length lists) still need manual authoring but should be rare.",
+      "status": "published"
+    },
+    {
+      "name": "aog-knowledge-maintain",
+      "description": "Review AscendC runtime findings, deduplicate them against the installed cannbot-knowledge repository, and stage user-local c-tier intake entries. Use when an operator run produces new knowledge or the AscendC KB needs maintenance.",
+      "status": "published"
+    },
+    {
+      "name": "aog-op-classify",
+      "description": "Classify an op by reading its source (Python / PyTorch / AscendC) and emit `op_classification.json` with KB recommendations as the load-bearing output. Invoked by the Python orchestrator at Phase O1.7, or by a human for one-off inspection: `Skill(name=\"aog-op-classify\", args=\"workspace/{op}\")`. Use when Phase O1.7 needs operator classification and KB recommendations.",
+      "status": "published"
+    },
+    {
+      "name": "aog-perf-eval",
+      "description": "Dual-method (profiler + wall-clock) performance evaluation for an AscendC operator in an op-gen output directory (output/{project}/src/kernels/{op}/). Uses torch_npu.profiler (V5 kernel_details.csv) plus wall-clock timing.",
+      "status": "published"
+    },
+    {
+      "name": "aog-prior-art-verify",
+      "description": "Use when an arch22\u2192arch35 migration can reuse an existing arch35 candidate. Scan, provenance-stage, build, measure, and learn from it without replacing the selected independent truth or customer-facing verification.",
+      "status": "published"
+    },
+    {
+      "name": "aog-report-gen",
+      "description": "Generate or refresh a project-level REPORT.md for an output/{project}/ directory (cross-generation migration or backward-generation project). Wraps src/scripts/gen_report_tables.py (table injection via <!-- BEGIN-GEN:* --> markers) and the canonical 9-section structure defined in OUTPUT_PROJECT_LAYOUT.md \u00a74. It is restricted to arch22\u2192arch35 migration and backward-generation projects under `output/`. Use when an AscendC kernel project needs its report initialized, refreshed, or audited. Usage: /aog-report-gen {project_name}              # refresh tables in existing REPORT.md /aog-report-gen {project_name} --init       # create REPORT.md from template if absent /aog-report-gen {project_name} --audit      # dry-run: check sections + freshness, no edits",
+      "status": "published"
+    },
+    {
+      "name": "aog-self-critic",
+      "description": "Self-supervision skill \u2014 invoke to audit the current working session against recurring failure patterns user has had to correct across prior sessions. Goal: catch reward-hacking, priority drift, infrastructure bypass, and premature-conclusion smells BEFORE the user has to correct them again. Use when auditing an AscendC operator-generation session before a major decision. Status: MVP skeleton (2026-04-21). Full pattern catalog pending DEBT-031 cross-session retrospective analysis \u2014 until then, the checks below are seeded from the user's explicit feedback memories.",
       "status": "published"
     },
     {
@@ -13,8 +53,33 @@
       "status": "published"
     },
     {
+      "name": "ascend-call-generation",
+      "description": "Generate AscendC project scaffold (pybind, CMake, host code, kernel skeleton) from functional PyTorch for pure Vector operators. Use after functional-conversion, before dsl-baseline-generation.",
+      "status": "published"
+    },
+    {
+      "name": "ascend-call-generation-cv",
+      "description": "Generate AscendC CV project scaffold (workspace alloc, AIC+AIV dispatch, Catlass headers) from functional PyTorch for Cube+Vector fused operators (matmul+activation, norm+matmul+scale). Use after functional-conversion when operator_type is \"cv\".",
+      "status": "published"
+    },
+    {
       "name": "ascendc-api-retrieval",
       "description": "Search the Ascend C operator development API documentation.",
+      "status": "published"
+    },
+    {
+      "name": "ascendc-backward-gen",
+      "description": "Forward->backward AscendC operator generation entry. From a differentiable PyTorch forward op, generate its backward (gradient) AscendC op and verify accuracy on NPU. Target chip (a3/a5 or arch22/arch35) may be specified in natural language.",
+      "status": "published"
+    },
+    {
+      "name": "ascendc-build-system",
+      "description": "Ascend C operator build and troubleshooting: editing kernel/host code, creating operator projects, editing CMakeLists.txt, diagnosing build failures and missing/wrong .o artifacts, tracing what codegen actually compiled.",
+      "status": "published"
+    },
+    {
+      "name": "ascendc-cross-gen-port",
+      "description": "Cross-generation AscendC operator porting entry: port an AscendC operator from a source arch to a user-specified target arch/product (e.g. arch22->arch35, arch22->arch20). Target given in natural language.",
       "status": "published"
     },
     {
@@ -23,8 +88,108 @@
       "status": "published"
     },
     {
+      "name": "ascendc-evaluation",
+      "description": "Multi-case operator evaluation with precision testing and performance profiling, use when you want to evaluate the performance and correctness of your AscendC operator implementation.",
+      "status": "published"
+    },
+    {
       "name": "ascendc-markdown-quality-checker",
       "description": "AscendC-specific Markdown quality check: structural integrity, language fluency, spec compliance, correctness. Triggers: AscendC + Markdown + quality check.",
+      "status": "published"
+    },
+    {
+      "name": "ascendc-op-debug",
+      "description": "Unified AscendC operator runtime debugging. Diagnose precision errors, runtime crashes, hangs, and multi-core inconsistencies via a hypothesis-driven protocol with 3-layer evidence (code review -> log analysis -> tools).",
+      "status": "published"
+    },
+    {
+      "name": "ascendc-performance-review",
+      "description": "Static review of AscendC operator code for performance bad smells (no execution). Indexed checklist (PRC series): fast-path gated off by arch macros, hardcoded platform params, memory-access issues (double buffer / copy merge / core balance / UB tiling), RegBase/VF/SIMT/scalar and header overhead. For pre-optimization review and static evidence for bottleneck analysis.",
+      "status": "published"
+    },
+    {
+      "name": "blackbox-tester",
+      "description": "TTK black-box execution. Use ops-test-kit aclnn mode to run full black-box precision execution and reporting for a workflow's vendor custom operators: split L0/L1 forward and L2 negative suites, load golden plugins, run ttk aclnn, parse result.csv into two gate conclusions (L0/L1 all-green + L2 all-rejected).",
+      "status": "published"
+    },
+    {
+      "name": "cake-code-review",
+      "description": "Review AscendC kernel code for structural red-line violations (P0\u2013P3) and algorithm correctness. Use after dsl-lowering, before ascendc-evaluation. Outputs rectification report; guides fix \u2192 recompile \u2192 unit test \u2192 system test.",
+      "status": "published"
+    },
+    {
+      "name": "cake-docs-search",
+      "description": "Ascend C development resource retrieval: search a local API doc index, sample-code map, and online docs fallback to locate development material (API usage, samples, compatibility, official portals). Self-developed code, originally published as ascendc-docs-search in CAKE2.",
+      "status": "published"
+    },
+    {
+      "name": "cake-evo",
+      "description": "Evolutionary AscendC operator generation: spawn parallel variants with different optimization strategies and select the best. Top-level orchestrator for multi-round kernel optimization.",
+      "status": "published"
+    },
+    {
+      "name": "cake-review",
+      "description": "Comprehensive review of the entire kernel generation process after all stages complete. Analyzes problems encountered during generation, compile/environment issues, and skill/agent document quality. Produces a REVIEW.md in the kernel output directory. Use when a formal review of the kernel generation process is needed, or when manually triggered by the user.",
+      "status": "published"
+    },
+    {
+      "name": "code-performance-advisor",
+      "description": "Diagnose AscendC kernel performance bottlenecks from profiling data (msprof). Matches expert rules first, falls back to LLM analysis. Use when speedup is below target after correctness passes.",
+      "status": "published"
+    },
+    {
+      "name": "design-template",
+      "description": "Use when rendering one bundled ACLNN operator design document from a caller-selected .md.templ file into a caller-provided output path; not for implementing kernels, creating executable tests, or authoring requirements.",
+      "status": "published"
+    },
+    {
+      "name": "dsl-baseline-generation",
+      "description": "Generate initial AscendDSL code (class structure, compute, tiling) from functional PyTorch for pure Vector operators. Use after ascend-call-generation creates the project scaffold.",
+      "status": "published"
+    },
+    {
+      "name": "dsl-baseline-generation-cv",
+      "description": "Generate initial AscendDSL code with scope('cube')/scope('vector') structure for CV fused operators. Use after ascend-call-generation-cv creates the CV project scaffold.",
+      "status": "published"
+    },
+    {
+      "name": "dsl-baseline-generation-easyasc",
+      "description": "Generate initial easyasc-DSL code (Python @kernel() with GMTensor/Tensor/Var primitives) from functional PyTorch. Default target is `from easyasc.a2 import *` (ascend910b) \u2014 A2 exposes both Vector UB-only primitives AND cube primitives (DBuff/Position.L0C/matmul/GetCubeNum), so both Vector and CV/matmul operators can be authored without switching to A5. Use after functional-conversion in the cake workflow.",
+      "status": "published"
+    },
+    {
+      "name": "dsl-easyasc-codegen",
+      "description": "Author AscendC kernels via the easyasc Python DSL \u2014 write @kernel functions, smoke-test in easyasc's simulator against a PyTorch reference, then either compile to AscendC (a2 path) or stop at simulator validation (a5 path). Hand off to dsl-easyasc-post when AscendC artifacts are produced.",
+      "status": "published"
+    },
+    {
+      "name": "dsl-easyasc-post",
+      "description": "Post-process easyasc's native AscendC codegen output (op_host/, op_kernel/, build_out/) into cake's expected `output/{op}/{Op}Custom/` layout so ascend-evaluation can consume it. Reads codegen_status.json from dsl-easyasc-codegen; refuses to run on a5 path or when ascendc_generated=false.",
+      "status": "published"
+    },
+    {
+      "name": "dsl-lowering",
+      "description": "Translate the operator DSL into AscendC code through multiple passes. Also used when diagnosing compilation errors.",
+      "status": "published"
+    },
+    {
+      "name": "dsl-lowering-cv",
+      "description": "Lower CV (Cube+Vector) DSL to AscendC via 5 passes, compile each pass, and auto-fix errors using built-in correction examples and Catlass references.",
+      "status": "published"
+    },
+    {
+      "name": "dsl-optimization",
+      "description": "Iteratively optimize AscendDSL code for performance \u2014 tiling tuning, vectorization, pipeline adjustments. Use after evaluation shows correctness passes but speedup is below target.",
+      "status": "published"
+    },
+    {
+      "name": "easyasc-codegen",
+      "description": "Run easyasc's codegen on the DSL produced by dsl-baseline-generation-easyasc, build the resulting AscendC project, and soft-link the produced custom_opp_*.run into the location CAKE's evaluation expects. This stage replaces dsl-lowering in the cake workflow. Real AscendC codegen is a2 (ascend910b) only \u2014 for a5 the skill refuses and the op stays simulator-only / report-only. Outputs are isolated under easyasc_workspace/{op_name}_raw/, and this skill also creates the {Op}Custom/build_out/ sentinel directory consumed by easyasc-dsl-bridge.",
+      "status": "published"
+    },
+    {
+      "name": "easyasc-dsl-bridge",
+      "description": "'Generate the torch_npu pybind cpp and ModelNew Python wrapper that wire an easyasc-codegen kernel into CAKE evaluation. Uses easyasc-style EXECOP dispatch instead of CAKE''s stock pytorch_npu_helper.hpp::EXEC_NPU_CMD, which throws aicore exception 507015 on these kernels. Runs as stage 6, after easyasc-codegen, deriving parameter ordering from the autogen aclnn header.'",
       "status": "published"
     },
     {
@@ -38,6 +203,11 @@
       "status": "published"
     },
     {
+      "name": "functional-conversion",
+      "description": "Convert PyTorch nn.Module reference implementation to stateless functional API (module_fn + get_inputs). Use after reference-generation, before ascend-call-generation.",
+      "status": "published"
+    },
+    {
       "name": "general-markdown-quality-checker",
       "description": "General Markdown quality check: structure, language fluency, correctness, and npu/@ref tag validity. For punctuation/spacing/path use markdown-punctuation-quality-checker; compliance use markdown-compliance-quality-checker; filenames use markdown-filename-quality-checker; AscendC docs use ascendc-markdown-quality-checker; aclnn docs use api-doc-qc-aclnn.",
       "status": "published"
@@ -45,6 +215,11 @@
     {
       "name": "generate-report",
       "description": "Turn normalized run results into a Markdown summary and a standalone HTML report. Use when asked to generate a report or dashboard from a regression run, or after the pipeline has produced results.",
+      "status": "published"
+    },
+    {
+      "name": "git-version-management",
+      "description": "Git version management for operator workspaces: initialization, per-stage commits, worktree parallel isolation, and audit tracing.",
       "status": "published"
     },
     {
@@ -63,6 +238,86 @@
       "status": "published"
     },
     {
+      "name": "op-dashboard",
+      "description": "\"Generate self-contained interactive HTML dashboard (4 tabs: algo flow, UB tiling, precision, performance) from an AscendC operator output directory. Use when asked to visualize or report operator results. Works for both precision-pass and precision-fail states.\"",
+      "status": "published"
+    },
+    {
+      "name": "op-desc-generation",
+      "description": "Generate operator description JSON (shapes, dtypes, attributes) from API description or user specification. First step in the cake agent pipeline.",
+      "status": "published"
+    },
+    {
+      "name": "ops-direct-invoke",
+      "description": "Main-session entry for user direct-invoke operator development/fix/continuation requests: as PM, aligns requirements and environment, orchestrates the workflow, and organizes delivery. Not for dispatched-node execution/acceptance, template reading, or workflow maintenance.",
+      "status": "published"
+    },
+    {
+      "name": "ops-direct-invoke-flash",
+      "description": "Build a new Ascend C or Ascend950 Reg API kernel from a CPU function, math formula, code snippet, or text description. Covers the full path from spec to a verified NPU kernel.",
+      "status": "published"
+    },
+    {
+      "name": "ops-direct-invoke-maintain",
+      "description": "Maintain the ops-direct-invoke workflow's architecture and design: the PM entry, the ops-direct-invoke-* roles, the workflow skills, and the .cannbot/plugins/ops-direct-invoke/ plugin assets.",
+      "status": "published"
+    },
+    {
+      "name": "ops-incremental",
+      "description": "Incremental development entry for existing Ascend C operators: feature completion, fixes, compatibility, tests, or docs. Analyzes requirements, reuses workflow modules, and generates a task-specific workflow.yaml for workflow-orchestrator.",
+      "status": "published"
+    },
+    {
+      "name": "ops-perf-acceptance-criteria",
+      "description": "Shared acceptance criteria for performance-optimization stages: collection protocol, precision, jitter/net-gain, and generalization ratio. Provides judgment criteria only (does not execute). Dispatched by the ops-perf-optimize workflow per stage.",
+      "status": "published"
+    },
+    {
+      "name": "ops-perf-analysis",
+      "description": "Baseline profiling, per-case bottleneck diagnosis, and plan design for frozen performance tasks. Produces an analysis report, precise implementation contract, and scope to freeze. Dispatched by ops-perf-optimize.",
+      "status": "published"
+    },
+    {
+      "name": "ops-perf-baseline-evaluate",
+      "description": "For accepted operator performance tasks: check environment/NPU, freeze or generate cases, and produce per-case baseline targets. Baseline-evaluation stage only. Dispatched by ops-perf-optimize.",
+      "status": "published"
+    },
+    {
+      "name": "ops-perf-implementation",
+      "description": "Isolated-scheme implementation, functional and performance gating, candidate final selection, and full demo acceptance for performance tasks. Dispatched by ops-perf-optimize.",
+      "status": "published"
+    },
+    {
+      "name": "ops-perf-optimize-workflow",
+      "description": "Five-stage main orchestrator for AscendC / CANNBot-DSL operator performance optimization. Triggers only when the user explicitly requests performance optimization/tuning of a concrete operator or code directory (or a CANNBot-DSL network case). Handles request intake, dispatch, gate review, looping, recovery, and continuous reporting.",
+      "status": "published"
+    },
+    {
+      "name": "ops-perf-postprocess",
+      "description": "Re-integrate the accepted performance demo into the original project, protect non-target chip families, and check both full suites for regression plus original-code routing. Dispatched by ops-perf-optimize.",
+      "status": "published"
+    },
+    {
+      "name": "ops-perf-preparation",
+      "description": "Isolated-demo preprocessing for performance tasks: strip the project while preserving the invocation, establish build/load evidence, and verify baseline precision with TTK. Dispatched by ops-perf-optimize.",
+      "status": "published"
+    },
+    {
+      "name": "ops-perf-profile-feature-extractor",
+      "description": "Complex-operator performance feature extraction. When simple profile metrics (aggregate counters, torch profiler duration) are insufficient, extract diagnostic-level features (pipeline flow graph, per-instruction timing, dependencies and bubbles). Dispatched by ops-perf-optimize.",
+      "status": "published"
+    },
+    {
+      "name": "ops-registry-invoke",
+      "description": "ACLNN operator development workflow entry.",
+      "status": "published"
+    },
+    {
+      "name": "ops-requirement-analysis",
+      "description": "Produce a REQUIREMENTS.md for a to-be-developed operator: op-name resolution -> model / competitor (TF-PyTorch) / CANN-proposal research -> requirement summary. Triggers on operator requirement docs.",
+      "status": "published"
+    },
+    {
       "name": "pto-isa",
       "description": "Run and triage pto-isa regression: CPU simulator ST and NPU simulator ST (A5/A3/A6, incl. the A6 dav_9201 / v200 workflow), plus env/soc handling and known failure patterns. Use when working in the pto-isa repo, running pto-isa tests, or asked for a pto-isa regression run or failure triage.",
       "status": "published"
@@ -70,6 +325,56 @@
     {
       "name": "pto-vmi",
       "description": "Run and triage pto-vmi regression: DSL ST and CCE ST on the A5 simulator (ptoas-vmi msprof / bisheng + camodel), plus the CCE-vs-VMI CA metrics workflow (EX / IPC / vf_real / dual-issue / stalls). Use when working in the pto-vmi repo, running pto-vmi kernels, or asked for a CCE/DSL regression run or triage.",
+      "status": "published"
+    },
+    {
+      "name": "pypto-op-orchestrator",
+      "description": "PyPTO operator development and performance-tuning workflow entry. Triggers: generate/develop/implement a PyPTO operator, tune/optimize an existing PyPTO operator, or explicitly request the pypto-op-develop / pypto-op-tune workflows.",
+      "status": "published"
+    },
+    {
+      "name": "reference-generation",
+      "description": "Generate reference PyTorch implementation (nn.Module with get_init_inputs/get_random_inputs) from operator description JSON. Faithfully reproduces the Golden definition when provided. Use after op-desc-generation.",
+      "status": "published"
+    },
+    {
+      "name": "remote-cann-development",
+      "description": "Unified remote NPU development \u2014 sync, exec, and test across multiple NPU backends (docker containers, hdspace cloud) via a single Python CLI. Use when: (1) syncing code to any remote NPU server (2) executing build/test commands on remote NPU (3) probing NPU platform info (4) managing multiple remote targets (A2/910B + A3/910C) (5) setting up hdspace tunnel or Docker SSH connections (6) troubleshooting remote compile/run issues (507033, ctypes, rsync)",
+      "status": "published"
+    },
+    {
+      "name": "repo-build-guide",
+      "description": "Build Ascend C direct-invoke source and the cann_bench wheel for CANN Bench evaluation; verify real load paths and versions. Use for compiles, installs, and build debugging.",
+      "status": "published"
+    },
+    {
+      "name": "repo-coding-rules",
+      "description": "CANN Bench candidate-operator implementation authenticity, wrapper boundaries, project interfaces, and Ascend C code-quality requirements. Use when coding, fixing, or reviewing.",
+      "status": "published"
+    },
+    {
+      "name": "repo-env-check",
+      "description": "For requirement alignment: provide conda/Python and CANN candidates, check the chosen development environment, and record authorization and evidence.",
+      "status": "published"
+    },
+    {
+      "name": "repo-knowledge",
+      "description": "CANN Bench direct-invoke operator project knowledge: evaluation tasks, source-submission interface, precision and scoring contracts.",
+      "status": "published"
+    },
+    {
+      "name": "repo-op-templates",
+      "description": "Reuse the direct_launch_example skeleton and operator templates from cann-bench. Use when creating a new project or adding an operator.",
+      "status": "published"
+    },
+    {
+      "name": "repo-requirement",
+      "description": "Centrally align operator requirements, conda/Python and CANN environments, and modification permissions into a task contract reusable across retries.",
+      "status": "published"
+    },
+    {
+      "name": "repo-test-develop",
+      "description": "Based on CANN Bench: organize proto/golden/cases.yaml and reuse kernel_eval for direct-invoke operator black-box, white-box, and regression testing.",
       "status": "published"
     },
     {
@@ -85,6 +390,31 @@
     {
       "name": "skill-maintainer",
       "description": "Review regression results and user corrections, then propose or apply minimal, reviewable updates to the skills: capture lessons as LRN entries and promote them (gated + LLM-reviewed) into the shared corpus. Use when asked to update the skills, remember a correction, or review learnings/recent.md and promote reusable patterns.",
+      "status": "published"
+    },
+    {
+      "name": "skill-trace",
+      "description": "Track skill invocations, durations, and outcomes during operator generation. Records which skills were called, their inputs/outputs, and correlates with final results. MUST use when: (1) Starting any skill step, (2) Completing any skill step, (3) Final summary to correlate skills with outcomes.",
+      "status": "published"
+    },
+    {
+      "name": "st-verifier",
+      "description": "ACLNN ST test-artifact acceptance: verify case-structure coverage (coverage_audit.py re-computes expected coverage with build_model), design conformance (branch verification vs design Validation.md matrix), and full framework inclusion.",
+      "status": "published"
+    },
+    {
+      "name": "task-progress",
+      "description": "Track and manage task progress via a PROGRESS.md. MUST use when: (1) Starting a new task or operator workflow, (2) Entering or completing any step/stage/substage, (3) After context compaction or reset \u2014 read PROGRESS.md first to recover state. Also call when the user asks about current progress or status.",
+      "status": "published"
+    },
+    {
+      "name": "tiling-exception-coverage",
+      "description": "\"Exception-scenario coverage for Ascend C operator tiling UTs: a 31-item checklist with failure/degradation assertion discipline. Use when writing tiling gtest exception (negative) cases or auditing an existing tiling UT's exception coverage.\"",
+      "status": "published"
+    },
+    {
+      "name": "tiling-ut-harness",
+      "description": "Build and run CANN TilingFunc gtest UTs on an x86 host (pattern B: registry dlopen of the installed op_host .so). For writing tests/tiling UTs, faking fe::PlatFormInfos, constructing OpTilingContextBuilder, linking libtiling_api, and capturing OP_LOGE anchors.",
       "status": "published"
     },
     {
@@ -110,6 +440,106 @@
     {
       "name": "tool-perf-report",
       "description": "msOpProf -> self-contained interactive HTML performance report (Details, Roofline, Timeline, Cache, Source, on-chip memory, Warp Stall, instruction timeline, raw data). Collection -> tool-perf-collect; interpretation -> tool-perf-analysis. Triggers: generate a visualization report from collected data, view a perf module, rebuild a report from an existing collection dir.",
+      "status": "published"
+    },
+    {
+      "name": "triton-agent-loop",
+      "description": "Multi-agent flow control for Triton Ascend operators: multi-round iterative optimization; the main Claude Code Agent only schedules rounds, each round run by an independent sub-CLI (Phase 0-8; algorithm gene-fusion / mcts / naive).",
+      "status": "published"
+    },
+    {
+      "name": "triton-npu-analyze-compiler-source",
+      "description": "Use when an optimize round has compiler source analysis enabled and needs source-backed explanation for a performance-related lowering symptom, suspicious pass effect, or compiler-side behavior that profiler and IR evidence have already narrowed but not fully explained.",
+      "status": "published"
+    },
+    {
+      "name": "triton-npu-analyze-ir",
+      "description": "Use when an agent needs to capture, archive, or inspect Triton Ascend compiler IR for an operator workflow, especially to analyze dumped Triton or Bisheng IR stages, reason about likely performance issues from generated IR artifacts, or collect complete IR from a local or remote execution.",
+      "status": "published"
+    },
+    {
+      "name": "triton-npu-analyze-round-performance",
+      "description": "Use when an optimize round needs deep performance diagnosis from round-local profile and optional IR evidence, especially to explain scalar/vector/cube imbalance, frequent data movement, weak pipeline overlap, or other signals that should be traced back to problems in the current operator implementation.",
+      "status": "published"
+    },
+    {
+      "name": "triton-npu-cann-ext-api-patterns",
+      "description": "A5-only specialized optimization pattern references for Triton Ascend NPU kernels that use CANN Triton extension APIs. Use when optimizing an A5 Triton Ascend NPU kernel that relies on CANN Triton extension APIs and pattern material is needed. This skill does not define the optimize workflow; it only provides pattern material for optimize to consume.",
+      "status": "published"
+    },
+    {
+      "name": "triton-npu-convert",
+      "description": "Convert one PyTorch operator to a Triton, TileLang, or AscendC Ascend NPU implementation through a spec-first workflow, preserve its public API and input helpers, and validate it with run-test-convert. Use when the user asks to convert a PyTorch operator into an Ascend NPU kernel implementation.",
+      "status": "published"
+    },
+    {
+      "name": "triton-npu-gen-bench",
+      "description": "Generate benchmark code for an Ascend NPU operator. Use when there is a need to create a new benchmark file for a given operator.",
+      "status": "published"
+    },
+    {
+      "name": "triton-npu-gen-test",
+      "description": "Generate correctness test code for an Ascend NPU operator from source code and task context. Use when you need to author a new operator test file, choose between standalone and differential test styles, infer the callable under test, or honor a requested output location.",
+      "status": "published"
+    },
+    {
+      "name": "triton-npu-op-coding-guide",
+      "description": "Per-category Triton-Ascend operator-writing guidance \u2014 writing essentials, common mistakes with fixes, and recommended skeleton patterns. Use when implementing or converting a Triton Ascend NPU operator and category-specific coding guidance is needed. Reference-only; does not define workflow.",
+      "status": "published"
+    },
+    {
+      "name": "triton-npu-optimize",
+      "description": "Iteratively optimize an Ascend NPU operator through correctness and performance gates. Use for multi-round optimization with a canonical baseline, tracked evidence, and profiler-backed diagnosis.",
+      "status": "published"
+    },
+    {
+      "name": "triton-npu-optimize-knowledge",
+      "description": "Symptom routing contract for Triton Ascend NPU optimize pattern selection. Use when choosing an optimization direction or submitting symptom IDs during an optimize round. Pattern card content lives in the cannbot-knowledge repository; this skill only owns the symptom routing contract.",
+      "status": "published"
+    },
+    {
+      "name": "triton-npu-optimize-state",
+      "description": "Manage temporary optimize workflow state in an Ascend NPU optimize workspace, including baseline acceptance, round start, same-round strategy-state updates, and round submission. Use when the optimize workflow needs to accept a baseline, start or update a round, or submit a round.",
+      "status": "published"
+    },
+    {
+      "name": "triton-npu-prepare-optimize-baseline",
+      "description": "Establish a reusable canonical optimize baseline by reusing or generating harnesses, performing minimum repair, and passing `triton-npu-optimize-state` `submit-baseline`. Use when an Ascend NPU optimize workspace has no accepted baseline or the existing baseline is no longer canonical.",
+      "status": "published"
+    },
+    {
+      "name": "triton-npu-profile-operator",
+      "description": "Get and analyze Ascend NPU operator performance data. Use for profiling Ascend operators, identifying hot operators and timing bottlenecks, summarizing performance evidence, comparing profiling results across runs, or inspecting profiler artifacts such as msprof outputs, CSV summaries, and JSON timelines.",
+      "status": "published"
+    },
+    {
+      "name": "triton-npu-repair-guide",
+      "description": "Heuristic fixes for Ascend Triton compile/JIT/kernel errors and numerical precision mismatches when editing or converting the operator. Use when a Triton Ascend NPU operator hits compile, JIT, launch, or kernel-structure errors or precision mismatches. Does not replace triton-npu-gen-test, triton-npu-gen-bench, or harness specs.",
+      "status": "published"
+    },
+    {
+      "name": "triton-npu-retrieve-patterns",
+      "description": "Deterministic offline retrieval of candidate optimization patterns for submitted symptom IDs, mapped through the language knowledge skill's symptom contract. Use when routing observed Ascend NPU performance symptoms to candidate optimization patterns. Advisory only.",
+      "status": "published"
+    },
+    {
+      "name": "triton-npu-run-eval",
+      "description": "Execute and evaluate generated operator artifacts. Use when you need to run generated test cases, run generated benchmark cases, fast-screen a candidate operator against a baseline, profile benchmark harnesses, summarize profiling data, or compare performance artifacts, including during optimization workflows.",
+      "status": "published"
+    },
+    {
+      "name": "workflow-dispatch",
+      "description": "Architecture routing dispatch for operator-development workflows.",
+      "status": "published"
+    },
+    {
+      "name": "workflow-orchestrator",
+      "description": "Run a development workflow defined in workflow.yaml.",
+      "status": "published"
+    },
+    {
+      "name": "workflow-rollback-advice",
+      "description": "Generate failure analysis / redo advice for workflow rollback: analyze the failed task's session records and historical artifacts.",
       "status": "published"
     }
   ]
