@@ -1,0 +1,218 @@
+{
+  "skill": "tool-perf-analysis",
+  "schema_version": "1.0",
+  "notes": "用例基于真实 vector_muladd_plain.npu-rep。payload 为最小信封（version/scope/report_id/report_name/report_path/op_name/collected_at），数据靠解包 report_path 获取。逐 block 统计由 scripts/summarize_tables.py 产出（min/median/max/mean、tail、离散度、NA/全 0 识别、交叉验证），报告数值应引用脚本输出。「2. 建议」节按 references/optimization-advice.md 索引路由：先读索引（触发/排除速查表），只读命中条目的 references/advice/*.md 正文；每条五槽位（证据/方向/代价与前置检查/排除条件/如何验证见效），并含「已排除的方向」与「数据缺口与补采」两个小节；只出优化方向与判据，不出代码实现。时间轴确认按 bound-heuristics.md §4 条件化触发，非每案必读 PipeTrace.json。",
+  "cases": [
+    {
+      "id": "compute-vector-pure",
+      "description": "纯 Vector 算子的 compute 信封：解包 report_path 后应识别核型、主瓶颈 pipe、tail block、SIMT 模式、无冲突结论；「2. 建议」节须按 optimization-advice.md 命中 SIMT/尾块类条目并输出反向排除；输出必须符合 SKILL.md §4 四节固定框架（报告概览/建议/瓶颈判定/关键指标）",
+      "input_summary": {
+        "payload": "最小信封: version=1.0, scope=compute, report_id=vector_muladd_plain.npu-rep, report_path=<本地 .npu-rep>, op_name=vector_muladd_plain",
+        "unpack": "Summary.jsonl + 3 张计算 CSV，64 blocks, aic_* 全 NA, block63 aiv_time=17.9us 其余约 35.5us, simt_vf_ratio==vec_ratio, cflt/wait 全 0"
+      },
+      "expected_output_must_contain": [
+        "纯 Vector（Cube 未使用）",
+        "vector 为瓶颈 pipe（≈98.7%）",
+        "SIMT 向量浮点模式（simt_vf == vec, vf == 0）",
+        "block63 为 tail block（≈17.9μs，median 的约一半）",
+        "无资源冲突证据",
+        "mte2 全程平均带宽 ≈ 32.78 × 0.0001 GB/s（推算，搬运完全隐藏）",
+        "compute-bound（vec 型，SIMT），vec 占比 >80% → 深度（接近理论极限）",
+        "不能回答：稳态性能（single-shot，需 repeat 采集）",
+        "1. 报告概览",
+        "2. 建议",
+        "3. 瓶颈判定",
+        "4. 关键指标",
+        "建议条目含五槽位：证据 / 方向 / 代价与前置检查 / 排除条件 / 如何验证见效",
+        "命中 §1.8 SIMT 手段切换（simt_vf == vec 且 vf == 0）：分支消除 + memory coalescing/向量化读写",
+        "「已排除的方向」小节：不是 memory-bound（mte2_ratio ≈ 0.0001，搬运完全隐藏）",
+        "「已排除的方向」小节：不是资源冲突（冲突各列全 0，属有效结论非数据缺失）",
+        "「数据缺口与补采」小节：single-shot 非稳态、缺指令级构成（Cast/超越函数占比）",
+        "vec 深度区（>80%）时说明单算子层面空间有限（§1.6 排除条件）"
+      ],
+      "must_not_contain": [
+        "把 NA 当 0 参与平均",
+        "block63 的 vec_ratio 与全量 block 直接比较得出异常结论",
+        "输出代码实现（API 签名 / Kernel 骨架 / TilingData 字段定义）或 msprof 命令",
+        "增减小节或改小节标题",
+        "第3节无证据链的空泛结论",
+        "第4节数值缺单位",
+        "输出触发证据不成立的建议条目（如本算子非 matmul 族却给 pingpong/StreamK/Full-Load）",
+        "把典型收益区间说成对本算子的收益预测",
+        "建议条目缺失五槽位中任一槽位",
+        "因 scalar_ratio < 0.1 仍给出 Scalar 编码原则建议"
+      ]
+    },
+    {
+      "id": "compute-tail-question",
+      "description": "追问式用例：用户问为什么最后一个 block 快一倍；输出必须符合 SKILL.md §4 四节固定框架（报告概览/建议/瓶颈判定/关键指标）",
+      "input_summary": "同上 payload + 追问'为什么 block 63 比别人快一倍？'",
+      "expected_output_must_contain": [
+        "tail block 解释：总元素数不整除 64",
+        "该 block 元素配额约为其他 block 的一半",
+        "提示：block63 的 ratio 类指标不与其他 block 直接可比"
+      ]
+    },
+    {
+      "id": "boundary-ask",
+      "description": "跨界提问：scope=compute 的信封下问 L2 命中率；输出必须符合 SKILL.md §4 四节固定框架（报告概览/建议/瓶颈判定/关键指标）",
+      "input_summary": "同上 payload + 追问'L2 命中率是多少？'",
+      "expected_output_must_contain": [
+        "解包产物中检查 L2Cache.csv 是否存在",
+        "存在则直接解读（信封模式不受 scope 限制，但注明超出当前 scope 聚焦点）",
+        "不存在则按边界话术说明采集未开启该指标",
+        "不得编造数值"
+      ]
+    },
+    {
+      "id": "bandwidth-misread",
+      "description": "口径陷阱：active_bw 不能直接当全程带宽；输出必须符合 SKILL.md §4 四节固定框架（报告概览/建议/瓶颈判定/关键指标）",
+      "input_summary": "同上 payload，mte2_active_bw=32.78 GB/s, mte2_ratio=0.0001 + 追问'带宽 32GB/s 高吗'",
+      "expected_output_must_contain": [
+        "active_bw 是搬运期间口径",
+        "全程平均 ≈ 0.0033 GB/s（32.78×0.0001，推算）",
+        "搬运与计算重叠良好，非带宽瓶颈证据"
+      ]
+    },
+    {
+      "id": "memory-scope-streaming",
+      "description": "真实 memory 明细（vector_muladd_plain）：应识别流式访问（读 miss 写全命中）、带宽口径（单块 vs Σ块）、冗余搬运不可判定（缺 shape）；输出必须符合 SKILL.md §4 四节固定框架（报告概览/建议/瓶颈判定/关键指标）",
+      "input_summary": {
+        "scope": "memory",
+        "op_name": "vector_muladd_plain",
+        "memoryTables": "Memory.csv + MemoryUB.csv + L2Cache.csv + MemoryL0.csv, 64 blocks, aic_* 全 NA",
+        "key_values": "aiv_main_mem_read_bw≈20.4 GB/s/块, write≈6.8 GB/s/块, aiv_gm_to_ub_bw≈0.0033 GB/s, GM_to_UB_datas=0.125KB/块, read_main_memory_datas=768.25KB/块, L2 aiv_read_hit_rate≈0.03%, write_hit_rate=100%, UB read/write bw vector≈54 GB/s/块"
+      },
+      "expected_output_must_contain": [
+        "带宽口径说明：20.4 GB/s 为单块速率，设备级需 Σ 或对照 OpInfoSummary 的 aicore_gm_* 字段",
+        "L2 读命中率 ~0.03% + 写 100% → 流式访问（elementwise 预期行为，非优化点）",
+        "GM_to_UB 直通通路仅 0.125KB/块 → 主读量走 L1/缓存通路，直通口径不能代表总搬运",
+        "UB 带宽（≈54 GB/s/块）≫ GM 带宽 → UB 非瓶颈",
+        "冗余搬运判定需 shape/dtype → 归入不能回答，请用户提供",
+        "无 memory bound 证据（带宽利用率极低 + compute scope vector 主导）",
+        "「已排除的方向」小节：不是 memory-bound（带宽利用率极低 + vector 主导，带宽富余）",
+        "「已排除的方向」小节：UB 不是瓶颈（UB 带宽 ≫ GM 带宽）",
+        "不因 L2 读命中率低而给出 §1.4 常驻复用建议（流式访问无重复读入，触发条件不成立）"
+      ],
+      "must_not_contain": [
+        "把单块带宽 27GB/s 直接除以 1600GB/s 得出利用率结论",
+        "把 L2 读命中率 0.03% 当作'局部性极差需要优化'",
+        "用 close/far miss 计数冒充搬运字节数",
+        "把流式 elementwise 的低 L2 命中率当作 §1.4 UB 常驻复用的触发证据",
+        "在缺 shape/dtype 的情况下给出具体 tiling 数值建议"
+      ]
+    },
+    {
+      "id": "summary-scope-card",
+      "description": "真实 summary 明细（vector_muladd_plain）：核数分母、并行度、score、roofline 定位；输出必须符合 SKILL.md §4 四节固定框架（报告概览/建议/瓶颈判定/关键指标）",
+      "input_summary": {
+        "scope": "summary",
+        "op_name": "vector_muladd_plain",
+        "OpInfoSummary": "Task Duration 51.701us, Block Dim 64, Op Type vector, Current Freq 1650 = Rated, aicore_parallel_utilization 0.981418, aicore_parallel_balance 0.933769, aicore_gm_bw_theoretical 1600 GB/s",
+        "HardwareInfo": "Ascend950PR_9599 V100, arch 3510, ai vector count 72, ai cube count 36, vector freq 1650MHz, HBM 128GB used 60.6GB"
+      },
+      "expected_output_must_contain": [
+        "64 blocks / 72 vector 核（Op Type=vector → 分母用 ai_vector_count）",
+        "并行使用率 98.1%、均衡度 93.4% → 并行充分",
+        "无降频（Current=Rated=1650）",
+        "vector fp16 理论算力 ≈ 72×128×2×1.65 ≈ 30.4 TFLOPS（双发）",
+        "带宽 score 依据 (read+write)/1600",
+        "L2 强度点位标注'字节数字段缺失'",
+        "架构 3510（DAV_3510）",
+        "summary scope 无逐 block 数据 → 需逐 block/时间轴佐证的建议条目标注「未经逐 block/时间轴确认」",
+        "并行使用率 98.1% + 均衡度 93.4% → 不触发 §1.2 核数裁剪与 §1.3 尾块处理（并行已充分）"
+      ],
+      "must_not_contain": [
+        "Block Dim 64 直接除以 ai_core_count 36（Op Type=vector 应用 vector count）",
+        "Task Duration 与 aiv_time 混用（51.7 是 Task 级，35.9 是块级）",
+        "在无逐 block 数据的 summary scope 下给出未标注的均衡性/流水重叠类建议"
+      ]
+    },
+    {
+      "id": "trace-sampling-files",
+      "description": "时间线追问：解包产物中 PipeTrace.json/Sampling.json 的使用；输出必须符合 SKILL.md §4 四节固定框架（报告概览/建议/瓶颈判定/关键指标）",
+      "input_summary": "用户追问的时间线细节不在 payload 中，report_path 可解析出 PipeTrace.json（Chrome Trace: pid=coreN.{cube|vector}core, tid=SCALAR/MTE1/CUBE/..., ph=X, ts+dur μs）与 Sampling.json（util 事件序列）",
+      "expected_output_must_contain": [
+        "从 traceEvents 按 pid/tid 聚合各核各 pipe 的时间片",
+        "明确说明这是从 report_path 明细解析，非 payload 快照"
+      ]
+    },
+    {
+      "id": "envelope-no-scope",
+      "description": "无 scope 的最小信封：默认全量解读三 scope 合并；输出必须符合 SKILL.md §4 四节固定框架（报告概览/建议/瓶颈判定/关键指标）",
+      "input_summary": {
+        "payload": "version=1.0, report_id=..., report_path=..., op_name=...（无 scope 字段）"
+      },
+      "expected_output_must_contain": [
+        "注明 scope 缺失，默认全量解读",
+        "输出包含 compute + memory + summary 三部分摘要",
+        "提示用户可指定 scope 聚焦"
+      ],
+      "must_not_contain": [
+        "假装用户指定过 scope",
+        "因 scope 缺失而拒绝分析"
+      ]
+    },
+    {
+      "id": "envelope-unpack-fail",
+      "description": "解包失败：report_path 指向损坏或不存在的文件；输出必须符合 SKILL.md §4 四节固定框架（报告概览/建议/瓶颈判定/关键指标）",
+      "input_summary": {
+        "payload": "report_path=/nonexistent/foo.npu-rep"
+      },
+      "expected_output_must_contain": [
+        "解包失败专用话术",
+        "不输出任何臆造数值"
+      ],
+      "must_not_contain": [
+        "编造数据继续分析"
+      ]
+    },
+    {
+      "id": "advice-matmul-family-routing",
+      "description": "matmul 族算子报告：须按真/假 MTE2 bound 分界（带宽利用率）在 §2.4 Full-Load 与 §2.5 小块合并之间正确二选一，并遵守 §7 叠加顺序与互斥；输出必须符合 SKILL.md §4 四节固定框架",
+      "input_summary": {
+        "payload": "最小信封: scope=memory, op_name=matmul_mxfp4",
+        "unpack": "aic_* 有效（Cube 参与）；MTE2 busy 高但 aicore_gm_bw_usage_rate ≈ 55%（< 70%）；存在反复搬入的 scale 小块"
+      },
+      "expected_output_must_contain": [
+        "判为「假 MTE2 bound」（MTE2 busy 高但带宽利用率 < 70%）",
+        "命中 §2.5 小数据块合并载入（典型收益：带宽利用率 50%–70% → 80%+）",
+        "20 KB 头开销物理根因作为判据依据（低于 20 KB 时 cycles/byte 远高于理论峰值）",
+        "「已排除的方向」小节：不是真 MTE2 bound → 不做 §2.4 A/B-Full-Load",
+        "叠加说明：pingpong 为本族基线且是前置（§7）",
+        "如何验证见效：带宽利用率升至 80%+ 且 MTE2 段耗时下降，而 MTE2 总字节数基本不变",
+        "缺 tiling data（baseM/baseN/kL1 等）→ 写入数据缺口，不给具体数值"
+      ],
+      "must_not_contain": [
+        "同时给出 §2.3 StreamK 与 §2.4 Full-Load（二者互斥）",
+        "在带宽利用率 < 70% 时给出 A/B-Full-Load 建议",
+        "输出 TilingData 字段定义或 Kernel 主循环代码",
+        "把 −7.5% / −4% 等实测参考值说成本算子的预期收益"
+      ]
+    },
+    {
+      "id": "advice-mc2-mte2-pollution",
+      "description": "MC² 通算融合算子报告：高 mte2_ratio 不得直接判 memory-bound，也不得据此推 Full-Load / 小块合并；须首选 §3.1 Local Matmul（不依赖 bound 判定）；输出必须符合 SKILL.md §4 四节固定框架",
+      "input_summary": {
+        "payload": "最小信封: scope=compute, op_name=matmul_all_reduce",
+        "unpack": "fork 多 rank + CrossCoreWaitFlag；mte2_ratio 高；无隔离测试数据、无 TilingData"
+      },
+      "expected_output_must_contain": [
+        "声明 MTE2 污染：CrossCoreWaitFlag 挂在 MTE2 流水线上等待通信，mte2_ratio 含通信等待空转",
+        "瓶颈判定写「疑似 MTE2 污染」，不得判 memory-bound（访存型）",
+        "命中 §3.1 Local Matmul 分离（首选，不依赖 bound 判定）",
+        "融合模式决定前置/后置：matmul_all_reduce 属计算→通信（全局归约）→ Local 后置",
+        "§3.2 流水配平作为叠加项，但强前置未满足（缺 TilingData baseM/baseN/usedCoreNum 与隔离测试 R 值）→ 只给方向不给切分数值",
+        "§3.3 计算 Bound 叠加 matmul 族优化，优先级最低且须隔离测试确认",
+        "多 rank 木桶效应：跨卡对比看 max 而非均值",
+        "「数据缺口与补采」小节：需隔离测试排除 MTE2 污染、需打印 TilingData"
+      ],
+      "must_not_contain": [
+        "据 mte2_ratio 高直接判 memory-bound",
+        "据 mte2_ratio 高给出 §2.4 Full-Load 或 §2.5 小块合并建议",
+        "在缺隔离测试 R 值时给出具体 longMSize 数值",
+        "用经验值替代 TilingData 驱动的系统搜索"
+      ]
+    }
+  ]
+}

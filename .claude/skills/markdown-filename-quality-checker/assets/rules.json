@@ -1,0 +1,12 @@
+[
+  {
+    "rule_no": "1",
+    "rule_item_name": "StaticCheck_filename_check",
+    "rule_name": "Filename Check",
+    "rule_type": "规范性",
+    "rule_desc": "检查Markdown文档的名称，规则如下：\n1、文件名称必须使用英文字母，大小写均可，不能出现中文字符。并且文件名称中可以使用数字、英文中横线（-）、英文下划线（_）以及&符号，不能出现其他特殊字符，例如：% + — { } [ ] ( ) ! . / * $ 等字符。\n2、英文文件名称不超过100个ASCII字母/数字/符号\n3、同一个目录下不能出现重名文件",
+    "rule_level": "提示",
+    "reference_doc_path": "",
+    "description_format": "1、文件名称中包含\"xxx\"中文字符\n2、文件名称超过了100个ASCII字母/数字/符号\n3、目录下存在重名文件，名称为\"xxx\""
+  }
+]

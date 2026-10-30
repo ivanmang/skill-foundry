@@ -1,0 +1,8 @@
+{
+  "permission": {
+      "external_directory": {
+      "/Users/xxx/results/*": "allow"
+      }
+  }
+}
+

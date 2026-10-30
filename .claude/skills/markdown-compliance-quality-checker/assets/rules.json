@@ -1,0 +1,29 @@
+[
+  {
+    "rule_no": "1",
+    "rule_item_name": "StaticCheck_compliance_check",
+    "rule_name": "术语检查",
+    "rule_type": "规范性",
+    "rule_desc": "检查文档中术语和缩略语的使用规范性（代码片段除外）：\n【检查对象】文档中所有文本内容，但排除代码块和代码片段内的内容\n【检查维度】\n1. 术语存在性：术语和缩略语必须在参考资料[术语/缩略语]列和[产品名术语]章节中存在\n   正例：UnalignRegForLoad（存在参考资料）\n   反例：nalignRegForLoad（不存在参考资料）\n2. 大小写一致性：术语和缩略语的字母大小写必须与参考资料完全一致\n   正例：UEFI、AllGather\n   反例：uefi、allgather",
+    "rule_level": "提示",
+    "reference_doc_path": "references\\terms-and-abbreviations.md"
+  },
+  {
+    "rule_no": "2",
+    "rule_item_name": "StaticCheck_compliance_check",
+    "rule_name": "table规范",
+    "rule_type": "规范性",
+    "rule_desc": "检查表格中是否存在空白单元格（完全空或仅含空格）\n【检查范围】Markdown表格和HTML表格\n【检查规则】\n1. Markdown表格检查：\n   - 分隔方式：按“|”符号分隔单元格\n   - 判断标准：单元格内容为空字符串“”或仅包含空白字符（空格、制表符等）\n   - 例外情况：单元格中既有空白字符又有其他字符时，不视为违规\n   正例：| 标题 | 内容 |\n   反例：| | 内容 | （中间单元格为空）\n2. HTML表格检查：\n   - 检查元素：所有<td>（数据单元格）和<th>（表头单元格）元素\n   - 判断标准：元素的innerText为空字符串或仅包含空白字符\n   - 例外情况：元素内既有空白字符又有其他文本时，不视为违规\n   正例：<td>内容</td>、<th>标题</th>\n   反例：<td></td>、<th> </th>（仅含空格）\n【检查逻辑】\n- 遍历表格所有单元格\n- 对每个单元格执行空白检测\n- 发现完全空白单元格时记录违规位置",
+    "rule_level": "提示",
+    "reference_doc_path": ""
+  },
+  {
+    "rule_no": "3",
+    "rule_item_name": "StaticCheck_compliance_check",
+    "rule_name": "隐私检查",
+    "rule_type": "规范性",
+    "rule_desc": "检查文档中是否存在敏感信息和不合规内容\n【检查维度1 - 敏感词检测】\n禁止使用的敏感词类型\n【检查维度2 - 个人隐私数据检测】\n严禁出现的隐私信息类型：\n1. 工号：华为员工工号\n   识别格式特征：\n   - 首字母（可选）+ 8位数字\n   - 具体模式：\n     • 00+6位数字 或 01+6位数字\n     • 300+5位数字 或 600+5位数字\n     • wx+5位数字\n     • 无首字母+8位纯数字\n   示例：30012345、wx67890、00876543\n2. IP地址：IPv4或IPv6格式\n3. 个人姓名：中文姓名或外文姓名\n4. 邮箱地址：符合邮箱格式的文本\n5. 手机号码：11位手机号或国际电话格式\n【检查维度3 - 拼写错误】\n检查范围限定：仅检查参考资料中\"拼写错误\"章节明确列出的错误拼写单词\n检查逻辑：\n1. 参考资料\"拼写错误\"章节包含\"错误拼写 → 正确拼写\"的映射列表\n2. 检查文档中是否出现参考资料中列出的错误拼写单词\n3. 如果文档中出现参考资料中列出的错误拼写，则报错\n4. 文档中出现的其他单词，即使有拼写错误但不在参考资料列表中，不进行检查\n示例：参考资料中包含\"acsend → ascend\"，则检查文档中是否有\"acsend\"，如有则报错；文档中有\"mistake\"但参考资料中未列出，则不检查\"mistake\"是否拼写错误",
+    "rule_level": "严重",
+    "reference_doc_path": "references\\sensitive-words-internal.md"
+  }
+]
