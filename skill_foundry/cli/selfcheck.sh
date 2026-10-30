@@ -31,4 +31,11 @@ else
 fi
 
 rm -rf reports/demo-live-*
+
+echo "== tilelangGym pack gate (fixture) =="
+export TILELANGGYM_PACK="$HARNESS/demo/fixtures/tilelanggym-pack-ok"
+bash "$HARNESS/scripts/tilelanggym_gate_suite.sh" sv567-1xg-clean
+bash "$HARNESS/scripts/tilelanggym_gate_suite.sh" sv567-nx1-outer
+python3 "$HARNESS/scripts/check_prc_index.py" --knowledge "$HARNESS/hub/tilelanggym/perf-review-knowledge"
+
 echo "selfcheck: OK"

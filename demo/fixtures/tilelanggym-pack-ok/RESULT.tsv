@@ -1,0 +1,8 @@
+arm	G	era=	reduce_axis=	motif	note
+SoftLib_SIMT	16	absmax-only	inner	softlib_simt_dual_drain	axis=1xG fixture
+SoftLib_SIMT	32	absmax-only	inner	softlib_simt_dual_drain	axis=1xG fixture
+SoftLib_SIMT	64	absmax-only	inner	softlib_simt_loadall_absall	axis=1xG fixture
+SoftLib_SIMT	128	absmax-only	inner	softlib_simt_dual_drain	axis=1xG fixture
+VMI_SIMD	32	absmax-only	inner	vmi_inner_vl256_ng8_vcgmax	fixture
+VMI_outer	16	absmax-only	outer	vmi_outer_vmax_fold	Nx1 fixture
+VMI_outer	16	case3-recip	outer	vmi_outer_era_case3_recip	Nx1 dual-era

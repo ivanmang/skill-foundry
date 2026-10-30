@@ -276,3 +276,11 @@ green-CI `--pr`).
 | `baseline` refuses to pin | a suite didn't PASS — fix it, or `--force` |
 | Not sure what's wrong | `python3 -m skill_foundry.workflow.diagnose` |
 | `report --open` prints xdg-open errors / no browser | handle automatically: on WSL it opens via `explorer.exe` (host browser), else prints the file path (+ Windows path on WSL) |
+
+
+## tilelangGym SoftLib/ST gates
+
+1. Point `TILELANGGYM_PACK` at a closed explore pack (or use the demo fixture).
+2. `python3 -m skill_foundry.workflow.run --target tilelangGym --suite sv567-1xg-clean`
+3. On FAIL: read Motif/Done-bar/PRC miss → `./harness teach` → promote into `tilelanggym-*` skills.
+4. Do not paste dig el/cyc into Motif seeds; live SoT bands come from tip packs at review time.
