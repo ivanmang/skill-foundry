@@ -73,12 +73,13 @@ skill-foundry/
 │   ├── cli/                           ─▶ THE PRODUCT + shell
 │   │     capture.py · promote_skill.py · teach.py · promote.py · skills.py
 │   │     menu.py · wrap.py · complete.py · selfcheck.sh
-│   │     (tours, runnable scripts — NOT harness verbs: guide.py · demo.py · onboarding.py)
-│   ├── workflow/                      ─▶ BUNDLED regression (thin runnable scripts)
+│   ├── workflow/                      ─▶ BUNDLED regression (thin runnable scripts + tours)
 │   │     run.py · report.py · review.py · baseline.sh · status.py
 │   │     diagnose.py · history.py · clean.py · validate.py
+│   │     demo.py · guide.py · onboarding.py   (tours, runnable — NOT harness verbs)
 │   └── lib/                           ─▶ thin stable helpers
-│         parse_gtest.py · perf_metrics.py · targets.py · cann.py · capabilities.py …
+│         parse_gtest.py · perf_metrics.py · targets.py · cann.py · capabilities.py ·
+│         ui.py · term.py · gates.py · reviewer.py …
 │
 ├── config/                           ─▶ source of truth (suites · arches · cann)
 ├── reports/ · learnings/ · hub/      ─▶ state (runs+baseline / captures / drafts)
