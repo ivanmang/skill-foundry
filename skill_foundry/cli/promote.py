@@ -158,6 +158,37 @@ def apply_snippet(content: str, target: Path, snippet: str) -> str:
     return append_to_section(content, "Gotchas", snippet.strip())
 
 
+def plan_entries(
+    root: Path, pending: list[dict]
+) -> tuple[list[tuple[Path, str, str, list[dict]]], list[dict]]:
+    """Resolve targets and accumulate per-target content across pending entries.
+
+    Returns ``(plan, skipped)``. ``plan`` has one tuple per target file, in
+    first-seen order: ``(target, old_content, new_content, entries)``.
+    ``new_content`` applies each entry's snippet to a running buffer, so
+    entries that share a target (same file, or even the same section) compose
+    instead of clobbering one another. ``skipped`` lists entries whose target
+    could not be resolved.
+    """
+    by_target: dict[Path, list[dict]] = {}
+    skipped: list[dict] = []
+    for e in pending:
+        t = resolve_target(e, root)
+        if t is None:
+            skipped.append(e)
+            continue
+        by_target.setdefault(t, []).append(e)
+
+    plan: list[tuple[Path, str, str, list[dict]]] = []
+    for t, entries in by_target.items():
+        old = t.read_text(encoding="utf-8") if t.exists() else ""
+        cur = old
+        for e in entries:
+            cur = apply_snippet(cur, t, build_snippet(e, t))
+        plan.append((t, old, cur, entries))
+    return plan, skipped
+
+
 def _append_md(path: Path, text: str) -> None:
     content = path.read_text(encoding="utf-8") if path.exists() else ""
     content = content.replace("(No entries yet.)\n", "").replace("(No entries yet.)", "")
@@ -254,17 +285,15 @@ def create_mr(web: str, branch: str, base: str, title: str) -> tuple[str, bool]:
 
 
 def propose_all(root: Path, lp: Path, pending: list[dict]) -> int:
-    for e in pending:
-        t = resolve_target(e, root)
-        if t is None:
-            print(f"SKIP {e['id']}: unmapped (skill={e.get('skill')!r})")
-            continue
-        old = t.read_text(encoding="utf-8") if t.exists() else ""
-        new = apply_snippet(old, t, build_snippet(e, t))
+    plan, skipped = plan_entries(root, pending)
+    for e in skipped:
+        print(f"SKIP {e['id']}: unmapped (skill={e.get('skill')!r})")
+    for t, old, new, entries in plan:
+        ids = ", ".join(e["id"] for e in entries)
         if new == old:
-            print(f"SKIP {e['id']}: no change for {t.relative_to(root)}")
+            print(f"SKIP {ids}: no change for {t.relative_to(root)}")
             continue
-        print(f"\n### {e['id']} → {t.relative_to(root)}")
+        print(f"\n### {ids} → {t.relative_to(root)}")
         print("\n".join(difflib.unified_diff(
             old.splitlines(), new.splitlines(),
             fromfile=f"a/{t.relative_to(root)}", tofile=f"b/{t.relative_to(root)}", lineterm="",
@@ -275,20 +304,15 @@ def propose_all(root: Path, lp: Path, pending: list[dict]) -> int:
 def apply_all(root: Path, lp: Path, entries: list[dict], pending: list[dict],
               branch: str | None, push: bool, direct: bool = False,
               force: bool = False, review: bool = True) -> int:
-    # 1. build the plan (entry, target, old, new)
-    plan: list[tuple[dict, Path, str, str]] = []
-    for e in pending:
-        t = resolve_target(e, root)
-        if t is None:
-            print(f"SKIP {e['id']}: unmapped")
-            continue
-        old = t.read_text(encoding="utf-8") if t.exists() else ""
-        new = apply_snippet(old, t, build_snippet(e, t))
-        plan.append((e, t, old, new))
+    # 1. build the plan — one element per target file; snippets accumulate in
+    #    order so multiple entries sharing a target compose instead of clobbering.
+    plan, skipped = plan_entries(root, pending)
+    for e in skipped:
+        print(f"SKIP {e['id']}: unmapped")
 
     # 2. gates (add-only · secrets · size)
     violations: list[str] = []
-    for _, _, old, new in plan:
+    for t, old, new, _es in plan:
         violations += gates.gate(old, new)
     violations = list(dict.fromkeys(v for v in violations if v))
     if violations and not force:
@@ -299,7 +323,7 @@ def apply_all(root: Path, lp: Path, entries: list[dict], pending: list[dict],
     # 3. review (Tier C — mandatory by default: LLM judge, or interactive fallback)
     if review:
         diffs = []
-        for e, t, old, new in plan:
+        for t, old, new, _es in plan:
             if new != old:
                 diffs.append("\n".join(difflib.unified_diff(
                     old.splitlines(), new.splitlines(),
@@ -318,14 +342,15 @@ def apply_all(root: Path, lp: Path, entries: list[dict], pending: list[dict],
 
     # 4. write
     changed: list[Path] = []
-    for e, t, old, new in plan:
+    for t, old, new, entries_for_target in plan:
         if new != old:
             t.parent.mkdir(parents=True, exist_ok=True)
             t.write_text(new, encoding="utf-8")
             changed.append(t)
-            print(f"APPLIED {e['id']} → {t.relative_to(root)}")
-        e["status"] = "promoted"
-        _promote_log_lines(root, e)
+            print(f"APPLIED {', '.join(e['id'] for e in entries_for_target)} → {t.relative_to(root)}")
+        for e in entries_for_target:
+            e["status"] = "promoted"
+            _promote_log_lines(root, e)
 
     header, _ = split_header(lp.read_text(encoding="utf-8"))
     lp.write_text(header.rstrip() + "\n\n" + serialize_entries(entries) + "\n", encoding="utf-8")
@@ -377,7 +402,8 @@ def apply_all(root: Path, lp: Path, entries: list[dict], pending: list[dict],
                 print(f"\nPush failed (exit {pushed.returncode}) — push manually:"
                       f"\n  git -C {root} push -u origin {branch}", file=sys.stderr)
 
-    print(f"\nPromoted {len(changed)} of {len(pending)} pending entries.")
+    promoted_count = sum(len(es) for _, _, _, es in plan)
+    print(f"\nPromoted {promoted_count} of {len(pending)} pending entries.")
     return 0
 
 
