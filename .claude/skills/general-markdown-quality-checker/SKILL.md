@@ -1,14 +1,13 @@
 ---
 name: general-markdown-quality-checker
 description: |
-  对Markdown（MD）文档进行质量检查，确保其质量、结构完整性、语言通顺性、规范性与正确性。适用于对"一段Markdown内容、一个Markdown文档、多个Markdown文档（包输入一个文档目录）"三种场景下Markdown内容的语法规范性检查和内容正确性检查，并输出结构化问题列表及修改建议。当用户提到以下场景时触发：
-  - 检查/质检/审核/验证 Markdown 文档质量
-  - 检查/质检/审核 Markdown 文档标点符号和空格使用规范性
-  - Markdown 中英文混排空格检查
-  - Markdown 标点符号混用、缺失、配对检查
-  - Markdown 路径格式规范性检查
-  - Markdown 文档标签（npu标签和@ref位置标签）合法性检查
-  触发词：Markdown内容、质量检查、质检、标点检查、空格检查、标签检查
+  对Markdown（MD）文档进行通用质量检查：结构完整性、语言通顺性、内容正确性，以及文档标签（npu标签/@ref位置标签）合法性，输出结构化问题列表及修改建议。适用于直接输入内容、单个文档、多个文档/目录三种场景。
+  专项质检请分流给对应技能：
+  - 标点/空格/路径 → markdown-punctuation-quality-checker
+  - 术语/表格/隐私/敏感词合规 → markdown-compliance-quality-checker
+  - 文件名规范 → markdown-filename-quality-checker
+  - AscendC 文档 → ascendc-markdown-quality-checker；aclnn API 文档 → api-doc-qc-aclnn
+  触发词：Markdown内容、结构检查、语言通顺、标签检查、质量检查、质检
 version: 1.0.0
 metadata:
   author: Huawei Technologies Co., Ltd.

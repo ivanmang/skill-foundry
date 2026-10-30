@@ -1,13 +1,8 @@
 ---
 name: markdown-compliance-quality-checker
 description: |
-  对Markdown（MD）文档进行合规性质检，基于预设规则检测文档中的规范性问题。适用于对"一段Markdown内容、一个Markdown文档、多个Markdown文档（包输入一个文档目录）"三种场景下Markdown内容的语法规范性检查和内容正确性检查，并输出结构化问题列表及修改建议。当用户提到以下场景时触发：
-  - 检查/质检/审核/验证 Markdown 文档质量
-  - 检查/质检/审核 Markdown 文档是否符合合规性规范
-  - Markdown 内容规范性检查
-  - Markdown 文档术语、表格、隐私合规性检查
-  - 审查/检查 Markdown 文档合规性
-  触发词：Markdown内容、质量检查、质检
+  对Markdown（MD）文档进行合规性专项质检：术语、表格、隐私与敏感词合规性，输出结构化问题列表及修改建议。适用于直接输入内容、单个文档、多个文档/目录三种场景。通用结构/语言/标签检查请用 general-markdown-quality-checker。
+  触发词：合规、敏感词、术语、隐私、表格、质检
 version: 1.0.0
 metadata:
   author: Huawei Technologies Co., Ltd.
