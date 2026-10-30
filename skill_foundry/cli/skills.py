@@ -180,8 +180,14 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--inbox", action="store_true", help="Show drafts only.")
     ap.add_argument("--refresh", action="store_true", help="Rewrite hub/catalog.json + docs/SKILLS_INDEX.md.")
     ap.add_argument("--check", action="store_true", help="Fail if catalog/index are stale (no writes).")
+    ap.add_argument("--install", action="store_true", help="Symlink skills into each detected agent's user dir.")
+    ap.add_argument("--uninstall", action="store_true", help="Remove the harness skill symlinks.")
     ap.add_argument("--json", action="store_true")
     args = ap.parse_args(argv)
+
+    if args.install or args.uninstall:
+        from skill_foundry.lib import install_skills
+        return install_skills.main(["--uninstall"] if args.uninstall else [])
 
     if args.refresh:
         refresh()
