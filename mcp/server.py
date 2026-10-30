@@ -94,24 +94,18 @@ def teach(wrong: str, correct: str, action: str) -> str:
 
 
 @mcp.tool()
-def promote(mode: str = "direct", skill_name: str = "", review: bool = True, force: bool = False) -> str:
+def promote(mode: str = "pr", skill_name: str = "") -> str:
     """Promote pending learnings (or a named skill draft) into skills.
 
-    mode: 'direct' (default — commit + push to origin/main over SSH, no MR/token) |
-          'pr' (branch + push + create the MR, auto-merge on green) |
+    mode: 'pr' (default — branch + push + auto-create the PR; a human merges) |
           'propose' (diff, no write) | 'apply' (write locally).
     Give skill_name to promote that hub/inbox/ draft; otherwise promotes learnings.
-    review defaults to True — the mechanical gates + an LLM judge (SKILL_REVIEWER)
-    run first, and nothing is applied unless the review APPROVEs. Set review=False
-    to skip the judge (gates still run). Set force=True to bypass the gates.
+    Review is mandatory: gates + built-in judge + LLM judge (SKILL_REVIEWER) run first,
+    and nothing is applied unless it APPROVEs.
     """
-    if mode not in ("propose", "apply", "direct", "pr"):
-        return "error: mode must be propose | apply | direct | pr"
+    if mode not in ("propose", "apply", "pr"):
+        return "error: mode must be propose | apply | pr"
     args = [f"--{mode}"]
-    if not review:
-        args.append("--no-review")
-    if force:
-        args.append("--force")
     if skill_name:
         return _run("promote-skill", skill_name, *args)
     return _run("promote", *args)

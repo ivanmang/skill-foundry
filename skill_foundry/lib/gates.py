@@ -1,14 +1,14 @@
 """Promotion gates — mechanical checks run before a skill/learning is published.
 
-Enforced invariants (make `--direct` safe and `--pr` auto-mergeable):
+Enforced invariants (make every promotion safe):
   - **add-only**: a promotion only *adds* to the shared corpus; it never removes
-    or modifies an existing check. (`--force` overrides — human decision.)
+    or modifies an existing check.
   - **no secrets**: token / private-key patterns are rejected.
   - **size cap**: diffs stay small and reviewable.
   - **Agent Skills spec**: promote-skill validates the new SKILL.md.
 
-`--ci` runs the same checks against `git diff <base>...HEAD` for the auto-merge
-pipeline, restricted to the shared-source-of-truth paths (.claude/skills + learnings).
+`--ci` runs the same checks against `git diff <base>...HEAD` for the CI/MR
+gate, restricted to the shared-source-of-truth paths (.claude/skills + learnings).
 """
 
 from __future__ import annotations
@@ -77,7 +77,7 @@ def gate(old: str, new: str, skill_folder: Path | None = None,
 
 
 def ci_check(base: str = "origin/main") -> list[str]:
-    """Gate the current branch's diff vs <base> (for the auto-merge pipeline).
+    """Gate the current branch's diff vs <base> (for the CI/MR gate).
 
     If <base> can't be resolved (no fetch), the add-only diff is skipped — the
     spec and secret checks still run on the working tree.

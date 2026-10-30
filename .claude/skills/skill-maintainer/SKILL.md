@@ -57,9 +57,9 @@ Show the exact diff (add-only — never modify/remove an existing line).
 ### 4. Apply + publish — git-tracked
 
 Mark the entry `status: promoted`, append a line to `learnings/promoted.md`,
-commit on the current branch (or a `feat/learnings-<date>` branch), and
-`git push`. For an MR: create it with **merge-when-pipeline-succeeds** so a
-green CI gates run auto-merges it.
+commit on a `feat/learnings-<date>` branch and `git push`. The agent
+auto-creates the MR (gitcode v5 API, needs `GITCODE_TOKEN`); a human merges it —
+see `references/mr-automation.md`.
 
 ## Accelerator (optional — if skill-foundry is checked out)
 

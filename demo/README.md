@@ -43,10 +43,10 @@ After each step the tour offers a menu (arrow keys + Enter):
    strict `LRN-…` entry in `learnings/recent.md`.
 5. **propose** — `python3 -m skill_foundry.cli.promote --propose` renders the
    reviewable diff (no write).
-6. **apply** — `python3 -m skill_foundry.cli.promote --apply --no-review` writes
-   it into `known-failures.md`, marks the entry `promoted`, and appends to
-   `promoted.md` + `corrections.md`. (`--no-review` keeps the demo scripted and
-   non-interactive; a *real* promote would run the LLM judge by default.)
+6. **apply** — `python3 -m skill_foundry.cli.promote --apply` writes it into
+   `known-failures.md`, marks the entry `promoted`, and appends to
+   `promoted.md` + `corrections.md`. (The scripted demo sets a stub
+   `SKILL_REVIEWER`; a *real* promote runs your LLM judge.)
 7. **rerun** — re-render the *same* `run.json` with `--known` → the failure is
    now annotated **known**.
 8. **takeaway** — the agent didn't get smarter, the harness did.

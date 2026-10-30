@@ -25,7 +25,7 @@ Two loops, always:
 
 ```text
 USE      run → extract → report → review (diff vs baseline)
-IMPROVE  capture → propose → gate + LLM review → apply → push (--direct) or MR (--pr)
+IMPROVE  capture → propose → gates + LLM review → apply → publish (--pr)
 ```
 
 And a simple rule of thumb for who does what:
@@ -33,7 +33,7 @@ And a simple rule of thumb for who does what:
 - 🟢 **the scripts do** — run, extract, report, review (driven by the agent).
 - 🟢 **harness does** — capture, propose, gate, LLM-review, then promote (the skill-ops loop).
 - 🟡 **you / a reviewer do** — the triage judgment (`teach`); and with `--pr`,
-  you only touch red CI MRs (green ones auto-merge).
+  you merge each PR after CI is green.
 
 And six rules that keep the regression signal honest:
 
@@ -338,10 +338,8 @@ written yet.
 ### 7c. Publish (gated + LLM-reviewed, then automatic)
 
 ```bash
-./harness promote --direct    # gates → LLM judge APPROVEs → push straight to main
-./harness promote --pr        # …or MR: gates → CI → auto-merges when green
-./harness promote --no-review # skip the judge (mechanical gates still run)
-./harness promote --force     # bypass the gates (human override)
+./harness promote --apply     # write locally (gates + LLM judge APPROVE)
+./harness promote --pr        # …or publish: branch + push + open a PR (a human merges)
 ```
 
 Every publish runs the **mechanical gates** (add-only — never removes/changes an
@@ -351,11 +349,9 @@ stdin and replies `APPROVE` / `HOLD` / `REJECT`); if it isn't set, you confirm
 interactively — and in a non-interactive session it **fails closed** rather than
 merging unreviewed.
 
-`--direct` commits on the current branch and pushes `origin HEAD` (SSH key, no
-token). `--pr` commits on a `feat/learnings-<date>` branch, pushes, creates the
-MR (via `glab` or the GitCode API with `GITCODE_TOKEN`/`GITLAB_TOKEN`), and
-requests **auto-merge when the CI gates pass** — a clean promotion lands without
-you, and you only see it if the gates are red.
+`--pr` commits on a `feat/learnings-<date>` branch, pushes it, and creates the
+PR (gitcode v5 API with `GITCODE_TOKEN`); a human merges it after the CI gates
+pass — you only see it if the gates are red.
 
 ---
 
@@ -386,7 +382,7 @@ loop, and every teammate gets it via git.
 |---|---|
 | Nightly | `.gitcode/workflows/promote-learnings.yml` surfaces pending learnings |
 | On push/PR | `.gitcode/workflows/selfcheck.yml` runs `./harness selfcheck` |
-| Weekly / on demand | with `--pr`, green MRs auto-merge (CI gates); only red ones need you · `--direct` lands on `main` after the LLM judge |
+| Weekly / on demand | with `--pr`, you merge each PR after CI gates pass |
 | After suite changes | `bash skill_foundry/workflow/baseline.sh <target>` to re-pin the baseline |
 | After a correction | re-run one representative case to verify it improved triage |
 | Housekeeping | `python3 -m skill_foundry.workflow.clean --keep 3` / `python3 -m skill_foundry.workflow.history` / `make check` |
@@ -417,7 +413,7 @@ loop, and every teammate gets it via git.
 | Validate config | `python3 -m skill_foundry.workflow.validate` |
 | Capture correction | `./harness teach "… -> … -> …"` (or wizard) |
 | Propose promotion (diff, no write) | `./harness promote --propose` |
-| Publish (gated + LLM-reviewed) | `./harness promote --direct` (or `--pr`; `--no-review` skips the judge, `--force` bypasses the gates) |
+| Publish (gated + LLM-reviewed) | `./harness promote --pr` (review is mandatory — built-in judge + LLM judge) |
 | Self-check | `./harness selfcheck` |
 
 ---
@@ -431,8 +427,8 @@ loop, and every teammate gets it via git.
 | Draft promotion (diff, no write) | 🟢 automatic | harness |
 | Mechanical gates (add-only · no-secrets · size · spec) | 🟢 automatic | harness |
 | **LLM review** (judge must APPROVE) | 🟢 automatic | `SKILL_REVIEWER` (or you, interactively) |
-| Apply + commit + push (`--direct`) / create the MR (`--pr`) | 🟢 automatic | harness |
-| **Merge the MR** (`--pr`) | 🟢 auto-merge on green CI; you only on red | CI / you |
+| Apply + branch + push + open the PR (`--pr`) | 🟢 automatic | harness |
+| **Merge the PR** (`--pr`) | 🟡 a human merges after CI is green | you |
 | Remove / change an existing check | 🔴 never automatic | — |
 
 Capture is triggered by `./harness teach` or by the agent reacting to your
@@ -449,7 +445,7 @@ team's shared source of truth that every future run reads. The worst failure
 mode isn't a bad memory entry; it's a wrong "known failure" that silently
 annotates a real regression as known and hides it. So the machine may grow its
 memory freely, but shared knowledge changes only after the gates and an LLM
-judge APPROVE — `--direct` to `main`, or `--pr` auto-merged when CI is green.
+judge APPROVE — then `--pr` opens a PR a human merges after CI is green.
 
 ---
 

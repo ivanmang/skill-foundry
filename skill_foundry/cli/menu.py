@@ -20,7 +20,7 @@ from skill_foundry.lib import ui
 ITEMS = [
     ("🛠  capture a new skill", ["capture-skill"]),
     ("🧠  log a correction (teach)", ["teach"]),
-    ("⬆  promote pending learnings", ["promote", "--direct"]),
+    ("⬆  promote pending learnings", ["promote", "--pr"]),
     ("📚  browse skills (list/search)", ["skills"]),
     ("❓  help", ["help"]),
 ]

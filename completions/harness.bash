@@ -14,11 +14,11 @@ _harness_complete() {
 
     # ./harness exposes ONLY the skill-ops loop (+ shell housekeeping).
     local cmds="capture-skill promote-skill teach promote skills menu selfcheck help version"
-    local opts_promote="--propose --apply --pr --direct --no-review --force"
+    local opts_promote="--propose --apply --pr"
     local opts_teach="--edit --category --context --skill --wrong --correct --action --file --id --dry-run"
     local opts_capture_skill="--description --dry-run"
-    local opts_promote_skill="--propose --apply --pr --direct --no-review --force"
-    local opts_skills="--search --inbox --refresh --json --install --uninstall"
+    local opts_promote_skill="--propose --apply --pr"
+    local opts_skills="--search --category --origin --owner --maturity --entry --inbox --refresh --check --json --install --uninstall --scope"
 
     if [[ $COMP_CWORD -eq 1 ]]; then
         COMPREPLY=( $(compgen -W "$cmds" -- "$cur") )

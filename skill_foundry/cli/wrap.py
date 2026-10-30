@@ -20,7 +20,7 @@ NEXT: dict[str, list[tuple[str, list[str]]]] = {
         ("📚  browse skills", ["skills"]),
     ],
     "teach": [
-        ("🟢  publish to main (--direct)", ["promote", "--direct"]),
+        ("🟢  open a pull request (--pr)", ["promote", "--pr"]),
         ("👀  review the diff first (--propose)", ["promote", "--propose"]),
         ("📚  browse skills", ["skills"]),
     ],
@@ -34,7 +34,7 @@ NEXT: dict[str, list[tuple[str, list[str]]]] = {
     ],
     "skills": [
         ("🛠  capture a new skill", ["capture-skill"]),
-        ("⬆  promote pending learnings", ["promote", "--direct"]),
+        ("⬆  promote pending learnings", ["promote", "--pr"]),
     ],
 }
 
@@ -72,7 +72,7 @@ def main(argv: list[str] | None = None) -> int:
         suggestions = NEXT.get(verb, []) or [
             ("🛠  capture a new skill", ["capture-skill"]),
             ("📚  browse skills", ["skills"]),
-            ("⬆  promote pending learnings", ["promote", "--direct"]),
+            ("⬆  promote pending learnings", ["promote", "--pr"]),
         ]
         options = suggestions + [(TYPE, "TYPE"), (FULL, "FULL"), (SHELL, None)]
         status = ui.c("ok", ui.GREEN) if rc == 0 else ui.c(f"exit {rc}", ui.YELLOW)

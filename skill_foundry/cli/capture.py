@@ -127,7 +127,7 @@ def main(argv: list[str] | None = None) -> int:
     dest.mkdir(parents=True, exist_ok=True)
     (dest / "SKILL.md").write_text(text, encoding="utf-8")
     print(f"✓ captured draft → {dest / 'SKILL.md'}")
-    print(f"  next: ./harness promote-skill {name} --direct   (or --pr for an MR-gated review)")
+    print(f"  next: ./harness promote-skill {name} --pr   (review the diff, then a human merges)")
     return 0
 
 

@@ -129,7 +129,8 @@ def step_propose() -> None:
 
 def step_apply() -> None:
     print("  (apply) write the edit into the sandbox known-failures.md:\n")
-    _run([sys.executable, "-m", "skill_foundry.cli.promote", "--root", SB2, "--apply", "--no-review"])
+    os.environ.setdefault("SKILL_REVIEWER", "echo APPROVE")  # scripted demo: stub judge
+    _run([sys.executable, "-m", "skill_foundry.cli.promote", "--root", SB2, "--apply"])
     before_txt = (SB2 / ".claude" / "skills" / "pto-isa" / "references" / "known-failures.before.md").read_text(encoding="utf-8")
     after_txt = SB2_KNOWN.read_text(encoding="utf-8")
     n_before = sum(1 for line in before_txt.splitlines() if line.startswith("### ") and "vcvt" in line)

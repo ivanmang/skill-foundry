@@ -9,9 +9,9 @@ hub/inbox/
 ```
 
 Drafts are created with `./harness capture-skill <name>` and promoted into
-`.claude/skills/` with `./harness promote-skill <name> [--direct | --pr]`. Until
-promoted, they are visible in `./harness skills` (marked `draft`) but not
-distributed as live skills.
+`.claude/skills/` with `./harness promote-skill <name> --pr` (a human merges the
+PR). Until promoted, they are visible in `./harness skills` (marked `draft`) but
+not distributed as live skills.
 
 Regression triage learnings use a separate path: `learnings/recent.md` (see
 `./harness teach`).

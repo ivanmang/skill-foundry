@@ -2,7 +2,7 @@
 
 skill-foundry is a **skill-ops platform**: agents and humans capture reusable
 knowledge as **Skills** during work, and it flows — through a promote step
-(`--direct` push or `--pr` MR) — into a shared hub every teammate's agent can
+(a reviewed `--pr` MR) — into a shared hub every teammate's agent can
 discover and use.
 
 Regression testing is the **first bundled workflow**, not the product. The
@@ -10,7 +10,7 @@ product is the loop:
 
 ```text
 CAPTURE  (ambient, during any work)   agent corrects you → ./harness teach / capture-skill
-CURATE   (reviewable)                  promote --propose → promote --direct (push to main) or --pr (create MR)
+CURATE   (reviewable)                  promote --propose → promote --pr (open a PR; a human merges)
 HUB      (shared)                      git repo + hub/catalog.json + MCP server
 CONSUME  (every teammate's agent)      discover via skills / MCP, load SKILL.md on demand
 ```
@@ -20,8 +20,7 @@ CONSUME  (every teammate's agent)      discover via skills / MCP, load SKILL.md 
 - **Agent Skills** (`SKILL.md`) as the unit — open standard, interoperable.
 - The **learning loop** (`teach → promote → MR`) — already proven by regression.
 - The **automation boundary** — capture is automatic; promotion is automatic
-  (`--direct` push or `--pr` MR); with `--pr` the **merge is human-gated**
-  (branch protection).
+  (`--pr` MR); the **merge is human-gated** (a human merges the PR).
 - The **CLI** (`./harness`) and capability detection.
 
 ## What changes
@@ -43,5 +42,5 @@ CONSUME  (every teammate's agent)      discover via skills / MCP, load SKILL.md 
 | `./harness teach "wrong → correct → action"` | a `LRN-…` entry in `learnings/recent.md` | `known-failures.md` or a skill's `## Gotchas` |
 | `./harness capture-skill <name>` | a draft in `hub/inbox/<name>/SKILL.md` | `.claude/skills/<name>/` |
 
-Both promote through the same path — `--direct` to `main` or `--pr` MR-gated —
+Both promote through the same `--pr` MR-gated path —
 and only ever *add*; shared knowledge is never auto-removed or auto-changed.

@@ -135,9 +135,9 @@ remove/change a check                   (never)        (never)        (never)
 | 1 | **User** | *"that vcvt thing is a known issue"* — **or the agent spots it** |
 | 2 | **Agent** | `./harness teach "… → … → …"` (or MCP `teach(...)`) |
 | 3 | **Harness** | appends `LRN-…` to `learnings/recent.md` |
-| 4 | **Agent** | `./harness promote --direct` (or MCP `promote()`) |
-| 5 | **Harness** | edits `SKILL.md`/`known-failures.md`, commits, pushes `origin/main` |
-| 6 | **User** | nothing (`--direct`) · or merges (`--pr`) |
+| 4 | **Agent** | `./harness promote --pr` (or MCP `promote()`) |
+| 5 | **Harness** | edits `SKILL.md`/`known-failures.md`, commits, pushes a `feat/learnings-<date>` branch, opens a PR |
+| 6 | **User** | merges the PR |
 | 7 | **everyone** | next run reads the improved skill → smarter |
 
 ---

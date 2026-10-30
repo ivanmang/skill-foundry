@@ -172,11 +172,10 @@ def run_real_tour(name: str, target: dict) -> int:
         subprocess.run([sys.executable, "-m", "skill_foundry.cli.teach"], cwd=HARNESS)
 
     ui.banner("6 · Promote pending learnings")
-    print(ui.c("  Capture is automatic; promotion is AUTO — `--direct` pushes to main (no token), `--pr` opens an MR.", ui.BOLD))
-    print("    🟢 '--propose' DRAFTS a diff (no write) — optional review.")
-    print("    🟢 '--direct' applies + commits + pushes straight to origin/main (no token).")
-    print("    🟢 '--pr' applies + branch + push + AUTO-CREATES the MR (glab / GITCODE_TOKEN).")
-    print("    🟡 with `--pr`, you merge the MR on the remote (branch protection gates it).")
+    print(ui.c("  Promotion is strict: review is mandatory (built-in judge + LLM judge), and `--pr`\nis the only publish path (a human merges the PR).", ui.BOLD))
+    print("    🟢 '--propose' DRAFTS a diff (no write) — read it first.")
+    print("    🟢 '--apply' writes locally (no commit).")
+    print("    🟢 '--pr' applies + branch + push + auto-creates the PR (GITCODE_TOKEN); you merge it.")
     print(ui.c("  RED line: the harness never auto-REMOVES or auto-CHANGES an existing check — it only ADDS.", ui.RED))
     pending = pending_learning_count()
     if pending == 0:
@@ -184,12 +183,11 @@ def run_real_tour(name: str, target: dict) -> int:
     else:
         print(ui.c(f"  {pending} pending learning(s) ready to promote.", ui.GREEN))
         if ui.ask_yesno("Promote them?", "y"):
-            if ui.ask_yesno("Push straight to main (--direct)? (n = --pr for an MR)", "y"):
-                subprocess.run([sys.executable, "-m", "skill_foundry.cli.promote", "--direct"], cwd=HARNESS)
-            else:
-                subprocess.run([sys.executable, "-m", "skill_foundry.cli.promote", "--pr"], cwd=HARNESS)
+            if ui.ask_yesno("Review the diff first (--propose)?", "y"):
+                subprocess.run([sys.executable, "-m", "skill_foundry.cli.promote", "--propose"], cwd=HARNESS)
+            subprocess.run([sys.executable, "-m", "skill_foundry.cli.promote", "--pr"], cwd=HARNESS)
 
-    nxt = "python3 -m skill_foundry.workflow.run --all-suites --quiet" + ("  and  ./harness promote --direct" if pending else "")
+    nxt = "python3 -m skill_foundry.workflow.run --all-suites --quiet" + ("  and  ./harness promote --pr" if pending else "")
     print(ui.c(f"\n✓ Done. Next time: {nxt}", ui.GREEN))
     return 0
 

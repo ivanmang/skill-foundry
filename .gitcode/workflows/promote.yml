@@ -1,5 +1,6 @@
-# Promotion gates — runs on every push / merge request. When green, the MR
-# created by `./harness promote --pr` auto-merges (merge_when_pipeline_succeeds).
+# Promotion gates — runs on every push / merge request. A green pipeline is
+# required before the MR created by `./harness promote --pr` can be merged
+# (merging is always a human decision, never automatic).
 # TEMPLATE: adjust runs-on / image to your gitcode runner pool (self-hosted).
 name: promote-gates
 

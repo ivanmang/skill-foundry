@@ -20,9 +20,9 @@ modules directly. The package is split by *purpose*, not by file type:
 | Verb | Module | Purpose |
 |---|---|---|
 | `capture-skill` | `cli/capture.py` | Draft a NEW skill into `hub/inbox/` |
-| `promote-skill` | `cli/promote_skill.py` | Promote a draft into `.claude/skills/` (`--direct` / `--pr`) |
+| `promote-skill` | `cli/promote_skill.py` | Promote a draft into `.claude/skills/` (`--pr`) |
 | `teach` | `cli/teach.py` | Log a correction (wizard / shorthand / editor) |
-| `promote` | `cli/promote.py` | Promote learnings into skills (`--propose`/`--apply`/`--direct`/`--pr`) |
+| `promote` | `cli/promote.py` | Promote learnings into skills (`--propose`/`--apply`/`--pr`) |
 | `skills` | `cli/skills.py` | List/search skills · `--install`/`--uninstall` · `--refresh` |
 
 The CLI shell (interactive UX, not domain logic):
@@ -97,5 +97,5 @@ call.
 
 - `python3 -m skill_foundry.workflow.run --all-suites --report --open --review` — the whole USE loop, one command.
 - `python3 -m skill_foundry.workflow.run --suite X --testcase T [--filter G]` — single testcase / gtest filter.
-- `./harness promote --direct` — push to `origin/main` (no MR, no token); `--pr` MR-gated.
+- `./harness promote --pr` — branch + push + auto-create the PR (GITCODE_TOKEN); a human merges.
 - `make check` — run the self-check locally.

@@ -55,9 +55,9 @@ no hardware, works on any machine.
 
 ## Scene 5 — Takeaway
 
-- "Capture is automated; promotion is a reviewed, add-only diff (merge-gated with
-  `--pr`, direct-push with `--direct`) — mirroring how Claude Code auto-writes
-  memory but never silently edits your CLAUDE.md."
+- "Capture is automated; promotion is a reviewed, add-only diff (`--pr`; a human
+  merges) — mirroring how Claude Code auto-writes memory but never silently
+  edits your CLAUDE.md."
 - "Same flow, real target: `pto-isa` with `config/suites.json` + `arches.json`
   for CPU-ST and NPU-sim A5/A3/A6. A `gitcode` workflow can surface pending
   learnings nightly."
@@ -70,8 +70,8 @@ no hardware, works on any machine.
   keep re-deriving. It sits on top of the existing `.gitcode` CI, doesn't replace it.
 - **"Is the learning manual?"** Capture is automated (`skill_foundry/cli/teach.py` /
   `session_digest.py`); promotion is a scripted, gated diff: the mechanical
-  gates (add-only · no-secrets) + an LLM judge must APPROVE, then `--direct`
-  pushes to `main` or `--pr` auto-merges on green CI — reviewable, revertable.
+  gates (add-only · no-secrets) + an LLM judge must APPROVE, then `--pr`
+  opens a PR a human merges after CI is green — reviewable, revertable.
 - **"What's auto vs gated?"** Append-only capture: auto. Editing shared skills:
   gated (add-only) and LLM-reviewed before applying — never auto-rewritten,
   never removing an existing check silently.
