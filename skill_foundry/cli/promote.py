@@ -300,6 +300,28 @@ def create_mr(web: str, branch: str, base: str, title: str) -> tuple[str, bool]:
     return mr_url(web, branch, base), False
 
 
+def _mr_url_from_push(stdout: str, stderr: str) -> str | None:
+    """Return the MR URL printed when push options create a merge request."""
+    text = f"{stdout or ''}\n{stderr or ''}"
+    for m in re.finditer(r"https?://[^\s]+", text):
+        u = m.group(0).rstrip(".,;:()")
+        if "merge_request" in u.lower():
+            return u
+    return None
+
+
+def _open(url: str | None) -> None:
+    """Best-effort open a URL in the user's browser (never raises)."""
+    if not url:
+        return
+    try:
+        err = _browser.open_browser(url)
+        if err:
+            print(err, file=sys.stderr)
+    except Exception:
+        pass
+
+
 def propose_all(root: Path, lp: Path, pending: list[dict]) -> int:
     plan, skipped = plan_entries(root, pending)
     for e in skipped:
@@ -382,27 +404,38 @@ def apply_all(root: Path, lp: Path, entries: list[dict], pending: list[dict],
                         "-m", f"chore: promote learnings ({len(changed)} entries)"], check=True)
         print(f"Committed on branch '{branch}' ({len(changed)} file(s) changed).")
         if push:
-            pushed = subprocess.run(["git", "-C", str(root), "push", "-u", "origin", branch])
+            title = (f"chore: promote learnings ({len(changed)} entries) — "
+                     f"{_dt.datetime.now():%Y-%m-%d}")
+            # Create the MR directly over the existing SSH transport using
+            # GitLab push options — no token/glab needed. If the host rejects
+            # them, fall back to a plain push + token/glab (or a manual URL).
+            push_opts = ["-o", "merge_request.create",
+                         "-o", "merge_request.target=main",
+                         "-o", f"merge_request.title={title}"]
+            pushed = subprocess.run(["git", "-C", str(root), "push", "-u", "origin", branch] + push_opts,
+                                    capture_output=True, text=True)
             if pushed.returncode == 0:
-                web = remote_web_url(root)
-                if web:
-                    title = (f"chore: promote learnings ({len(changed)} entries) — "
-                             f"{_dt.datetime.now():%Y-%m-%d}")
-                    url, created = create_mr(web, branch, "main", title)
+                url = _mr_url_from_push(pushed.stdout, pushed.stderr)
+                if url:
+                    print(f"\n✓ Created merge request:\n  {url}")
+                    _open(url)
+                else:
+                    print(f"\n✓ Pushed '{branch}' and opened a merge request "
+                          "(the remote did not print its URL).")
+            else:
+                pushed = subprocess.run(["git", "-C", str(root), "push", "-u", "origin", branch],
+                                        capture_output=True, text=True)
+                if pushed.returncode == 0:
+                    url, created = create_mr(remote_web_url(root) or "", branch, "main", title)
                     if created:
-                        print(f"\n✓ Opened merge request (human merges after CI is green):\n  {url}")
+                        print(f"\n✓ Opened merge request (human merges):\n  {url}")
                     else:
                         print(f"\nPushed branch '{branch}'. To open the MR, visit:\n  {url}\n"
                               f"  (set GITCODE_TOKEN / GITLAB_TOKEN or install glab to auto-create it)")
-                    try:
-                        err = _browser.open_browser(url)
-                        if err:
-                            print(err, file=sys.stderr)
-                    except Exception:
-                        pass
-            else:
-                print(f"\nPush failed (exit {pushed.returncode}) — push manually:"
-                      f"\n  git -C {root} push -u origin {branch}", file=sys.stderr)
+                    _open(url)
+                else:
+                    print(f"\nPush failed (exit {pushed.returncode}) — push manually:"
+                          f"\n  git -C {root} push -u origin {branch}", file=sys.stderr)
 
     promoted_count = sum(len(es) for _, _, _, es in plan)
     print(f"\nPromoted {promoted_count} of {len(pending)} pending entries.")
