@@ -25,9 +25,14 @@
           "arch": null,
           "enabled": true,
           "milestone": "M1",
-          "command": ["python3", "tests/run_cpu.py", "--clean", "--verbose"],
+          "command": [
+            "python3",
+            "tests/run_cpu.py",
+            "--clean",
+            "--verbose"
+          ],
           "timeout_s": 7200,
-          "description": "CPU simulator ST — fast correctness tier (needs clang++>=15 or g++>=13)."
+          "description": "CPU simulator ST \u2014 fast correctness tier (needs clang++>=15 or g++>=13)."
         },
         {
           "name": "npu-sim-a5",
@@ -35,7 +40,16 @@
           "arch": "a5",
           "enabled": true,
           "milestone": "M1",
-          "command": ["python3", "tests/script/run_st.py", "-r", "sim", "-v", "a5", "-t", "all"],
+          "command": [
+            "python3",
+            "tests/script/run_st.py",
+            "-r",
+            "sim",
+            "-v",
+            "a5",
+            "-t",
+            "all"
+          ],
           "timeout_s": 7200,
           "description": "NPU ST on the A5 simulator (Ascend950PR_9599 -> Ascend910_9599)."
         },
@@ -45,7 +59,16 @@
           "arch": "a3",
           "enabled": true,
           "milestone": "M1",
-          "command": ["python3", "tests/script/run_st.py", "-r", "sim", "-v", "a3", "-t", "all"],
+          "command": [
+            "python3",
+            "tests/script/run_st.py",
+            "-r",
+            "sim",
+            "-v",
+            "a3",
+            "-t",
+            "all"
+          ],
           "timeout_s": 7200,
           "description": "NPU ST on the A3 simulator (Ascend910B1)."
         },
@@ -55,9 +78,18 @@
           "arch": "a6",
           "enabled": true,
           "milestone": "M1",
-          "command": ["python3", "tests/script/run_st.py", "-r", "sim", "-v", "a6", "-t", "all"],
+          "command": [
+            "python3",
+            "tests/script/run_st.py",
+            "-r",
+            "sim",
+            "-v",
+            "a6",
+            "-t",
+            "all"
+          ],
           "timeout_s": 7200,
-          "description": "NPU ST on the A6 simulator (dav_9201) — matches the A6/v200 workflow."
+          "description": "NPU ST on the A6 simulator (dav_9201) \u2014 matches the A6/v200 workflow."
         },
         {
           "name": "npu-hw-a5",
@@ -65,7 +97,16 @@
           "arch": "a5",
           "enabled": false,
           "milestone": "M2",
-          "command": ["python3", "tests/script/run_st.py", "-r", "npu", "-v", "a5", "-t", "all"],
+          "command": [
+            "python3",
+            "tests/script/run_st.py",
+            "-r",
+            "npu",
+            "-v",
+            "a5",
+            "-t",
+            "all"
+          ],
           "timeout_s": 7200,
           "description": "NPU ST on A5 hardware. Requires a device + ASCEND_HOME_PATH."
         },
@@ -75,7 +116,9 @@
           "arch": null,
           "enabled": false,
           "milestone": "M2",
-          "command": ["./tests/run_costmodel_tests.sh"],
+          "command": [
+            "./tests/run_costmodel_tests.sh"
+          ],
           "timeout_s": 7200,
           "description": "Cost model ST (operator cost measurement)."
         },
@@ -85,7 +128,9 @@
           "arch": null,
           "enabled": false,
           "milestone": "M3",
-          "command": ["./tests/run_comm_test.sh"],
+          "command": [
+            "./tests/run_comm_test.sh"
+          ],
           "timeout_s": 7200,
           "description": "Communication ST (MPI + HCCL). Async tests need CANN 9.0+."
         },
@@ -95,7 +140,10 @@
           "arch": null,
           "enabled": false,
           "milestone": "M2",
-          "command": ["python3", "tests/validate_op_coverage.py"],
+          "command": [
+            "python3",
+            "tests/validate_op_coverage.py"
+          ],
           "timeout_s": 600,
           "description": "Operator coverage + testcase name validation (structural gates)."
         }
@@ -120,10 +168,16 @@
           "arch": "a5",
           "runner": "generic",
           "testcase_kind": "file",
-          "perf_copy": ["build/msprof_res/{testcase_stem}/OPPROF_*/dump"],
+          "perf_copy": [
+            "build/msprof_res/{testcase_stem}/OPPROF_*/dump"
+          ],
           "enabled": true,
           "milestone": "M1",
-          "command": ["bash", "scripts/sim_dsl.sh", "dsl/{testcase}"],
+          "command": [
+            "bash",
+            "scripts/sim_dsl.sh",
+            "dsl/{testcase}"
+          ],
           "timeout_s": 7200,
           "description": "DSL ST on the A5 simulator (ptoas-vmi msprof). Run one DSL case (.py)."
         },
@@ -134,9 +188,17 @@
           "runner": "generic",
           "enabled": false,
           "milestone": "M2",
-          "command": ["bash", "scripts/run_cce.sh", "cce/{testcase}"],
+          "command": [
+            "bash",
+            "cce/{testcase}/run.sh",
+            "-r",
+            "sim",
+            "-v",
+            "{soc}"
+          ],
           "timeout_s": 7200,
-          "description": "CCE ST on the A5 simulator (bisheng + camodel)."
+          "description": "CCE ST on the A5 simulator (bisheng + camodel). Run one CCE kernel's per-kernel run.sh (cce/<Kernel>/run.sh); the CA skill's run_cce_part1.sh orchestrates the full auto-discovered set.",
+          "testcase_kind": "dir"
         },
         {
           "name": "tilelang-st",
@@ -144,10 +206,16 @@
           "arch": "a5",
           "runner": "generic",
           "testcase_kind": "file",
-          "perf_copy": ["build/msprof_res/{testcase_stem}/OPPROF_*/dump"],
+          "perf_copy": [
+            "build/msprof_res/{testcase_stem}/OPPROF_*/dump"
+          ],
           "enabled": false,
           "milestone": "M3",
-          "command": ["bash", "scripts/sim_dsl.sh", "tilelang/{testcase}"],
+          "command": [
+            "bash",
+            "scripts/sim_dsl.sh",
+            "tilelang/{testcase}"
+          ],
           "timeout_s": 7200,
           "description": "TileLang kernels on the A5 simulator."
         }
