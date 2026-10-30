@@ -161,7 +161,7 @@ runs directly as thin scripts the skills reference.
   promote-skill  Publish a draft into .claude/skills/   [--propose | --apply | --pr]
   teach          Log a correction                       ["wrong -> correct -> action" | wizard | --edit]
   promote        Publish learnings into skills          [--propose | --apply | --pr]
-  skills         List/search · install · refresh        [--search, --category, --origin, --entry, --inbox, --install, --uninstall, --refresh, --check, --json]
+  skills         List/search · install · refresh        [--search, --category, --origin, --owner, --maturity, --scope, --entry, --inbox, --install, --uninstall, --refresh, --check, --json]
   menu           Curated menu (bare ./harness default)
   selfcheck      Compile + skill-spec + reference integrity + index freshness + demo smoke
 
