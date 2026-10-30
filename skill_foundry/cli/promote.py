@@ -301,11 +301,15 @@ def create_mr(web: str, branch: str, base: str, title: str) -> tuple[str, bool]:
 
 
 def _mr_url_from_push(stdout: str, stderr: str) -> str | None:
-    """Return the MR URL printed when push options create a merge request."""
+    """Return a *created* MR URL from push output (merge_requests/<number>).
+
+    Deliberately excludes the manual ``merge_requests/new?...`` link gitcode
+    prints for a plain push — that means no MR was actually created.
+    """
     text = f"{stdout or ''}\n{stderr or ''}"
     for m in re.finditer(r"https?://[^\s]+", text):
         u = m.group(0).rstrip(".,;:()")
-        if "merge_request" in u.lower():
+        if re.search(r"merge_requests/\d+", u):
             return u
     return None
 
@@ -414,24 +418,24 @@ def apply_all(root: Path, lp: Path, entries: list[dict], pending: list[dict],
                          "-o", f"merge_request.title={title}"]
             pushed = subprocess.run(["git", "-C", str(root), "push", "-u", "origin", branch] + push_opts,
                                     capture_output=True, text=True)
-            if pushed.returncode == 0:
-                url = _mr_url_from_push(pushed.stdout, pushed.stderr)
-                if url:
-                    print(f"\n✓ Created merge request:\n  {url}")
-                    _open(url)
-                else:
-                    print(f"\n✓ Pushed '{branch}' and opened a merge request "
-                          "(the remote did not print its URL).")
+            mr_url = _mr_url_from_push(pushed.stdout, pushed.stderr) if pushed.returncode == 0 else None
+            if mr_url:
+                print(f"\n✓ Created merge request:\n  {mr_url}")
+                _open(mr_url)
             else:
-                pushed = subprocess.run(["git", "-C", str(root), "push", "-u", "origin", branch],
-                                        capture_output=True, text=True)
+                # The remote didn't create an MR (push options unsupported or
+                # ignored). Make sure the branch is pushed, then try token/glab,
+                # else hand the human the manual URL.
+                if pushed.returncode != 0:
+                    pushed = subprocess.run(["git", "-C", str(root), "push", "-u", "origin", branch],
+                                            capture_output=True, text=True)
                 if pushed.returncode == 0:
                     url, created = create_mr(remote_web_url(root) or "", branch, "main", title)
                     if created:
                         print(f"\n✓ Opened merge request (human merges):\n  {url}")
                     else:
-                        print(f"\nPushed branch '{branch}'. To open the MR, visit:\n  {url}\n"
-                              f"  (set GITCODE_TOKEN / GITLAB_TOKEN or install glab to auto-create it)")
+                        print(f"\nPushed branch '{branch}'. Create the merge request manually "
+                              f"(set GITCODE_TOKEN or install glab to auto-open):\n  {url}")
                     _open(url)
                 else:
                     print(f"\nPush failed (exit {pushed.returncode}) — push manually:"
