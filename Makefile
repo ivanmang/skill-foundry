@@ -18,7 +18,7 @@ hooks:
 	git config core.hooksPath .githooks
 
 validate:
-	python3 -m skill_foundry.cli.validate
+	python3 -m skill_foundry.workflow.validate
 
 help:
 	@./harness help

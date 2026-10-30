@@ -102,7 +102,7 @@ def _check_frontmatter() -> Tuple[Dict[str, Any], Optional[str]]:
     fm_ok = bool(
         frontmatter_match
         and re.search(
-            r"^name:\s*msopprof-visualization\s*$", frontmatter_match.group(1), re.M
+            r"^name:\s*tool-perf-report\s*$", frontmatter_match.group(1), re.M
         )
     )
     check = result_item(
@@ -132,7 +132,7 @@ def _check_evals() -> Tuple[Dict[str, Any], Optional[str]]:
     eval_error = ""
     try:
         evals = json.loads((ROOT / "evals" / "evals.json").read_text(encoding="utf-8"))
-        if evals.get("skill_name") != "msopprof-visualization" or not evals.get(
+        if evals.get("skill_name") != "tool-perf-report" or not evals.get(
             "evals"
         ):
             eval_error = "skill_name 或 evals 内容无效"
