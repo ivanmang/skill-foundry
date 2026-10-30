@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated": "2026-10-30T04:02:44.777556+00:00",
+  "generated": "2026-10-30T05:54:47.197725+00:00",
   "skills": [
     {
       "name": "aclnn-doc-gen",
@@ -274,17 +274,17 @@
     },
     {
       "name": "ops-perf-baseline-evaluate",
-      "description": "For accepted operator performance tasks: check environment/NPU, freeze or generate cases, and produce per-case baseline targets. Baseline-evaluation stage only. Dispatched by ops-perf-optimize.",
+      "description": "For accepted operator performance tasks: check environment/NPU, freeze or generate cases, produce per-case baseline targets, and run on-device msprof collection + speedup comparison vs a reference (compare/quick -> performance.json + markdown). Baseline-evaluation stage only. Dispatched by ops-perf-optimize.",
       "status": "published"
     },
     {
       "name": "ops-perf-implementation",
-      "description": "Isolated-scheme implementation, functional and performance gating, candidate final selection, and full demo acceptance for performance tasks. Dispatched by ops-perf-optimize.",
+      "description": "Isolated-scheme implementation, functional and performance gating, candidate final selection, and full demo acceptance for performance tasks. Feeds from Tiling modeling + device/cluster/core 3-level flow strategy. Dispatched by ops-perf-optimize.",
       "status": "published"
     },
     {
       "name": "ops-perf-optimize-workflow",
-      "description": "Five-stage main orchestrator for AscendC / CANNBot-DSL operator performance optimization. Triggers only when the user explicitly requests performance optimization/tuning of a concrete operator or code directory (or a CANNBot-DSL network case). Handles request intake, dispatch, gate review, looping, recovery, and continuous reporting.",
+      "description": "Five-stage main orchestrator for AscendC / CANNBot-DSL operator performance optimization. Triggers only when the user explicitly requests performance optimization/tuning of a concrete operator or code directory (or a CANNBot-DSL network case). Handles request intake, dispatch, gate review, looping, recovery, and continuous reporting. For a quick single-report analysis use tool-perf-analysis; for HTML viz use tool-perf-report; for best-practice lookup use tool-perf-practice.",
       "status": "published"
     },
     {
@@ -414,17 +414,7 @@
     },
     {
       "name": "tool-perf-analysis",
-      "description": "Parse an NPU Profiling .npu-rep report (envelope payload: version/scope/report_id/report_path/op_name) into metrics (pipeline occupancy, compute utilization, resource conflicts, bandwidth, L2 hit rate, roofline), then output a data summary, bottleneck verdict, and optimization directions tagged with evidence/cost/exclusion/verification. Collection -> tool-perf-collect; implementation -> tool-perf-optimize; visualization -> tool-perf-report. Triggers: 'interpret this profiling report', 'what does this report tell us', 'how should I optimize this operator', report_path+scope payload.",
-      "status": "published"
-    },
-    {
-      "name": "tool-perf-collect",
-      "description": "On-device NPU performance collection and speedup comparison vs a reference (msprof compare/quick modes; outputs performance.json + a markdown comparison). Collection + comparison only; analysis -> tool-perf-analysis; optimization strategy -> tool-perf-optimize; visualization -> tool-perf-report. Triggers: on-device performance, operator perf test, hardware perf verification, NPU profiling collection, speedup comparison.",
-      "status": "published"
-    },
-    {
-      "name": "tool-perf-optimize",
-      "description": "Ascend C operator performance optimization strategy: Tiling modeling + multi-level flow analysis (device/cluster/core) using simulation diagrams + profiling data; a 4-step pipeline that fixes Tiling parameters. Directions come from tool-perf-analysis; reference implementations from tool-perf-practice. Triggers: operator perf tuning, flow analysis, Tiling correction, bound diagnosis, MC2 fused-op optimization, cluster-flow balancing.",
+      "description": "Parse an NPU Profiling .npu-rep report (envelope payload: version/scope/report_id/report_path/op_name) into metrics (pipeline occupancy, compute utilization, resource conflicts, bandwidth, L2 hit rate, roofline), then output a data summary, bottleneck verdict, and optimization directions tagged with evidence/cost/exclusion/verification. Collection -> ops-perf-baseline-evaluate; implementation -> ops-perf-implementation; visualization -> tool-perf-report. Triggers: 'interpret this profiling report', 'what does this report tell us', 'how should I optimize this operator', report_path+scope payload.",
       "status": "published"
     },
     {
@@ -434,7 +424,7 @@
     },
     {
       "name": "tool-perf-report",
-      "description": "msOpProf -> self-contained interactive HTML performance report (Details, Roofline, Timeline, Cache, Source, on-chip memory, Warp Stall, instruction timeline, raw data). Collection -> tool-perf-collect; interpretation -> tool-perf-analysis. Triggers: generate a visualization report from collected data, view a perf module, rebuild a report from an existing collection dir.",
+      "description": "msOpProf -> self-contained interactive HTML performance report (Details, Roofline, Timeline, Cache, Source, on-chip memory, Warp Stall, instruction timeline, raw data). Collection -> ops-perf-baseline-evaluate; interpretation -> tool-perf-analysis. Triggers: generate a visualization report from collected data, view a perf module, rebuild a report from an existing collection dir.",
       "status": "published"
     },
     {

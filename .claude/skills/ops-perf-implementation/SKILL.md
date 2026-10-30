@@ -1,6 +1,6 @@
 ---
 name: ops-perf-implementation
-description: Isolated-scheme implementation, functional and performance gating, candidate final selection, and full demo acceptance for performance tasks. Dispatched by ops-perf-optimize.
+description: Isolated-scheme implementation, functional and performance gating, candidate final selection, and full demo acceptance for performance tasks. Feeds from Tiling modeling + device/cluster/core 3-level flow strategy. Dispatched by ops-perf-optimize.
 category: perf-optimize
 ---
 
