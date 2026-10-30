@@ -69,11 +69,11 @@ no hardware, works on any machine.
   *what we learned*, and *how to present it* — the part agents (and people)
   keep re-deriving. It sits on top of the existing `.gitcode` CI, doesn't replace it.
 - **"Is the learning manual?"** Capture is automated (`skill_foundry/cli/teach.py` /
-  `session_digest.py`); promotion is a scripted diff:
-  `--direct` pushes to `main` (no token), or `--pr` opens an MR a human merges —
-  reviewable, revertable.
+  `session_digest.py`); promotion is a scripted, gated diff: the mechanical
+  gates (add-only · no-secrets) + an LLM judge must APPROVE, then `--direct`
+  pushes to `main` or `--pr` auto-merges on green CI — reviewable, revertable.
 - **"What's auto vs gated?"** Append-only capture: auto. Editing shared skills:
-  proposed automatically, applied on approval — never auto-rewritten, never
-  removing an existing check silently.
+  gated (add-only) and LLM-reviewed before applying — never auto-rewritten,
+  never removing an existing check silently.
 - **"Does it need the A6 sim?"** No. The demo is mock; the real pto-isa NPU-sim
   A6 target runs on yellow (`dav_9201`), CPU-ST on any box with clang++≥15/g++≥13.

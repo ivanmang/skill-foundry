@@ -182,11 +182,11 @@ and promotes the knowledge that measurement produces.
 ## 7. The automation boundary
 
 ```text
-🟢 automatic                     🟡 human (gated)              🔴 never
-─────────────────────────────────────────────────────────────────────
-agent: run regression scripts    USER: triage judgment          ANYONE:
-       capture (teach)           merge the MR (--pr only)        remove/change
-harness: promote (--direct)      decide to re-pin baseline       an existing check
+🟢 automatic                            🟡 human (rare)               🔴 never
+─────────────────────────────────────────┼─────────────────────────────┼─────────────────────────
+agent: run regression scripts             USER: triage judgment         ANYONE:
+       capture (teach)                     red-CI MRs (--pr)            remove/change
+harness: gates + LLM review + promote      re-pin the baseline           an existing check
 ```
 
 ---

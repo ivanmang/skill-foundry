@@ -54,10 +54,11 @@ regression thresholds.
 
 **Why the line is drawn there:** auto-*append* is safe — `learnings/recent.md`
 is the harness's own scratch memory. Auto-*edit* is not — `SKILL.md` +
-`known-failures.md` are the team's shared source of truth. So `--pr`
-auto-applies + pushes + creates the MR, but the **merge stays remote-gated**
-(branch protection). Same line Claude Code draws: it auto-writes its memory but
-never auto-edits your `CLAUDE.md`. A wrong auto-edit (e.g. a bad "known
+`known-failures.md` are the team's shared source of truth. So promotion runs the
+gates and an LLM judge first, then `--pr` auto-applies + pushes + creates the MR
+and **auto-merges when the CI gates pass**. Same line Claude Code draws: it
+auto-writes its memory but never auto-edits your `CLAUDE.md`. A wrong auto-edit
+(e.g. a bad "known
 failure") would hide real regressions.
 
 On the report side: gtest-style case timing (p50/p99/max) is always captured;
@@ -191,8 +192,8 @@ python3 -m skill_foundry.workflow.run --all-suites --report --open --review   # 
 # if something new failed and you triaged it:
 ./harness teach "symptom -> correct -> action"   # 6. capture (auto, append-only)
 ./harness promote --propose            # 7. review the proposed diff (no write, optional)
-./harness promote --direct             # 8. apply + commit + push to origin/main (no MR, no token)
-./harness promote --pr                 #    …or MR-gated (human merges; needs GITCODE_TOKEN/glab)
+./harness promote --direct             # 8. gates → LLM judge APPROVEs → push to origin/main (no token)
+./harness promote --pr                 #    …or MR: gates → CI → auto-merges when green
 ```
 
 Exit codes: `0` clean, `1` ran-with-failures, `2` usage.
@@ -222,17 +223,19 @@ Exit codes: `0` clean, `1` ran-with-failures, `2` usage.
   right file — `known-failures.md` (if the entry says "known-failure"/"triage
   corpus") or a skill's `## Gotchas` — and **writes nothing**. Duplicates and
   already-present entries are skipped (marked `rejected`).
-- **Apply** (`./harness promote --direct`) writes the edit, flips the entry to
-  `promoted`, appends a summary to `promoted.md` + an audit block to
-  `corrections.md`, commits on the current branch, and pushes `origin HEAD`
-  (SSH key — no token). `--pr` instead commits on `feat/learnings-<date>`,
-  pushes, and **auto-creates the MR** (via `glab` or the GitCode API with
-  `GITCODE_TOKEN`/`GITLAB_TOKEN`; otherwise it prints the MR-new URL). **You
-  merge it on the remote** — branch protection is the gate.
+- **Apply** (`./harness promote --direct`) runs the gates (add-only · no-secrets
+  · size), gets an LLM judge to APPROVE (`SKILL_REVIEWER`, or interactively),
+  writes the edit, flips the entry to `promoted`, appends a summary to
+  `promoted.md` + an audit block to `corrections.md`, commits on the current
+  branch, and pushes `origin HEAD` (SSH key — no token). `--pr` instead commits
+  on `feat/learnings-<date>`, pushes, and **auto-creates the MR** (via `glab` or
+  the GitCode API with `GITCODE_TOKEN`/`GITLAB_TOKEN`) with
+  **merge-when-pipeline-succeeds** — a green MR lands without you.
 
 Files: `learnings/recent.md` (pending log) · `promoted.md` (promoted log) ·
 `corrections.md` (audit trail). Skills + `known-failures.md` are the shared
-corpus that changes only through a promotion (`--direct` push or a merged MR).
+corpus that changes only through the gates + LLM review (`--direct` push or a
+green-CI `--pr`).
 
 ---
 
@@ -251,7 +254,7 @@ corpus that changes only through a promotion (`--direct` push or a merged MR).
 ## Glossary
 
 - **Baseline** — the pinned `reports/baseline/<target>.json`; the reference a run is diffed against (per target; cross-target diffs are refused).
-- **MR (merge request)** — the remote-gated step; merging it applies a learning to shared skills.
+- **MR (merge request)** — the gated step for `--pr`: the gates + an LLM judge run, then it auto-merges when CI is green (you only review red MRs).
 - **LRN-…** — a learning entry id (`LRN-YYYYMMDD-NNN`) in `learnings/recent.md`.
 - **Known failure** — a failure already triaged and recorded in `known-failures.md`; the report annotates it instead of re-triaging.
 - **soc / march** — the hardware's SoC name (`Ascend910B1`, `dav_9201`, `v926`) and the compile arch (`dav-920r1-vec`).

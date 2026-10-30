@@ -37,8 +37,9 @@ skill is the wiring and the handoff.
 
 Log with `./harness teach "wrong -> correct -> action"` (it writes the strict
 `LRN-…` entry automatically), then hand to `skill-maintainer` to promote.
-`skill-maintainer` runs `./harness promote --direct`, which auto-applies, commits,
-pushes, and creates the MR — the human merges it on the remote.
+`skill-maintainer` runs `./harness promote --direct`, which gates (add-only ·
+no-secrets · size), gets an LLM judge (`SKILL_REVIEWER`) to APPROVE, commits,
+and pushes to `origin/main`. (`--pr` opens an MR that auto-merges when CI is green.)
 
 ```markdown
 ## LRN-20261027-003

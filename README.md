@@ -180,8 +180,8 @@ BUNDLED WORKFLOW — regression, run directly (the skills reference these):
 
 **Why the line is there:** auto-*append* is safe (scratch memory, cheap to
 discard); auto-*edit* is not (`SKILL.md` + `known-failures.md` are the shared
-source of truth every run reads). So promotion only *adds* — `--direct` to
-`main`, or `--pr` with the merge remote-gated.
+source of truth every run reads). So promotion only *adds* — after the gates
+and an LLM judge APPROVE, `--direct` to `main`, or `--pr` auto-merged on green CI.
 
 ---
 

@@ -29,8 +29,8 @@ git-tracked edit.** This skill never rewrites skills blindly.
 | Mode | Behavior | When |
 |---|---|---|
 | Propose | `./harness promote --propose` prints a diff, no file change | optional review |
-| Direct (default) | `./harness promote --direct` writes, commits, pushes to `origin/main` (no token) | everyday |
-| MR-gated | `./harness promote --pr` writes, commits, pushes, auto-creates the MR | you merge on the remote |
+| Direct (default) | `./harness promote --direct` gates + LLM judge, then commits and pushes to `origin/main` (no token) | everyday |
+| MR-gated | `./harness promote --pr` gates + LLM judge, commits, pushes, auto-creates the MR | auto-merges when CI is green |
 | Apply-only | `./harness promote --apply` writes locally, no git | dry-run of the edit |
 
 ## Flow
@@ -40,10 +40,11 @@ git-tracked edit.** This skill never rewrites skills blindly.
    freeform-edit `learnings/recent.md`.
 2. **Propose** — `./harness promote --propose` renders a minimal diff per
    pending entry into the right skill / known-failures file.
-3. **Apply** — `./harness promote --direct` writes it, marks the entry promoted,
-   logs to `corrections.md`, commits, and pushes to `origin/main` (no token).
-   For an MR instead: `./harness promote --pr` and **merge it on the remote**
-   (branch protection is the gate).
+3. **Apply** — `./harness promote --direct` gates (add-only · no-secrets · size),
+   gets the LLM judge (`SKILL_REVIEWER`) to APPROVE, writes it, marks the entry
+   promoted, logs to `corrections.md`, commits, and pushes to `origin/main` (no
+   token). For an MR instead: `./harness promote --pr` — it auto-merges when the
+   CI gates pass; you only review red MRs.
 4. **Verify** — re-run a representative case to confirm the improvement.
 
 ## Auto-capture triggers
