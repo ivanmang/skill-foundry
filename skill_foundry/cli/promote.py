@@ -4,14 +4,14 @@
 Proposal (default, no writes):
   python3 -m skill_foundry.cli.promote --propose
 
-Apply (gated + LLM-reviewed by default):
-  python3 -m skill_foundry.cli.promote --apply          # write locally
-  python3 -m skill_foundry.cli.promote --direct         # apply + commit + push main (no MR/token)
-  python3 -m skill_foundry.cli.promote --pr             # apply + branch + push + auto-create MR
+Apply (gated + LLM-reviewed — review is mandatory, publish is MR-only):
+  python3 -m skill_foundry.cli.promote --apply          # write locally (no commit)
+  python3 -m skill_foundry.cli.promote --pr             # branch + push + open an MR
 
 Every apply runs the gates (add-only · no-secrets · size) AND an LLM judge
-(SKILL_REVIEWER) or an interactive prompt; only APPROVE proceeds. `--no-review`
-skips the judge; `--force` bypasses the gates.
+(SKILL_REVIEWER) or an interactive prompt; only APPROVE proceeds. There is no
+escape hatch: the gates cannot be bypassed, review cannot be skipped, and the
+only publish path is an MR that a human merges (no auto-merge, no --direct).
 """
 
 from __future__ import annotations
@@ -237,8 +237,7 @@ def _glab_create_mr(branch: str, base: str, title: str) -> str | None:
     try:
         r = subprocess.run(
             [glab, "mr", "create", "--source-branch", branch,
-             "--target-branch", base, "--title", title, "--yes",
-             "--merge-when-pipeline-succeeds"],
+             "--target-branch", base, "--title", title, "--yes"],
             capture_output=True, text=True, timeout=60)
         if r.returncode == 0:
             m = re.search(r"https?://\S*merge_requests/\d+", (r.stdout or "") + " " + (r.stderr or ""))
@@ -249,7 +248,7 @@ def _glab_create_mr(branch: str, base: str, title: str) -> str | None:
 
 
 def _api_create_mr(web: str, branch: str, base: str, title: str) -> str | None:
-    """Create a GitLab/GitCode MR via the REST API, with auto-merge on green."""
+    """Create a GitLab/GitCode MR via the REST API (human merges; no auto-merge)."""
     token = os.environ.get("GITCODE_TOKEN") or os.environ.get("GITLAB_TOKEN")
     if not token:
         return None
@@ -261,7 +260,6 @@ def _api_create_mr(web: str, branch: str, base: str, title: str) -> str | None:
         api = f"{u.scheme}://{u.netloc}/api/v4/projects/{proj}/merge_requests"
         payload = urllib.parse.urlencode({
             "source_branch": branch, "target_branch": base, "title": title,
-            "merge_when_pipeline_succeeds": "true",
         }).encode()
         req = urllib.request.Request(
             api, data=payload, method="POST",
@@ -302,25 +300,24 @@ def propose_all(root: Path, lp: Path, pending: list[dict]) -> int:
 
 
 def apply_all(root: Path, lp: Path, entries: list[dict], pending: list[dict],
-              branch: str | None, push: bool, direct: bool = False,
-              force: bool = False, review: bool = True) -> int:
+              branch: str | None, push: bool, review: bool = True) -> int:
     # 1. build the plan — one element per target file; snippets accumulate in
     #    order so multiple entries sharing a target compose instead of clobbering.
     plan, skipped = plan_entries(root, pending)
     for e in skipped:
         print(f"SKIP {e['id']}: unmapped")
 
-    # 2. gates (add-only · secrets · size)
+    # 2. gates (add-only · secrets · size) — always enforced
     violations: list[str] = []
     for t, old, new, _es in plan:
         violations += gates.gate(old, new)
     violations = list(dict.fromkeys(v for v in violations if v))
-    if violations and not force:
-        print("✗ promotion blocked by gates (fix, or use --force to override):", file=sys.stderr)
+    if violations:
+        print("✗ promotion blocked by gates (fix the violation):", file=sys.stderr)
         gates.render(violations)
         return 2
 
-    # 3. review (Tier C — mandatory by default: LLM judge, or interactive fallback)
+    # 3. review (mandatory: LLM judge, or interactive fallback)
     if review:
         diffs = []
         for t, old, new, _es in plan:
@@ -334,7 +331,7 @@ def apply_all(root: Path, lp: Path, entries: list[dict], pending: list[dict],
             return 0
         if not reviewer.can_review():
             print("✗ review required but no SKILL_REVIEWER and no TTY — "
-                  "set SKILL_REVIEWER, or pass --no-review to skip.", file=sys.stderr)
+                  "set SKILL_REVIEWER to proceed.", file=sys.stderr)
             return 2
         if not reviewer.approve("\n\n".join(diffs)):
             print("✗ review did not APPROVE — nothing applied.")
@@ -358,20 +355,7 @@ def apply_all(root: Path, lp: Path, entries: list[dict], pending: list[dict],
     add_paths = [str(t.relative_to(root)) for t in changed]
     add_paths += [str(lp.relative_to(root)), "learnings/promoted.md", "learnings/corrections.md"]
 
-    if direct:
-        subprocess.run(["git", "-C", str(root), "-c", "user.name=skill-foundry",
-                        "-c", "user.email=harness@example.com", "add", *add_paths], check=True)
-        subprocess.run(["git", "-C", str(root), "-c", "user.name=skill-foundry",
-                        "-c", "user.email=harness@example.com", "commit",
-                        "-m", f"chore: promote learnings ({len(changed)} entries)"], check=True)
-        print(f"Committed {len(changed)} file(s) on the current branch.")
-        pushed = subprocess.run(["git", "-C", str(root), "push", "origin", "HEAD"])
-        if pushed.returncode == 0:
-            print("Pushed directly to origin/main over SSH — no MR, no token.")
-        else:
-            print(f"\nPush failed (exit {pushed.returncode}) — push manually:"
-                  f"\n  git -C {root} push origin HEAD", file=sys.stderr)
-    elif branch:
+    if branch:
         subprocess.run(["git", "-C", str(root), "-c", "user.name=skill-foundry",
                         "-c", "user.email=harness@example.com", "checkout", "-b", branch], check=True)
         subprocess.run(["git", "-C", str(root), "add", *add_paths], check=True)
@@ -388,9 +372,9 @@ def apply_all(root: Path, lp: Path, entries: list[dict], pending: list[dict],
                              f"{_dt.datetime.now():%Y-%m-%d}")
                     url, created = create_mr(web, branch, "main", title)
                     if created:
-                        print(f"\n✓ Created merge request (auto-merge on green):\n  {url}")
+                        print(f"\n✓ Opened merge request (human merges after CI is green):\n  {url}")
                     else:
-                        print(f"\nPushed branch '{branch}'. To create the MR, visit:\n  {url}\n"
+                        print(f"\nPushed branch '{branch}'. To open the MR, visit:\n  {url}\n"
                               f"  (set GITCODE_TOKEN / GITLAB_TOKEN or install glab to auto-create it)")
                     try:
                         err = _browser.open_browser(url)
@@ -412,23 +396,15 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--root", default=str(HARNESS), help="Harness root (default this repo).")
     ap.add_argument("--learnings", default=None, help="Path to recent.md (default <root>/learnings/recent.md).")
     ap.add_argument("--propose", action="store_true", help="Print proposed diffs (default).")
-    ap.add_argument("--apply", action="store_true", help="Apply edits and mark entries promoted.")
+    ap.add_argument("--apply", action="store_true", help="Apply edits locally and mark entries promoted.")
     ap.add_argument("--branch", default=None, help="With --apply: create + commit on this branch.")
-    ap.add_argument("--pr", action="store_true", help="With --apply: push the branch and create an MR (auto-merge on green).")
-    ap.add_argument("--direct", action="store_true", help="With --apply: commit on the current branch and push to origin/main directly (no MR, no token).")
-    ap.add_argument("--no-review", action="store_true", help="Skip the LLM/human review (mechanical gates still run).")
-    ap.add_argument("--force", action="store_true", help="Bypass the gates (add-only · secrets · size).")
+    ap.add_argument("--pr", action="store_true", help="With --apply: push the branch and open an MR (human merges).")
     args = ap.parse_args(argv)
 
-    if args.direct and args.pr:
-        print("--direct and --pr are mutually exclusive", file=sys.stderr)
-        return 2
     if args.pr:
         args.apply = True
         if not args.branch:
             args.branch = f"feat/learnings-{_dt.datetime.now():%Y%m%d}"
-    if args.direct:
-        args.apply = True
 
     root = Path(args.root).resolve()
     lp = Path(args.learnings).resolve() if args.learnings else root / "learnings" / "recent.md"
@@ -453,8 +429,7 @@ def main(argv: list[str] | None = None) -> int:
         return 0
 
     if args.apply:
-        return apply_all(root, lp, entries, active, args.branch, args.pr, args.direct,
-                         force=args.force, review=not args.no_review)
+        return apply_all(root, lp, entries, active, args.branch, args.pr)
     return propose_all(root, lp, active)
 
 

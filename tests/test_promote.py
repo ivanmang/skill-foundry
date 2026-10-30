@@ -91,7 +91,7 @@ class ApplyAllTest(unittest.TestCase):
 
         rc = promote.apply_all(
             root, lp, entries, pending,
-            branch=None, push=False, direct=False, force=False, review=False,
+            branch=None, push=False, review=False,
         )
 
         self.assertEqual(rc, 0)

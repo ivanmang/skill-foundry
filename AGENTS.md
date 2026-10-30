@@ -26,22 +26,22 @@ for the full roles & interaction model.
    Reply with the `LRN-…` id you logged.
    For a **brand-new skill** (not a lesson about an existing one), draft it with
    `./harness capture-skill <name>`, then promote it.
-4. **Promote captured lessons** with `./harness promote --direct` (learnings) or
-   `./harness promote-skill <name> --direct` (new skills). Promotion is **gated
-   and LLM-reviewed by default**: the mechanical gates (add-only · no-secrets ·
-   size · spec) run, then an LLM judge (`SKILL_REVIEWER`) must APPROVE before
-   anything is written — in a non-interactive session you need `SKILL_REVIEWER`
-   set, or it fails closed. `--no-review` skips the judge (gates still run);
-   `--force` bypasses the gates. For an MR-gated path use `--pr` (auto-merges
-   when CI gates are green); **never self-merge**.
+4. **Promote captured lessons** with `./harness promote --pr` (learnings) or
+   `./harness promote-skill <name> --pr` (new skills). Publication is **strict
+   and controlled**: the mechanical gates (add-only · no-secrets · size · spec)
+   always run, then an LLM judge (`SKILL_REVIEWER`) must APPROVE before anything
+   is written — in a non-interactive session you need `SKILL_REVIEWER` set, or it
+   fails closed. Review cannot be skipped and the gates cannot be bypassed. The
+   only publish path is `--pr`, which opens an MR a human merges; **never
+   self-merge**.
 5. **Never remove or change an existing check** — the harness only adds.
 
 ## Capture vs promote
 
 - Capture is **automatic and continuous** — log lessons as they surface;
   nothing changes until promoted.
-- Promotion is **gated + LLM-reviewed, then automatic** — `--direct` pushes to
-  `main`; `--pr` opens an MR that auto-merges on green CI.
+- Publication is **gated + LLM-reviewed, then human-merged** — `--pr` opens an
+  MR; a human merges it after CI is green (no auto-merge, no direct push).
 - Draft from a run's failures with
   `python3 -m skill_foundry.lib.session_digest --run <run.json> --apply`.
 
@@ -51,8 +51,8 @@ for the full roles & interaction model.
 # THE PRODUCT — the skill-ops loop (the only harness verbs)
 ./harness capture-skill <name>           # draft a NEW skill
 ./harness teach "wrong -> correct -> action"
-./harness promote --direct | --pr        # publish learnings
-./harness promote-skill <name> --direct  # publish a draft
+./harness promote --pr                   # publish learnings (open an MR)
+./harness promote-skill <name> --pr      # publish a draft (open an MR)
 ./harness skills [--search q] [--category c] [--origin o] [--entry] [--check]  # discover skills (map: docs/SKILLS_INDEX.md)
 
 # BUNDLED WORKFLOW — run these thin scripts directly (per the skills)

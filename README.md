@@ -2,7 +2,7 @@
 
 A **skill-ops platform** built on open Agent Skills (`SKILL.md`): agents and
 humans capture reusable knowledge as Skills during work, and it flows — through
-a promote step (`--direct` push or `--pr` MR) — into a shared hub every
+a reviewed promote step (`--pr` MR) — into a shared hub every
 teammate's agent can discover and use.
 
 The first bundled workflow is **regression** (`run → report → review` on the
@@ -23,15 +23,15 @@ The first bundled workflow is **regression** (`run → report → review` on the
 
 ```text
 USE      run → report → review     (thin scripts · diff vs pinned baseline)
-IMPROVE  teach → promote --direct | --pr    (corrections become skills)
+IMPROVE  teach → promote --pr                 (corrections → skills via a reviewed MR)
 ```
 
 - **USE** — the bundled regression workflow: run suites, extract logs, render
   reports, and diff against the pinned baseline. Run directly:
   `python3 -m skill_foundry.workflow.run --all-suites --report --open --review`.
 - **IMPROVE** — the product loop: capture a correction (append-only), propose a
-  diff (no write), then publish. Capture is automatic; `--direct` pushes to
-  `origin/main` (no token), `--pr` keeps the merge human-gated.
+  diff (no write), then publish via a reviewed MR. Capture is automatic; the
+  only publish path is `--pr`, and a human merges the MR.
 
 See both loops in ~2 minutes: `python3 -m skill_foundry.workflow.demo`.
 
@@ -47,7 +47,7 @@ cd skill-foundry
 ./harness skills                                   # what skills exist?
 ./harness capture-skill code-review                # draft a new skill
 ./harness teach "symptom -> correct -> action"     # log a correction
-./harness promote --direct                         # publish learnings (push to main)
+./harness promote --pr                             # publish learnings (open an MR; human merges)
 
 # the bundled regression workflow (thin scripts; see .claude/skills/):
 python3 -m skill_foundry.workflow.onboarding            # env.sh, CANN, pto-isa (one-time)
@@ -158,9 +158,9 @@ runs directly as thin scripts the skills reference.
 ```text
 ./harness — THE PRODUCT (capture → promote → hub → discover):
   capture-skill  Draft a NEW skill into hub/inbox/      [--description, --dry-run]
-  promote-skill  Publish a draft into .claude/skills/   [--propose | --apply | --direct | --pr] [--no-review] [--force]
+  promote-skill  Publish a draft into .claude/skills/   [--propose | --apply | --pr]
   teach          Log a correction                       ["wrong -> correct -> action" | wizard | --edit]
-  promote        Publish learnings into skills          [--propose | --apply | --direct | --pr] [--no-review] [--force]
+  promote        Publish learnings into skills          [--propose | --apply | --pr]
   skills         List/search · install · refresh        [--search, --category, --origin, --entry, --inbox, --install, --uninstall, --refresh, --check, --json]
   menu           Curated menu (bare ./harness default)
   selfcheck      Compile + skill-spec + reference integrity + index freshness + demo smoke
@@ -178,15 +178,15 @@ BUNDLED WORKFLOW — regression, run directly (the skills reference these):
 | Role | What it does |
 |---|---|
 | 🟢 **scripts (automatic, agent-driven)** | run, extract logs, report, review, dry-run previews |
-| 🟢 **harness (automatic, gated + LLM-reviewed)** | capture a correction, propose a diff, apply + commit + push (add-only · no-secrets · size; LLM judge APPROVEs first); `--direct` to main, or `--pr` auto-merges on green CI |
+| 🟢 **harness (automatic, gated + LLM-reviewed)** | capture a correction, propose a diff, then apply + commit + push on a branch (add-only · no-secrets · size; LLM judge APPROVEs first); `--pr` opens an MR a human merges |
 | 🤖 **AI / agent (on trigger)** | auto-captures when you correct it (`"no / actually / remember …"`); triages per the skill |
 | 🟡 **you (gate)** | the triage *content* (`wrong → correct → action`) and merging the MR (`--pr` only) |
 | 🔴 **never automatic** | remove or change an existing check |
 
 **Why the line is there:** auto-*append* is safe (scratch memory, cheap to
 discard); auto-*edit* is not (`SKILL.md` + `known-failures.md` are the shared
-source of truth every run reads). So promotion only *adds* — after the gates
-and an LLM judge APPROVE, `--direct` to `main`, or `--pr` auto-merged on green CI.
+source of truth every run reads). So promotion only *adds* — after the mandatory
+gates and an LLM judge APPROVE, `--pr` opens an MR that a human merges.
 
 ---
 
@@ -206,7 +206,6 @@ skills/                   → .claude/skills/ (plugin-standard skills dir)
 .agents/skills/           → .claude/skills/ (Pi + open-standard agents)
 hub/                      inbox/ (skill drafts) + catalog.json (generated index)
 docs/SKILLS_INDEX.md      auto-generated skill map (entry points + category + owner + maturity)
-CODEOWNERS                MR review routing (skill families → owners)
 .githooks/                pre-push gate (enable with `make hooks`; run with `make push-check`)
 .claude-plugin/           plugin.json + marketplace.json (Claude Code plugin + marketplace)
 .mcp.json                 MCP server config (bundled into the plugin)
@@ -234,8 +233,8 @@ env.example.sh            copy to env.sh for machine-local CANN / pto-isa paths
 - Perf regression flag: **p99 +15%** even if average is stable.
 - The 11 existing `pto-isa/agents/skills` are kept as-is (referenced, not migrated).
 - M1 scope = **CPU-ST + NPU-sim** (A5 / A3 / A6, matching the A6/v200 workflow).
-- **Automation boundary**: capture auto; promotion `--direct` push or `--pr`
-  MR-gated; never auto-remove/change an existing check.
+- **Automation boundary**: capture auto; promotion `--pr` MR-gated only (no
+  `--direct`, no auto-merge); never auto-remove/change an existing check.
 
 ---
 
@@ -276,10 +275,11 @@ before npu suites; cpu-st / static suites run without it.
 
 ## Learning loop
 
-Capture is automated; promotion is **gated, LLM-reviewed, and automatic** —
-every promote runs the gates (add-only · no-secrets · size · spec) *and* an LLM
-judge (`SKILL_REVIEWER`) before applying. `--no-review` skips the judge;
-`--force` bypasses the gates. `--pr` then **auto-merges when CI gates are green**.
+Capture is automated; publication is **gated, LLM-reviewed, and human-merged** —
+every promote runs the mandatory gates (add-only · no-secrets · size · spec)
+*and* an LLM judge (`SKILL_REVIEWER`) before applying. There is no escape hatch:
+review cannot be skipped and the gates cannot be bypassed. `--pr` then opens an
+MR that a human merges after CI is green.
 
 ```bash
 # 1. capture (strict LRN-… entry in learnings/recent.md)
@@ -291,10 +291,10 @@ judge (`SKILL_REVIEWER`) before applying. `--no-review` skips the judge;
 # 2. propose a minimal diff (optional review, no write)
 ./harness promote --propose
 
-# 3. publish — gated + LLM-reviewed (judge APPROVEs before anything is written)
-./harness promote --direct
-#    (or ./harness promote --pr — auto-merges when CI gates pass)
-#    (--no-review skips the judge; --force bypasses the mechanical gates)
+# 3. publish — gated + LLM-reviewed, human-merged (judge APPROVEs first)
+./harness promote --pr
+#    (opens an MR; a human merges after CI + review pass)
+#    (review is mandatory: set SKILL_REVIEWER or run interactively)
 ```
 
 See `.claude/skills/skill-maintainer/SKILL.md` and the live walkthrough:

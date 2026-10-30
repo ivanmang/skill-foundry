@@ -37,10 +37,7 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("name", nargs="?", help="Draft name (default: pick interactively).")
     ap.add_argument("--propose", action="store_true", help="Show what would be copied (no write).")
     ap.add_argument("--apply", action="store_true", help="Copy into .claude/skills/ and remove the draft.")
-    ap.add_argument("--pr", action="store_true", help="--apply + commit + push + create the MR.")
-    ap.add_argument("--direct", action="store_true", help="--apply + commit on the current branch + push to origin/main directly (SSH, no MR, no token).")
-    ap.add_argument("--no-review", action="store_true", help="Skip the LLM/human review (gates still run).")
-    ap.add_argument("--force", action="store_true", help="Bypass the gates (spec · secrets).")
+    ap.add_argument("--pr", action="store_true", help="--apply + commit + push + open an MR (human merges).")
     args = ap.parse_args(argv)
 
     names = drafts()
@@ -76,44 +73,31 @@ def main(argv: list[str] | None = None) -> int:
         print(f"  - {src.relative_to(HARNESS)} (draft removed)")
         return 0
 
-    if not (args.apply or args.pr or args.direct):
-        print("choose --propose / --apply / --pr / --direct", file=sys.stderr)
+    if not (args.apply or args.pr):
+        print("choose --propose / --apply / --pr", file=sys.stderr)
         return 2
 
-    # ── gates: spec conformance + secrets (--force to bypass) ──
+    # ── gates: spec conformance + secrets — always enforced ──
     body = (src / "SKILL.md").read_text(encoding="utf-8", errors="replace")
     violations = list(dict.fromkeys(gates.check_skill_spec(src) + gates.check_secrets(body)))
-    if violations and not args.force:
-        print("✗ promotion blocked by gates (fix, or use --force to override):", file=sys.stderr)
+    if violations:
+        print("✗ promotion blocked by gates (fix the violation):", file=sys.stderr)
         gates.render(violations)
         return 2
 
-    # ── review (default on): LLM judge, or interactive fallback ──
-    if not args.no_review:
-        if not reviewer.can_review():
-            print("✗ review required but no SKILL_REVIEWER and no TTY — set SKILL_REVIEWER, or pass --no-review.", file=sys.stderr)
-            return 2
-        if not reviewer.approve(f"# promote skill: {name}\n\n{body}"):
-            print("✗ review did not APPROVE — nothing applied.")
-            return 0
+    # ── review (mandatory): LLM judge, or interactive fallback ──
+    if not reviewer.can_review():
+        print("✗ review required but no SKILL_REVIEWER and no TTY — set SKILL_REVIEWER.", file=sys.stderr)
+        return 2
+    if not reviewer.approve(f"# promote skill: {name}\n\n{body}"):
+        print("✗ review did not APPROVE — nothing applied.")
+        return 0
 
     shutil.copytree(src, dst)
     shutil.rmtree(src)
     print(f"✓ promoted {name} → {dst}")
 
-    if args.direct:
-        subprocess.run(["git", "-C", str(HARNESS), "add", "-A",
-                        str(LIVE.relative_to(HARNESS)), str(INBOX.relative_to(HARNESS))], check=True)
-        subprocess.run(["git", "-C", str(HARNESS), "-c", "user.name=skill-foundry",
-                        "-c", "user.email=harness@example.com",
-                        "commit", "-m", f"feat: promote skill {name}"], check=True)
-        pushed = subprocess.run(["git", "-C", str(HARNESS), "push", "origin", "HEAD"])
-        if pushed.returncode == 0:
-            print("Pushed directly to origin/main over SSH — no MR, no token.")
-        else:
-            print(f"\nPush failed (exit {pushed.returncode}) — push manually: git -C {HARNESS} push origin HEAD",
-                  file=sys.stderr)
-    elif args.pr:
+    if args.pr:
         branch = f"feat/skill-{name}-{_dt.datetime.now():%Y%m%d}"
         subprocess.run(["git", "-C", str(HARNESS), "add", "-A",
                         str(LIVE.relative_to(HARNESS)), str(INBOX.relative_to(HARNESS))], check=True)
@@ -129,7 +113,7 @@ def main(argv: list[str] | None = None) -> int:
             web = PR.remote_web_url(HARNESS)
             if web:
                 url, created = PR.create_mr(web, branch, "main", f"feat: promote skill {name}")
-                print(f"\n{'✓ Created merge request' if created else 'Pushed branch. Open the MR'}:\n  {url}")
+                print(f"\n{'✓ Opened merge request (human merges)' if created else 'Pushed branch. Open the MR'}:\n  {url}")
                 try:
                     _browser.open_browser(url)
                 except Exception:
@@ -138,7 +122,7 @@ def main(argv: list[str] | None = None) -> int:
             print(f"\nPush failed (exit {pushed.returncode}) — push manually: git -C {HARNESS} push -u origin {branch}",
                   file=sys.stderr)
     else:
-        print("  (--apply: copied locally, not committed. Use --pr to commit + create the MR.)")
+        print("  (--apply: copied locally, not committed. Use --pr to commit + open the MR.)")
 
     return 0
 

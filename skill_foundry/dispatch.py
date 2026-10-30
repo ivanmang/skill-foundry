@@ -106,9 +106,9 @@ usage: ./harness <command> [args]
 
 THE PRODUCT — the skill-ops loop (capture → promote → hub → discover):
   capture-skill  Draft a NEW skill into hub/inbox/       [--description, --dry-run]
-  promote-skill  Publish a draft into .claude/skills/    [--propose | --apply | --direct | --pr]
+  promote-skill  Publish a draft into .claude/skills/    [--propose | --apply | --pr]
   teach          Log a correction (a lesson)             ["wrong -> correct -> action" | wizard | --edit]
-  promote        Publish learnings into skills           [--propose | --apply | --direct | --pr]
+  promote        Publish learnings into skills           [--propose | --apply | --pr]
   skills         List/search skills · install · refresh  [--search, --category, --origin, --scope, --entry, --inbox, --install, --uninstall, --refresh, --check, --json]
 
 SHELL:
@@ -131,7 +131,7 @@ See .claude/skills/ for the full, self-contained workflow knowledge.
 Examples:
   ./harness capture-skill code-review
   ./harness teach "vcvt mismatch -> annotate as known -> add to known-failures"
-  ./harness promote --direct        # publish learnings (push to main, no token)
+  ./harness promote --pr            # publish learnings (open an MR, human merges)
   ./harness skills --search review  # discover skills
 """
 
@@ -143,11 +143,9 @@ Draft a NEW skill into hub/inbox/<name>/SKILL.md (wizard / editor for the body).
 Example: ./harness capture-skill code-review --description "Review PRs against house style"
 """,
     "promote-skill": """\
-./harness promote-skill [<name>] [--propose | --apply | --direct | --pr] [--no-review] [--force]
-Publish a draft from hub/inbox/ into .claude/skills/ (gated, LLM-reviewed by default).
-  --no-review  skip the LLM/human review (spec + secrets gates still run)
-  --force      bypass the gates
-Example: ./harness promote-skill code-review --direct
+./harness promote-skill [<name>] [--propose | --apply | --pr]
+Publish a draft from hub/inbox/ into .claude/skills/ (gated + LLM-reviewed; a human merges the MR).
+Example: ./harness promote-skill code-review --pr
 """,
     "teach": """\
 ./harness teach — log a correction (append-only)
@@ -158,20 +156,17 @@ Example: ./harness promote-skill code-review --direct
 Example: ./harness teach "vcvt mismatch -> known pattern, annotate -> promote to known-failures"
 """,
     "promote": """\
-./harness promote — publish pending learnings into skills (gated, LLM-reviewed)
-  --propose     print a reviewable diff (no write)
-  --apply       write the edits locally
-  --direct      commit + push to origin/main over SSH (NO MR, NO token)
-  --pr          branch + push + AUTO-CREATE the MR (auto-merge when the gates pass)
-  --no-review   skip the LLM/human review (mechanical gates still run)
-  --force       bypass the gates (add-only · secrets · size)
+./harness promote — publish pending learnings into skills (gated + LLM-reviewed)
+  --propose  print a reviewable diff (no write)
+  --apply    write the edits locally (no commit)
+  --pr       branch + push + open an MR (a human merges)
 
-Review is ON by default: the gates + an LLM judge (SKILL_REVIEWER) run first,
-and nothing is applied unless the judge APPROVEs (or you confirm interactively).
+Review and the mechanical gates are MANDATORY: there is no --no-review,
+no --force, and no --direct. Publish only via --pr, which opens an MR.
 
 Examples:
-  ./harness promote --direct    # LLM-reviewed, then pushed on APPROVE
-  ./harness promote --no-review # gates only, skip the judge
+  ./harness promote --propose   # review the diff first
+  ./harness promote --pr        # apply + push a branch + open an MR
 """,
     "skills": """\
 ./harness skills [--search <q>] [--category <c>] [--origin <o>] [--scope core|all] [--entry] [--inbox] [--install | --uninstall] [--refresh] [--check] [--json]
