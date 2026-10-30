@@ -116,3 +116,5 @@ Loop guards: same-tag no change; third variant ≤~2% vs SoT; residual-instr-onl
 ## Out of scope
 
 Inventing rows; Track B as G-sensitivity SoT; peanut merge without user yes.
+
+**NG=8-first (t593u):** with `tilelanggym-simd-per-g-mapping`, default VL=8×G before other VL×G sens candidates.

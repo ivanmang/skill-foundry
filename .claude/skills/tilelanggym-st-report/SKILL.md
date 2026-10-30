@@ -35,6 +35,7 @@ owner: skill-foundry
   (`plot_style=opcode_lanes_ipc`). Helper: `scripts/make_pr9_running_ipc_overlay.py`.
 - SoftLib≻SIMD / both-arm compare → PR9 **both** arms + stage mid-IPC table.
 - Cite ready PRC-ids (`PRC-IPC-001` …); KPI COMPARE may be N/A on clean; Coverage COMPARE required.
+- Case-3 SIMD: cover pack_ub+keeplive (or cliff) + stage×VL-util; **PRC-SCH-003**; **NG=8-first** (t593u VL=8×G); Top-3 when sens open (`tilelanggym-simd-per-g-mapping`; G8×VL=256 optional extra).
 - SoftLib SoT = axis=1xG; Nx1 SoftLib = appendix.
 
 ## Stage taxonomy (shared · t589u)

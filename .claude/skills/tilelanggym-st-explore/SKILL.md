@@ -22,8 +22,8 @@ owner: skill-foundry
 **Role:** SoftLib/ST improve-loop conductor for the **tilelangGym** target.
 Harness L0–L9 = knowledge; this skill owns order, Motif ladder, Done-bar, TRACE.
 
-**Composes:** `tilelanggym-semantics-gate` · `tilelanggym-softlib-simt` ·
-`tilelanggym-vmi-gmap` · `tilelanggym-st-report`
+**Composes:** 	ilelanggym-semantics-gate · 	ilelanggym-softlib-simt ·
+	ilelanggym-vmi-gmap · 	ilelanggym-simd-per-g-mapping · 	ilelanggym-st-report
 
 Machine-readable suites: `config/suites.json` → target `tilelangGym`.
 Gate (no multi-hour opencode):
@@ -47,6 +47,7 @@ python3 -m skill_foundry.lib.tilelanggym_gate --suite sv567-1xg-clean --pack "$T
 4. PRC cites in ANALYSIS (`PRC-IPC-001` / `PRC-SCH-001` …); orphan gate via
    `scripts/check_prc_index.py`.
 5. RESULT.tsv carries `era=` / `reduce_axis=` / motif tags.
+6. When VL×gold-G / pack-expand sensitivity is open: **Top-3** from `tilelanggym-simd-per-g-mapping` (pack_ub_vl256 → keeplive → next harness candidate incl. G8×VL=256) measured/cliffed or skips+why (t591u).
 
 ## Motif seed (names only — never paste dig el/cyc)
 
@@ -56,6 +57,7 @@ Canonical: `hub/tilelanggym/MOTIF_SEED_SV567_absmax.md`.
   **dual_drain G16/32/64/128** · wc-multi · T∈{128,256,512}. SoT cell **axis=1xG only**.
 - VMI inner: VC/VCG by reduce_axis; VMI outer Nx1: **pure VMAX**, dual-era +
   VAND alternate-builder.
+- **SIMD Case-3 / `era=case3-quant-bcast`:** seed `pack_ub_vl256` + `keeplive_vbrc_vl256` (+ `pack_ub_vl64` cliff); **NG=8-first** (t593u: VL=8×G). Sens open: **UNMEASURED** `pack_ub_vl128` + optional extra **G8×VL=256** (t591u Top-3). Stage×VL-util. Cite **PRC-SCH-003**.
 - Appendix: `wr_*` / axis=Nx1 SoftLib never merges into SoftLib SIMT SoT.
 
 ## Loop (fixed order)
