@@ -297,6 +297,11 @@ MR that a human merges after CI is green.
 #    (review is mandatory: set SKILL_REVIEWER or run interactively)
 ```
 
+> **Auto-create the PR:** set `export GITCODE_TOKEN=…` (a gitcode personal access
+> token) in `env.sh`. With it, `--pr` creates the pull request itself via the gitcode
+> v5 API; without it, the agent pushes the branch and prints the PR-new URL for you to
+> open. Details: `.claude/skills/skill-maintainer/references/mr-automation.md`.
+
 See `.claude/skills/skill-maintainer/SKILL.md` and the live walkthrough:
 `python3 -m skill_foundry.workflow.demo` (narration in `demo/NARRATION.md`).
 
@@ -314,6 +319,7 @@ See `.claude/skills/skill-maintainer/SKILL.md` and the live walkthrough:
 | `baseline` refuses to pin | a suite didn't PASS — fix it, or `--force` |
 | `report --open` → xdg-open errors / no browser | handled: WSL opens via `explorer.exe`; else prints the path |
 | skills not showing up in the agent | run `./harness skills --install`, then restart/reload the agent |
+| `--pr` printed a PR-new URL instead of creating it | set `export GITCODE_TOKEN=<gitcode access token>` in `env.sh` — see `skill-maintainer/references/mr-automation.md` |
 ## tilelangGym (SoftLib/ST Motif gate)
 
 First-class target for SoftLib/ST improve-loop **compliance** gates (Motif ladder,
