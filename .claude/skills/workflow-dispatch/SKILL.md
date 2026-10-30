@@ -3,6 +3,8 @@ name: workflow-dispatch
 description: Architecture routing dispatch for operator-development workflows.
 disable-model-invocation: true
 category: workflow
+entry: true
+stages: ops-incremental, workflow-orchestrator
 license: CANN Open Software License Agreement Version 2.0
 ---
 

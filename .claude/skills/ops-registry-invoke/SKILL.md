@@ -2,6 +2,8 @@
 name: ops-registry-invoke
 description: ACLNN operator development workflow entry.
 category: ops-dev
+entry: true
+stages: workflow-dispatch, workflow-orchestrator
 license: CANN Open Software License Agreement Version 2.0
 ---
 

@@ -1,0 +1,42 @@
+{
+  "version": 1,
+  "sources": {
+    "cannbot-skills": "https://gitcode.com/cann/cannbot-skills.git (assembled via `npx skills add`, never vendored here)",
+    "cannbot": "https://gitcode.com/cann/cannbot.git",
+    "cannbot-knowledge": "cannbot-knowledge sister repo — ships the knowledge-query / ops-knowledge-ingest skills",
+    "cannbot-dsl": "cannbot-dsl sister repo — ships the cannbot-dsl / cannbot-dsl-best-practice skills",
+    "ttk": "ops-test-kit checkout — skills live under $TTK/.claude/skills/"
+  },
+  "skills": {
+    "npu-arch": { "source": "cannbot-skills", "note": "codename -> chip-generation mapping (A2/A3/A5...)" },
+    "ascendc-whitebox-design": { "source": "cannbot-skills", "note": "whitebox ST case-generation SoT (whitebox_designer.py)" },
+    "ascendc-st-design": { "source": "cannbot-skills", "note": "public ST design; standard *_l0/l1/l2 CSV files" },
+    "ascendc-code-review": { "source": "cannbot-skills", "note": "AscendC code review" },
+    "ascendc-docs-gen": { "source": "cannbot-skills", "note": "AscendC API doc generation" },
+    "ascendc-precision-debug": { "source": "cannbot-skills", "note": "precision debugging" },
+    "ascendc-runtime-debug": { "source": "cannbot-skills", "note": "runtime/crash debugging" },
+    "ascendc-registry-invoke-template": { "source": "cannbot-skills", "note": "registry invoke template" },
+    "ops-design-paradigms": { "source": "cannbot-skills", "note": "operator design paradigms" },
+    "ops-spec-gen": { "source": "cannbot-skills", "note": "operator spec generation" },
+    "ascendc-performance-best-practices": { "source": "cannbot-skills", "note": "arch22 MM/FA + operator-family best-practice chapters" },
+    "ascendc-perf-optimize": { "source": "cannbot-skills", "note": "language-agnostic 4-step perf optimization" },
+    "ascendc-docs-search": { "source": "cannbot-skills", "note": "AscendC API doc search" },
+    "ascendc-mc2-best-practice": { "source": "cannbot-skills", "note": "MC2 / multi-rank best practice" },
+    "ascendc-simt-tiling-design": { "source": "cannbot-skills", "note": "SIMT tiling design" },
+    "ascendc-crash-debug": { "source": "cannbot-skills", "note": "crash debugging" },
+    "ascendc-tiling-design": { "source": "cannbot-skills", "note": "tiling design" },
+    "ascendc-env-check": { "source": "cannbot-skills", "note": "env check helper" },
+    "ops-competitor-profiling": { "source": "cannbot-skills", "note": "competitor profiling (check-competitor-env.sh)" },
+    "ops-profiling": { "source": "cannbot-skills", "note": "profiling helpers" },
+    "knowledge-query": { "source": "cannbot-knowledge", "note": "knowledge-card retrieval (knowledge_query.py)" },
+    "ops-knowledge-ingest": { "source": "cannbot-knowledge", "note": "knowledge write-back" },
+    "cannbot-dsl": { "source": "cannbot-dsl", "note": "DSL knowledge subdir under KB_ROOT" },
+    "cannbot-dsl-best-practice": { "source": "cannbot-dsl", "note": "DSL best practice (local write patterns)" },
+    "ttk-env-check": { "source": "ttk", "note": "TTK env setup (produces docs/{OP}/develop/env.sh)" },
+    "ops-ttk": { "source": "ttk", "note": "TTK authoritative reference + assets/scripts" },
+    "ttk-how-run-test": { "source": "ttk", "note": "TTK command args" },
+    "ttk-how-write-case": { "source": "ttk", "note": "TTK CSV fields" },
+    "ttk-how-write-plugin": { "source": "ttk", "note": "TTK TestSpec plugin" },
+    "ttk-how-diagnose": { "source": "ttk", "note": "TTK precision triage" }
+  }
+}

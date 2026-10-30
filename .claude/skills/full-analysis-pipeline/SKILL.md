@@ -8,6 +8,8 @@ description: >
 license: CANN Open Software License Agreement Version 2.0
 compatibility: Requires python3 and git. Each stage is portable; the accelerator path needs the skill-foundry checkout.
 category: regression
+entry: true
+stages: run-testcase, extract-logs, generate-report, review-inconsistencies, skill-maintainer
 ---
 
 # Full Analysis Pipeline
