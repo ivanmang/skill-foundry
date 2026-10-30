@@ -220,6 +220,65 @@
           "description": "TileLang kernels on the A5 simulator."
         }
       ]
+    },
+    "tilelangGym": {
+      "label": "tilelangGym (SoftLib/ST + VMI Motif gate)",
+      "repo_env": "SKILL_FOUNDRY_HOME",
+      "repo_default": ".",
+      "repo_clone": null,
+      "env_setup": "export TILELANGGYM_PACK=\"${TILELANGGYM_PACK:-$PWD/demo/fixtures/tilelanggym-pack-ok}\"\nexport PYTHONPATH=\"$PWD${PYTHONPATH:+:$PYTHONPATH}\"",
+      "env": {},
+      "testcase_dirs": {
+        "sv567-1xg-clean": "demo/fixtures/tilelanggym-pack-ok",
+        "sv567-nx1-outer": "demo/fixtures/tilelanggym-pack-ok"
+      },
+      "suites": [
+        {
+          "name": "sv567-1xg-clean",
+          "mode": "static",
+          "arch": null,
+          "runner": "generic",
+          "enabled": true,
+          "milestone": "M1",
+          "command": [
+            "bash",
+            "scripts/tilelanggym_gate_suite.sh",
+            "sv567-1xg-clean"
+          ],
+          "timeout_s": 600,
+          "description": "Gate SoftLib 1xG Motif ladder + Done-bar + TRACE + PRC + PR9 both-arms against TILELANGGYM_PACK (no multi-hour opencode)."
+        },
+        {
+          "name": "sv567-nx1-outer",
+          "mode": "static",
+          "arch": null,
+          "runner": "generic",
+          "enabled": true,
+          "milestone": "M1",
+          "command": [
+            "bash",
+            "scripts/tilelanggym_gate_suite.sh",
+            "sv567-nx1-outer"
+          ],
+          "timeout_s": 600,
+          "description": "Gate VMI outer Nx1 pure-VMAX dual-era + VAND alternate-builder Motif against TILELANGGYM_PACK."
+        },
+        {
+          "name": "opencode-full",
+          "mode": "static",
+          "arch": null,
+          "runner": "generic",
+          "enabled": false,
+          "milestone": "M3",
+          "command": [
+            "bash",
+            "-c",
+            "echo 'Full opencode SoftLib/ST launch stays custom (hours); use tip packs + tilelanggym-st-explore. Gate suites above are the foundry USE path.'; exit 2"
+          ],
+          "timeout_s": 60,
+          "description": "Placeholder \u2014 full opencode clean regress (multi-hour) deliberately out of skill-foundry CI. Keep enabled:false."
+        }
+      ]
     }
   }
 }

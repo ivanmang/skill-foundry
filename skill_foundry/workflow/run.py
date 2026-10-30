@@ -435,7 +435,7 @@ def _print_next_steps(record: dict, failed: bool, as_json: bool, chained: bool =
 def _chain_after_run(run_json, target: str, do_report: bool, do_open: bool, do_review: bool) -> None:
     """Run report/review in-process right after a run — the one-command USE loop."""
     if do_report:
-        from skill_foundry.cli import report as report_mod
+        from skill_foundry.workflow import report as report_mod
         argv = ["--run", str(run_json)]
         known = HARNESS / ".claude" / "skills" / target / "references" / "known-failures.md"
         if known.exists():
@@ -448,7 +448,7 @@ def _chain_after_run(run_json, target: str, do_report: bool, do_open: bool, do_r
         except SystemExit as exc:
             print(f"report skipped: {exc}", file=sys.stderr)
     if do_review:
-        from skill_foundry.cli import review as review_mod
+        from skill_foundry.workflow import review as review_mod
         print()
         try:
             review_mod.main(["--run", str(run_json)])

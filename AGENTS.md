@@ -76,3 +76,15 @@ python3 -m skill_foundry.lib.cann          # CANN/arch detection
 - npu-sim needs BOTH compile headers AND the simulator; p99 +15% flags a perf
   regression even if average is stable.
 - The baseline is the ground truth — refresh it only deliberately.
+## tilelangGym target (SoftLib/ST)
+
+- Skills: `tilelanggym-st-explore`, `tilelanggym-softlib-simt`, `tilelanggym-st-report`,
+  `tilelanggym-semantics-gate`, `tilelanggym-vmi-gmap`.
+- **USE (gate):** set `TILELANGGYM_PACK` to a closed pack (fixture under
+  `demo/fixtures/tilelanggym-pack-ok` for smoke), then
+  `python3 -m skill_foundry.workflow.run --target tilelangGym --suite sv567-1xg-clean`
+  (and `sv567-nx1-outer`). Validates Motif ladder, Done-bar, TRACE, PRC, PR9, RESULT schema.
+- **IMPROVE:** teach Motif/Done-bar/PRC misses via `./harness teach` → promote into the
+  tilelanggym-* skills; do not paste dig el/cyc into Motif seeds.
+- Full multi-hour opencode clean regress stays **out of band** (`opencode-full` suite
+  `enabled:false`).

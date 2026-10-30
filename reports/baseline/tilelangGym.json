@@ -1,0 +1,50 @@
+{
+  "run_id": "baseline-seed-tilelangGym",
+  "generated_at": "2026-10-30T00:00:00+00:00",
+  "generated": false,
+  "note": "Seed baseline for tilelangGym gate suites. Cases are Motif/Done-bar contract checks, not dig el/cyc. Live SoftLib/VMI SoT cells come from tip packs (e.g. t788u_r2 1xG, t792u Nx1); optional expected bands may be filled later as review SoT — do not paste dig numbers into runner seeds.",
+  "harness_commit": null,
+  "target": "tilelangGym",
+  "target_repo": "demo/fixtures/tilelanggym-pack-ok",
+  "target_commit": null,
+  "target_dirty": null,
+  "host": null,
+  "env_snapshot": {},
+  "sot_cells_note": "Tag-name SoT only in Motif seed; el/cyc bands optional and tip-pack sourced.",
+  "suites": [
+    {
+      "name": "sv567-1xg-clean",
+      "mode": "static",
+      "status": "PENDING",
+      "exit_code": null,
+      "timed_out": false,
+      "duration_s": null,
+      "command": ["python3", "-m", "skill_foundry.lib.tilelanggym_gate", "--suite", "sv567-1xg-clean"],
+      "log_file": null,
+      "description": "SoftLib 1xG Motif + Done-bar + PR9 + PRC gate.",
+      "results": {
+        "suite": "sv567-1xg-clean",
+        "summary": {"passed": 0, "failed": 0, "skipped": 0, "total": 0, "status": "PENDING"},
+        "cases": [],
+        "evidence": []
+      }
+    },
+    {
+      "name": "sv567-nx1-outer",
+      "mode": "static",
+      "status": "PENDING",
+      "exit_code": null,
+      "timed_out": false,
+      "duration_s": null,
+      "command": ["python3", "-m", "skill_foundry.lib.tilelanggym_gate", "--suite", "sv567-nx1-outer"],
+      "log_file": null,
+      "description": "VMI outer Nx1 Motif gate.",
+      "results": {
+        "suite": "sv567-nx1-outer",
+        "summary": {"passed": 0, "failed": 0, "skipped": 0, "total": 0, "status": "PENDING"},
+        "cases": [],
+        "evidence": []
+      }
+    }
+  ]
+}

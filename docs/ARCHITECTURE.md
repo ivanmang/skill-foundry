@@ -202,3 +202,16 @@ that loop exposed as five typed tools; the regression workflow is a separate,
 directly-runnable set of scripts the skills reference as knowledge.** Skills are
 the knowledge, git is the source of truth, and the only human gates are triage
 judgment, the `--pr` merge, and a deliberate baseline re-pin.
+
+
+## tilelangGym adapter
+
+Third bundled target (alongside `pto-isa` / `pto-vmi`). Encodes SoftLib/ST
+improve-loop **compliance** as static gate suites + Agent Skills:
+
+- Motif ladder / Done-bar / TRACE / PRC / forced PR9 → `skill_foundry.lib.tilelanggym_gate`
+- Knowledge cards → `hub/tilelanggym/`
+- Skills → `.claude/skills/tilelanggym-*`
+- Full opencode hours stay outside the foundry runner (`opencode-full` disabled)
+
+See [TILELANGGYM.md](TILELANGGYM.md).
