@@ -88,3 +88,8 @@ Log an `LRN-…` entry (and reply with its id) when any of these happen:
 - Keep `description` frontmatter stable unless trigger conditions genuinely change.
 - No secrets / credentials / sensitive internal data inside skills.
 - Small, reviewable diffs beat sweeping rewrites.
+
+## Gotchas
+
+- Reference external skills by name or skill: URI and declare them in the plugin external manifest (skills.json); inline the few essential facts (e.g. arch alias mapping) instead of relative sibling links. (was: Relative links to external cannbot-skills/TTK skills (e.g. ../npu-arch/SKILL.md, ../ttk-env-check/SKILL.md, skills/ascendc-whitebox-design/...) dangled because those skills are not vendored in this repo.) — `2026-10-30 skills audit`
+- Keep category in YAML frontmatter (hub discovery depends on it) and run harness skills --refresh after adding or changing skills. (was: category: knowledge sat in the body (after closing ---) instead of frontmatter; 5 tilelanggym-* skills had no category; hub/catalog.json was stale.) — `2026-10-30 skills audit`

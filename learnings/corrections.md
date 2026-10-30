@@ -12,4 +12,10 @@ what changed, and why.
 - Promoted from: recent.md
 ```
 
-(No entries yet.)
+## 2026-10-30 — skill-maintainer
+- Promoted: LRN-20261030-001
+- Action: Reference external skills by name or skill: URI and declare them in the plugin external manifest (skills.json); inline the few essential facts (e.g. arch alias mapping) instead of relative sibling links.
+
+## 2026-10-30 — skill-maintainer
+- Promoted: LRN-20261030-002
+- Action: Keep category in YAML frontmatter (hub discovery depends on it) and run harness skills --refresh after adding or changing skills.

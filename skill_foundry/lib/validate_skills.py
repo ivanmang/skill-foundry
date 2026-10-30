@@ -13,6 +13,8 @@ Checks:
   - description: required, 1-1024 chars
   - compatibility: <=500 chars if present
   - license / metadata / allowed-tools: optional (parsed, not further constrained)
+  - category: optional per the Agent Skills spec, but required by hub discovery —
+    reported as a non-fatal warning when absent (does not affect the exit code).
 
 Exit codes: 0 valid, 1 invalid, 2 usage.
 """
@@ -127,10 +129,22 @@ def main(argv: list[str] | None = None) -> int:
         return 1
 
     all_errors: list[str] = []
+    all_warnings: list[str] = []
     for d in skill_dirs:
         errs = validate_skill(d)
         if errs:
             all_errors.extend(errs)
+        sm = d / "SKILL.md"
+        if sm.exists():
+            fm, _err = parse_frontmatter(sm.read_text(encoding="utf-8", errors="replace"))
+            if not (fm.get("category") or "").strip():
+                all_warnings.append(
+                    f"{d.name}: frontmatter 'category' is missing "
+                    "(optional per spec, but required by hub discovery)")
+
+    if not args.quiet:
+        for w in all_warnings:
+            print(f"  ⚠ {w}")
 
     if all_errors:
         print(f"skill conformance: {len(all_errors)} issue(s) in {len(skill_dirs)} skill(s)")
