@@ -4,7 +4,9 @@
     "standardTerm": "启用/开启",
     "errorCategory": "通用敏感词",
     "correctionSuggestion": "请删除！",
-    "exceptions": ["即使能够"]
+    "exceptions": [
+      "即使能够"
+    ]
   },
   {
     "nonstandardTerm": "图象",
@@ -60,83 +62,6 @@
     "standardTerm": "安装",
     "errorCategory": "错别字",
     "correctionSuggestion": "请修改！",
-    "exceptions": []
-  },
-  {
-    "nonstandardTerm": "政治",
-    "standardTerm": "",
-    "errorCategory": "通用敏感词",
-    "correctionSuggestion": "请删除！",
-    "exceptions": []
-  },
-  {
-    "nonstandardTerm": "公安",
-    "standardTerm": "",
-    "errorCategory": "通用敏感词",
-    "correctionSuggestion": "请删除！",
-    "exceptions": []
-  },
-  {
-    "nonstandardTerm": "涉密",
-    "standardTerm": "",
-    "errorCategory": "通用敏感词",
-    "correctionSuggestion": "请删除！",
-    "exceptions": []
-  },
-  {
-    "nonstandardTerm": "警种",
-    "standardTerm": "",
-    "errorCategory": "通用敏感词",
-    "correctionSuggestion": "请删除！",
-    "exceptions": []
-  },
-  {
-    "nonstandardTerm": "技侦",
-    "standardTerm": "",
-    "errorCategory": "通用敏感词",
-    "correctionSuggestion": "请删除！",
-    "exceptions": []
-  },
-  {
-    "nonstandardTerm": "网安",
-    "standardTerm": "",
-    "errorCategory": "通用敏感词",
-    "correctionSuggestion": "请删除！",
-    "exceptions": []
-  },
-  {
-    "nonstandardTerm": "国安",
-    "standardTerm": "",
-    "errorCategory": "通用敏感词",
-    "correctionSuggestion": "请删除！",
-    "exceptions": []
-  },
-  {
-    "nonstandardTerm": "国保",
-    "standardTerm": "",
-    "errorCategory": "通用敏感词",
-    "correctionSuggestion": "请删除！",
-    "exceptions": []
-  },
-  {
-    "nonstandardTerm": "刑侦",
-    "standardTerm": "",
-    "errorCategory": "通用敏感词",
-    "correctionSuggestion": "请删除！",
-    "exceptions": []
-  },
-  {
-    "nonstandardTerm": "防恐",
-    "standardTerm": "",
-    "errorCategory": "通用敏感词",
-    "correctionSuggestion": "请删除！",
-    "exceptions": []
-  },
-  {
-    "nonstandardTerm": "兵团",
-    "standardTerm": "",
-    "errorCategory": "通用敏感词",
-    "correctionSuggestion": "请删除！",
     "exceptions": []
   },
   {
@@ -232,27 +157,6 @@
   },
   {
     "nonstandardTerm": "追缉",
-    "standardTerm": "",
-    "errorCategory": "通用敏感词",
-    "correctionSuggestion": "请删除！",
-    "exceptions": []
-  },
-  {
-    "nonstandardTerm": "军工",
-    "standardTerm": "",
-    "errorCategory": "通用敏感词",
-    "correctionSuggestion": "请删除！",
-    "exceptions": []
-  },
-  {
-    "nonstandardTerm": "军团",
-    "standardTerm": "",
-    "errorCategory": "通用敏感词",
-    "correctionSuggestion": "请删除！",
-    "exceptions": []
-  },
-  {
-    "nonstandardTerm": "军队",
     "standardTerm": "",
     "errorCategory": "通用敏感词",
     "correctionSuggestion": "请删除！",
@@ -382,7 +286,10 @@
     "standardTerm": "",
     "errorCategory": "通用敏感词",
     "correctionSuggestion": "监听人员信息时需修改，监听端口/进程不修改",
-    "exceptions": ["监听端口", "监听进程"]
+    "exceptions": [
+      "监听端口",
+      "监听进程"
+    ]
   },
   {
     "nonstandardTerm": "待补充",
