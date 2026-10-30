@@ -2,7 +2,7 @@
 
 The canonical reference. This one document is the source of truth for how to
 use the harness and why it's shaped the way it is. (README is the short index;
-USER_JOURNEY is the narrative walkthrough.)
+docs/USER_JOURNEY.md is the narrative walkthrough.)
 
 ---
 

@@ -14,7 +14,7 @@ The first bundled workflow is **regression** (`run → report → review` on the
 - [AGENTS.md](AGENTS.md) — the agent-facing contract
 
 > **New here?** Start with the [Handbook](docs/HANDBOOK.md) (canonical
-> reference) or the [User Journey](USER_JOURNEY.md). One entry point for
+> reference) or the [User Journey](docs/USER_JOURNEY.md). One entry point for
 > everything: `./harness help`.
 
 ---

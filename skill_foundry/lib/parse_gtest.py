@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 """Normalize gtest / ctest / run_cpu.py / run_st.py logs into a results object.
 
-Internal — used by run.py. Prefer `python3 -m skill_foundry.workflow.run` over running this directly.
+This is the canonical parser. A byte-identical copy ships in
+`.claude/skills/extract-logs/scripts/parse_gtest.py` so the `extract-logs` skill
+is portable without the skill-foundry checkout. Keep the two in sync.
 
 Output shape:
 {
