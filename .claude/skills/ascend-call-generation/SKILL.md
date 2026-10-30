@@ -4,6 +4,7 @@ disable-model-invocation: true
 description: Generate AscendC project scaffold (pybind, CMake, host code, kernel skeleton) from functional PyTorch for pure Vector operators. Use after functional-conversion, before dsl-baseline-generation.
 category: ascendc-dev
 license: CANN Open Software License Agreement Version 2.0
+origin: cannbot
 ---
 
 ## What I do

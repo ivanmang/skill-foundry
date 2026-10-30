@@ -6,6 +6,7 @@ category: knowledge
 metadata:
   author: CANN Team
   version: "1.0.0"
+origin: cannbot
 ---
 
 # Ascend C API 检索技能

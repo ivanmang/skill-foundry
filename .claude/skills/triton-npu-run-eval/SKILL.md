@@ -3,6 +3,7 @@ name: triton-npu-run-eval
 description: Execute and evaluate generated operator artifacts. Use when you need to run generated test cases, run generated benchmark cases, fast-screen a candidate operator against a baseline, profile benchmark harnesses, summarize profiling data, or compare performance artifacts, including during optimization workflows.
 category: triton
 license: CANN Open Software License Agreement Version 2.0
+origin: cannbot
 ---
 
 # Run-Eval Router

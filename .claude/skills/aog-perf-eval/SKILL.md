@@ -5,6 +5,7 @@ argument-hint: >-
   {output_dir}（例如 output/npukernelbench-a3/src/kernels/1_GELU）
 category: ascendc-dev
 license: CANN Open Software License Agreement Version 2.0
+origin: cannbot
 ---
 
 # /aog-perf-eval — AscendC 算子双方法性能评估

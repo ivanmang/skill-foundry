@@ -3,6 +3,7 @@ name: tool-perf-report
 description: msOpProf -> self-contained interactive HTML performance report (Details, Roofline, Timeline, Cache, Source, on-chip memory, Warp Stall, instruction timeline, raw data). Collection -> ops-perf-baseline-evaluate; interpretation -> tool-perf-analysis. Triggers: generate a visualization report from collected data, view a perf module, rebuild a report from an existing collection dir.
 category: perf-analysis
 license: CANN Open Software License Agreement Version 2.0
+origin: cannbot
 ---
 
 # msOpProf 采集与可视化

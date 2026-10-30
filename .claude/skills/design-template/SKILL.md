@@ -4,6 +4,7 @@ description: Use when rendering one bundled ACLNN operator design document from 
 disable-model-invocation: true
 category: ops-dev
 license: CANN Open Software License Agreement Version 2.0
+origin: cannbot
 ---
 
 # Design Template

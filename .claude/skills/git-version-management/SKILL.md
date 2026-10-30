@@ -4,6 +4,7 @@ disable-model-invocation: true
 description: Git version management for operator workspaces: initialization, per-stage commits, worktree parallel isolation, and audit tracing.
 category: repo-ops
 license: CANN Open Software License Agreement Version 2.0
+origin: cannbot
 ---
 
 ## 概述

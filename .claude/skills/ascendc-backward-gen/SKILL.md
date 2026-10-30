@@ -6,6 +6,7 @@ argument-hint: >
   target（自然语言目标芯片，可选，如 "a3"/"a5"/"arch35"）。
 category: ascendc-dev
 license: CANN Open Software License Agreement Version 2.0
+origin: cannbot
 ---
 
 # ascendc-backward-gen — 正向→反向生成入口

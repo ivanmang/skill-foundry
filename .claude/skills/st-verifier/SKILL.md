@@ -4,6 +4,7 @@ description: ACLNN ST test-artifact acceptance: verify case-structure coverage (
 disable-model-invocation: true
 category: ops-dev
 license: CANN Open Software License Agreement Version 2.0
+origin: cannbot
 ---
 
 # ACLNN ST 测试产物验收

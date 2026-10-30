@@ -14,6 +14,7 @@ description: >
     /aog-report-gen {project_name} --audit      # dry-run: check sections + freshness, no edits
 category: ascendc-dev
 license: CANN Open Software License Agreement Version 2.0
+origin: cannbot
 ---
 
 # /aog-report-gen

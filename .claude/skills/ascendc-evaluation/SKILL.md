@@ -3,6 +3,7 @@ name: ascendc-evaluation
 description: Multi-case operator evaluation with precision testing and performance profiling, use when you want to evaluate the performance and correctness of your AscendC operator implementation.
 category: ascendc-dev
 license: CANN Open Software License Agreement Version 2.0
+origin: cannbot
 ---
 
 ## What I do

@@ -8,6 +8,7 @@ description: >
 license: CANN Open Software License Agreement Version 2.0
 compatibility: Requires python3. The comparison rules are deterministic and portable.
 category: regression
+origin: native
 ---
 
 # Review Inconsistencies

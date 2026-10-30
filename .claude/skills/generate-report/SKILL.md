@@ -7,6 +7,7 @@ description: >
 license: CANN Open Software License Agreement Version 2.0
 compatibility: Requires python3. The report itself is plain Markdown + inline HTML.
 category: regression
+origin: native
 ---
 
 # Generate Report

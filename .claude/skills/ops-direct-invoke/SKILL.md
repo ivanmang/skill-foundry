@@ -5,6 +5,7 @@ category: ops-dev
 entry: true
 stages: repo-requirement, repo-env-check, workflow-orchestrator
 license: CANN Open Software License Agreement Version 2.0
+origin: cannbot
 ---
 
 # 直调算子开发

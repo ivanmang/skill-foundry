@@ -4,6 +4,7 @@ description: Produce a REQUIREMENTS.md for a to-be-developed operator: op-name r
 disable-model-invocation: true
 category: ops-dev
 license: CANN Open Software License Agreement Version 2.0
+origin: cannbot
 ---
 
 # 算子需求分析 Skill

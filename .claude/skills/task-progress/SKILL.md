@@ -9,6 +9,7 @@ description: >
 allowed-tools: Read, Write, Edit, Bash, TaskCreate, TaskGet, TaskUpdate, TaskList
 category: ascendc-dev
 license: CANN Open Software License Agreement Version 2.0
+origin: cannbot
 ---
 
 # Task Progress Tracking

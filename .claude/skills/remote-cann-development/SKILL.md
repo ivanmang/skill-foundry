@@ -11,6 +11,7 @@ description: >
   (6) troubleshooting remote compile/run issues (507033, ctypes, rsync)
 category: ascendc-dev
 license: CANN Open Software License Agreement Version 2.0
+origin: cannbot
 ---
 
 # Remote NPU Development

@@ -11,6 +11,7 @@ description: >
 license: CANN Open Software License Agreement Version 2.0
 compatibility: Requires python3. Pair with tilelanggym-st-report.
 category: perf-analysis
+origin: native
 ---
 
 # tilelangGym SEMANTICS_GATE

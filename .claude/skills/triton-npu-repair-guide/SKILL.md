@@ -6,6 +6,7 @@ description: >-
   Does not replace triton-npu-gen-test, triton-npu-gen-bench, or harness specs.
 category: triton
 license: CANN Open Software License Agreement Version 2.0
+origin: cannbot
 ---
 
 # Triton repair experience (Ascend)

@@ -15,6 +15,7 @@ subagent:
     entry_pass:         { model: sonnet, timeout: 180,  max_iterations: 5 }
 category: ascendc-dev
 license: CANN Open Software License Agreement Version 2.0
+origin: cannbot
 ---
 
 

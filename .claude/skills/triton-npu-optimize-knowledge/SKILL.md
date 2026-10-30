@@ -3,6 +3,7 @@ name: triton-npu-optimize-knowledge
 description: Symptom routing contract for Triton Ascend NPU optimize pattern selection. Use when choosing an optimization direction or submitting symptom IDs during an optimize round. Pattern card content lives in the cannbot-knowledge repository; this skill only owns the symptom routing contract.
 category: triton
 license: CANN Open Software License Agreement Version 2.0
+origin: cannbot
 ---
 
 # Optimize Knowledge

@@ -3,6 +3,7 @@ name: op-dashboard
 description: "Generate self-contained interactive HTML dashboard (4 tabs: algo flow, UB tiling, precision, performance) from an AscendC operator output directory. Use when asked to visualize or report operator results. Works for both precision-pass and precision-fail states."
 category: ascendc-dev
 license: CANN Open Software License Agreement Version 2.0
+origin: cannbot
 ---
 
 # op-dashboard：AscendC 算子结果汇报看板

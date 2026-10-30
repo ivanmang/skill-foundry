@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated": "2026-10-30T06:50:09.024037+00:00",
+  "generated": "2026-10-30T06:53:57.175788+00:00",
   "skills": [
     {
       "name": "aclnn-doc-gen",
@@ -9,6 +9,7 @@
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
       "stages": [],
+      "origin": "cannbot",
       "status": "published"
     },
     {
@@ -18,6 +19,7 @@
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
       "stages": [],
+      "origin": "cannbot",
       "status": "published"
     },
     {
@@ -27,6 +29,7 @@
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
       "stages": [],
+      "origin": "cannbot",
       "status": "published"
     },
     {
@@ -36,6 +39,7 @@
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
       "stages": [],
+      "origin": "cannbot",
       "status": "published"
     },
     {
@@ -45,6 +49,7 @@
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
       "stages": [],
+      "origin": "cannbot",
       "status": "published"
     },
     {
@@ -54,6 +59,7 @@
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
       "stages": [],
+      "origin": "cannbot",
       "status": "published"
     },
     {
@@ -63,6 +69,7 @@
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
       "stages": [],
+      "origin": "cannbot",
       "status": "published"
     },
     {
@@ -72,6 +79,7 @@
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
       "stages": [],
+      "origin": "cannbot",
       "status": "published"
     },
     {
@@ -81,6 +89,7 @@
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
       "stages": [],
+      "origin": "cannbot",
       "status": "published"
     },
     {
@@ -90,6 +99,7 @@
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
       "stages": [],
+      "origin": "cannbot",
       "status": "published"
     },
     {
@@ -99,6 +109,7 @@
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
       "stages": [],
+      "origin": "cannbot",
       "status": "published"
     },
     {
@@ -108,6 +119,7 @@
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
       "stages": [],
+      "origin": "cannbot",
       "status": "published"
     },
     {
@@ -117,6 +129,7 @@
       "license": "Apache-2.0",
       "entry": false,
       "stages": [],
+      "origin": "cannbot",
       "status": "published"
     },
     {
@@ -126,6 +139,7 @@
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
       "stages": [],
+      "origin": "cannbot",
       "status": "published"
     },
     {
@@ -135,6 +149,7 @@
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
       "stages": [],
+      "origin": "cannbot",
       "status": "published"
     },
     {
@@ -144,6 +159,7 @@
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
       "stages": [],
+      "origin": "cannbot",
       "status": "published"
     },
     {
@@ -153,6 +169,7 @@
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
       "stages": [],
+      "origin": "cannbot",
       "status": "published"
     },
     {
@@ -162,6 +179,7 @@
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
       "stages": [],
+      "origin": "cannbot",
       "status": "published"
     },
     {
@@ -171,6 +189,7 @@
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
       "stages": [],
+      "origin": "cannbot",
       "status": "published"
     },
     {
@@ -180,6 +199,7 @@
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
       "stages": [],
+      "origin": "cannbot",
       "status": "published"
     },
     {
@@ -189,6 +209,7 @@
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
       "stages": [],
+      "origin": "cannbot",
       "status": "published"
     },
     {
@@ -198,6 +219,7 @@
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
       "stages": [],
+      "origin": "cannbot",
       "status": "published"
     },
     {
@@ -207,6 +229,7 @@
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
       "stages": [],
+      "origin": "cannbot",
       "status": "published"
     },
     {
@@ -216,6 +239,7 @@
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
       "stages": [],
+      "origin": "cannbot",
       "status": "published"
     },
     {
@@ -225,6 +249,7 @@
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
       "stages": [],
+      "origin": "cannbot",
       "status": "published"
     },
     {
@@ -234,6 +259,7 @@
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
       "stages": [],
+      "origin": "cannbot",
       "status": "published"
     },
     {
@@ -243,6 +269,7 @@
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
       "stages": [],
+      "origin": "cannbot",
       "status": "published"
     },
     {
@@ -252,6 +279,7 @@
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
       "stages": [],
+      "origin": "cannbot",
       "status": "published"
     },
     {
@@ -261,6 +289,7 @@
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
       "stages": [],
+      "origin": "cannbot",
       "status": "published"
     },
     {
@@ -270,6 +299,7 @@
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
       "stages": [],
+      "origin": "cannbot",
       "status": "published"
     },
     {
@@ -279,6 +309,7 @@
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
       "stages": [],
+      "origin": "cannbot",
       "status": "published"
     },
     {
@@ -288,6 +319,7 @@
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
       "stages": [],
+      "origin": "cannbot",
       "status": "published"
     },
     {
@@ -297,6 +329,7 @@
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
       "stages": [],
+      "origin": "cannbot",
       "status": "published"
     },
     {
@@ -306,6 +339,7 @@
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
       "stages": [],
+      "origin": "cannbot",
       "status": "published"
     },
     {
@@ -315,6 +349,7 @@
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
       "stages": [],
+      "origin": "cannbot",
       "status": "published"
     },
     {
@@ -324,6 +359,7 @@
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
       "stages": [],
+      "origin": "cannbot",
       "status": "published"
     },
     {
@@ -333,6 +369,7 @@
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
       "stages": [],
+      "origin": "cannbot",
       "status": "published"
     },
     {
@@ -342,6 +379,7 @@
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
       "stages": [],
+      "origin": "native",
       "status": "published"
     },
     {
@@ -357,6 +395,7 @@
         "review-inconsistencies",
         "skill-maintainer"
       ],
+      "origin": "native",
       "status": "published"
     },
     {
@@ -366,6 +405,7 @@
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
       "stages": [],
+      "origin": "cannbot",
       "status": "published"
     },
     {
@@ -375,6 +415,7 @@
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
       "stages": [],
+      "origin": "cannbot",
       "status": "published"
     },
     {
@@ -384,6 +425,7 @@
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
       "stages": [],
+      "origin": "native",
       "status": "published"
     },
     {
@@ -393,6 +435,7 @@
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
       "stages": [],
+      "origin": "cannbot",
       "status": "published"
     },
     {
@@ -402,6 +445,7 @@
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
       "stages": [],
+      "origin": "cannbot",
       "status": "published"
     },
     {
@@ -411,6 +455,7 @@
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
       "stages": [],
+      "origin": "cannbot",
       "status": "published"
     },
     {
@@ -420,6 +465,7 @@
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
       "stages": [],
+      "origin": "cannbot",
       "status": "published"
     },
     {
@@ -429,6 +475,7 @@
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
       "stages": [],
+      "origin": "cannbot",
       "status": "published"
     },
     {
@@ -438,6 +485,7 @@
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
       "stages": [],
+      "origin": "cannbot",
       "status": "published"
     },
     {
@@ -451,6 +499,7 @@
         "repo-env-check",
         "workflow-orchestrator"
       ],
+      "origin": "cannbot",
       "status": "published"
     },
     {
@@ -460,6 +509,7 @@
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
       "stages": [],
+      "origin": "cannbot",
       "status": "published"
     },
     {
@@ -469,6 +519,7 @@
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
       "stages": [],
+      "origin": "cannbot",
       "status": "published"
     },
     {
@@ -478,6 +529,7 @@
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
       "stages": [],
+      "origin": "cannbot",
       "status": "published"
     },
     {
@@ -487,6 +539,7 @@
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
       "stages": [],
+      "origin": "cannbot",
       "status": "published"
     },
     {
@@ -496,6 +549,7 @@
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
       "stages": [],
+      "origin": "cannbot",
       "status": "published"
     },
     {
@@ -505,6 +559,7 @@
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
       "stages": [],
+      "origin": "cannbot",
       "status": "published"
     },
     {
@@ -514,6 +569,7 @@
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
       "stages": [],
+      "origin": "cannbot",
       "status": "published"
     },
     {
@@ -529,6 +585,7 @@
         "ops-perf-implementation",
         "ops-perf-postprocess"
       ],
+      "origin": "cannbot",
       "status": "published"
     },
     {
@@ -538,6 +595,7 @@
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
       "stages": [],
+      "origin": "cannbot",
       "status": "published"
     },
     {
@@ -547,6 +605,7 @@
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
       "stages": [],
+      "origin": "cannbot",
       "status": "published"
     },
     {
@@ -556,6 +615,7 @@
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
       "stages": [],
+      "origin": "cannbot",
       "status": "published"
     },
     {
@@ -568,6 +628,7 @@
         "workflow-dispatch",
         "workflow-orchestrator"
       ],
+      "origin": "cannbot",
       "status": "published"
     },
     {
@@ -577,6 +638,7 @@
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
       "stages": [],
+      "origin": "cannbot",
       "status": "published"
     },
     {
@@ -586,6 +648,7 @@
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
       "stages": [],
+      "origin": "native",
       "status": "published"
     },
     {
@@ -595,6 +658,7 @@
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
       "stages": [],
+      "origin": "native",
       "status": "published"
     },
     {
@@ -604,6 +668,7 @@
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": true,
       "stages": [],
+      "origin": "cannbot",
       "status": "published"
     },
     {
@@ -613,6 +678,7 @@
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
       "stages": [],
+      "origin": "cannbot",
       "status": "published"
     },
     {
@@ -622,6 +688,7 @@
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
       "stages": [],
+      "origin": "cannbot",
       "status": "published"
     },
     {
@@ -631,6 +698,7 @@
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
       "stages": [],
+      "origin": "cannbot",
       "status": "published"
     },
     {
@@ -640,6 +708,7 @@
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
       "stages": [],
+      "origin": "cannbot",
       "status": "published"
     },
     {
@@ -649,6 +718,7 @@
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
       "stages": [],
+      "origin": "cannbot",
       "status": "published"
     },
     {
@@ -658,6 +728,7 @@
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
       "stages": [],
+      "origin": "cannbot",
       "status": "published"
     },
     {
@@ -667,6 +738,7 @@
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
       "stages": [],
+      "origin": "cannbot",
       "status": "published"
     },
     {
@@ -676,6 +748,7 @@
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
       "stages": [],
+      "origin": "cannbot",
       "status": "published"
     },
     {
@@ -685,6 +758,7 @@
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
       "stages": [],
+      "origin": "cannbot",
       "status": "published"
     },
     {
@@ -694,6 +768,7 @@
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
       "stages": [],
+      "origin": "native",
       "status": "published"
     },
     {
@@ -703,6 +778,7 @@
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
       "stages": [],
+      "origin": "native",
       "status": "published"
     },
     {
@@ -712,6 +788,7 @@
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
       "stages": [],
+      "origin": "native",
       "status": "published"
     },
     {
@@ -721,6 +798,7 @@
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
       "stages": [],
+      "origin": "cannbot",
       "status": "published"
     },
     {
@@ -730,6 +808,7 @@
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
       "stages": [],
+      "origin": "cannbot",
       "status": "published"
     },
     {
@@ -739,6 +818,7 @@
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
       "stages": [],
+      "origin": "cannbot",
       "status": "published"
     },
     {
@@ -748,6 +828,7 @@
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
       "stages": [],
+      "origin": "native",
       "status": "published"
     },
     {
@@ -757,6 +838,7 @@
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
       "stages": [],
+      "origin": "native",
       "status": "published"
     },
     {
@@ -766,6 +848,7 @@
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
       "stages": [],
+      "origin": "native",
       "status": "published"
     },
     {
@@ -775,6 +858,7 @@
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
       "stages": [],
+      "origin": "native",
       "status": "published"
     },
     {
@@ -784,6 +868,7 @@
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
       "stages": [],
+      "origin": "native",
       "status": "published"
     },
     {
@@ -793,6 +878,7 @@
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
       "stages": [],
+      "origin": "cannbot",
       "status": "published"
     },
     {
@@ -802,6 +888,7 @@
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
       "stages": [],
+      "origin": "cannbot",
       "status": "published"
     },
     {
@@ -811,6 +898,7 @@
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
       "stages": [],
+      "origin": "cannbot",
       "status": "published"
     },
     {
@@ -820,6 +908,7 @@
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
       "stages": [],
+      "origin": "cannbot",
       "status": "published"
     },
     {
@@ -829,6 +918,7 @@
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
       "stages": [],
+      "origin": "cannbot",
       "status": "published"
     },
     {
@@ -838,6 +928,7 @@
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": true,
       "stages": [],
+      "origin": "cannbot",
       "status": "published"
     },
     {
@@ -847,6 +938,7 @@
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
       "stages": [],
+      "origin": "cannbot",
       "status": "published"
     },
     {
@@ -856,6 +948,7 @@
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
       "stages": [],
+      "origin": "cannbot",
       "status": "published"
     },
     {
@@ -865,6 +958,7 @@
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
       "stages": [],
+      "origin": "cannbot",
       "status": "published"
     },
     {
@@ -874,6 +968,7 @@
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
       "stages": [],
+      "origin": "cannbot",
       "status": "published"
     },
     {
@@ -883,6 +978,7 @@
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
       "stages": [],
+      "origin": "cannbot",
       "status": "published"
     },
     {
@@ -892,6 +988,7 @@
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
       "stages": [],
+      "origin": "cannbot",
       "status": "published"
     },
     {
@@ -901,6 +998,7 @@
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
       "stages": [],
+      "origin": "cannbot",
       "status": "published"
     },
     {
@@ -910,6 +1008,7 @@
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
       "stages": [],
+      "origin": "cannbot",
       "status": "published"
     },
     {
@@ -919,6 +1018,7 @@
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
       "stages": [],
+      "origin": "cannbot",
       "status": "published"
     },
     {
@@ -928,6 +1028,7 @@
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
       "stages": [],
+      "origin": "cannbot",
       "status": "published"
     },
     {
@@ -937,6 +1038,7 @@
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
       "stages": [],
+      "origin": "cannbot",
       "status": "published"
     },
     {
@@ -946,6 +1048,7 @@
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
       "stages": [],
+      "origin": "cannbot",
       "status": "published"
     },
     {
@@ -955,6 +1058,7 @@
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
       "stages": [],
+      "origin": "cannbot",
       "status": "published"
     },
     {
@@ -964,6 +1068,7 @@
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
       "stages": [],
+      "origin": "cannbot",
       "status": "published"
     },
     {
@@ -973,6 +1078,7 @@
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
       "stages": [],
+      "origin": "cannbot",
       "status": "published"
     },
     {
@@ -982,6 +1088,7 @@
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
       "stages": [],
+      "origin": "cannbot",
       "status": "published"
     },
     {
@@ -994,6 +1101,7 @@
         "ops-incremental",
         "workflow-orchestrator"
       ],
+      "origin": "cannbot",
       "status": "published"
     },
     {
@@ -1003,6 +1111,7 @@
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
       "stages": [],
+      "origin": "cannbot",
       "status": "published"
     },
     {
@@ -1012,6 +1121,7 @@
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
       "stages": [],
+      "origin": "cannbot",
       "status": "published"
     }
   ]

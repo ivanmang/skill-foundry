@@ -8,6 +8,7 @@ description: >
 license: CANN Open Software License Agreement Version 2.0
 compatibility: Requires python3 and git. CPU-ST needs clang++>=15 or g++>=13; NPU-sim needs a CANN simulator (A6 dav_9201 runs on the yellow machine).
 category: regression
+origin: native
 ---
 
 # PTO-ISA regression adapter

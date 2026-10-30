@@ -3,6 +3,7 @@ name: triton-npu-cann-ext-api-patterns
 description: A5-only specialized optimization pattern references for Triton Ascend NPU kernels that use CANN Triton extension APIs. Use when optimizing an A5 Triton Ascend NPU kernel that relies on CANN Triton extension APIs and pattern material is needed. This skill does not define the optimize workflow; it only provides pattern material for optimize to consume.
 category: triton
 license: CANN Open Software License Agreement Version 2.0
+origin: cannbot
 ---
 
 # CANN Triton Extension API Patterns

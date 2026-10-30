@@ -3,6 +3,7 @@ name: code-performance-advisor
 description: Diagnose AscendC kernel performance bottlenecks from profiling data (msprof). Matches expert rules first, falls back to LLM analysis. Use when speedup is below target after correctness passes.
 category: ascendc-dev
 license: CANN Open Software License Agreement Version 2.0
+origin: cannbot
 ---
 
 # Code Performance Advisor

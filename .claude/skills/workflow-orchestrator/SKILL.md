@@ -4,6 +4,7 @@ description: Run a development workflow defined in workflow.yaml.
 disable-model-invocation: true
 category: workflow
 license: CANN Open Software License Agreement Version 2.0
+origin: cannbot
 ---
 
 # Workflow Orchestrator

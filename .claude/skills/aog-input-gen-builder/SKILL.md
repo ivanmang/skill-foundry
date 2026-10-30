@@ -17,6 +17,7 @@ description: >
   but should be rare.
 category: ascendc-dev
 license: CANN Open Software License Agreement Version 2.0
+origin: cannbot
 ---
 
 # /aog-input-gen-builder

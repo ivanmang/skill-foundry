@@ -3,6 +3,7 @@ name: tool-perf-analysis
 description: Parse an NPU Profiling .npu-rep report (envelope payload: version/scope/report_id/report_path/op_name) into metrics (pipeline occupancy, compute utilization, resource conflicts, bandwidth, L2 hit rate, roofline), then output a data summary, bottleneck verdict, and optimization directions tagged with evidence/cost/exclusion/verification. Collection -> ops-perf-baseline-evaluate; implementation -> ops-perf-implementation; visualization -> tool-perf-report. Triggers: 'interpret this profiling report', 'what does this report tell us', 'how should I optimize this operator', report_path+scope payload.
 category: perf-analysis
 license: CANN Open Software License Agreement Version 2.0
+origin: cannbot
 ---
 
 # Profiling 报告快照解析（tool-perf-analysis）

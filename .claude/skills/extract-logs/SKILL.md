@@ -7,6 +7,7 @@ description: >
 license: CANN Open Software License Agreement Version 2.0
 compatibility: Requires python3. A standalone parser ships in scripts/parse_gtest.py.
 category: regression
+origin: native
 ---
 
 # Extract Logs

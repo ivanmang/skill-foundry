@@ -4,6 +4,7 @@ description: Build and run CANN TilingFunc gtest UTs on an x86 host (pattern B: 
 disable-model-invocation: true
 category: ops-dev
 license: CANN Open Software License Agreement Version 2.0
+origin: cannbot
 ---
 
 # Tiling UT 宿主机 harness（pattern B）

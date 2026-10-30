@@ -3,6 +3,7 @@ name: repo-build-guide
 description: Build Ascend C direct-invoke source and the cann_bench wheel for CANN Bench evaluation; verify real load paths and versions. Use for compiles, installs, and build debugging.
 category: repo-ops
 license: CANN Open Software License Agreement Version 2.0
+origin: cannbot
 ---
 
 # 仓库构建指南

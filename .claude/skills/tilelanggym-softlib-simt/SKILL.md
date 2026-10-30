@@ -12,6 +12,7 @@ description: >
 license: CANN Open Software License Agreement Version 2.0
 compatibility: Requires python3. Pair with tilelanggym-st-explore Done-bar.
 category: perf-analysis
+origin: native
 ---
 
 # tilelangGym SoftLib SIMT schedule

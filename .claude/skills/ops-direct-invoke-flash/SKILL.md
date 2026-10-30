@@ -25,6 +25,7 @@ hooks:
           statusMessage: "Verifying kernel code conventions..."
 category: ops-dev
 license: CANN Open Software License Agreement Version 2.0
+origin: cannbot
 ---
 
 # Ascend C 核函数从零构建工作流

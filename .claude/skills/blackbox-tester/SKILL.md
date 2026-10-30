@@ -4,6 +4,7 @@ description: TTK black-box execution. Use ops-test-kit aclnn mode to run full bl
 disable-model-invocation: true
 category: ops-dev
 license: CANN Open Software License Agreement Version 2.0
+origin: cannbot
 ---
 
 # TTK 黑盒精度验收

@@ -3,6 +3,7 @@ name: tool-perf-practice
 description: Ascend C operator optimization best-practice library, organized by operator family (matmul / mc2 / conversion / ...). Query for reference implementations and optimization experience during the implementation phase.
 category: perf-analysis
 license: CANN Open Software License Agreement Version 2.0
+origin: cannbot
 ---
 
 # Ascend C 算子性能优化最佳实践

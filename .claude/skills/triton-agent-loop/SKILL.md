@@ -4,6 +4,7 @@ description: Multi-agent flow control for Triton Ascend operators: multi-round i
 category: triton
 entry: true
 license: CANN Open Software License Agreement Version 2.0
+origin: cannbot
 ---
 
 # triton-agent-loop

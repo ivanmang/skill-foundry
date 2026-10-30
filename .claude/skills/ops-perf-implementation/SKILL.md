@@ -3,6 +3,7 @@ name: ops-perf-implementation
 description: Isolated-scheme implementation, functional and performance gating, candidate final selection, and full demo acceptance for performance tasks. Feeds from Tiling modeling + device/cluster/core 3-level flow strategy. Dispatched by ops-perf-optimize.
 category: perf-optimize
 license: CANN Open Software License Agreement Version 2.0
+origin: cannbot
 ---
 
 # 实施验证

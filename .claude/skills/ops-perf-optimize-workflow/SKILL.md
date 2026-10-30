@@ -5,6 +5,7 @@ category: perf-optimize
 entry: true
 stages: ops-perf-baseline-evaluate, ops-perf-preparation, ops-perf-analysis, ops-perf-implementation, ops-perf-postprocess
 license: CANN Open Software License Agreement Version 2.0
+origin: cannbot
 ---
 
 # 算子性能优化主编排

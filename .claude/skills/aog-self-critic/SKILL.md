@@ -11,6 +11,7 @@ description: >
   seeded from the user's explicit feedback memories.
 category: ascendc-dev
 license: CANN Open Software License Agreement Version 2.0
+origin: cannbot
 ---
 
 # /aog-self-critic

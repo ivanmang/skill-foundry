@@ -4,6 +4,7 @@ disable-model-invocation: true
 description: Convert PyTorch nn.Module reference implementation to stateless functional API (module_fn + get_inputs). Use after reference-generation, before ascend-call-generation.
 category: ascendc-dev
 license: CANN Open Software License Agreement Version 2.0
+origin: cannbot
 ---
 
 ## What I do

@@ -8,6 +8,7 @@ description: >
   Use when a formal review of the kernel generation process is needed, or when manually triggered by the user.
 category: ascendc-dev
 license: CANN Open Software License Agreement Version 2.0
+origin: cannbot
 ---
 
 # Cake Review Skill

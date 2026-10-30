@@ -3,6 +3,7 @@ name: repo-op-templates
 description: Reuse the direct_launch_example skeleton and operator templates from cann-bench. Use when creating a new project or adding an operator.
 category: repo-ops
 license: CANN Open Software License Agreement Version 2.0
+origin: cannbot
 ---
 
 # 算子工程模板

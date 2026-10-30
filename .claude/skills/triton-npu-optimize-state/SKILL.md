@@ -3,6 +3,7 @@ name: triton-npu-optimize-state
 description: Manage temporary optimize workflow state in an Ascend NPU optimize workspace, including baseline acceptance, round start, same-round strategy-state updates, and round submission. Use when the optimize workflow needs to accept a baseline, start or update a round, or submit a round.
 category: triton
 license: CANN Open Software License Agreement Version 2.0
+origin: cannbot
 ---
 
 # Optimize State

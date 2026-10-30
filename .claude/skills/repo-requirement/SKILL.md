@@ -3,6 +3,7 @@ name: repo-requirement
 description: Centrally align operator requirements, conda/Python and CANN environments, and modification permissions into a task contract reusable across retries.
 category: repo-ops
 license: CANN Open Software License Agreement Version 2.0
+origin: cannbot
 ---
 
 # 直调算子需求对齐

@@ -8,6 +8,7 @@ subagent:
   reason: "Multi-pass transformation with compilation requires autonomous error recovery; subagent keeps orchestrator context clean."
 category: ascendc-dev
 license: CANN Open Software License Agreement Version 2.0
+origin: cannbot
 ---
 
 

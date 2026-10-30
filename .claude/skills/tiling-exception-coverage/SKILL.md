@@ -4,6 +4,7 @@ description: "Exception-scenario coverage for Ascend C operator tiling UTs: a 31
 disable-model-invocation: true
 category: ops-dev
 license: CANN Open Software License Agreement Version 2.0
+origin: cannbot
 ---
 
 # Tiling UT Exception-Scenario Coverage

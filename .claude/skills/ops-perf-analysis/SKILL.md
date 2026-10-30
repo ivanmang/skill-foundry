@@ -3,6 +3,7 @@ name: ops-perf-analysis
 description: Baseline profiling, per-case bottleneck diagnosis, and plan design for frozen performance tasks. Produces an analysis report, precise implementation contract, and scope to freeze. Dispatched by ops-perf-optimize.
 category: perf-optimize
 license: CANN Open Software License Agreement Version 2.0
+origin: cannbot
 ---
 
 # 诊断分析

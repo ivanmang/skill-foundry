@@ -4,6 +4,7 @@ description: Incremental development entry for existing Ascend C operators: feat
 disable-model-invocation: true
 category: ops-dev
 license: CANN Open Software License Agreement Version 2.0
+origin: cannbot
 ---
 
 ## 流程

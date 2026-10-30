@@ -6,6 +6,7 @@ category: workflow
 entry: true
 stages: ops-incremental, workflow-orchestrator
 license: CANN Open Software License Agreement Version 2.0
+origin: cannbot
 ---
 
 # 工作流架构路由

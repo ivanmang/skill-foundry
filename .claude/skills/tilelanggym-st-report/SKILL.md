@@ -12,6 +12,7 @@ description: >
 license: CANN Open Software License Agreement Version 2.0
 compatibility: Requires python3. PR9 helper scripts/make_pr9_running_ipc_overlay.py.
 category: perf-analysis
+origin: native
 ---
 
 # tilelangGym ST report

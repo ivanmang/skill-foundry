@@ -4,6 +4,7 @@ disable-model-invocation: true
 description: Generate initial AscendDSL code with scope('cube')/scope('vector') structure for CV fused operators. Use after ascend-call-generation-cv creates the CV project scaffold.
 category: ascendc-dev
 license: CANN Open Software License Agreement Version 2.0
+origin: cannbot
 ---
 
 ## What I do
