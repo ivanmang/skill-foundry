@@ -176,6 +176,8 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--search", default=None, help="Filter by name/description/category substring.")
     ap.add_argument("--category", default=None, help="Filter by exact category.")
     ap.add_argument("--origin", default=None, help="Filter by exact origin (native|cannbot).")
+    ap.add_argument("--scope", choices=["core", "all"], default=None,
+                    help="Preset for --install/--uninstall ('core' = origin: native).")
     ap.add_argument("--entry", action="store_true", help="Entry points only.")
     ap.add_argument("--inbox", action="store_true", help="Show drafts only.")
     ap.add_argument("--refresh", action="store_true", help="Rewrite hub/catalog.json + docs/SKILLS_INDEX.md.")
@@ -187,7 +189,16 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.install or args.uninstall:
         from skill_foundry.lib import install_skills
-        return install_skills.main(["--uninstall"] if args.uninstall else [])
+        argv = ["--uninstall"] if args.uninstall else []
+        if args.scope:
+            argv += ["--scope", args.scope]
+        if args.origin:
+            argv += ["--origin", args.origin]
+        if args.category:
+            argv += ["--category", args.category]
+        if args.entry:
+            argv += ["--entry"]
+        return install_skills.main(argv)
 
     if args.refresh:
         refresh()

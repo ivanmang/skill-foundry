@@ -3,12 +3,20 @@
 
 Project-level discovery already works via the repo's `.agents/skills/` symlink
 (Pi / open-standard) and `.claude/skills/` (Claude Code). This command symlinks
-each skill into the *user-level* skills dir of each detected agent, so the
-harness's skills are always-on regardless of working directory.
+skills into the *user-level* skills dir of each detected agent, so the harness's
+skills are always-on regardless of working directory.
 
-Usage (via the `skills` verb):
-  ./harness skills --install    # link skills into each detected agent's skills dir
-  ./harness skills --uninstall  # remove the symlinks (never a real dir)
+Selective install — you almost never want all skills always-on:
+
+  ./harness skills --install --scope core     # the owned (origin: native) skills
+  ./harness skills --install --origin native  # same, spelled out
+  ./harness skills --install --category regression
+  ./harness skills --install --entry          # entry points only
+  ./harness skills --install --name pto-isa --name pto-vmi
+  ./harness skills --uninstall                # remove ALL harness skill symlinks
+  ./harness skills --uninstall --origin cannbot   # remove only the imported ones
+
+`--scope core` is shorthand for `--origin native` (the skills skill-foundry owns).
 """
 
 from __future__ import annotations
@@ -18,7 +26,11 @@ import sys
 from pathlib import Path
 
 from skill_foundry.paths import ROOT as HARNESS  # noqa: E402
+from skill_foundry.lib import validate_skills  # noqa: E402
+
 SKILLS = HARNESS / ".claude" / "skills"
+
+_TRUTHY = {"true", "yes", "1", "on"}
 
 # label, parent config dir (detection), reload hint
 AGENTS = [
@@ -28,12 +40,34 @@ AGENTS = [
 ]
 
 
-def install(agent_label: str, dest_parent: Path, hint: str, args) -> int:
+def select_dirs(args) -> list[Path]:
+    """Return the skill dirs matching the selection flags (all when none)."""
+    dirs: list[Path] = []
+    need_fm = bool(args.origin or args.category or args.entry)
+    for sd in sorted(SKILLS.iterdir()):
+        sm = sd / "SKILL.md"
+        if not sd.is_dir() or not sm.exists():
+            continue
+        if need_fm:
+            fm, _err = validate_skills.parse_frontmatter(sm.read_text(encoding="utf-8", errors="replace"))
+        else:
+            fm = {}
+        if args.name and sd.name not in args.name:
+            continue
+        if args.origin and (fm.get("origin") or "").strip() != args.origin:
+            continue
+        if args.category and (fm.get("category") or "").strip() != args.category:
+            continue
+        if args.entry and (fm.get("entry") or "").strip().lower() not in _TRUTHY:
+            continue
+        dirs.append(sd)
+    return dirs
+
+
+def install(agent_label: str, dest_parent: Path, hint: str, args, dirs: list[Path]) -> int:
     dest = dest_parent / "skills"
     count = 0
-    for sd in sorted(SKILLS.iterdir()):
-        if not sd.is_dir() or not (sd / "SKILL.md").exists():
-            continue
+    for sd in dirs:
         link = dest / sd.name
         if args.uninstall:
             if link.is_symlink():
@@ -63,20 +97,28 @@ def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description="Install harness skills into each detected agent's skills dir.")
     ap.add_argument("--dry-run", action="store_true", help="Show what would be linked.")
     ap.add_argument("--uninstall", action="store_true", help="Remove harness skill symlinks.")
+    ap.add_argument("--scope", choices=["core", "all"], default=None,
+                    help="Preset: 'core' = the owned (origin: native) skills; 'all' = everything.")
+    ap.add_argument("--origin", default=None, help="Only skills with this origin (native|cannbot).")
+    ap.add_argument("--category", default=None, help="Only skills in this category.")
+    ap.add_argument("--entry", action="store_true", help="Only entry-point skills.")
+    ap.add_argument("--name", action="append", default=None, help="Only this skill (repeatable).")
     args = ap.parse_args(argv)
 
-    skill_dirs = [p for p in SKILLS.iterdir() if p.is_dir() and (p / "SKILL.md").exists()]
-    if not skill_dirs:
-        print(f"no skills found under {SKILLS}", file=sys.stderr)
+    if args.scope == "core":
+        args.origin = "native"
+
+    dirs = select_dirs(args)
+    if not dirs:
+        print("no skills match the selection (check --origin/--category/--entry/--name)", file=sys.stderr)
         return 1
 
     total = 0
     verb = "removed" if args.uninstall else ("linked" if not args.dry_run else "would link")
-    print(f"Skills ({len(skill_dirs)}) from {SKILLS}\n")
+    print(f"Skills ({len(dirs)}) from {SKILLS}\n")
     for label, parent, hint in AGENTS:
         if parent.exists() or label == "open-standard":
-            n = install(label, parent, hint, args)
-            total += n
+            total += install(label, parent, hint, args, dirs)
     if args.dry_run:
         print(f"dry-run: {total} link(s) would be created.")
     else:

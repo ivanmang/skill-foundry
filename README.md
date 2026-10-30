@@ -83,11 +83,16 @@ Nothing to run.
 Make every skill available in every project (110 skills — indexed in `docs/SKILLS_INDEX.md`):
 
 ```bash
-./harness skills --install     # symlinks each skill into ~/.claude/skills/, ~/.pi/skills/, ~/.agents/skills/
+./harness skills --install --scope core     # only the owned skills (origin: native)
+./harness skills --install --origin native  # same, explicit
+./harness skills --install --category regression
+./harness skills --install                  # everything (all 110)
 ```
 
-It auto-detects which agents are installed and prints the reload hint for each.
-Remove with `./harness skills --uninstall`.
+It symlinks each selected skill into `~/.claude/skills/`, `~/.pi/skills/` and
+`~/.agents/skills/`, auto-detects which agents are installed, and prints the
+reload hint for each. `--uninstall` removes them and respects the same filters
+(`./harness skills --uninstall --origin cannbot` removes only the imported ones).
 
 ### 3. Tools — MCP (optional, typed calls)
 

@@ -7,10 +7,12 @@ Regressions here are easy (the verb was once rewritten and dropped
 
 from __future__ import annotations
 
+import argparse
 import subprocess
 import unittest
 
 from skill_foundry.paths import ROOT
+from skill_foundry.lib import install_skills, validate_skills
 
 
 def _help_args() -> str:
@@ -32,6 +34,31 @@ class SkillsCliSurfaceTest(unittest.TestCase):
         help_text = _help_args()
         self.assertIn("--install", help_text)
         self.assertIn("--uninstall", help_text)
+
+
+class InstallSelectionTest(unittest.TestCase):
+    def _args(self, **kw):
+        defaults = {"origin": None, "category": None, "entry": False, "name": None}
+        defaults.update(kw)
+        return argparse.Namespace(**defaults)
+
+    def test_scope_core_selects_native_only(self):
+        dirs = install_skills.select_dirs(self._args(origin="native"))
+        self.assertTrue(dirs)
+        for d in dirs:
+            fm, _ = validate_skills.parse_frontmatter((d / "SKILL.md").read_text(encoding="utf-8"))
+            self.assertEqual((fm.get("origin") or "").strip(), "native")
+
+    def test_entry_selects_entry_points_only(self):
+        dirs = install_skills.select_dirs(self._args(entry=True))
+        self.assertTrue(dirs)
+        for d in dirs:
+            fm, _ = validate_skills.parse_frontmatter((d / "SKILL.md").read_text(encoding="utf-8"))
+            self.assertEqual((fm.get("entry") or "").strip().lower(), "true")
+
+    def test_name_selects_single_skill(self):
+        dirs = install_skills.select_dirs(self._args(name=["pto-isa"]))
+        self.assertEqual([d.name for d in dirs], ["pto-isa"])
 
 
 if __name__ == "__main__":

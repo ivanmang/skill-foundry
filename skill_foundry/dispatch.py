@@ -109,7 +109,7 @@ THE PRODUCT — the skill-ops loop (capture → promote → hub → discover):
   promote-skill  Publish a draft into .claude/skills/    [--propose | --apply | --direct | --pr]
   teach          Log a correction (a lesson)             ["wrong -> correct -> action" | wizard | --edit]
   promote        Publish learnings into skills           [--propose | --apply | --direct | --pr]
-  skills         List/search skills · install · refresh  [--search, --category, --origin, --entry, --inbox, --install, --uninstall, --refresh, --check, --json]
+  skills         List/search skills · install · refresh  [--search, --category, --origin, --scope, --entry, --inbox, --install, --uninstall, --refresh, --check, --json]
 
 SHELL:
   menu           Curated menu (bare ./harness default)
@@ -174,17 +174,18 @@ Examples:
   ./harness promote --no-review # gates only, skip the judge
 """,
     "skills": """\
-./harness skills [--search <q>] [--category <c>] [--origin <o>] [--entry] [--inbox] [--install | --uninstall] [--refresh] [--check] [--json]
+./harness skills [--search <q>] [--category <c>] [--origin <o>] [--scope core|all] [--entry] [--inbox] [--install | --uninstall] [--refresh] [--check] [--json]
 List/search skills (published .claude/skills/ + drafts hub/inbox/).
   --search    filter by name/description/category substring
   --category  filter by exact category
   --origin    filter by exact origin (native | cannbot)
+  --scope     preset: 'core' = the owned (origin: native) skills
   --entry     entry points only
   --refresh   rewrite hub/catalog.json + docs/SKILLS_INDEX.md
   --check     fail if catalog/index are stale (no writes)
-  --install   symlink skills into each detected agent's user dir
-  --uninstall remove the harness skill symlinks
-Examples: ./harness skills --search review      ./harness skills --entry
+  --install   symlink skills into each detected agent's user dir (respects filters)
+  --uninstall remove the harness skill symlinks (respects filters)
+Examples: ./harness skills --search review      ./harness skills --install --scope core
 """,
     "selfcheck": """\
 ./harness selfcheck — compile + skill-spec + reference integrity + index freshness + demo smoke.
