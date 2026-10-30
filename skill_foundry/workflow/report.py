@@ -139,6 +139,40 @@ def perf_rows(record: dict) -> list[list[str]]:
     return rows
 
 
+def perf_detail_lines(record: dict) -> list[tuple[str, list[str]]]:
+    """Holistic per-suite CA detail (stall sources, EX subcats, dual combos, per-case)."""
+    out: list[tuple[str, list[str]]] = []
+    for s in record.get("suites", []):
+        p = s.get("perf")
+        if not p:
+            continue
+        lines: list[str] = []
+        subs = p.get("subcategory_counts") or {}
+        exs = {k: v for k, v in subs.items() if k.startswith("ex_")}
+        if exs:
+            lines.append("EX subcats: " + ", ".join(
+                f"{k[3:]}={v}" for k, v in sorted(exs.items(), key=lambda kv: -kv[1])))
+        combos = p.get("dual_combos") or {}
+        if combos:
+            top = sorted(combos.items(), key=lambda kv: -kv[1])[:4]
+            lines.append("dual-issue: " + ", ".join(f"{c}={n}" for c, n in top))
+        st = p.get("stall_targets") or {}
+        if st:
+            top = sorted(st.items(), key=lambda kv: -kv[1])[:6]
+            lines.append("stall targets: " + ", ".join(f"{op}={n}" for op, n in top))
+        ls = p.get("long_stalls") or []
+        if ls:
+            lines.append("top stalls: " + "; ".join(
+                f"{u}:{a}→{b}={g}c" for u, a, b, g in ls[:3]))
+        for c in p.get("per_case", []):
+            t = c.get("timing", {})
+            lines.append(
+                f"{c['dump']}: EX={t.get('ex')} IPC={t.get('ipc')} EX-IPC={t.get('ex_ipc')} "
+                f"vf_span={t.get('vf_compute_span')} mte2_wait={t.get('mte2_wait')} stalls={c.get('stalls')}")
+        out.append((s.get("name", "?"), lines))
+    return out
+
+
 def _matches(sig: str, name: str) -> bool:
     """True if a known-failure signature is about this case name."""
     s, n = sig.lower(), name.lower()
@@ -218,6 +252,12 @@ def render_md(records: list[dict], known_sigs: list[str]) -> str:
                       "|---|---|---|---|---|---|---|---|---|---|---|---|---|---|"]
             for r in prows:
                 lines.append("| " + " | ".join(r) + " |")
+        detail = perf_detail_lines(rec)
+        if detail:
+            lines += ["", "### CA detail", ""]
+            for name, dlines in detail:
+                lines.append(f"**{name}**")
+                lines += [f"- {dl}" for dl in dlines]
 
         crows = command_rows(rec)
         lines += ["", "### Commands & logs", "",
@@ -327,6 +367,14 @@ def render_html(records: list[dict], known_sigs: list[str]) -> str:
                 "<table><thead><tr><th>suite</th><th>EX</th><th>SU</th><th>LD</th><th>ST</th><th>pred</th><th>scalar</th><th>dma</th><th>dual</th><th>stalls</th><th>max_stall</th><th>IPC</th><th>EX-IPC</th><th>vf_real</th></tr></thead><tbody>"
                 + ptrs + "</tbody></table>"
             )
+        detail = perf_detail_lines(rec)
+        if detail:
+            lis = "".join(
+                f"<li><b>{html.escape(name)}</b><ul>"
+                + "".join(f"<li>{html.escape(dl)}</li>" for dl in dlines) + "</ul></li>"
+                for name, dlines in detail
+            )
+            rows_html.append("<h3>CA detail</h3><ul>" + lis + "</ul>")
 
         crows = command_rows(rec)
         ctrs = []
