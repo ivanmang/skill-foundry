@@ -153,15 +153,7 @@ def check_motif_softlib(trace_text: str, errors: list[str]) -> None:
     for tag in SOFTLIB_1XG_TAGS:
         if not _softlib_tag_present(low, tag):
             _fail(f"Motif ladder tag missing from TRACE/Coverage: {tag}", errors)
-    # dual_drain G coverage
-    dd_ok = all(
-        (f"dual_drain (G{g[1:]})" in low)
-        or (f"dual_drain G{g[1:]}" in low)
-        or (f"softlib_simt_dual_drain" in low and g in low)
-        or (f"dual_drain" in low and g in low)
-        for g in ("G16", "G32", "G64", "G128")
-    )
-    # stricter: require explicit G64 and G128 near dual_drain
+    # require explicit G64 and G128 near dual_drain
     if "G64" not in low or "G128" not in low:
         _fail("Coverage must mention G64 and G128 (dual_drain all-G rule)", errors)
     elif "dual_drain" not in low and "softlib_simt_dual_drain" not in low:
@@ -236,7 +228,6 @@ def check_result_tsv(pack: Path, errors: list[str], suite: str) -> None:
         text = result_md.read_text(encoding="utf-8", errors="replace")
     else:
         text = result.read_text(encoding="utf-8", errors="replace")
-    header = text.splitlines()[0] if text.strip() else ""
     blob = text.lower()
     if "era" not in blob:
         _fail("RESULT must carry era= column/field", errors)
