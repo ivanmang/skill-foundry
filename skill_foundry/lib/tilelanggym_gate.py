@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """tilelangGym SoftLib/ST pack gate — TRACE / Done-bar / Motif / PRC / PR9 / RESULT.
 
+Motif SoftLib T-ladder accepts tip TRACE slash abbrevs (`softlib_simt_T128` / `T256` / `T512`) as well as full tags.
+
 Validates a closed (or in-progress) explore pack directory against the
 SoftLib/ST improve-loop contract, without launching multi-hour opencode.
 
@@ -116,10 +118,40 @@ def check_trace(pack: Path, errors: list[str], warnings: list[str]) -> Path | No
     return trace
 
 
+def _softlib_tag_present(trace_text: str, tag: str) -> bool:
+    """True if full tag appears, or SoftLib T-ladder slash abbrev (tip TRACE form).
+
+    Tip packs (e.g. t788u_r2) write Coverage as:
+      `softlib_simt_T128` / `T256` / `T512`
+    or softlib_simt_T128 / T256 / T512
+    Full tags (fixture) softlib_simt_T256 etc. also PASS.
+    """
+    if tag in trace_text:
+        return True
+    # Only T-ladder tags may abbreviate after a softlib_simt_T* prefix on the same line.
+    if not tag.startswith("softlib_simt_T") or tag == "softlib_simt_T128":
+        # T128 is the anchor — must appear in full (or as softlib_simt_T128) somewhere.
+        # For non-T tags, exact match only (handled above).
+        if tag.startswith("softlib_simt_T"):
+            short = tag[len("softlib_simt_"):]  # T128
+            for line in trace_text.splitlines():
+                if "softlib_simt_T" in line and short in line:
+                    return True
+        return False
+    short = tag[len("softlib_simt_"):]  # T256 / T512
+    for line in trace_text.splitlines():
+        if "softlib_simt_T" not in line:
+            continue
+        # slash-abbrev row: ... T128 / T256 / T512 ...
+        if short in line and ("/" in line or f"softlib_simt_{short}" in line):
+            return True
+    return False
+
+
 def check_motif_softlib(trace_text: str, errors: list[str]) -> None:
     low = trace_text
     for tag in SOFTLIB_1XG_TAGS:
-        if tag not in low:
+        if not _softlib_tag_present(low, tag):
             _fail(f"Motif ladder tag missing from TRACE/Coverage: {tag}", errors)
     # dual_drain G coverage
     dd_ok = all(

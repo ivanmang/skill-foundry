@@ -85,3 +85,7 @@ SoftLib SIMT / VMI best-sweep / MB_* **DONE forbidden** until:
 1. This Motif seed is copied into `EXPLORATION_TRACE.md` § Motif seed.
 2. Coverage COMPARE fills every SoftLib ladder rung + outer dual-era / VAND alternate-builder.
 3. `EXPLORATION_TRACE.md` exists (DB thinking alone ≠ TRACE).
+
+## Coverage COMPARE spelling
+
+TRACE Coverage may list SoftLib T-ladder as full tags (`softlib_simt_T128`, `softlib_simt_T256`, `softlib_simt_T512`) **or** the tip abbreviated slash row (`softlib_simt_T128` / `T256` / `T512`). The pack gate accepts both.
