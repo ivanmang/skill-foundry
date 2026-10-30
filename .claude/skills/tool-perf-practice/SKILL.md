@@ -1,6 +1,6 @@
 ---
 name: tool-perf-practice
-description: Ascend C 算子性能优化最佳实践库。按算子族（matmul / mc2 / conversion 等）组织优化经验与参考代码总结，供性能优化实施阶段查询。触发：查询某类算子的性能优化参考实现、实施某项优化时需加载对应优化经验。
+description: Ascend C operator optimization best-practice library, organized by operator family (matmul / mc2 / conversion / ...). Query for reference implementations and optimization experience during the implementation phase.
 ---
 
 # Ascend C 算子性能优化最佳实践

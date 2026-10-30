@@ -1,6 +1,6 @@
 ---
 name: tool-perf-collect
-description: NPU 性能采集与加速比对比。在真实 NPU 上采集算子性能数据，对比自定义算子 vs 标杆的加速比（msprof_profile_run.sh 的 compare/quick 模式，输出 performance.json + markdown 对比报告）。只负责采集与对比；解读瓶颈用 tool-perf-analysis，优化策略用 tool-perf-optimize，可视化用 tool-perf-report。触发：上板性能、算子性能测试、硬件性能验证、NPU 性能采集、NPU profiling 采集、性能对比、加速比。
+description: On-device NPU performance collection and speedup comparison vs a reference (msprof compare/quick modes; outputs performance.json + a markdown comparison). Collection + comparison only; analysis -> tool-perf-analysis; optimization strategy -> tool-perf-optimize; visualization -> tool-perf-report. Triggers: on-device performance, operator perf test, hardware perf verification, NPU profiling collection, speedup comparison.
 ---
 
 # 上板性能采集与调优

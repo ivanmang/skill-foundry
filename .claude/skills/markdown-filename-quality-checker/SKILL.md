@@ -1,6 +1,6 @@
 ---
 name: markdown-filename-quality-checker
-description: 对Markdown（MD）文档名称进行质量检查，确保其规范性与正确性。适用于对"一个Markdown文档、多个Markdown文档（包输入一个文档目录）"两种场景下Markdown文档名称的语法规范性检查和正确性检查，并输出结构化问题列表及修改建议。触发词：Markdown文档名称、质量检查、质检。
+description: Check Markdown filenames for spec/correctness on a single file or a directory of files.
 ---
 
 # 生态资料文档名称质检技能

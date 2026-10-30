@@ -1,6 +1,6 @@
 ---
 name: tool-perf-report
-description: 面向算子的 msOpProf 数据可视化。执行环境检查、最小非重复采集、已有采集结果重绘，生成独立 HTML 报告（Details/Roofline/Timeline/Cache/Source/片上内存/Warp Stall/指令时间线/原始数据）。采集用 tool-perf-collect，解读用 tool-perf-analysis。触发：把上板采集的性能数据生成可视化报告、查看性能模块页面、重建报告。
+description: msOpProf -> self-contained interactive HTML performance report (Details, Roofline, Timeline, Cache, Source, on-chip memory, Warp Stall, instruction timeline, raw data). Collection -> tool-perf-collect; interpretation -> tool-perf-analysis. Triggers: generate a visualization report from collected data, view a perf module, rebuild a report from an existing collection dir.
 ---
 
 # msOpProf 采集与可视化

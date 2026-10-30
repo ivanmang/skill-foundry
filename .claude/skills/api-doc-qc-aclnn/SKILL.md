@@ -1,6 +1,6 @@
 ---
 name: api-doc-qc-aclnn
-description: |
+description: Quality-check aclnn operator API reference docs against preset rules: spec compliance, code-doc consistency, completeness, readability, correctness. Triggers on checking/reviewing/auditing aclnn*.md docs.
   aclnn 算子 API 说明文档质检工具。用于检查算子 API 文档的质量，基于预设规则检测文档中的问题。
   当用户提到以下场景时触发：
   - 检查/质检/审核/验证 aclnn 算子 API 文档质量

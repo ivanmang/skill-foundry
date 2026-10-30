@@ -1,6 +1,6 @@
 ---
 name: markdown-compliance-quality-checker
-description: |
+description: Markdown compliance check: terminology, tables, privacy, typos, non-standard terms, and discontinued-product terms (non-political). For general structure/language/tags use general-markdown-quality-checker.
   对Markdown（MD）文档进行合规性专项质检：术语、表格、隐私，以及错别字/不规范用语/已下线产品术语（非政治性），输出结构化问题列表及修改建议。适用于直接输入内容、单个文档、多个文档/目录三种场景。通用结构/语言/标签检查请用 general-markdown-quality-checker。
   触发词：合规、术语、隐私、错别字、不规范用语、表格、质检
 version: 1.0.0

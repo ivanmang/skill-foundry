@@ -1,6 +1,6 @@
 ---
 name: tool-perf-analysis
-description: NPU Profiling 报告数据解读与分析。输入 report_path+scope 的 .npu-rep 信封 payload，解包提取指标（流水线占用/算力利用率/资源冲突/带宽/L2命中率/roofline），按 scope 路由解析，输出数据摘要、瓶颈判定、以及带证据/代价/排除条件/验证方式的优化方向建议（不出代码）。采集用 tool-perf-collect，优化实施用 tool-perf-optimize，可视化用 tool-perf-report。触发：解读 profiling 报告、报告说明了什么、报告里能回答哪些问题、这个算子该怎么优化、report_path+scope payload。
+description: Parse an NPU Profiling .npu-rep report (envelope payload: version/scope/report_id/report_path/op_name) into metrics (pipeline occupancy, compute utilization, resource conflicts, bandwidth, L2 hit rate, roofline), then output a data summary, bottleneck verdict, and optimization directions tagged with evidence/cost/exclusion/verification. Collection -> tool-perf-collect; implementation -> tool-perf-optimize; visualization -> tool-perf-report. Triggers: 'interpret this profiling report', 'what does this report tell us', 'how should I optimize this operator', report_path+scope payload.
 ---
 
 # Profiling 报告快照解析（tool-perf-analysis）

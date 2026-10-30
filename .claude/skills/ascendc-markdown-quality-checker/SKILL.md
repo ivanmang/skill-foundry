@@ -1,6 +1,6 @@
 ---
 name: ascendc-markdown-quality-checker
-description: 对AscendC类型的Markdown（MD）文档进行质量检查，确保其结构完整性、语言通顺性、规范性与正确性。适用于对"一段Markdown内容、一个Markdown文档、多个Markdown文档（包输入一个文档目录）"两种场景下Markdown内容的结构完整性、规范性和语言通顺性检查，并输出结构化问题列表及修改建议。触发词：AscendC、Markdown内容、质量检查、质检。
+description: AscendC-specific Markdown quality check: structural integrity, language fluency, spec compliance, correctness. Triggers: AscendC + Markdown + quality check.
 ---
 
 # AscendC API质检技能

@@ -1,6 +1,6 @@
 ---
 name: aclnn-doc-gen
-description: |
+description: Generate Huawei CANN ACLNN operator API reference documentation. Use when asked to: generate ACLNN operator docs; analyze chip/product support differences; extract operator info (parameters, constraints, formulas); compare related interfaces (V1 vs V2, WeightNz variants); or understand an operator's function/params/constraints from its source directory. Follows the external orchestration flow (preprocess -> extract+compare in parallel -> formula+generate_skeleton in parallel -> review).
   生成华为 CANN ACLNN 算子 API 参考文档。当用户提到以下场景时必须使用此技能：
   - 生成 ACLNN 算子文档、生成 aclnn 文档、生成算子文档、写算子API文档
   - 分析 CANN 算子的芯片/产品差异、芯片差异分析、产品支持情况
