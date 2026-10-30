@@ -1,6 +1,6 @@
 ---
 name: tiling-ut-harness
-description: Build and run CANN TilingFunc gtest UTs on an x86 host (pattern B: registry dlopen of the installed op_host .so). For writing tests/tiling UTs, faking fe::PlatFormInfos, constructing OpTilingContextBuilder, linking libtiling_api, and capturing OP_LOGE anchors.
+description: Use when building and running CANN TilingFunc gtest UTs on x86 (registry dlopen of op_host .so) — faking PlatFormInfos and constructing OpTilingContextBuilder.
 disable-model-invocation: true
 category: ops-dev
 license: CANN Open Software License Agreement Version 2.0

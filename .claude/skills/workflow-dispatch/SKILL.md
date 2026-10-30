@@ -1,6 +1,6 @@
 ---
 name: workflow-dispatch
-description: Architecture routing dispatch for operator-development workflows.
+description: Use when routing an operator-development request — detect incremental development, then pick the workflow YAML by NPU arch and start workflow-orchestrator.
 disable-model-invocation: true
 category: workflow
 entry: true

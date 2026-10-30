@@ -1,6 +1,6 @@
 ---
 name: ops-direct-invoke
-description: Main-session entry for user direct-invoke operator development/fix/continuation requests: as PM, aligns requirements and environment, orchestrates the workflow, and organizes delivery. Not for dispatched-node execution/acceptance, template reading, or workflow maintenance.
+description: Use when the user asks to develop, fix, or continue an operator via direct invocation — the main-session PM entry for requirement alignment, orchestration, and delivery.
 category: ops-dev
 entry: true
 stages: repo-requirement, repo-env-check, workflow-orchestrator

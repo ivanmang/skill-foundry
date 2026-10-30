@@ -1,7 +1,7 @@
 ---
 name: op-desc-generation
 disable-model-invocation: true
-description: Generate operator description JSON (shapes, dtypes, attributes) from API description or user specification. First step in the cake agent pipeline.
+description: Use when generating an operator description JSON (shapes, dtypes, attributes) from an API description or user spec — the first step in the cake pipeline.
 category: ascendc-dev
 license: CANN Open Software License Agreement Version 2.0
 origin: cannbot

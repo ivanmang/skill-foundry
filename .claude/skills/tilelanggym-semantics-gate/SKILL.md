@@ -1,13 +1,6 @@
 ---
 name: tilelanggym-semantics-gate
-description: >
-  Use before any SoftLib/SIMD close-loop claim in a tilelangGym ST ANALYSIS or
-  RESULT — run SEMANTICS_GATE S1-S4 and emit PASS|INCONCLUSIVE|wrong-arm; reject
-  shared-VF + post-VF-gold as G-sensitivity; opcode must match lowering (VCMAX
-  wish-name vs VCGMAX); no SoftLib/VMI ranking without era=; reject unlabeled
-  SoftLib SIMT Nx1 vs 1xG merge; reject outer-axis Nx1 using VCGMAX/VCMAX or
-  reused inner Gmap SoT. SoftLib≻SIMD publish still requires st-report PR9
-  overlays both arms.
+description: Use when validating any SoftLib/SIMD close-loop claim in a tilelangGym ST ANALYSIS or RESULT — run SEMANTICS_GATE S1-S4 and reject wrong arms (shared-VF gold, era-less ranking, outer-axis VCGMAX, IPC-only overlays).
 license: CANN Open Software License Agreement Version 2.0
 compatibility: Requires python3. Pair with tilelanggym-st-report.
 category: perf-analysis

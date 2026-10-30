@@ -1,7 +1,7 @@
 ---
 name: dsl-lowering-cv
 disable-model-invocation: true
-description: Lower CV (Cube+Vector) DSL to AscendC via 5 passes, compile each pass, and auto-fix errors using built-in correction examples and Catlass references.
+description: Use when lowering CV (Cube+Vector) DSL to AscendC via 5 passes — compile each pass and auto-fix errors with built-in correction examples and Catlass references.
 subagent:
   enabled: true
   agent_type: general

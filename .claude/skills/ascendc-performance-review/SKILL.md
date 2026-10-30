@@ -1,6 +1,6 @@
 ---
 name: ascendc-performance-review
-description: Static review of AscendC operator code for performance bad smells (no execution). Indexed checklist (PRC series): fast-path gated off by arch macros, hardcoded platform params, memory-access issues (double buffer / copy merge / core balance / UB tiling), RegBase/VF/SIMT/scalar and header overhead. For pre-optimization review and static evidence for bottleneck analysis.
+description: Use when statically reviewing AscendC code for performance bad smells (no execution), or gathering static evidence for bottleneck analysis. Indexed PRC checklist.
 category: perf-optimize
 license: CANN Open Software License Agreement Version 2.0
 origin: cannbot

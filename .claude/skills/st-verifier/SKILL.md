@@ -1,6 +1,6 @@
 ---
 name: st-verifier
-description: ACLNN ST test-artifact acceptance: verify case-structure coverage (coverage_audit.py re-computes expected coverage with build_model), design conformance (branch verification vs design Validation.md matrix), and full framework inclusion.
+description: Use when accepting ACLNN ST test artifacts — verify case-structure coverage, design conformance, and full framework inclusion.
 disable-model-invocation: true
 category: ops-dev
 license: CANN Open Software License Agreement Version 2.0

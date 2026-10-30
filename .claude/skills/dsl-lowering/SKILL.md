@@ -1,7 +1,7 @@
 ---
 name: dsl-lowering
 disable-model-invocation: true
-description: Translate the operator DSL into AscendC code through multiple passes. Also used when diagnosing compilation errors.
+description: Use when translating operator DSL into AscendC code through multiple passes, or diagnosing DSL compilation errors.
 subagent:
   enabled: true
   agent_type: general

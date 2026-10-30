@@ -1,6 +1,6 @@
 ---
 name: markdown-punctuation-quality-checker
-description: Check Markdown punctuation and spacing: Chinese-English mixed spacing, missing/mismatched punctuation, path format.
+description: Use when checking Markdown punctuation and spacing — Chinese-English mixed spacing, mismatched punctuation, and path format.
   对Markdown（MD）文档进行标点符号和空格使用规范性质检，基于预设规则检测文档中的标点符号、空格间距、路径格式等问题。适用于对"一段Markdown内容、一个Markdown文档、多个Markdown文档（包输入一个文档目录）"三种场景下Markdown内容的语法规范性检查，并输出结构化问题列表及修改建议。当用户提到以下场景时触发：
   - 检查/质检/审核/验证 Markdown 文档标点符号质量
   - 检查/质检/审核 Markdown 文档空格间距规范性

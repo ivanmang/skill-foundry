@@ -1,6 +1,6 @@
 ---
 name: ops-registry-invoke
-description: ACLNN operator development workflow entry.
+description: Use when starting an ACLNN operator development workflow — preflight skill dependencies, then dispatch via workflow-dispatch.
 category: ops-dev
 entry: true
 stages: workflow-dispatch, workflow-orchestrator

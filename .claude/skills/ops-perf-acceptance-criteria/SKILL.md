@@ -1,6 +1,6 @@
 ---
 name: ops-perf-acceptance-criteria
-description: Shared acceptance criteria for performance-optimization stages: collection protocol, precision, jitter/net-gain, and generalization ratio. Provides judgment criteria only (does not execute). Dispatched by the ops-perf-optimize workflow per stage.
+description: Use when judging whether a performance-optimization stage passes — shared acceptance criteria (collection protocol, precision, jitter/net-gain, generalization ratio). Dispatched by ops-perf-optimize-workflow.
 category: perf-optimize
 license: CANN Open Software License Agreement Version 2.0
 origin: cannbot

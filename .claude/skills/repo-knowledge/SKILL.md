@@ -1,6 +1,6 @@
 ---
 name: repo-knowledge
-description: CANN Bench direct-invoke operator project knowledge: evaluation tasks, source-submission interface, precision and scoring contracts.
+description: Use when you need CANN Bench direct-invoke project knowledge — evaluation tasks, submission interface, and precision/scoring contracts.
 category: repo-ops
 license: CANN Open Software License Agreement Version 2.0
 origin: cannbot

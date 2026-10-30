@@ -1,6 +1,6 @@
 ---
 name: repo-test-develop
-description: Based on CANN Bench: organize proto/golden/cases.yaml and reuse kernel_eval for direct-invoke operator black-box, white-box, and regression testing.
+description: Use when organizing proto/golden/cases.yaml and reusing kernel_eval for direct-invoke operator black-box, white-box, and regression testing.
 category: repo-ops
 license: CANN Open Software License Agreement Version 2.0
 origin: cannbot

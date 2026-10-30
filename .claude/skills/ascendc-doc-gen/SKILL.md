@@ -1,6 +1,6 @@
 ---
 name: ascendc-doc-gen
-description: Generate Huawei CANN AscendC API reference docs from C++ headers: chip/product support analysis, function prototype/parameter/constraint extraction. Runs four LLM stages (chipdiff -> extract -> generate -> review) inside an external orchestration flow.
+description: Use when generating AscendC API reference docs from C++ headers. Runs four LLM stages (chipdiff -> extract -> generate -> review) in an external orchestration flow.
   生成华为 CANN AscendC API 参考文档。用于 AscendC API 文档生成、芯片与产品支持分析、函数原型/参数/约束提取，以及从 C++ 头文件生成完整 API 参考文档。
   按外部编排流程执行：外部预处理 -> chipdiff -> extract -> generate -> review -> 外部最终合成。skill 只执行四个 LLM 阶段，不检测接口，不运行预处理或后处理脚本。
 metadata:

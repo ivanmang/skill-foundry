@@ -1,6 +1,6 @@
 ---
 name: triton-agent-loop
-description: Multi-agent flow control for Triton Ascend operators: multi-round iterative optimization; the main Claude Code Agent only schedules rounds, each round run by an independent sub-CLI (Phase 0-8; algorithm gene-fusion / mcts / naive).
+description: Use when optimizing a Triton Ascend operator — multi-round flow control where the main agent schedules rounds and sub-CLIs run Phase 0-8.
 category: triton
 entry: true
 license: CANN Open Software License Agreement Version 2.0

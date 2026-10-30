@@ -1,6 +1,6 @@
 ---
 name: workflow-orchestrator
-description: Run a development workflow defined in workflow.yaml.
+description: Use when executing a development workflow defined in workflow.yaml — prepare inputs (workflow/work_dir/provider/prompt), then run each task.
 disable-model-invocation: true
 category: workflow
 license: CANN Open Software License Agreement Version 2.0

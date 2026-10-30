@@ -1,6 +1,6 @@
 ---
 name: ascendc-cross-gen-port
-description: Cross-generation AscendC operator porting entry: port an AscendC operator from a source arch to a user-specified target arch/product (e.g. arch22->arch35, arch22->arch20). Target given in natural language.
+description: Use when porting an AscendC operator across chip generations (e.g. arch22->arch35), with the target arch given in natural language.
 argument-hint: >
   必选：待移植的 arch22 算子实现目录（ops-nn 源算子目录，如 .../cann/ops-nn/activation/gelu；或
   TileLang2AscendC 工程目录 model_new_ascendc.py + kernel/）。

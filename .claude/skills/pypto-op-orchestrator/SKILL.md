@@ -1,6 +1,6 @@
 ---
 name: pypto-op-orchestrator
-description: PyPTO operator development and performance-tuning workflow entry. Triggers: generate/develop/implement a PyPTO operator, tune/optimize an existing PyPTO operator, or explicitly request the pypto-op-develop / pypto-op-tune workflows.
+description: Use when developing or tuning a PyPTO operator — start the pypto-op-develop or pypto-op-tune workflow.
 category: ops-dev
 entry: true
 license: CANN Open Software License Agreement Version 2.0

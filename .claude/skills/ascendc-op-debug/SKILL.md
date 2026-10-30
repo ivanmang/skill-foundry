@@ -1,6 +1,6 @@
 ---
 name: ascendc-op-debug
-description: Unified AscendC operator runtime debugging. Diagnose precision errors, runtime crashes, hangs, and multi-core inconsistencies via a hypothesis-driven protocol with 3-layer evidence (code review -> log analysis -> tools).
+description: Use when debugging AscendC runtime problems — precision errors, crashes, hangs, and multi-core inconsistencies — via a hypothesis-driven protocol with 3-layer evidence.
 category: ascendc-dev
 license: CANN Open Software License Agreement Version 2.0
 origin: cannbot

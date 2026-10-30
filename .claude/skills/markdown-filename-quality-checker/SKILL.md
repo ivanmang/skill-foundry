@@ -1,6 +1,6 @@
 ---
 name: markdown-filename-quality-checker
-description: Check Markdown filenames for spec/correctness on a single file or a directory of files.
+description: Use when checking Markdown filenames against spec, on a single file or a directory of files.
 category: doc-quality
 license: CANN Open Software License Agreement Version 2.0
 origin: cannbot

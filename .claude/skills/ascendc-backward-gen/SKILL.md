@@ -1,6 +1,6 @@
 ---
 name: ascendc-backward-gen
-description: Forward->backward AscendC operator generation entry. From a differentiable PyTorch forward op, generate its backward (gradient) AscendC op and verify accuracy on NPU. Target chip (a3/a5 or arch22/arch35) may be specified in natural language.
+description: Use when generating the backward (gradient) AscendC operator from a differentiable PyTorch forward op and verifying accuracy on NPU.
 argument-hint: >
   输入：forward（正向规格 .py，定义可微 `forward` 函数 + `BACKWARD_SPEC` dict）；
   target（自然语言目标芯片，可选，如 "a3"/"a5"/"arch35"）。

@@ -1,7 +1,7 @@
 ---
 name: dsl-baseline-generation-cv
 disable-model-invocation: true
-description: Generate initial AscendDSL code with scope('cube')/scope('vector') structure for CV fused operators. Use after ascend-call-generation-cv creates the CV project scaffold.
+description: Use when generating initial AscendDSL with scope('cube')/scope('vector') structure for CV fused operators, after the CV scaffold exists.
 category: ascendc-dev
 license: CANN Open Software License Agreement Version 2.0
 origin: cannbot

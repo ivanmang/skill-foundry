@@ -1,6 +1,6 @@
 ---
 name: ops-perf-postprocess
-description: Re-integrate the accepted performance demo into the original project, protect non-target chip families, and check both full suites for regression plus original-code routing. Dispatched by ops-perf-optimize.
+description: Use when re-integrating the accepted performance demo into the original project and checking both full suites for regression. Dispatched by ops-perf-optimize-workflow.
 category: perf-optimize
 license: CANN Open Software License Agreement Version 2.0
 origin: cannbot

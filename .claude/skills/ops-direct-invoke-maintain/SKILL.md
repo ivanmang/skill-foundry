@@ -1,6 +1,6 @@
 ---
 name: ops-direct-invoke-maintain
-description: Maintain the ops-direct-invoke workflow's architecture and design: the PM entry, the ops-direct-invoke-* roles, the workflow skills, and the .cannbot/plugins/ops-direct-invoke/ plugin assets.
+description: Use when maintaining the ops-direct-invoke workflow itself — architecture, roles, workflow skills, and plugin assets.
 category: ops-dev
 license: CANN Open Software License Agreement Version 2.0
 origin: cannbot

@@ -1,6 +1,6 @@
 ---
 name: workflow-rollback-advice
-description: Generate failure analysis / redo advice for workflow rollback: analyze the failed task's session records and historical artifacts.
+description: Use when a workflow task fails and needs rollback advice — analyze session records and historical artifacts to produce failure analysis and redo guidance.
 category: workflow
 license: CANN Open Software License Agreement Version 2.0
 origin: cannbot

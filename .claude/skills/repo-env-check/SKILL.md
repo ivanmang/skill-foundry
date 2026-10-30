@@ -1,6 +1,6 @@
 ---
 name: repo-env-check
-description: For requirement alignment: provide conda/Python and CANN candidates, check the chosen development environment, and record authorization and evidence.
+description: Use when checking the chosen conda/Python + CANN development environment during requirement alignment, and recording authorization and evidence.
 category: repo-ops
 license: CANN Open Software License Agreement Version 2.0
 origin: cannbot

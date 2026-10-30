@@ -1,6 +1,6 @@
 ---
 name: ops-perf-preparation
-description: Isolated-demo preprocessing for performance tasks: strip the project while preserving the invocation, establish build/load evidence, and verify baseline precision with TTK. Dispatched by ops-perf-optimize.
+description: Use when preparing an isolated demo for performance work — strip the project while preserving the invocation and verify baseline precision with TTK. Dispatched by ops-perf-optimize-workflow.
 category: perf-optimize
 license: CANN Open Software License Agreement Version 2.0
 origin: cannbot

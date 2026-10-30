@@ -1,6 +1,6 @@
 ---
 name: ops-direct-invoke-flash
-description: Build a new Ascend C or Ascend950 Reg API kernel from a CPU function, math formula, code snippet, or text description. Covers the full path from spec to a verified NPU kernel.
+description: Use when building a new Ascend C or Ascend950 Reg API kernel from a CPU function, math formula, code snippet, or text description.
 argument-hint: <源文件或描述>
 disable-model-invocation: true
 effort: high

@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated": "2026-10-30T06:53:57.175788+00:00",
+  "generated": "2026-10-30T07:34:17.731185+00:00",
   "skills": [
     {
       "name": "aclnn-doc-gen",
@@ -54,7 +54,7 @@
     },
     {
       "name": "aog-perf-eval",
-      "description": "Dual-method (profiler + wall-clock) performance evaluation for an AscendC operator in an op-gen output directory (output/{project}/src/kernels/{op}/). Uses torch_npu.profiler (V5 kernel_details.csv) plus wall-clock timing.",
+      "description": "Use when measuring an AscendC operator's performance in an op-gen output directory. Dual-method evaluation: torch_npu.profiler (kernel_details.csv) plus wall-clock timing.",
       "category": "ascendc-dev",
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
@@ -104,7 +104,7 @@
     },
     {
       "name": "ascend-call-generation",
-      "description": "Generate AscendC project scaffold (pybind, CMake, host code, kernel skeleton) from functional PyTorch for pure Vector operators. Use after functional-conversion, before dsl-baseline-generation.",
+      "description": "Use when scaffolding an AscendC project (pybind, CMake, host code, kernel skeleton) from functional PyTorch for pure Vector operators. Stage after functional-conversion, before dsl-baseline-generation.",
       "category": "ascendc-dev",
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
@@ -114,7 +114,7 @@
     },
     {
       "name": "ascend-call-generation-cv",
-      "description": "Generate AscendC CV project scaffold (workspace alloc, AIC+AIV dispatch, Catlass headers) from functional PyTorch for Cube+Vector fused operators (matmul+activation, norm+matmul+scale). Use after functional-conversion when operator_type is \"cv\".",
+      "description": "Use when scaffolding an AscendC CV project (workspace alloc, AIC+AIV dispatch, Catlass headers) from functional PyTorch for Cube+Vector fused operators. Stage after functional-conversion with operator_type cv.",
       "category": "ascendc-dev",
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
@@ -134,7 +134,7 @@
     },
     {
       "name": "ascendc-backward-gen",
-      "description": "Forward->backward AscendC operator generation entry. From a differentiable PyTorch forward op, generate its backward (gradient) AscendC op and verify accuracy on NPU. Target chip (a3/a5 or arch22/arch35) may be specified in natural language.",
+      "description": "Use when generating the backward (gradient) AscendC operator from a differentiable PyTorch forward op and verifying accuracy on NPU.",
       "category": "ascendc-dev",
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
@@ -144,7 +144,7 @@
     },
     {
       "name": "ascendc-build-system",
-      "description": "Ascend C operator build and troubleshooting: editing kernel/host code, creating operator projects, editing CMakeLists.txt, diagnosing build failures and missing/wrong .o artifacts, tracing what codegen actually compiled.",
+      "description": "Use when building Ascend C operator code or troubleshooting builds \u2014 editing kernel/host code and CMakeLists.txt, diagnosing missing or wrong .o artifacts.",
       "category": "ascendc-dev",
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
@@ -154,7 +154,7 @@
     },
     {
       "name": "ascendc-cross-gen-port",
-      "description": "Cross-generation AscendC operator porting entry: port an AscendC operator from a source arch to a user-specified target arch/product (e.g. arch22->arch35, arch22->arch20). Target given in natural language.",
+      "description": "Use when porting an AscendC operator across chip generations (e.g. arch22->arch35), with the target arch given in natural language.",
       "category": "ascendc-dev",
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
@@ -164,7 +164,7 @@
     },
     {
       "name": "ascendc-doc-gen",
-      "description": "Generate Huawei CANN AscendC API reference docs from C++ headers: chip/product support analysis, function prototype/parameter/constraint extraction. Runs four LLM stages (chipdiff -> extract -> generate -> review) inside an external orchestration flow.",
+      "description": "Use when generating AscendC API reference docs from C++ headers. Runs four LLM stages (chipdiff -> extract -> generate -> review) in an external orchestration flow.",
       "category": "doc-gen",
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
@@ -184,7 +184,7 @@
     },
     {
       "name": "ascendc-markdown-quality-checker",
-      "description": "AscendC-specific Markdown quality check: structural integrity, language fluency, spec compliance, correctness. Triggers: AscendC + Markdown + quality check.",
+      "description": "Use when checking AscendC Markdown docs for structural integrity, language fluency, spec compliance, and correctness.",
       "category": "doc-quality",
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
@@ -194,7 +194,7 @@
     },
     {
       "name": "ascendc-op-debug",
-      "description": "Unified AscendC operator runtime debugging. Diagnose precision errors, runtime crashes, hangs, and multi-core inconsistencies via a hypothesis-driven protocol with 3-layer evidence (code review -> log analysis -> tools).",
+      "description": "Use when debugging AscendC runtime problems \u2014 precision errors, crashes, hangs, and multi-core inconsistencies \u2014 via a hypothesis-driven protocol with 3-layer evidence.",
       "category": "ascendc-dev",
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
@@ -204,7 +204,7 @@
     },
     {
       "name": "ascendc-performance-review",
-      "description": "Static review of AscendC operator code for performance bad smells (no execution). Indexed checklist (PRC series): fast-path gated off by arch macros, hardcoded platform params, memory-access issues (double buffer / copy merge / core balance / UB tiling), RegBase/VF/SIMT/scalar and header overhead. For pre-optimization review and static evidence for bottleneck analysis.",
+      "description": "Use when statically reviewing AscendC code for performance bad smells (no execution), or gathering static evidence for bottleneck analysis. Indexed PRC checklist.",
       "category": "perf-optimize",
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
@@ -214,7 +214,7 @@
     },
     {
       "name": "blackbox-tester",
-      "description": "TTK black-box execution. Use ops-test-kit aclnn mode to run full black-box precision execution and reporting for a workflow's vendor custom operators: split L0/L1 forward and L2 negative suites, load golden plugins, run ttk aclnn, parse result.csv into two gate conclusions (L0/L1 all-green + L2 all-rejected).",
+      "description": "Use when running TTK black-box precision acceptance for a workflow's vendor custom operators \u2014 L0/L1 forward + L2 negative suites, golden plugins, and result.csv gate conclusions.",
       "category": "ops-dev",
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
@@ -224,7 +224,7 @@
     },
     {
       "name": "cake-code-review",
-      "description": "Review AscendC kernel code for structural red-line violations (P0\u2013P3) and algorithm correctness. Use after dsl-lowering, before ascendc-evaluation. Outputs rectification report; guides fix \u2192 recompile \u2192 unit test \u2192 system test.",
+      "description": "Use when reviewing AscendC kernel code for red-line violations and algorithm correctness, after dsl-lowering and before ascendc-evaluation.",
       "category": "ascendc-dev",
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
@@ -234,7 +234,7 @@
     },
     {
       "name": "cake-evo",
-      "description": "Evolutionary AscendC operator generation: spawn parallel variants with different optimization strategies and select the best. Top-level orchestrator for multi-round kernel optimization.",
+      "description": "Use when evolving an AscendC kernel through parallel optimization variants \u2014 spawn, select the best, across multiple rounds.",
       "category": "ascendc-dev",
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
@@ -274,7 +274,7 @@
     },
     {
       "name": "dsl-baseline-generation",
-      "description": "Generate initial AscendDSL code (class structure, compute, tiling) from functional PyTorch for pure Vector operators. Use after ascend-call-generation creates the project scaffold.",
+      "description": "Use when generating initial AscendDSL code (class structure, compute, tiling) from functional PyTorch for pure Vector operators, after the project scaffold exists.",
       "category": "ascendc-dev",
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
@@ -284,7 +284,7 @@
     },
     {
       "name": "dsl-baseline-generation-cv",
-      "description": "Generate initial AscendDSL code with scope('cube')/scope('vector') structure for CV fused operators. Use after ascend-call-generation-cv creates the CV project scaffold.",
+      "description": "Use when generating initial AscendDSL with scope('cube')/scope('vector') structure for CV fused operators, after the CV scaffold exists.",
       "category": "ascendc-dev",
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
@@ -294,7 +294,7 @@
     },
     {
       "name": "dsl-baseline-generation-easyasc",
-      "description": "Generate initial easyasc-DSL code (Python @kernel() with GMTensor/Tensor/Var primitives) from functional PyTorch. Default target is `from easyasc.a2 import *` (ascend910b) \u2014 A2 exposes both Vector UB-only primitives AND cube primitives (DBuff/Position.L0C/matmul/GetCubeNum), so both Vector and CV/matmul operators can be authored without switching to A5. Use after functional-conversion in the cake workflow.",
+      "description": "Use when generating initial easyasc-DSL code (Python @kernel() with GMTensor/Tensor/Var) from functional PyTorch. Default target `from easyasc.a2 import *`.",
       "category": "ascendc-dev",
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
@@ -304,7 +304,7 @@
     },
     {
       "name": "dsl-easyasc-codegen",
-      "description": "Author AscendC kernels via the easyasc Python DSL \u2014 write @kernel functions, smoke-test in easyasc's simulator against a PyTorch reference, then either compile to AscendC (a2 path) or stop at simulator validation (a5 path). Hand off to dsl-easyasc-post when AscendC artifacts are produced.",
+      "description": "Use when authoring AscendC kernels via the easyasc Python DSL \u2014 write @kernel functions, smoke-test in the simulator, then compile to AscendC (a2) or stop at simulator validation (a5).",
       "category": "ascendc-dev",
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
@@ -314,7 +314,7 @@
     },
     {
       "name": "dsl-easyasc-post",
-      "description": "Post-process easyasc's native AscendC codegen output (op_host/, op_kernel/, build_out/) into cake's expected `output/{op}/{Op}Custom/` layout so ascend-evaluation can consume it. Reads codegen_status.json from dsl-easyasc-codegen; refuses to run on a5 path or when ascendc_generated=false.",
+      "description": "Use when post-processing easyasc's native AscendC codegen output into cake's expected output/ layout so evaluation can consume it.",
       "category": "ascendc-dev",
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
@@ -324,7 +324,7 @@
     },
     {
       "name": "dsl-lowering",
-      "description": "Translate the operator DSL into AscendC code through multiple passes. Also used when diagnosing compilation errors.",
+      "description": "Use when translating operator DSL into AscendC code through multiple passes, or diagnosing DSL compilation errors.",
       "category": "ascendc-dev",
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
@@ -334,7 +334,7 @@
     },
     {
       "name": "dsl-lowering-cv",
-      "description": "Lower CV (Cube+Vector) DSL to AscendC via 5 passes, compile each pass, and auto-fix errors using built-in correction examples and Catlass references.",
+      "description": "Use when lowering CV (Cube+Vector) DSL to AscendC via 5 passes \u2014 compile each pass and auto-fix errors with built-in correction examples and Catlass references.",
       "category": "ascendc-dev",
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
@@ -344,7 +344,7 @@
     },
     {
       "name": "dsl-optimization",
-      "description": "Iteratively optimize AscendDSL code for performance \u2014 tiling tuning, vectorization, pipeline adjustments. Use after evaluation shows correctness passes but speedup is below target.",
+      "description": "Use when iteratively optimizing AscendDSL for performance (tiling tuning, vectorization, pipelining) after correctness passes but speedup is below target.",
       "category": "ascendc-dev",
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
@@ -354,7 +354,7 @@
     },
     {
       "name": "easyasc-codegen",
-      "description": "Run easyasc's codegen on the DSL produced by dsl-baseline-generation-easyasc, build the resulting AscendC project, and soft-link the produced custom_opp_*.run into the location CAKE's evaluation expects. This stage replaces dsl-lowering in the cake workflow. Real AscendC codegen is a2 (ascend910b) only \u2014 for a5 the skill refuses and the op stays simulator-only / report-only. Outputs are isolated under easyasc_workspace/{op_name}_raw/, and this skill also creates the {Op}Custom/build_out/ sentinel directory consumed by easyasc-dsl-bridge.",
+      "description": "Use when running easyasc codegen on the DSL from dsl-baseline-generation-easyasc and staging the built AscendC project for CAKE evaluation (a2 only).",
       "category": "ascendc-dev",
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
@@ -364,7 +364,7 @@
     },
     {
       "name": "easyasc-dsl-bridge",
-      "description": "'Generate the torch_npu pybind cpp and ModelNew Python wrapper that wire an easyasc-codegen kernel into CAKE evaluation. Uses easyasc-style EXECOP dispatch instead of CAKE''s stock pytorch_npu_helper.hpp::EXEC_NPU_CMD, which throws aicore exception 507015 on these kernels. Runs as stage 6, after easyasc-codegen, deriving parameter ordering from the autogen aclnn header.'",
+      "description": "Use when wiring an easyasc-codegen kernel into CAKE evaluation \u2014 generate the torch_npu pybind cpp and ModelNew wrapper with easyasc-style EXECOP dispatch.",
       "category": "ascendc-dev",
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
@@ -400,7 +400,7 @@
     },
     {
       "name": "functional-conversion",
-      "description": "Convert PyTorch nn.Module reference implementation to stateless functional API (module_fn + get_inputs). Use after reference-generation, before ascend-call-generation.",
+      "description": "Use when converting a PyTorch nn.Module reference to stateless functional API (module_fn + get_inputs), before ascend-call-generation.",
       "category": "ascendc-dev",
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
@@ -410,7 +410,7 @@
     },
     {
       "name": "general-markdown-quality-checker",
-      "description": "General Markdown quality check: structure, language fluency, correctness, and npu/@ref tag validity. For punctuation/spacing/path use markdown-punctuation-quality-checker; compliance use markdown-compliance-quality-checker; filenames use markdown-filename-quality-checker; AscendC docs use ascendc-markdown-quality-checker; aclnn docs use api-doc-qc-aclnn.",
+      "description": "Use when checking general Markdown quality \u2014 structure, fluency, correctness, and npu/@ref tag validity. Routes to the punct/compliance/filename/AscendC/aclnn checkers.",
       "category": "doc-quality",
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
@@ -430,7 +430,7 @@
     },
     {
       "name": "git-version-management",
-      "description": "Git version management for operator workspaces: initialization, per-stage commits, worktree parallel isolation, and audit tracing.",
+      "description": "Use when managing git for operator workspaces \u2014 initialization, per-stage commits, worktree parallel isolation, and audit tracing.",
       "category": "repo-ops",
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
@@ -440,7 +440,7 @@
     },
     {
       "name": "markdown-compliance-quality-checker",
-      "description": "Markdown compliance check: terminology, tables, privacy, typos, non-standard terms, and discontinued-product terms (non-political). For general structure/language/tags use general-markdown-quality-checker.",
+      "description": "Use when checking Markdown compliance \u2014 terminology, tables, privacy, typos, and non-standard or discontinued-product terms.",
       "category": "doc-quality",
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
@@ -450,7 +450,7 @@
     },
     {
       "name": "markdown-filename-quality-checker",
-      "description": "Check Markdown filenames for spec/correctness on a single file or a directory of files.",
+      "description": "Use when checking Markdown filenames against spec, on a single file or a directory of files.",
       "category": "doc-quality",
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
@@ -460,7 +460,7 @@
     },
     {
       "name": "markdown-punctuation-quality-checker",
-      "description": "Check Markdown punctuation and spacing: Chinese-English mixed spacing, missing/mismatched punctuation, path format.",
+      "description": "Use when checking Markdown punctuation and spacing \u2014 Chinese-English mixed spacing, mismatched punctuation, and path format.",
       "category": "doc-quality",
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
@@ -480,7 +480,7 @@
     },
     {
       "name": "op-desc-generation",
-      "description": "Generate operator description JSON (shapes, dtypes, attributes) from API description or user specification. First step in the cake agent pipeline.",
+      "description": "Use when generating an operator description JSON (shapes, dtypes, attributes) from an API description or user spec \u2014 the first step in the cake pipeline.",
       "category": "ascendc-dev",
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
@@ -490,7 +490,7 @@
     },
     {
       "name": "ops-direct-invoke",
-      "description": "Main-session entry for user direct-invoke operator development/fix/continuation requests: as PM, aligns requirements and environment, orchestrates the workflow, and organizes delivery. Not for dispatched-node execution/acceptance, template reading, or workflow maintenance.",
+      "description": "Use when the user asks to develop, fix, or continue an operator via direct invocation \u2014 the main-session PM entry for requirement alignment, orchestration, and delivery.",
       "category": "ops-dev",
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": true,
@@ -504,7 +504,7 @@
     },
     {
       "name": "ops-direct-invoke-flash",
-      "description": "Build a new Ascend C or Ascend950 Reg API kernel from a CPU function, math formula, code snippet, or text description. Covers the full path from spec to a verified NPU kernel.",
+      "description": "Use when building a new Ascend C or Ascend950 Reg API kernel from a CPU function, math formula, code snippet, or text description.",
       "category": "ops-dev",
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
@@ -514,7 +514,7 @@
     },
     {
       "name": "ops-direct-invoke-maintain",
-      "description": "Maintain the ops-direct-invoke workflow's architecture and design: the PM entry, the ops-direct-invoke-* roles, the workflow skills, and the .cannbot/plugins/ops-direct-invoke/ plugin assets.",
+      "description": "Use when maintaining the ops-direct-invoke workflow itself \u2014 architecture, roles, workflow skills, and plugin assets.",
       "category": "ops-dev",
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
@@ -524,7 +524,7 @@
     },
     {
       "name": "ops-incremental",
-      "description": "Incremental development entry for existing Ascend C operators: feature completion, fixes, compatibility, tests, or docs. Analyzes requirements, reuses workflow modules, and generates a task-specific workflow.yaml for workflow-orchestrator.",
+      "description": "Use when incrementally developing an existing Ascend C operator \u2014 feature completion, fixes, compatibility, tests, or docs \u2014 producing a task-specific workflow.yaml.",
       "category": "ops-dev",
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
@@ -534,7 +534,7 @@
     },
     {
       "name": "ops-perf-acceptance-criteria",
-      "description": "Shared acceptance criteria for performance-optimization stages: collection protocol, precision, jitter/net-gain, and generalization ratio. Provides judgment criteria only (does not execute). Dispatched by the ops-perf-optimize workflow per stage.",
+      "description": "Use when judging whether a performance-optimization stage passes \u2014 shared acceptance criteria (collection protocol, precision, jitter/net-gain, generalization ratio). Dispatched by ops-perf-optimize-workflow.",
       "category": "perf-optimize",
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
@@ -544,7 +544,7 @@
     },
     {
       "name": "ops-perf-analysis",
-      "description": "Baseline profiling, per-case bottleneck diagnosis, and plan design for frozen performance tasks. Produces an analysis report, precise implementation contract, and scope to freeze. Dispatched by ops-perf-optimize.",
+      "description": "Use when diagnosing bottlenecks and designing an optimization plan for a frozen performance task \u2014 baseline profiling, per-case diagnosis, and an implementation contract. Dispatched by ops-perf-optimize-workflow.",
       "category": "perf-optimize",
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
@@ -554,7 +554,7 @@
     },
     {
       "name": "ops-perf-baseline-evaluate",
-      "description": "For accepted operator performance tasks: check environment/NPU, freeze or generate cases, produce per-case baseline targets, and run on-device msprof collection + speedup comparison vs a reference (compare/quick -> performance.json + markdown). Baseline-evaluation stage only. Dispatched by ops-perf-optimize.",
+      "description": "Use when establishing per-case performance baselines for an accepted optimization task \u2014 env/NPU check, case freeze/generation, msprof collection, speedup vs reference. Dispatched by ops-perf-optimize-workflow.",
       "category": "perf-optimize",
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
@@ -564,7 +564,7 @@
     },
     {
       "name": "ops-perf-implementation",
-      "description": "Isolated-scheme implementation, functional and performance gating, candidate final selection, and full demo acceptance for performance tasks. Feeds from Tiling modeling + device/cluster/core 3-level flow strategy. Dispatched by ops-perf-optimize.",
+      "description": "Use when implementing and gating optimization candidates in isolation, selecting the final one, and running demo acceptance. Dispatched by ops-perf-optimize-workflow.",
       "category": "perf-optimize",
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
@@ -590,7 +590,7 @@
     },
     {
       "name": "ops-perf-postprocess",
-      "description": "Re-integrate the accepted performance demo into the original project, protect non-target chip families, and check both full suites for regression plus original-code routing. Dispatched by ops-perf-optimize.",
+      "description": "Use when re-integrating the accepted performance demo into the original project and checking both full suites for regression. Dispatched by ops-perf-optimize-workflow.",
       "category": "perf-optimize",
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
@@ -600,7 +600,7 @@
     },
     {
       "name": "ops-perf-preparation",
-      "description": "Isolated-demo preprocessing for performance tasks: strip the project while preserving the invocation, establish build/load evidence, and verify baseline precision with TTK. Dispatched by ops-perf-optimize.",
+      "description": "Use when preparing an isolated demo for performance work \u2014 strip the project while preserving the invocation and verify baseline precision with TTK. Dispatched by ops-perf-optimize-workflow.",
       "category": "perf-optimize",
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
@@ -610,7 +610,7 @@
     },
     {
       "name": "ops-perf-profile-feature-extractor",
-      "description": "Complex-operator performance feature extraction. When simple profile metrics (aggregate counters, torch profiler duration) are insufficient, extract diagnostic-level features (pipeline flow graph, per-instruction timing, dependencies and bubbles). Dispatched by ops-perf-optimize.",
+      "description": "Use when simple profile metrics are insufficient and you need diagnostic-level features \u2014 pipeline flow graph, per-instruction timing, dependencies, and bubbles. Dispatched by ops-perf-optimize-workflow.",
       "category": "perf-optimize",
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
@@ -620,7 +620,7 @@
     },
     {
       "name": "ops-registry-invoke",
-      "description": "ACLNN operator development workflow entry.",
+      "description": "Use when starting an ACLNN operator development workflow \u2014 preflight skill dependencies, then dispatch via workflow-dispatch.",
       "category": "ops-dev",
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": true,
@@ -663,7 +663,7 @@
     },
     {
       "name": "pypto-op-orchestrator",
-      "description": "PyPTO operator development and performance-tuning workflow entry. Triggers: generate/develop/implement a PyPTO operator, tune/optimize an existing PyPTO operator, or explicitly request the pypto-op-develop / pypto-op-tune workflows.",
+      "description": "Use when developing or tuning a PyPTO operator \u2014 start the pypto-op-develop or pypto-op-tune workflow.",
       "category": "ops-dev",
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": true,
@@ -673,7 +673,7 @@
     },
     {
       "name": "reference-generation",
-      "description": "Generate reference PyTorch implementation (nn.Module with get_init_inputs/get_random_inputs) from operator description JSON. Faithfully reproduces the Golden definition when provided. Use after op-desc-generation.",
+      "description": "Use when generating the reference PyTorch implementation (nn.Module with get_init_inputs/get_random_inputs) from an operator description JSON, after op-desc-generation.",
       "category": "ascendc-dev",
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
@@ -693,7 +693,7 @@
     },
     {
       "name": "repo-build-guide",
-      "description": "Build Ascend C direct-invoke source and the cann_bench wheel for CANN Bench evaluation; verify real load paths and versions. Use for compiles, installs, and build debugging.",
+      "description": "Use when building Ascend C direct-invoke source or the cann_bench wheel, or debugging compiles, installs, and load paths.",
       "category": "repo-ops",
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
@@ -713,7 +713,7 @@
     },
     {
       "name": "repo-env-check",
-      "description": "For requirement alignment: provide conda/Python and CANN candidates, check the chosen development environment, and record authorization and evidence.",
+      "description": "Use when checking the chosen conda/Python + CANN development environment during requirement alignment, and recording authorization and evidence.",
       "category": "repo-ops",
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
@@ -723,7 +723,7 @@
     },
     {
       "name": "repo-knowledge",
-      "description": "CANN Bench direct-invoke operator project knowledge: evaluation tasks, source-submission interface, precision and scoring contracts.",
+      "description": "Use when you need CANN Bench direct-invoke project knowledge \u2014 evaluation tasks, submission interface, and precision/scoring contracts.",
       "category": "repo-ops",
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
@@ -743,7 +743,7 @@
     },
     {
       "name": "repo-requirement",
-      "description": "Centrally align operator requirements, conda/Python and CANN environments, and modification permissions into a task contract reusable across retries.",
+      "description": "Use when centrally aligning operator requirements, environments, and modification permissions into a reusable task contract.",
       "category": "repo-ops",
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
@@ -753,7 +753,7 @@
     },
     {
       "name": "repo-test-develop",
-      "description": "Based on CANN Bench: organize proto/golden/cases.yaml and reuse kernel_eval for direct-invoke operator black-box, white-box, and regression testing.",
+      "description": "Use when organizing proto/golden/cases.yaml and reusing kernel_eval for direct-invoke operator black-box, white-box, and regression testing.",
       "category": "repo-ops",
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
@@ -803,7 +803,7 @@
     },
     {
       "name": "st-verifier",
-      "description": "ACLNN ST test-artifact acceptance: verify case-structure coverage (coverage_audit.py re-computes expected coverage with build_model), design conformance (branch verification vs design Validation.md matrix), and full framework inclusion.",
+      "description": "Use when accepting ACLNN ST test artifacts \u2014 verify case-structure coverage, design conformance, and full framework inclusion.",
       "category": "ops-dev",
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
@@ -823,7 +823,7 @@
     },
     {
       "name": "tilelanggym-semantics-gate",
-      "description": "Use before any SoftLib/SIMD close-loop claim in a tilelangGym ST ANALYSIS or RESULT \u2014 run SEMANTICS_GATE S1-S4 and emit PASS|INCONCLUSIVE|wrong-arm; reject shared-VF + post-VF-gold as G-sensitivity; opcode must match lowering (VCMAX wish-name vs VCGMAX); no SoftLib/VMI ranking without era=; reject unlabeled SoftLib SIMT Nx1 vs 1xG merge; reject outer-axis Nx1 using VCGMAX/VCMAX or reused inner Gmap SoT. SoftLib\u227bSIMD publish still requires st-report PR9 overlays both arms.",
+      "description": "Use when validating any SoftLib/SIMD close-loop claim in a tilelangGym ST ANALYSIS or RESULT \u2014 run SEMANTICS_GATE S1-S4 and reject wrong arms (shared-VF gold, era-less ranking, outer-axis VCGMAX, IPC-only overlays).",
       "category": "perf-analysis",
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
@@ -883,7 +883,7 @@
     },
     {
       "name": "tiling-ut-harness",
-      "description": "Build and run CANN TilingFunc gtest UTs on an x86 host (pattern B: registry dlopen of the installed op_host .so). For writing tests/tiling UTs, faking fe::PlatFormInfos, constructing OpTilingContextBuilder, linking libtiling_api, and capturing OP_LOGE anchors.",
+      "description": "Use when building and running CANN TilingFunc gtest UTs on x86 (registry dlopen of op_host .so) \u2014 faking PlatFormInfos and constructing OpTilingContextBuilder.",
       "category": "ops-dev",
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
@@ -893,7 +893,7 @@
     },
     {
       "name": "tool-perf-analysis",
-      "description": "Parse an NPU Profiling .npu-rep report (envelope payload: version/scope/report_id/report_path/op_name) into metrics (pipeline occupancy, compute utilization, resource conflicts, bandwidth, L2 hit rate, roofline), then output a data summary, bottleneck verdict, and optimization directions tagged with evidence/cost/exclusion/verification. Collection -> ops-perf-baseline-evaluate; implementation -> ops-perf-implementation; visualization -> tool-perf-report. Triggers: 'interpret this profiling report', 'what does this report tell us', 'how should I optimize this operator', report_path+scope payload.",
+      "description": "Use when interpreting an NPU Profiling .npu-rep report or deciding how to optimize an operator \u2014 metrics, bottleneck verdict, and optimization directions with evidence.",
       "category": "perf-analysis",
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
@@ -903,7 +903,7 @@
     },
     {
       "name": "tool-perf-practice",
-      "description": "Ascend C operator optimization best-practice library, organized by operator family (matmul / mc2 / conversion / ...). Query for reference implementations and optimization experience during the implementation phase.",
+      "description": "Use when querying Ascend C optimization best practices by operator family during an implementation phase.",
       "category": "perf-analysis",
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
@@ -913,7 +913,7 @@
     },
     {
       "name": "tool-perf-report",
-      "description": "msOpProf -> self-contained interactive HTML performance report (Details, Roofline, Timeline, Cache, Source, on-chip memory, Warp Stall, instruction timeline, raw data). Collection -> ops-perf-baseline-evaluate; interpretation -> tool-perf-analysis. Triggers: generate a visualization report from collected data, view a perf module, rebuild a report from an existing collection dir.",
+      "description": "Use when generating an interactive HTML performance report from collected msOpProf data, or viewing/rebuilding a report.",
       "category": "perf-analysis",
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
@@ -923,7 +923,7 @@
     },
     {
       "name": "triton-agent-loop",
-      "description": "Multi-agent flow control for Triton Ascend operators: multi-round iterative optimization; the main Claude Code Agent only schedules rounds, each round run by an independent sub-CLI (Phase 0-8; algorithm gene-fusion / mcts / naive).",
+      "description": "Use when optimizing a Triton Ascend operator \u2014 multi-round flow control where the main agent schedules rounds and sub-CLIs run Phase 0-8.",
       "category": "triton",
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": true,
@@ -1013,7 +1013,7 @@
     },
     {
       "name": "triton-npu-optimize",
-      "description": "Iteratively optimize an Ascend NPU operator through correctness and performance gates. Use for multi-round optimization with a canonical baseline, tracked evidence, and profiler-backed diagnosis.",
+      "description": "Use when iteratively optimizing an Ascend NPU operator through correctness and performance gates with a canonical baseline and profiler-backed diagnosis.",
       "category": "triton",
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
@@ -1053,7 +1053,7 @@
     },
     {
       "name": "triton-npu-profile-operator",
-      "description": "Get and analyze Ascend NPU operator performance data. Use for profiling Ascend operators, identifying hot operators and timing bottlenecks, summarizing performance evidence, comparing profiling results across runs, or inspecting profiler artifacts such as msprof outputs, CSV summaries, and JSON timelines.",
+      "description": "Use when profiling Ascend NPU operators \u2014 identifying hot operators and timing bottlenecks, summarizing performance evidence, or inspecting profiler artifacts.",
       "category": "triton",
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
@@ -1093,7 +1093,7 @@
     },
     {
       "name": "workflow-dispatch",
-      "description": "Architecture routing dispatch for operator-development workflows.",
+      "description": "Use when routing an operator-development request \u2014 detect incremental development, then pick the workflow YAML by NPU arch and start workflow-orchestrator.",
       "category": "workflow",
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": true,
@@ -1106,7 +1106,7 @@
     },
     {
       "name": "workflow-orchestrator",
-      "description": "Run a development workflow defined in workflow.yaml.",
+      "description": "Use when executing a development workflow defined in workflow.yaml \u2014 prepare inputs (workflow/work_dir/provider/prompt), then run each task.",
       "category": "workflow",
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
@@ -1116,7 +1116,7 @@
     },
     {
       "name": "workflow-rollback-advice",
-      "description": "Generate failure analysis / redo advice for workflow rollback: analyze the failed task's session records and historical artifacts.",
+      "description": "Use when a workflow task fails and needs rollback advice \u2014 analyze session records and historical artifacts to produce failure analysis and redo guidance.",
       "category": "workflow",
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,

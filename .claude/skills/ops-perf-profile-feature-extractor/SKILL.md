@@ -1,6 +1,6 @@
 ---
 name: ops-perf-profile-feature-extractor
-description: Complex-operator performance feature extraction. When simple profile metrics (aggregate counters, torch profiler duration) are insufficient, extract diagnostic-level features (pipeline flow graph, per-instruction timing, dependencies and bubbles). Dispatched by ops-perf-optimize.
+description: Use when simple profile metrics are insufficient and you need diagnostic-level features — pipeline flow graph, per-instruction timing, dependencies, and bubbles. Dispatched by ops-perf-optimize-workflow.
 category: perf-optimize
 license: CANN Open Software License Agreement Version 2.0
 origin: cannbot

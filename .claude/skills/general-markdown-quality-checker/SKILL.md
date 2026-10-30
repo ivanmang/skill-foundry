@@ -1,6 +1,6 @@
 ---
 name: general-markdown-quality-checker
-description: General Markdown quality check: structure, language fluency, correctness, and npu/@ref tag validity. For punctuation/spacing/path use markdown-punctuation-quality-checker; compliance use markdown-compliance-quality-checker; filenames use markdown-filename-quality-checker; AscendC docs use ascendc-markdown-quality-checker; aclnn docs use api-doc-qc-aclnn.
+description: Use when checking general Markdown quality — structure, fluency, correctness, and npu/@ref tag validity. Routes to the punct/compliance/filename/AscendC/aclnn checkers.
   对Markdown（MD）文档进行通用质量检查：结构完整性、语言通顺性、内容正确性，以及文档标签（npu标签/@ref位置标签）合法性，输出结构化问题列表及修改建议。适用于直接输入内容、单个文档、多个文档/目录三种场景。
   专项质检请分流给对应技能：
   - 标点/空格/路径 → markdown-punctuation-quality-checker

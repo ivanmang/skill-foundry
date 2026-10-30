@@ -1,6 +1,6 @@
 ---
 name: ascendc-build-system
-description: Ascend C operator build and troubleshooting: editing kernel/host code, creating operator projects, editing CMakeLists.txt, diagnosing build failures and missing/wrong .o artifacts, tracing what codegen actually compiled.
+description: Use when building Ascend C operator code or troubleshooting builds — editing kernel/host code and CMakeLists.txt, diagnosing missing or wrong .o artifacts.
 disable-model-invocation: true
 category: ascendc-dev
 license: CANN Open Software License Agreement Version 2.0

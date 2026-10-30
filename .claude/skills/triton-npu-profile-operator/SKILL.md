@@ -1,6 +1,6 @@
 ---
 name: triton-npu-profile-operator
-description: Get and analyze Ascend NPU operator performance data. Use for profiling Ascend operators, identifying hot operators and timing bottlenecks, summarizing performance evidence, comparing profiling results across runs, or inspecting profiler artifacts such as msprof outputs, CSV summaries, and JSON timelines.
+description: Use when profiling Ascend NPU operators — identifying hot operators and timing bottlenecks, summarizing performance evidence, or inspecting profiler artifacts.
 category: triton
 license: CANN Open Software License Agreement Version 2.0
 origin: cannbot

@@ -1,7 +1,7 @@
 ---
 name: reference-generation
 disable-model-invocation: true
-description: Generate reference PyTorch implementation (nn.Module with get_init_inputs/get_random_inputs) from operator description JSON. Faithfully reproduces the Golden definition when provided. Use after op-desc-generation.
+description: Use when generating the reference PyTorch implementation (nn.Module with get_init_inputs/get_random_inputs) from an operator description JSON, after op-desc-generation.
 category: ascendc-dev
 license: CANN Open Software License Agreement Version 2.0
 origin: cannbot

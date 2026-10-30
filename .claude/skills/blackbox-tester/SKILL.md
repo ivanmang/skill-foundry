@@ -1,6 +1,6 @@
 ---
 name: blackbox-tester
-description: TTK black-box execution. Use ops-test-kit aclnn mode to run full black-box precision execution and reporting for a workflow's vendor custom operators: split L0/L1 forward and L2 negative suites, load golden plugins, run ttk aclnn, parse result.csv into two gate conclusions (L0/L1 all-green + L2 all-rejected).
+description: Use when running TTK black-box precision acceptance for a workflow's vendor custom operators — L0/L1 forward + L2 negative suites, golden plugins, and result.csv gate conclusions.
 disable-model-invocation: true
 category: ops-dev
 license: CANN Open Software License Agreement Version 2.0
