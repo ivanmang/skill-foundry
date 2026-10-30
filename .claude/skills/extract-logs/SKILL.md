@@ -5,29 +5,30 @@ description: >
   results object (passed/failed/skipped counts + per-case status). Use after a
   run, or when asked to extract or normalize test logs into structured results.
 license: CANN Open Software License Agreement Version 2.0
-compatibility: Requires python3.
+compatibility: Requires python3. A standalone parser ships in scripts/parse_gtest.py.
 ---
 
 # Extract Logs
 
-Turn messy runner output into a stable `results` object consumed by the rest of
-the pipeline. This is the single normalization point.
+Turn messy runner output into a stable `results` object. This is the single
+normalization point, and it is **portable**: the parser is bundled with this
+skill, so it works with no repo dependency.
 
-## Steps
+## Portable procedure
 
-1. Point the parser at one log file (or a run directory):
+1. Run the bundled parser on one log file (or a run directory):
 
    ```bash
-   python3 -m skill_foundry.lib.parse_gtest --log reports/<run-id>/<suite>.log \
-     --suite <suite> --out reports/<run-id>/<suite>.results.json
+   python3 scripts/parse_gtest.py --log <run>/<suite>.log \
+     --suite <suite> --out <run>/<suite>.results.json
    ```
 
-   `run-testcase` already calls this automatically after each suite.
+   (`scripts/parse_gtest.py` is relative to this skill's folder — find it next
+   to this SKILL.md.)
 
-2. If a log format is not recognized, extend `parse_gtest.py` with a new
-   pattern **and** add a fixture log under `reports/` for regression of the
-   parser itself.
-3. Keep the output shape stable:
+2. If a log format is not recognized, extend the bundled `scripts/parse_gtest.py`
+   with a new pattern and add a fixture log for the parser itself.
+3. Keep the output shape stable — every downstream stage depends on it:
 
    ```json
    {
@@ -37,6 +38,11 @@ the pipeline. This is the single normalization point.
      "evidence": []
    }
    ```
+
+## Accelerator (optional — if skill-foundry is checked out)
+
+The bundled parser is a copy of `skill_foundry/lib/parse_gtest.py`; either one
+works. `run-testcase`'s accelerator driver calls it automatically after each suite.
 
 ## Gotchas
 
@@ -48,5 +54,5 @@ the pipeline. This is the single normalization point.
 
 ## Output
 
-- A `results` JSON object embedded in `run.json` (or a standalone
-  `<suite>.results.json`).
+- A `results` JSON object (`<suite>.results.json`), embedded in `run.json` when
+  using the accelerator.

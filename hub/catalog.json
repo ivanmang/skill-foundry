@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated": "2026-10-29T06:43:35.345945+00:00",
+  "generated": "2026-10-30T02:06:37.165816+00:00",
   "skills": [
     {
       "name": "extract-logs",
@@ -14,7 +14,7 @@
     },
     {
       "name": "generate-report",
-      "description": "Turn normalized run results (run.json) into a Markdown summary and a standalone HTML report. Use when asked to generate a report or dashboard from a regression run, or after the pipeline has produced results.",
+      "description": "Turn normalized run results into a Markdown summary and a standalone HTML report. Use when asked to generate a report or dashboard from a regression run, or after the pipeline has produced results.",
       "status": "published"
     },
     {
@@ -34,12 +34,12 @@
     },
     {
       "name": "run-testcase",
-      "description": "Run one or more benchmark/regression suites declared in config/suites.json and produce a normalized run record (run.json + raw log). Use when asked to run a regression, run the suite matrix, execute a single suite/testcase, or re-run a suite for a specific target such as pto-isa.",
+      "description": "Run one or more pto-isa benchmark/regression suites (CPU simulator ST and NPU simulator ST) and capture a reproducible run record. Use when asked to run a regression, run the suite matrix, execute a single suite/testcase, or re-run a suite for a target such as pto-isa.",
       "status": "published"
     },
     {
       "name": "skill-maintainer",
-      "description": "Review regression results and user corrections, then propose or apply minimal, reviewable updates to the harness skills. Use when asked to update the skills, remember a correction, or review learnings/recent.md and promote reusable patterns.",
+      "description": "Review regression results and user corrections, then propose or apply minimal, reviewable updates to the skills: capture lessons as LRN entries and promote them (gated + LLM-reviewed) into the shared corpus. Use when asked to update the skills, remember a correction, or review learnings/recent.md and promote reusable patterns.",
       "status": "published"
     }
   ]

@@ -6,7 +6,7 @@ description: >
   skill-maintainer when corrections or reusable patterns surface. Use when asked
   to run the full analysis pipeline or a complete regression analysis.
 license: CANN Open Software License Agreement Version 2.0
-compatibility: Requires python3 and git. Delegates to the run/extract/report/review skills.
+compatibility: Requires python3 and git. Each stage is portable; the accelerator path needs the skill-foundry checkout.
 ---
 
 # Full Analysis Pipeline
@@ -16,30 +16,23 @@ skill is the wiring and the handoff.
 
 ## Steps
 
-1. **Run** — `run-testcase` for the target's enabled suites
-   (`python3 -m skill_foundry.workflow.run --all-suites`, or a narrow `--suite`/`--testcase`).
-2. **Extract** — confirm `run.json` contains per-suite `results` (the driver
-   does this automatically; re-run `extract-logs` only if a parse failed).
-3. **Report** — `generate-report` to `report.md` + `report.html`.
+1. **Run** — `run-testcase` for the target's suites (real pto-isa commands, or
+   the accelerator `python3 -m skill_foundry.workflow.run --all-suites`).
+2. **Extract** — `extract-logs` (bundled parser) into a `results` object.
+3. **Report** — `generate-report` to `report.md` (+ `report.html`).
 4. **Review** — `review-inconsistencies` against the pinned baseline.
 5. **Handoff** — if the review surfaced (a) a user correction, (b) a repeated
-   failure pattern, or (c) a missing check, log it with `./harness teach "…"`
-   and hand to `skill-maintainer`.
+   failure pattern, or (c) a missing check, log it with `skill-maintainer`.
 
 ## Pipeline contract
 
 - Each stage reads the previous stage's files; do not recompute from scratch.
 - A failed suite does **not** abort the pipeline; it is recorded and reported.
-- The pipeline is idempotent: re-running with the same run-id overwrites that
-  run's artifacts.
+- The pipeline is idempotent: re-running the same run overwrites that run's artifacts.
 
 ## Handoff to maintainer
 
-Log with `./harness teach "wrong -> correct -> action"` (it writes the strict
-`LRN-…` entry automatically), then hand to `skill-maintainer` to promote.
-`skill-maintainer` runs `./harness promote --direct`, which gates (add-only ·
-no-secrets · size), gets an LLM judge (`SKILL_REVIEWER`) to APPROVE, commits,
-and pushes to `origin/main`. (`--pr` opens an MR that auto-merges when CI is green.)
+Log a correction and promote it (see `skill-maintainer` for the full loop):
 
 ```markdown
 ## LRN-20261027-003
@@ -51,5 +44,5 @@ and pushes to `origin/main`. (`--pr` opens an MR that auto-merges when CI is gre
 
 ## Output
 
-- `reports/<run-id>/run.json`, `report.md`, `report.html`
-- `learnings/recent.md` entry (when applicable)
+- `run.json`, `report.md`, `report.html`
+- a `learnings/recent.md` entry (when applicable)

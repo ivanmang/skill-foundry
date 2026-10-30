@@ -236,15 +236,17 @@ env.example.sh            copy to env.sh for machine-local CANN / pto-isa paths
 - Skills follow the open [Agent Skills spec](https://agentskills.io/specification):
   required `name` + `description` frontmatter (name matches folder, lowercase-hyphen,
   <=64 chars; description <=1024 chars), plus optional `license` + `compatibility`.
-- **Scripts are co-located in the `skill_foundry/` package**, not inside a single
-  skill folder, because the run/extract/diff/report drivers are shared by several
-  skills. Skills reference them from the harness root (`python3 -m skill_foundry...`),
-  and `./harness` maps only the product (skill-ops) verbs onto
-  `skill_foundry/cli/`; the regression workflow modules live in
-  `skill_foundry/workflow/` and are run directly.
-  Consequence: these are *co-located repo skills* — they work when this repo is
-  checked out and used as the working directory, but a single skill folder copied
-  alone into another tool's skills dir is **not** self-contained.
+- **Skills are portable.** Each skill is self-contained knowledge: it teaches
+  the real commands + rules, and `extract-logs` even bundles its own parser
+  (`extract-logs/scripts/parse_gtest.py`). Copy a skill folder into any
+  Agent-Skills dir and it works standalone.
+- **The harness is an optional accelerator.** `./harness` (and the
+  `skill_foundry/` package) collapses the regression workflow into one command
+  (`python3 -m skill_foundry.workflow.run --all-suites --report --open --review`)
+  and automates the skill-ops loop (`teach`/`promote` with gates + LLM review).
+  Each skill documents the portable procedure first and the accelerator second.
+- **The MCP server is first-class**: its tools call the `skill_foundry` library
+  in-process (via the shared dispatcher), not by shelling out to `./harness`.
 - **Conformance is machine-checked**: `./harness selfcheck` runs
   `skill_foundry/lib/validate_skills.py` against the open spec (or run it directly:
   `python3 -m skill_foundry.lib.validate_skills`).

@@ -8,16 +8,15 @@ Tools:
   teach           log a correction (a lesson about an existing skill)
   promote         direct | pr | propose | apply (learnings or a named skill draft)
 
-The server wraps the same `./harness` CLI (subprocess) so behavior is identical
-to the command line. The harness is ONLY the skill-ops loop; the bundled
-regression workflow lives as directly-runnable scripts under
-skill_foundry/workflow/ that the skills reference — not here.
+First-class tools: each calls the `skill_foundry` library **in-process** (via the
+shared dispatcher) — no shelling out to `./harness`. Behavior is identical to the
+CLI because it's the same code path.
 
 Dependency:
   pip install fastmcp          # or: uv pip install fastmcp
 
 Run (local / stdio):
-  python mcp/server.py                          # stdio (attach to an agent directly)
+  python3 mcp/server.py                          # stdio (attach to an agent directly)
   fastmcp run mcp/server.py                     # FastMCP CLI (stdio)
 
 Run (hosted on b10, HTTP):
@@ -26,7 +25,8 @@ Run (hosted on b10, HTTP):
 
 from __future__ import annotations
 
-import subprocess
+import contextlib
+import io
 import sys
 from pathlib import Path
 
@@ -40,22 +40,21 @@ except ImportError:  # pragma: no cover
     print("fastmcp is required — install it: pip install fastmcp", file=sys.stderr)
     raise SystemExit(1)
 
+sys.path.insert(0, str(HARNESS))  # in case the server is launched from a cwd other than the repo
+from skill_foundry import dispatch  # noqa: E402
+
 mcp = FastMCP("harness-mcp")
 
 
-def _run(*argv: str, timeout: int = 3600) -> str:
-    """Run `./harness <argv>` and return combined stdout+stderr."""
+def _run(*argv: str) -> str:
+    """Dispatch a verb in-process and return its combined stdout+stderr."""
+    buf = io.StringIO()
     try:
-        r = subprocess.run(
-            [str(HARNESS / "harness"), *argv],
-            cwd=HARNESS, capture_output=True, text=True, timeout=timeout,
-        )
-    except subprocess.TimeoutExpired:
-        return f"error: harness command timed out after {timeout}s: {' '.join(argv)}"
-    out = (r.stdout or "").rstrip()
-    if r.stderr:
-        out = (out + "\n" + r.stderr.rstrip()) if out else r.stderr.rstrip()
-    return out
+        with contextlib.redirect_stdout(buf), contextlib.redirect_stderr(buf):
+            dispatch.dispatch(argv[0], list(argv[1:]))
+    except Exception as exc:  # pragma: no cover - defensive
+        print(f"error: {exc}", file=buf)
+    return buf.getvalue().rstrip()
 
 
 @mcp.tool()

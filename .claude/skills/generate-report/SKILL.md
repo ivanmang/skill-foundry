@@ -1,50 +1,47 @@
 ---
 name: generate-report
 description: >
-  Turn normalized run results (run.json) into a Markdown summary and a
-  standalone HTML report. Use when asked to generate a report or dashboard from
-  a regression run, or after the pipeline has produced results.
+  Turn normalized run results into a Markdown summary and a standalone HTML
+  report. Use when asked to generate a report or dashboard from a regression
+  run, or after the pipeline has produced results.
 license: CANN Open Software License Agreement Version 2.0
-compatibility: Requires python3.
+compatibility: Requires python3. The report itself is plain Markdown + inline HTML.
 ---
 
 # Generate Report
 
-Produce a reviewable, human-readable report from normalized results.
+Produce a reviewable, human-readable report from normalized results. This skill
+is **portable**: the report is just Markdown — write it from the `extract-logs`
+results following the canonical sections below.
 
-## Steps
+## Portable procedure
 
-1. Generate from one or more run records:
+Build `report.md` with these canonical sections:
 
-   ```bash
-   python3 -m skill_foundry.workflow.report --run reports/<run-id>/run.json --out reports/<run-id>/report
-   python3 -m skill_foundry.workflow.report --run reports/<run-id>/run.json \
-     --known .claude/skills/pto-isa/references/known-failures.md \
-     --out reports/<run-id>/report
-   ```
+1. **Header** — run id, target, repo commit, date, host, toolchain/CANN version.
+2. **Summary matrix** — suite × {passed, failed, skipped, status, duration}.
+3. **Failures** — grouped by suite, each with the first concrete evidence line.
+4. **Perf** — avg and p99 deltas vs baseline (p99 +15% = regression flag).
+5. **Notes** — env issues, timeouts, known failures matched from the triage corpus.
 
-2. The report must include, per suite:
-   - pass / fail / skip counts and total
-   - per-case failures (name + first evidence line)
-   - duration (total and per-suite)
-3. When diffing is requested, embed the `review-inconsistencies` output
-   (regressions, fixes, new/removed cases, perf flags) instead of duplicating it.
+If writing `report.html`, keep it **self-contained** (inline CSS/JS) so it can be
+served without extra assets.
 
-## Report sections (canonical)
+## Accelerator (optional — if skill-foundry is checked out)
 
-1. Header — run id, target, repo commit, date, host, toolchain/CANN version.
-2. Summary matrix — suite × {passed, failed, skipped, status, duration}.
-3. Failures — grouped by suite, with evidence.
-4. Perf — avg and p99 deltas vs baseline (p99 +15% = regression flag).
-5. Notes — env issues, timeouts, known failures matched from the triage corpus.
+```bash
+python3 -m skill_foundry.workflow.report --run reports/<run-id>/run.json \
+  --known .claude/skills/pto-isa/references/known-failures.md \
+  --out reports/<run-id>/report
+```
 
 ## Gotchas
 
-- Never rewrite a FAIL into a PASS in the report; annotate it as "known failure"
-  using the adapter's `known-failures.md` if applicable.
-- HTML output must be self-contained (inline CSS/JS) so it can be served from
-  the dashboard without extra assets.
+- Never rewrite a FAIL into a PASS; annotate it as a known failure using the
+  adapter's `known-failures.md` when applicable.
+- When diffing is requested, embed `review-inconsistencies` output instead of
+  duplicating it.
 
 ## Output
 
-- `report.md` and `report.html` under the run directory.
+- `report.md` (and, when asked, a self-contained `report.html`).

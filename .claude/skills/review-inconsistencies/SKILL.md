@@ -6,21 +6,19 @@ description: >
   regressions using avg and p99 (flag p99 +15% even if avg is stable). Use when
   asked to review a run or compare it to the baseline.
 license: CANN Open Software License Agreement Version 2.0
-compatibility: Requires python3.
+compatibility: Requires python3. The comparison rules are deterministic and portable.
 ---
 
 # Review Inconsistencies
 
-The regression signal lives here. Diff a run against `reports/baseline/<target>.json` (the baseline for the run's target — cross-target diffs are refused).
+The regression signal lives here. Diff a run against `reports/baseline/<target>.json`
+(the baseline for the run's target — cross-target diffs are refused). This skill
+is **portable**: the rules below are what matter; apply them to any two
+normalized results objects.
 
-## Steps
+## Portable procedure
 
-1. Run the diff:
-
-   ```bash
-   python3 -m skill_foundry.workflow.review --run reports/<run-id>/run.json
-   ```
-
+1. Load the run's `results` and the baseline's `results`.
 2. Classify every delta:
    - **regression** — PASS in baseline, FAIL now
    - **fix** — FAIL in baseline, PASS now
@@ -34,7 +32,13 @@ The regression signal lives here. Diff a run against `reports/baseline/<target>.
 ## Perf rule (agreed)
 
 - Flag when **p99 increases >15%** even if the average is stable.
-- Always show both avg and p99 deltas in the summary; do not report avg alone.
+- Always show both avg and p99 deltas; do not report avg alone.
+
+## Accelerator (optional — if skill-foundry is checked out)
+
+```bash
+python3 -m skill_foundry.workflow.review --run reports/<run-id>/run.json
+```
 
 ## Gotchas
 
@@ -47,4 +51,4 @@ The regression signal lives here. Diff a run against `reports/baseline/<target>.
 
 ## Output
 
-- Human summary (stdout) + a machine-readable delta object.
+- A human summary + a machine-readable delta object.
