@@ -5,6 +5,7 @@ description: Use when managing git for operator workspaces — initialization, p
 category: repo-ops
 license: CANN Open Software License Agreement Version 2.0
 origin: cannbot
+maturity: ready
 ---
 
 ## 概述

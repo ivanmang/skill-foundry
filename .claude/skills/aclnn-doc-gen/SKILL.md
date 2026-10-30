@@ -19,6 +19,7 @@ metadata:
 category: doc-gen
 license: CANN Open Software License Agreement Version 2.0
 origin: cannbot
+maturity: ready
 ---
 
 # ACLNN 文档生成技能

@@ -4,6 +4,7 @@ description: Generate benchmark code for an Ascend NPU operator. Use when there 
 category: triton
 license: CANN Open Software License Agreement Version 2.0
 origin: cannbot
+maturity: ready
 ---
 
 # Bench Gen

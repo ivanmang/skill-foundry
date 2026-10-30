@@ -4,6 +4,7 @@ description: Use when preparing an isolated demo for performance work — strip 
 category: perf-optimize
 license: CANN Open Software License Agreement Version 2.0
 origin: cannbot
+maturity: ready
 ---
 
 # 前处理

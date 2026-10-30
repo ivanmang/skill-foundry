@@ -5,6 +5,7 @@ description: Use when generating initial AscendDSL code (class structure, comput
 category: ascendc-dev
 license: CANN Open Software License Agreement Version 2.0
 origin: cannbot
+maturity: ready
 ---
 
 ## What I do

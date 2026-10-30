@@ -4,6 +4,7 @@ description: Use when organizing proto/golden/cases.yaml and reusing kernel_eval
 category: repo-ops
 license: CANN Open Software License Agreement Version 2.0
 origin: cannbot
+maturity: ready
 ---
 
 # 仓库测试开发

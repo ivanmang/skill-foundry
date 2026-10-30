@@ -5,6 +5,7 @@ description: Use when reviewing AscendC kernel code for red-line violations and 
 category: ascendc-dev
 license: CANN Open Software License Agreement Version 2.0
 origin: cannbot
+maturity: ready
 ---
 
 # AscendC 编码红线 Review 技能包

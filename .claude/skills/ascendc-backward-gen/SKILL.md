@@ -7,6 +7,7 @@ argument-hint: >
 category: ascendc-dev
 license: CANN Open Software License Agreement Version 2.0
 origin: cannbot
+maturity: ready
 ---
 
 # ascendc-backward-gen — 正向→反向生成入口

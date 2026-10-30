@@ -4,6 +4,7 @@ description: CANN Bench candidate-operator implementation authenticity, wrapper 
 category: repo-ops
 license: CANN Open Software License Agreement Version 2.0
 origin: cannbot
+maturity: ready
 ---
 
 # 仓库编码规则

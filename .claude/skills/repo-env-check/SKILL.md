@@ -4,6 +4,7 @@ description: Use when checking the chosen conda/Python + CANN development enviro
 category: repo-ops
 license: CANN Open Software License Agreement Version 2.0
 origin: cannbot
+maturity: ready
 ---
 
 # 仓库环境检查

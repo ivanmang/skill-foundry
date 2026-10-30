@@ -5,6 +5,7 @@ disable-model-invocation: true
 category: ops-dev
 license: CANN Open Software License Agreement Version 2.0
 origin: cannbot
+maturity: ready
 ---
 
 # TTK 黑盒精度验收

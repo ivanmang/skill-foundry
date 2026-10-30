@@ -4,6 +4,7 @@ description: Establish a reusable canonical optimize baseline by reusing or gene
 category: triton
 license: CANN Open Software License Agreement Version 2.0
 origin: cannbot
+maturity: ready
 ---
 
 # Prepare Optimize Baseline

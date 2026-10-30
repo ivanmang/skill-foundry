@@ -4,6 +4,7 @@ description: Use when centrally aligning operator requirements, environments, an
 category: repo-ops
 license: CANN Open Software License Agreement Version 2.0
 origin: cannbot
+maturity: ready
 ---
 
 # 直调算子需求对齐

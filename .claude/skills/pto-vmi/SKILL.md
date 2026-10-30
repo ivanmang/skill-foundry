@@ -9,6 +9,7 @@ license: CANN Open Software License Agreement Version 2.0
 compatibility: Requires python3 and git. Needs ASCEND_HOME_PATH + the ptoas-vmi venv (.venv-ptoas312) and the A5 simulator (Ascend950PR_9599); full runs run on ecs.
 category: regression
 origin: native
+maturity: ready
 ---
 
 # PTO-VMI regression adapter

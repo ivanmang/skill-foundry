@@ -6,6 +6,7 @@ argument-hint: >-
 category: ascendc-dev
 license: CANN Open Software License Agreement Version 2.0
 origin: cannbot
+maturity: ready
 ---
 
 # /aog-perf-eval — AscendC 算子双方法性能评估

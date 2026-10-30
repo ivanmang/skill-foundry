@@ -4,6 +4,7 @@ description: Use when statically reviewing AscendC code for performance bad smel
 category: perf-optimize
 license: CANN Open Software License Agreement Version 2.0
 origin: cannbot
+maturity: ready
 ---
 
 # AscendC 性能静态检视

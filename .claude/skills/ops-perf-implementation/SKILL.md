@@ -4,6 +4,7 @@ description: Use when implementing and gating optimization candidates in isolati
 category: perf-optimize
 license: CANN Open Software License Agreement Version 2.0
 origin: cannbot
+maturity: ready
 ---
 
 # 实施验证

@@ -4,6 +4,7 @@ description: Use when profiling Ascend NPU operators — identifying hot operato
 category: triton
 license: CANN Open Software License Agreement Version 2.0
 origin: cannbot
+maturity: ready
 ---
 
 # Ascend NPU Operator Profiler

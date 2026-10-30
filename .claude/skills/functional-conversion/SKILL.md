@@ -5,6 +5,7 @@ description: Use when converting a PyTorch nn.Module reference to stateless func
 category: ascendc-dev
 license: CANN Open Software License Agreement Version 2.0
 origin: cannbot
+maturity: ready
 ---
 
 ## What I do

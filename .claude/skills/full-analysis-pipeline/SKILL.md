@@ -11,6 +11,7 @@ category: regression
 entry: true
 stages: run-testcase, extract-logs, generate-report, review-inconsistencies, skill-maintainer
 origin: native
+maturity: ready
 ---
 
 # Full Analysis Pipeline

@@ -4,6 +4,7 @@ description: Use when querying Ascend C optimization best practices by operator 
 category: perf-analysis
 license: CANN Open Software License Agreement Version 2.0
 origin: cannbot
+maturity: ready
 ---
 
 # Ascend C 算子性能优化最佳实践

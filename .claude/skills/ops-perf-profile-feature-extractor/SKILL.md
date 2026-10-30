@@ -4,6 +4,7 @@ description: Use when simple profile metrics are insufficient and you need diagn
 category: perf-optimize
 license: CANN Open Software License Agreement Version 2.0
 origin: cannbot
+maturity: ready
 ---
 
 # 性能特征提取（流水图）

@@ -4,6 +4,7 @@ description: Use when a workflow task fails and needs rollback advice — analyz
 category: workflow
 license: CANN Open Software License Agreement Version 2.0
 origin: cannbot
+maturity: ready
 ---
 
 # Workflow Rollback Advice

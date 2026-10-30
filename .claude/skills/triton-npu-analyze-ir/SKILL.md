@@ -4,6 +4,7 @@ description: Use when an agent needs to capture, archive, or inspect Triton Asce
 category: triton
 license: CANN Open Software License Agreement Version 2.0
 origin: cannbot
+maturity: ready
 ---
 
 # Ascend Operator IR Analyzer

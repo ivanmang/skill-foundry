@@ -10,6 +10,7 @@ argument-hint: >
 category: ascendc-dev
 license: CANN Open Software License Agreement Version 2.0
 origin: cannbot
+maturity: ready
 ---
 
 # ascendc-cross-gen-port — 跨代际移植入口

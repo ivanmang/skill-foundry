@@ -4,6 +4,7 @@ description: Per-category Triton-Ascend operator-writing guidance — writing es
 category: triton
 license: CANN Open Software License Agreement Version 2.0
 origin: cannbot
+maturity: ready
 ---
 
 # Op Coding Guide

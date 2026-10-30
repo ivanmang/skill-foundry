@@ -4,6 +4,7 @@ description: Use when checking Markdown filenames against spec, on a single file
 category: doc-quality
 license: CANN Open Software License Agreement Version 2.0
 origin: cannbot
+maturity: ready
 ---
 
 # 生态资料文档名称质检技能

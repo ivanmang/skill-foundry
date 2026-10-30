@@ -4,6 +4,7 @@ description: Use when evolving an AscendC kernel through parallel optimization v
 category: ascendc-dev
 license: CANN Open Software License Agreement Version 2.0
 origin: cannbot
+maturity: ready
 ---
 
 ## What I do

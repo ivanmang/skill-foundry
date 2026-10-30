@@ -4,6 +4,7 @@ description: Use when building Ascend C direct-invoke source or the cann_bench w
 category: repo-ops
 license: CANN Open Software License Agreement Version 2.0
 origin: cannbot
+maturity: ready
 ---
 
 # 仓库构建指南

@@ -15,6 +15,7 @@ metadata:
 category: doc-quality
 license: CANN Open Software License Agreement Version 2.0
 origin: cannbot
+maturity: ready
 ---
 # aclnn 算子 API 说明文档质检 Skill
 

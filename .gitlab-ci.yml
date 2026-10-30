@@ -1,0 +1,13 @@
+# gitcode (GitLab) CI — mirrors the local pre-push gate (.githooks/pre-push).
+# Blocks a merge when the skill corpus or the generated index is stale, or when
+# a cross-skill reference dangles or a unit test regresses.
+stages:
+  - check
+
+skill-gate:
+  stage: check
+  image: python:3.11-slim
+  script:
+    - python3 -m skill_foundry.lib.validate_skills      # spec + reference integrity
+    - python3 -m skill_foundry.cli.skills --check       # catalog/index freshness
+    - python3 -m unittest discover -s tests             # unit tests

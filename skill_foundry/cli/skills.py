@@ -56,6 +56,7 @@ def collect() -> list[dict]:
                 "entry": _is_true(fm.get("entry") or ""),
                 "stages": [s.strip() for s in (fm.get("stages") or "").split(",") if s.strip()],
                 "origin": (fm.get("origin") or "").strip(),
+                "maturity": (fm.get("maturity") or "ready").strip(),
                 "status": status,
                 "path": str(d.relative_to(HARNESS)),
             })
@@ -67,7 +68,7 @@ def _catalog_payload(skills: list[dict]) -> dict:
         "version": 1,
         "generated": _dt.datetime.now(_dt.timezone.utc).isoformat(),
         "skills": [
-            {k: s[k] for k in ("name", "description", "category", "license", "entry", "stages", "origin", "status")}
+            {k: s[k] for k in ("name", "description", "category", "license", "entry", "stages", "origin", "maturity", "status")}
             for s in skills
         ],
     }
@@ -123,16 +124,20 @@ def _build_index(skills: list[dict]) -> str:
         for s in by_cat[cat]:
             mark = "◎ " if s["entry"] else "  "
             tag = f" · {s.get('origin')}" if s.get("origin") else ""
+            if s.get("maturity") and s["maturity"] not in ("ready", ""):
+                tag += f" · {s['maturity']}"
             lines.append(f"{mark}`{s['name']}`{tag} — {_first_sentence(s['description'], 120)}")
         lines.append("")
 
     return "\n".join(lines).rstrip() + "\n"
 
 
-def _skill_filter(s: dict, q: str, category: str | None, entry_only: bool, origin: str | None = None) -> bool:
+def _skill_filter(s: dict, q: str, category: str | None, entry_only: bool, origin: str | None = None, maturity: str | None = None) -> bool:
     if category and s["category"] != category:
         return False
     if origin and s.get("origin") != origin:
+        return False
+    if maturity and s.get("maturity") != maturity:
         return False
     if entry_only and not s["entry"]:
         return False
@@ -176,6 +181,7 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--search", default=None, help="Filter by name/description/category substring.")
     ap.add_argument("--category", default=None, help="Filter by exact category.")
     ap.add_argument("--origin", default=None, help="Filter by exact origin (native|cannbot).")
+    ap.add_argument("--maturity", default=None, help="Filter by maturity (ready|draft|deprecated).")
     ap.add_argument("--scope", choices=["core", "all"], default=None,
                     help="Preset for --install/--uninstall ('core' = origin: native).")
     ap.add_argument("--entry", action="store_true", help="Entry points only.")
@@ -194,6 +200,8 @@ def main(argv: list[str] | None = None) -> int:
             argv += ["--scope", args.scope]
         if args.origin:
             argv += ["--origin", args.origin]
+        if args.maturity:
+            argv += ["--maturity", args.maturity]
         if args.category:
             argv += ["--category", args.category]
         if args.entry:
@@ -207,7 +215,7 @@ def main(argv: list[str] | None = None) -> int:
         return check()
 
     skills = collect()
-    skills = [s for s in skills if _skill_filter(s, args.search or "", args.category, args.entry, args.origin)]
+    skills = [s for s in skills if _skill_filter(s, args.search or "", args.category, args.entry, args.origin, args.maturity)]
     if args.inbox:
         skills = [s for s in skills if s["status"] == "draft"]
 

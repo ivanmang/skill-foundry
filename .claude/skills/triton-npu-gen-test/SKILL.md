@@ -4,6 +4,7 @@ description: Generate correctness test code for an Ascend NPU operator from sour
 category: triton
 license: CANN Open Software License Agreement Version 2.0
 origin: cannbot
+maturity: ready
 ---
 
 # Test Gen

@@ -5,6 +5,7 @@ disable-model-invocation: true
 category: workflow
 license: CANN Open Software License Agreement Version 2.0
 origin: cannbot
+maturity: ready
 ---
 
 # Workflow Orchestrator

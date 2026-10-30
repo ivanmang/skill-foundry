@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated": "2026-10-30T07:34:17.731185+00:00",
+  "generated": "2026-10-30T07:43:43.034642+00:00",
   "skills": [
     {
       "name": "aclnn-doc-gen",
@@ -10,6 +10,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "maturity": "ready",
       "status": "published"
     },
     {
@@ -20,6 +21,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "maturity": "ready",
       "status": "published"
     },
     {
@@ -30,6 +32,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "maturity": "ready",
       "status": "published"
     },
     {
@@ -40,6 +43,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "maturity": "ready",
       "status": "published"
     },
     {
@@ -50,6 +54,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "maturity": "ready",
       "status": "published"
     },
     {
@@ -60,6 +65,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "maturity": "ready",
       "status": "published"
     },
     {
@@ -70,6 +76,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "maturity": "ready",
       "status": "published"
     },
     {
@@ -80,6 +87,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "maturity": "ready",
       "status": "published"
     },
     {
@@ -90,6 +98,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "maturity": "ready",
       "status": "published"
     },
     {
@@ -100,6 +109,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "maturity": "ready",
       "status": "published"
     },
     {
@@ -110,6 +120,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "maturity": "ready",
       "status": "published"
     },
     {
@@ -120,6 +131,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "maturity": "ready",
       "status": "published"
     },
     {
@@ -130,6 +142,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "maturity": "ready",
       "status": "published"
     },
     {
@@ -140,6 +153,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "maturity": "ready",
       "status": "published"
     },
     {
@@ -150,6 +164,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "maturity": "ready",
       "status": "published"
     },
     {
@@ -160,6 +175,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "maturity": "ready",
       "status": "published"
     },
     {
@@ -170,6 +186,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "maturity": "ready",
       "status": "published"
     },
     {
@@ -180,6 +197,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "maturity": "ready",
       "status": "published"
     },
     {
@@ -190,6 +208,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "maturity": "ready",
       "status": "published"
     },
     {
@@ -200,6 +219,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "maturity": "ready",
       "status": "published"
     },
     {
@@ -210,6 +230,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "maturity": "ready",
       "status": "published"
     },
     {
@@ -220,6 +241,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "maturity": "ready",
       "status": "published"
     },
     {
@@ -230,6 +252,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "maturity": "ready",
       "status": "published"
     },
     {
@@ -240,6 +263,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "maturity": "ready",
       "status": "published"
     },
     {
@@ -250,6 +274,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "maturity": "ready",
       "status": "published"
     },
     {
@@ -260,6 +285,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "maturity": "ready",
       "status": "published"
     },
     {
@@ -270,6 +296,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "maturity": "ready",
       "status": "published"
     },
     {
@@ -280,6 +307,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "maturity": "ready",
       "status": "published"
     },
     {
@@ -290,6 +318,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "maturity": "ready",
       "status": "published"
     },
     {
@@ -300,6 +329,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "maturity": "ready",
       "status": "published"
     },
     {
@@ -310,6 +340,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "maturity": "ready",
       "status": "published"
     },
     {
@@ -320,6 +351,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "maturity": "ready",
       "status": "published"
     },
     {
@@ -330,6 +362,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "maturity": "ready",
       "status": "published"
     },
     {
@@ -340,6 +373,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "maturity": "ready",
       "status": "published"
     },
     {
@@ -350,6 +384,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "maturity": "ready",
       "status": "published"
     },
     {
@@ -360,6 +395,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "maturity": "ready",
       "status": "published"
     },
     {
@@ -370,6 +406,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "maturity": "ready",
       "status": "published"
     },
     {
@@ -380,6 +417,7 @@
       "entry": false,
       "stages": [],
       "origin": "native",
+      "maturity": "ready",
       "status": "published"
     },
     {
@@ -396,6 +434,7 @@
         "skill-maintainer"
       ],
       "origin": "native",
+      "maturity": "ready",
       "status": "published"
     },
     {
@@ -406,6 +445,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "maturity": "ready",
       "status": "published"
     },
     {
@@ -416,6 +456,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "maturity": "ready",
       "status": "published"
     },
     {
@@ -426,6 +467,7 @@
       "entry": false,
       "stages": [],
       "origin": "native",
+      "maturity": "ready",
       "status": "published"
     },
     {
@@ -436,6 +478,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "maturity": "ready",
       "status": "published"
     },
     {
@@ -446,6 +489,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "maturity": "ready",
       "status": "published"
     },
     {
@@ -456,6 +500,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "maturity": "ready",
       "status": "published"
     },
     {
@@ -466,6 +511,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "maturity": "ready",
       "status": "published"
     },
     {
@@ -476,6 +522,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "maturity": "ready",
       "status": "published"
     },
     {
@@ -486,6 +533,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "maturity": "ready",
       "status": "published"
     },
     {
@@ -500,6 +548,7 @@
         "workflow-orchestrator"
       ],
       "origin": "cannbot",
+      "maturity": "ready",
       "status": "published"
     },
     {
@@ -510,6 +559,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "maturity": "ready",
       "status": "published"
     },
     {
@@ -520,6 +570,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "maturity": "ready",
       "status": "published"
     },
     {
@@ -530,6 +581,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "maturity": "ready",
       "status": "published"
     },
     {
@@ -540,6 +592,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "maturity": "ready",
       "status": "published"
     },
     {
@@ -550,6 +603,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "maturity": "ready",
       "status": "published"
     },
     {
@@ -560,6 +614,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "maturity": "ready",
       "status": "published"
     },
     {
@@ -570,6 +625,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "maturity": "ready",
       "status": "published"
     },
     {
@@ -586,6 +642,7 @@
         "ops-perf-postprocess"
       ],
       "origin": "cannbot",
+      "maturity": "ready",
       "status": "published"
     },
     {
@@ -596,6 +653,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "maturity": "ready",
       "status": "published"
     },
     {
@@ -606,6 +664,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "maturity": "ready",
       "status": "published"
     },
     {
@@ -616,6 +675,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "maturity": "ready",
       "status": "published"
     },
     {
@@ -629,6 +689,7 @@
         "workflow-orchestrator"
       ],
       "origin": "cannbot",
+      "maturity": "ready",
       "status": "published"
     },
     {
@@ -639,6 +700,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "maturity": "ready",
       "status": "published"
     },
     {
@@ -649,6 +711,7 @@
       "entry": false,
       "stages": [],
       "origin": "native",
+      "maturity": "ready",
       "status": "published"
     },
     {
@@ -659,6 +722,7 @@
       "entry": false,
       "stages": [],
       "origin": "native",
+      "maturity": "ready",
       "status": "published"
     },
     {
@@ -669,6 +733,7 @@
       "entry": true,
       "stages": [],
       "origin": "cannbot",
+      "maturity": "ready",
       "status": "published"
     },
     {
@@ -679,6 +744,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "maturity": "ready",
       "status": "published"
     },
     {
@@ -689,6 +755,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "maturity": "ready",
       "status": "published"
     },
     {
@@ -699,6 +766,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "maturity": "ready",
       "status": "published"
     },
     {
@@ -709,6 +777,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "maturity": "ready",
       "status": "published"
     },
     {
@@ -719,6 +788,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "maturity": "ready",
       "status": "published"
     },
     {
@@ -729,6 +799,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "maturity": "ready",
       "status": "published"
     },
     {
@@ -739,6 +810,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "maturity": "ready",
       "status": "published"
     },
     {
@@ -749,6 +821,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "maturity": "ready",
       "status": "published"
     },
     {
@@ -759,6 +832,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "maturity": "ready",
       "status": "published"
     },
     {
@@ -769,6 +843,7 @@
       "entry": false,
       "stages": [],
       "origin": "native",
+      "maturity": "ready",
       "status": "published"
     },
     {
@@ -779,6 +854,7 @@
       "entry": false,
       "stages": [],
       "origin": "native",
+      "maturity": "ready",
       "status": "published"
     },
     {
@@ -789,6 +865,7 @@
       "entry": false,
       "stages": [],
       "origin": "native",
+      "maturity": "ready",
       "status": "published"
     },
     {
@@ -799,6 +876,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "maturity": "ready",
       "status": "published"
     },
     {
@@ -809,6 +887,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "maturity": "ready",
       "status": "published"
     },
     {
@@ -819,6 +898,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "maturity": "ready",
       "status": "published"
     },
     {
@@ -829,6 +909,7 @@
       "entry": false,
       "stages": [],
       "origin": "native",
+      "maturity": "ready",
       "status": "published"
     },
     {
@@ -839,6 +920,7 @@
       "entry": false,
       "stages": [],
       "origin": "native",
+      "maturity": "ready",
       "status": "published"
     },
     {
@@ -849,6 +931,7 @@
       "entry": false,
       "stages": [],
       "origin": "native",
+      "maturity": "ready",
       "status": "published"
     },
     {
@@ -859,6 +942,7 @@
       "entry": false,
       "stages": [],
       "origin": "native",
+      "maturity": "ready",
       "status": "published"
     },
     {
@@ -869,6 +953,7 @@
       "entry": false,
       "stages": [],
       "origin": "native",
+      "maturity": "ready",
       "status": "published"
     },
     {
@@ -879,6 +964,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "maturity": "ready",
       "status": "published"
     },
     {
@@ -889,6 +975,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "maturity": "ready",
       "status": "published"
     },
     {
@@ -899,6 +986,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "maturity": "ready",
       "status": "published"
     },
     {
@@ -909,6 +997,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "maturity": "ready",
       "status": "published"
     },
     {
@@ -919,6 +1008,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "maturity": "ready",
       "status": "published"
     },
     {
@@ -929,6 +1019,7 @@
       "entry": true,
       "stages": [],
       "origin": "cannbot",
+      "maturity": "ready",
       "status": "published"
     },
     {
@@ -939,6 +1030,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "maturity": "ready",
       "status": "published"
     },
     {
@@ -949,6 +1041,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "maturity": "ready",
       "status": "published"
     },
     {
@@ -959,6 +1052,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "maturity": "ready",
       "status": "published"
     },
     {
@@ -969,6 +1063,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "maturity": "ready",
       "status": "published"
     },
     {
@@ -979,6 +1074,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "maturity": "ready",
       "status": "published"
     },
     {
@@ -989,6 +1085,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "maturity": "ready",
       "status": "published"
     },
     {
@@ -999,6 +1096,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "maturity": "ready",
       "status": "published"
     },
     {
@@ -1009,6 +1107,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "maturity": "ready",
       "status": "published"
     },
     {
@@ -1019,6 +1118,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "maturity": "ready",
       "status": "published"
     },
     {
@@ -1029,6 +1129,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "maturity": "ready",
       "status": "published"
     },
     {
@@ -1039,6 +1140,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "maturity": "ready",
       "status": "published"
     },
     {
@@ -1049,6 +1151,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "maturity": "ready",
       "status": "published"
     },
     {
@@ -1059,6 +1162,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "maturity": "ready",
       "status": "published"
     },
     {
@@ -1069,6 +1173,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "maturity": "ready",
       "status": "published"
     },
     {
@@ -1079,6 +1184,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "maturity": "ready",
       "status": "published"
     },
     {
@@ -1089,6 +1195,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "maturity": "ready",
       "status": "published"
     },
     {
@@ -1102,6 +1209,7 @@
         "workflow-orchestrator"
       ],
       "origin": "cannbot",
+      "maturity": "ready",
       "status": "published"
     },
     {
@@ -1112,6 +1220,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "maturity": "ready",
       "status": "published"
     },
     {
@@ -1122,6 +1231,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "maturity": "ready",
       "status": "published"
     }
   ]

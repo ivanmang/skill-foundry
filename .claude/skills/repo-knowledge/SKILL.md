@@ -4,6 +4,7 @@ description: Use when you need CANN Bench direct-invoke project knowledge — ev
 category: repo-ops
 license: CANN Open Software License Agreement Version 2.0
 origin: cannbot
+maturity: ready
 ---
 
 # 仓库领域知识

@@ -4,6 +4,7 @@ description: A5-only specialized optimization pattern references for Triton Asce
 category: triton
 license: CANN Open Software License Agreement Version 2.0
 origin: cannbot
+maturity: ready
 ---
 
 # CANN Triton Extension API Patterns

@@ -4,6 +4,7 @@ description: Symptom routing contract for Triton Ascend NPU optimize pattern sel
 category: triton
 license: CANN Open Software License Agreement Version 2.0
 origin: cannbot
+maturity: ready
 ---
 
 # Optimize Knowledge

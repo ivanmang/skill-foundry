@@ -5,6 +5,7 @@ description: Use when post-processing easyasc's native AscendC codegen output in
 category: ascendc-dev
 license: CANN Open Software License Agreement Version 2.0
 origin: cannbot
+maturity: ready
 ---
 
 # dsl-easyasc-post

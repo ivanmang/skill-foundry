@@ -4,6 +4,7 @@ description: Deterministic offline retrieval of candidate optimization patterns 
 category: triton
 license: CANN Open Software License Agreement Version 2.0
 origin: cannbot
+maturity: ready
 ---
 
 # Retrieve Patterns (Symptom)

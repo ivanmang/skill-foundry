@@ -11,6 +11,7 @@ license: CANN Open Software License Agreement Version 2.0
 compatibility: Requires python3. Outer suite gate: sv567-nx1-outer.
 category: perf-analysis
 origin: native
+maturity: ready
 ---
 
 # tilelangGym VMI Gmap close

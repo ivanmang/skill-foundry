@@ -5,6 +5,7 @@ description: Use when scaffolding an AscendC project (pybind, CMake, host code, 
 category: ascendc-dev
 license: CANN Open Software License Agreement Version 2.0
 origin: cannbot
+maturity: ready
 ---
 
 ## What I do

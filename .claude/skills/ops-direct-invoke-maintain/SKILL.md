@@ -4,6 +4,7 @@ description: Use when maintaining the ops-direct-invoke workflow itself — arch
 category: ops-dev
 license: CANN Open Software License Agreement Version 2.0
 origin: cannbot
+maturity: ready
 ---
 
 # ops-direct-invoke 工作流维护

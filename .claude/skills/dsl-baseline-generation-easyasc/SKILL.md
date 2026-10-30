@@ -5,6 +5,7 @@ description: Use when generating initial easyasc-DSL code (Python @kernel() with
 category: ascendc-dev
 license: CANN Open Software License Agreement Version 2.0
 origin: cannbot
+maturity: ready
 ---
 
 ## What I do

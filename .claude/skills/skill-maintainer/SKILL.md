@@ -10,6 +10,7 @@ license: CANN Open Software License Agreement Version 2.0
 compatibility: Requires python3 and git. Portable — the ./harness CLI is an optional accelerator, not a requirement.
 category: regression
 origin: native
+maturity: ready
 ---
 
 # Skill Maintainer

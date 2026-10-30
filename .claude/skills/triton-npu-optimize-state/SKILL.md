@@ -4,6 +4,7 @@ description: Manage temporary optimize workflow state in an Ascend NPU optimize 
 category: triton
 license: CANN Open Software License Agreement Version 2.0
 origin: cannbot
+maturity: ready
 ---
 
 # Optimize State

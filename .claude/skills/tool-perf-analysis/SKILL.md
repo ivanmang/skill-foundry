@@ -4,6 +4,7 @@ description: Use when interpreting an NPU Profiling .npu-rep report or deciding 
 category: perf-analysis
 license: CANN Open Software License Agreement Version 2.0
 origin: cannbot
+maturity: ready
 ---
 
 # Profiling 报告快照解析（tool-perf-analysis）

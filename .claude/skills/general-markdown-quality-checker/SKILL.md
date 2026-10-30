@@ -15,6 +15,7 @@ metadata:
 category: doc-quality
 license: CANN Open Software License Agreement Version 2.0
 origin: cannbot
+maturity: ready
 ---
 
 # 生态资料通用质检技能

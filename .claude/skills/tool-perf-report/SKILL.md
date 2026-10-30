@@ -4,6 +4,7 @@ description: Use when generating an interactive HTML performance report from col
 category: perf-analysis
 license: CANN Open Software License Agreement Version 2.0
 origin: cannbot
+maturity: ready
 ---
 
 # msOpProf 采集与可视化

@@ -4,6 +4,7 @@ description: Execute and evaluate generated operator artifacts. Use when you nee
 category: triton
 license: CANN Open Software License Agreement Version 2.0
 origin: cannbot
+maturity: ready
 ---
 
 # Run-Eval Router

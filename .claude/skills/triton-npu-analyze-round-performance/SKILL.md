@@ -4,6 +4,7 @@ description: Use when an optimize round needs deep performance diagnosis from ro
 category: triton
 license: CANN Open Software License Agreement Version 2.0
 origin: cannbot
+maturity: ready
 ---
 
 # Analyze Optimize Round Performance
