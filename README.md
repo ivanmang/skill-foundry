@@ -80,7 +80,7 @@ Nothing to run.
 
 ### 2. Skills — always-on (any directory)
 
-Make all 8 skills available in every project:
+Make every skill available in every project (110 skills — indexed in `docs/SKILLS_INDEX.md`):
 
 ```bash
 ./harness skills --install     # symlinks each skill into ~/.claude/skills/, ~/.pi/skills/, ~/.agents/skills/
@@ -156,9 +156,9 @@ runs directly as thin scripts the skills reference.
   promote-skill  Publish a draft into .claude/skills/   [--propose | --apply | --direct | --pr] [--no-review] [--force]
   teach          Log a correction                       ["wrong -> correct -> action" | wizard | --edit]
   promote        Publish learnings into skills          [--propose | --apply | --direct | --pr] [--no-review] [--force]
-  skills         List/search · install · refresh        [--search, --inbox, --install, --uninstall, --refresh, --json]
+  skills         List/search · install · refresh        [--search, --category, --origin, --entry, --inbox, --install, --uninstall, --refresh, --check, --json]
   menu           Curated menu (bare ./harness default)
-  selfcheck      Compile-check + skill-spec validation + demo smoke
+  selfcheck      Compile + skill-spec + reference integrity + index freshness + demo smoke
 
 BUNDLED WORKFLOW — regression, run directly (the skills reference these):
   python3 -m skill_foundry.workflow.run    [--suite X | --all-suites] [--report|--open|--review] …
@@ -200,10 +200,12 @@ and an LLM judge APPROVE, `--direct` to `main`, or `--pr` auto-merged on green C
 skills/                   → .claude/skills/ (plugin-standard skills dir)
 .agents/skills/           → .claude/skills/ (Pi + open-standard agents)
 hub/                      inbox/ (skill drafts) + catalog.json (generated index)
+docs/SKILLS_INDEX.md      auto-generated skill map (entry points + category + origin)
+.githooks/                pre-push gate (enable with `make hooks`; run with `make push-check`)
 .claude-plugin/           plugin.json + marketplace.json (Claude Code plugin + marketplace)
 .mcp.json                 MCP server config (bundled into the plugin)
 mcp/                      MCP server (server.py + deploy/start/tls scripts + runbook)
-config/                   suites.json + arches.json + cann.json (source of truth)
+config/                   suites.json + arches.json + cann.json (source of truth) + externals.json (declared external skills)
 skill_foundry/            the Python package (see skill_foundry/README.md)
   cli/                    THE PRODUCT: skill-ops verbs + shell (teach/promote/skills/…)
   workflow/               bundled regression workflow (run/report/review/status/…)

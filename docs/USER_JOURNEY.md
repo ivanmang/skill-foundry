@@ -4,7 +4,7 @@ From first clone to a self-improving regression loop, end to end. Every command
 below is real; the mock demo lets you experience the whole journey in ~2 minutes
 without hardware.
 
-> **Looking for the full reference?** See [docs/HANDBOOK.md](docs/HANDBOOK.md)
+> **Looking for the full reference?** See [HANDBOOK.md](HANDBOOK.md)
 > (canonical) — this page is the narrative walkthrough.
 
 ---

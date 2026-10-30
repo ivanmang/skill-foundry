@@ -53,7 +53,7 @@ for the full roles & interaction model.
 ./harness teach "wrong -> correct -> action"
 ./harness promote --direct | --pr        # publish learnings
 ./harness promote-skill <name> --direct  # publish a draft
-./harness skills [--search q] [--inbox]  # discover skills
+./harness skills [--search q] [--category c] [--origin o] [--entry] [--check]  # discover skills (map: docs/SKILLS_INDEX.md)
 
 # BUNDLED WORKFLOW — run these thin scripts directly (per the skills)
 python3 -m skill_foundry.workflow.run --all-suites --report --open --review
@@ -64,11 +64,14 @@ python3 -m skill_foundry.lib.cann          # CANN/arch detection
 ## Layout
 
 - `.claude/skills/` — the knowledge (read them first; they are the workflow)
+- `docs/SKILLS_INDEX.md` — auto-generated entry points + category map (route tasks here)
+- `config/externals.json` — declared external skills (cannbot-skills / ttk / …)
 - `skill_foundry/workflow/` — thin, runnable regression scripts the skills call
 - `skill_foundry/lib/` — thin stable helpers (parse/diff/perf/targets)
 - `skill_foundry/cli/` — the harness: the skill-ops loop + shell
 - `hub/` — skill drafts; `learnings/` — captured lessons
 - `reports/baseline/<target>.json` — pinned baseline (regression = diff vs it)
+- `.githooks/` — pre-push gate; enable `make hooks`, run `make push-check`
 
 ## Rules
 

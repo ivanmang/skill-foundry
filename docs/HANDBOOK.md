@@ -37,7 +37,7 @@ Six rules that matter more than they look:
 6. **Every run records context** (git ref, dirty flag, host, env) in `run.json`,
    so any result is reproducible on another machine.
 
-See [docs/metrics.md](docs/metrics.md) for the performance-metric schema
+See [metrics.md](metrics.md) for the performance-metric schema
 (modeled on the vmi-dashboard: EX/IPC/vf_real/dual/stalls) and the exact
 regression thresholds.
 
@@ -64,7 +64,7 @@ failure") would hide real regressions.
 On the report side: gtest-style case timing (p50/p99/max) is always captured;
 per-suite CA metrics (EX/IPC/vf_real/dual/stalls, modeled on the vmi-dashboard)
 are recorded when a CAModel instruction dump is present. See
-[docs/metrics.md](docs/metrics.md).
+[metrics.md](metrics.md).
 
 ---
 
