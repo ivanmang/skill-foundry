@@ -113,7 +113,7 @@ remove/change a check                   (never)        (never)        (never)
 ### Phase A — Setup (once)
 | # | Actor | Action |
 |---|---|---|
-| 1 | **User** | *"set this up"* (or `python3 -m skill_foundry.cli.onboarding`) |
+| 1 | **User** | *"set this up"* (or `python3 -m skill_foundry.workflow.onboarding`) |
 | 2 | **Agent** | reads skills → runs setup steps |
 | 3 | **Agent** | runs `python3 -m skill_foundry.workflow.status` / `.lib.cann` to detect env |
 | 4 | **User** | pins the baseline (`bash skill_foundry/workflow/baseline.sh pto-isa`) — deliberate |

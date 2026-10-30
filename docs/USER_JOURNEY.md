@@ -66,14 +66,14 @@ git clone git@gitcode.com:ivanmang/skill-foundry.git
 cd skill-foundry
 
 # one command sets up env.sh, picks a CANN, and verifies pto-isa (interactive)
-python3 -m skill_foundry.cli.onboarding
+python3 -m skill_foundry.workflow.onboarding
 #   or do it by hand:  cp env.example.sh env.sh && source ./env.sh
 
 # see everything the harness can do
 ./harness help
 python3 -m skill_foundry.workflow.status        # one-glance dashboard
-python3 -m skill_foundry.cli.demo          # interactive walkthrough (no hardware needed)
-python3 -m skill_foundry.cli.guide         # interactive tour of the real flow
+python3 -m skill_foundry.workflow.demo          # interactive walkthrough (no hardware needed)
+python3 -m skill_foundry.workflow.guide         # interactive tour of the real flow
 python3 -m skill_foundry.lib.cann          # which installed CANN supports which arch
 
 # optional: tab-completion
@@ -97,9 +97,9 @@ have their own needs — and `python3 -m skill_foundry.workflow.run --list` auto
 ## Step 1 — Try it in 2 minutes (no hardware)
 
 ```bash
-python3 -m skill_foundry.cli.demo                # interactive, step-by-step (arrow keys + Enter)
-python3 -m skill_foundry.cli.demo --straight     # straight through (CI / a quick skim)
-python3 -m skill_foundry.cli.guide --demo        # same interactive tour via the guide entry
+python3 -m skill_foundry.workflow.demo                # interactive, step-by-step (arrow keys + Enter)
+python3 -m skill_foundry.workflow.demo --straight     # straight through (CI / a quick skim)
+python3 -m skill_foundry.workflow.guide --demo        # same interactive tour via the guide entry
 PAUSE=1 ./demo/run_demo.sh    # scene-by-scene with a pause (for presenting)
 ```
 
@@ -140,7 +140,7 @@ The first three steps are **USE**, the next four are **IMPROVE** — and the
 "Who does what" box marks where a human is needed (teach = your triage call,
 apply auto-creates the MR; merge = you on the remote).
 
-The interactive `python3 -m skill_foundry.cli.guide` (without `--demo`) walks the **real** pto-isa
+The interactive `python3 -m skill_foundry.workflow.guide` (without `--demo`) walks the **real** pto-isa
 flow the same way: env check → choose suites → run → report → review → teach →
 promote. Its interactive menus — **demo/real**, **suite**, **testcase**, **gtest
 filter**, **CANN package**, and **output mode** — use arrow keys (`↑`/`↓` +
@@ -397,11 +397,11 @@ loop, and every teammate gets it via git.
 
 | Goal | Command |
 |---|---|
-| Interactive walkthrough (no hardware) | `python3 -m skill_foundry.cli.demo` (or `--straight`; `--demo` in `guide`) |
-| Interactive tour (real flow) | `python3 -m skill_foundry.cli.guide` |
+| Interactive walkthrough (no hardware) | `python3 -m skill_foundry.workflow.demo` (or `--straight`; `--demo` in `guide`) |
+| Interactive tour (real flow) | `python3 -m skill_foundry.workflow.guide` |
 | One-glance dashboard | `python3 -m skill_foundry.workflow.status` |
 | Diagnose this machine | `python3 -m skill_foundry.workflow.diagnose [--strict]` |
-| Guided setup | `python3 -m skill_foundry.cli.onboarding` |
+| Guided setup | `python3 -m skill_foundry.workflow.onboarding` |
 | List suites + arches + availability | `python3 -m skill_foundry.workflow.run --list [--format markdown\|html]` |
 | Which CANN supports which arch | `python3 -m skill_foundry.lib.cann [--scan] [--json]` |
 | Pin / refresh baseline | `bash skill_foundry/workflow/baseline.sh [--force] <target>` |

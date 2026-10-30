@@ -33,7 +33,7 @@ IMPROVE  teach → promote --direct | --pr    (corrections become skills)
   diff (no write), then publish. Capture is automatic; `--direct` pushes to
   `origin/main` (no token), `--pr` keeps the merge human-gated.
 
-See both loops in ~2 minutes: `python3 -m skill_foundry.cli.demo`.
+See both loops in ~2 minutes: `python3 -m skill_foundry.workflow.demo`.
 
 ---
 
@@ -50,7 +50,7 @@ cd skill-foundry
 ./harness promote --direct                         # publish learnings (push to main)
 
 # the bundled regression workflow (thin scripts; see .claude/skills/):
-python3 -m skill_foundry.cli.onboarding            # env.sh, CANN, pto-isa (one-time)
+python3 -m skill_foundry.workflow.onboarding            # env.sh, CANN, pto-isa (one-time)
 python3 -m skill_foundry.workflow.run --all-suites --report --open --review
 ```
 
@@ -165,7 +165,7 @@ BUNDLED WORKFLOW — regression, run directly (the skills reference these):
   python3 -m skill_foundry.workflow.report · .review · .status · .diagnose · .history · .clean · .validate
   bash skill_foundry/workflow/baseline.sh  [--force] <target>
   python3 -m skill_foundry.lib.cann        (which CANN → which arch)
-  python3 -m skill_foundry.cli.guide · .demo · .onboarding   (interactive tours)
+  python3 -m skill_foundry.workflow.guide · .demo · .onboarding   (interactive tours)
 ```
 
 ### What's automatic vs human
@@ -290,7 +290,7 @@ judge (`SKILL_REVIEWER`) before applying. `--no-review` skips the judge;
 ```
 
 See `.claude/skills/skill-maintainer/SKILL.md` and the live walkthrough:
-`python3 -m skill_foundry.cli.demo` (narration in `demo/NARRATION.md`).
+`python3 -m skill_foundry.workflow.demo` (narration in `demo/NARRATION.md`).
 
 ---
 

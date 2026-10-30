@@ -15,7 +15,7 @@ from __future__ import annotations
 import sys
 
 from skill_foundry import dispatch
-from skill_foundry.cli import guide
+from skill_foundry.lib import ui
 
 ITEMS = [
     ("🛠  capture a new skill", ["capture-skill"]),
@@ -31,10 +31,10 @@ def main(argv: list[str] | None = None) -> int:
         # piped: fall back to plain help
         return dispatch.dispatch("help", [])
 
-    guide.banner("skill-foundry")
+    ui.banner("skill-foundry")
     print("  capture → promote → hub → discover.\n")
-    choice = guide.select_menu(
-        guide.c("What would you like to do?  (↑/↓ choose · Enter select · q quit)", guide.BOLD),
+    choice = ui.select_menu(
+        ui.c("What would you like to do?  (↑/↓ choose · Enter select · q quit)", ui.BOLD),
         ITEMS,
     )
     if not choice:

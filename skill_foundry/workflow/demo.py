@@ -7,8 +7,8 @@ is interactive — after every step you choose what to do next (run / next /
 previous / jump / explain / quit) with arrow keys.
 
 Usage:
-  python3 -m skill_foundry.cli.demo                 # interactive, step-by-step
-  python3 -m skill_foundry.cli.demo --straight      # run demo/run_demo.sh straight through
+  python3 -m skill_foundry.workflow.demo                 # interactive, step-by-step
+  python3 -m skill_foundry.workflow.demo --straight      # run demo/run_demo.sh straight through
 """
 
 from __future__ import annotations
@@ -24,7 +24,7 @@ import time
 from pathlib import Path
 
 from skill_foundry.paths import ROOT as HARNESS  # noqa: E402
-from skill_foundry.cli import guide  # noqa: E402 — reuse select_menu / banner / c / ask
+from skill_foundry.lib import ui  # noqa: E402 — reuse select_menu / banner / c / ask
 
 DEMO_CONFIG = HARNESS / "demo" / "config" / "demo-suites.json"
 DEMO_ARCHES = HARNESS / "demo" / "config" / "demo-arches.json"
@@ -250,7 +250,7 @@ ROLES: dict[str, tuple[str, str, str]] = {
 def run_step(s: dict, done: set[str]) -> None:
     for need in s["needs"]:
         if need not in done:
-            print(guide.c(f"  ⚠ prerequisite '{need}' not run yet — running it first.\n", guide.YELLOW))
+            print(ui.c(f"  ⚠ prerequisite '{need}' not run yet — running it first.\n", ui.YELLOW))
             run_step(BY_KEY[need], done)
     sys.stdout.flush()
     s["run"]()
@@ -277,9 +277,9 @@ def _stepmap(current: int, done: set[str]) -> str:
     for i, s in enumerate(STEPS):
         tag = s["short"]
         if i == current:
-            parts.append(guide.c(f"▶{tag}", guide.BOLD))
+            parts.append(ui.c(f"▶{tag}", ui.BOLD))
         elif s["key"] in done:
-            parts.append(guide.c(f"✓{tag}", guide.GREEN))
+            parts.append(ui.c(f"✓{tag}", ui.GREEN))
         else:
             parts.append(f"·{tag}")
     return "  ".join(parts)
@@ -288,28 +288,28 @@ def _stepmap(current: int, done: set[str]) -> str:
 def _header(idx: int, done: set[str]) -> None:
     s = STEPS[idx]
     print()
-    print(guide.c(SEP, guide.BOLD))
-    print(guide.c(f"  STEP {idx + 1} / {len(STEPS)}   ·   {s['title']}", guide.BOLD))
-    print(guide.c(SEP, guide.BOLD))
+    print(ui.c(SEP, ui.BOLD))
+    print(ui.c(f"  STEP {idx + 1} / {len(STEPS)}   ·   {s['title']}", ui.BOLD))
+    print(ui.c(SEP, ui.BOLD))
     print()
     print(f"  progress  {_progress(done)}")
     print("  steps     " + _stepmap(idx, done))
     print()
-    print(guide.c("  What this step does", guide.BOLD))
+    print(ui.c("  What this step does", ui.BOLD))
     for line in textwrap.wrap(s["what"], width=66):
         print(f"    {line}")
     print()
     cmd, auto, human = ROLES.get(s["key"], ("—", "—", "—"))
-    print(guide.c("  Who does what", guide.BOLD))
+    print(ui.c("  Who does what", ui.BOLD))
     print(f"    ▸ command   {cmd}")
-    print(guide.c(f"    🟢 harness  {auto}", guide.GREEN))
-    print(guide.c(f"    🟡 you       {human}", guide.YELLOW))
+    print(ui.c(f"    🟢 harness  {auto}", ui.GREEN))
+    print(ui.c(f"    🟡 you       {human}", ui.YELLOW))
     print()
     sys.stdout.flush()
 
 
 def intro() -> None:
-    guide.banner("Sandboxed demo — no hardware")
+    ui.banner("Sandboxed demo — no hardware")
     print("""
   The harness turns "run the regression" into a shared skill + scripts + a
   pinned baseline, and it gets BETTER each time you teach it a correction.
@@ -370,8 +370,8 @@ def tour_loop() -> int:
     while True:
         s = STEPS[idx]
         _header(idx, done)
-        choice = guide.select_menu(
-            guide.c("Your move  ·  ↑/↓ choose  ·  Enter confirm  ·  1–6 jump  ·  q quit", guide.BOLD),
+        choice = ui.select_menu(
+            ui.c("Your move  ·  ↑/↓ choose  ·  Enter confirm  ·  1–6 jump  ·  q quit", ui.BOLD),
             [
                 ("▶  run this step & continue", "run"),
                 ("⏭  skip to the next step   ", "next"),
@@ -384,7 +384,7 @@ def tour_loop() -> int:
         if choice == "run":
             print()
             run_step(s, done)
-            print(guide.c(f"  ✔ Step {idx + 1} complete — '{s['title']}'", guide.GREEN))
+            print(ui.c(f"  ✔ Step {idx + 1} complete — '{s['title']}'", ui.GREEN))
             if idx < last:
                 idx += 1
             else:
@@ -395,7 +395,7 @@ def tour_loop() -> int:
         elif choice == "prev":
             idx = max(idx - 1, 0)
         elif choice == "jump":
-            sel = guide.select_menu("Jump to:", [
+            sel = ui.select_menu("Jump to:", [
                 (f"{i + 1}. {t['title']}", i) for i, t in enumerate(STEPS)
             ])
             if sel is not None:
@@ -405,7 +405,7 @@ def tour_loop() -> int:
             for line in textwrap.wrap(s["more"] or "—", width=66):
                 print("  " + line)
             print()
-            guide.ask("Press Enter to continue ")
+            ui.ask("Press Enter to continue ")
         else:
             _paths(paused=True)
             return 0

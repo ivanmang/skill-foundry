@@ -11,7 +11,7 @@ from __future__ import annotations
 import sys
 
 from skill_foundry import dispatch
-from skill_foundry.cli import guide
+from skill_foundry.lib import ui
 
 # Natural next steps for the skill-ops loop (the whole product surface).
 NEXT: dict[str, list[tuple[str, list[str]]]] = {
@@ -45,7 +45,7 @@ SHELL = "✕  back to shell"
 
 def _type_command() -> list[str] | None:
     """Let the user type any `./harness …` command freely. Empty/quit -> None."""
-    raw = guide.ask("  ./harness ")
+    raw = ui.ask("  ./harness ")
     if not raw:
         return None
     parts = raw.split()
@@ -75,9 +75,9 @@ def main(argv: list[str] | None = None) -> int:
             ("⬆  promote pending learnings", ["promote", "--direct"]),
         ]
         options = suggestions + [(TYPE, "TYPE"), (FULL, "FULL"), (SHELL, None)]
-        status = guide.c("ok", guide.GREEN) if rc == 0 else guide.c(f"exit {rc}", guide.YELLOW)
-        choice = guide.select_menu(
-            guide.c(f"What next?  (last: {verb} · {status})   ↑/↓ choose · Enter run · q = shell", guide.BOLD),
+        status = ui.c("ok", ui.GREEN) if rc == 0 else ui.c(f"exit {rc}", ui.YELLOW)
+        choice = ui.select_menu(
+            ui.c(f"What next?  (last: {verb} · {status})   ↑/↓ choose · Enter run · q = shell", ui.BOLD),
             options,
         )
 
@@ -88,8 +88,8 @@ def main(argv: list[str] | None = None) -> int:
                 return 0
             continue
         if choice == "FULL":
-            pick = guide.select_menu(
-                guide.c("Run a command:", guide.BOLD),
+            pick = ui.select_menu(
+                ui.c("Run a command:", ui.BOLD),
                 [(v, [v]) for v in dispatch.verbs()],
             )
             if not pick:

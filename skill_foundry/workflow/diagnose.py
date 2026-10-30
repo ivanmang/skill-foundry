@@ -58,7 +58,7 @@ def collect_issues() -> list[dict]:
         "check": "ASCEND_HOME_PATH",
         "ok": bool(ascend),
         "detail": ascend or "not set",
-        "fix": "cp env.example.sh env.sh && source ./env.sh  (or pick one in python3 -m skill_foundry.cli.guide)",
+        "fix": "cp env.example.sh env.sh && source ./env.sh  (or pick one in python3 -m skill_foundry.workflow.guide)",
     })
 
     # per target: repo checkout + each enabled suite's prereqs

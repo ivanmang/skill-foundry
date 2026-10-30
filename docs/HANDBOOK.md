@@ -74,9 +74,9 @@ are recorded when a CAModel instruction dump is present. See
 git clone git@gitcode.com:ivanmang/skill-foundry.git
 cd skill-foundry
 
-python3 -m skill_foundry.cli.onboarding   # guided: detect env, write env.sh, pick CANN, verify pto-isa
+python3 -m skill_foundry.workflow.onboarding   # guided: detect env, write env.sh, pick CANN, verify pto-isa
 python3 -m skill_foundry.workflow.status       # one-glance dashboard — is this machine ready?
-python3 -m skill_foundry.cli.demo         # 2-minute walkthrough, no hardware
+python3 -m skill_foundry.workflow.demo         # 2-minute walkthrough, no hardware
 python3 -m skill_foundry.workflow.run --all-suites --dry-run   # preview before the real run
 python3 -m skill_foundry.workflow.run --all-suites --quiet     # the real run
 python3 -m skill_foundry.workflow.report --open                # read the result
@@ -104,7 +104,7 @@ Agent-Skills-compatible agent:
 |---|---|
 | `python3 -m skill_foundry.workflow.status` | one-glance dashboard (env, suites, baseline, learnings, last run) |
 | `python3 -m skill_foundry.workflow.diagnose` | check this machine + print the exact fix for each issue |
-| `python3 -m skill_foundry.cli.onboarding` | guided first-run setup |
+| `python3 -m skill_foundry.workflow.onboarding` | guided first-run setup |
 | `./harness menu` | curated interactive menu (also the bare `./harness` default) |
 | `python3 -m skill_foundry.workflow.run` | run suites (`--all-suites`, `--suite X`, `--testcase`, `--filter`, `--quiet`, `--tui`, `--json`, `--dry-run`, `--parallel`) |
 | `python3 -m skill_foundry.workflow.report` | run.json → `report.md`/`.html` (`--open`, `--known`) |
@@ -117,8 +117,8 @@ Agent-Skills-compatible agent:
 | `bash skill_foundry/workflow/baseline.sh` | re-pin `reports/baseline/<target>.json` (per target) |
 | `python3 -m skill_foundry.workflow.run --list` | suites + arches with auto-detected availability |
 | `python3 -m skill_foundry.lib.cann` | which CANN supports which arch (headers vs simulator) |
-| `python3 -m skill_foundry.cli.guide` | interactive tour of the real flow |
-| `python3 -m skill_foundry.cli.demo` | interactive sandboxed walkthrough |
+| `python3 -m skill_foundry.workflow.guide` | interactive tour of the real flow |
+| `python3 -m skill_foundry.workflow.demo` | interactive sandboxed walkthrough |
 | `python3 -m skill_foundry.workflow.history` / `clean` / `validate` | housekeeping |
 | `./harness selfcheck` | compile-check + skill-spec validation + demo smoke |
 | `./harness help [verb]` · `./harness version` | this help / per-verb examples / version |
@@ -169,7 +169,7 @@ change — they already read the target from the run record.
 }
 ```
 
-Then: `python3 -m skill_foundry.workflow.status`, `python3 -m skill_foundry.workflow.run --list --target your-target`, `python3 -m skill_foundry.cli.guide`
+Then: `python3 -m skill_foundry.workflow.status`, `python3 -m skill_foundry.workflow.run --list --target your-target`, `python3 -m skill_foundry.workflow.guide`
 (pick the target), `python3 -m skill_foundry.workflow.run --target your-target --all-suites --dry-run`.
 `runner` defaults are derived from `mode` (cpu → `--testcase`/`--gtest_filter`,
 npu-sim/npu/comm → `-t`/`-g`); `generic` lets the `command` template use
@@ -241,10 +241,10 @@ green-CI `--pr`).
 
 ## The demo and the guide
 
-- **`python3 -m skill_foundry.cli.demo`** — drives the *real* harness drivers against a mock gtest runner
+- **`python3 -m skill_foundry.workflow.demo`** — drives the *real* harness drivers against a mock gtest runner
   in 8 framed steps (progress bar, step map, a "Who does what" box, and a
   `run & continue / skip / back / jump / explain / quit` menu). No hardware.
-- **`python3 -m skill_foundry.cli.guide`** — the same journey against a real target (pto-isa /
+- **`python3 -m skill_foundry.workflow.guide`** — the same journey against a real target (pto-isa /
   pto-vmi): target picker → env check → CANN picker → suite/testcase/filter
   menus → run → report → review →
   teach → promote.

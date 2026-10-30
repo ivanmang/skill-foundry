@@ -28,12 +28,11 @@ modules directly. The package is split by *purpose*, not by file type:
 The CLI shell (interactive UX, not domain logic):
 
 - `cli/menu.py` — curated menu (bare `./harness` default)
-- `cli/guide.py` — interactive tour of the real flow
-- `cli/demo.py` — interactive sandboxed walkthrough (no hardware)
-- `cli/onboarding.py` — guided first-run setup
 - `cli/wrap.py` — "What next?" menu after each typed verb
 - `cli/complete.py` — completion candidates (for `completions/harness.bash`)
 - `cli/selfcheck.sh` — compile-check + skill-spec validation + demo smoke
+- `lib/ui.py` — shared arrow-key menus / prompts / pickers (`banner`, `ask`,
+  `select_menu`, `choose_cann`, …)
 
 ---
 
@@ -55,6 +54,9 @@ the skills hold the workflow knowledge and reference these:
 | `history` | `workflow/history.py` | List recent runs |
 | `clean` | `workflow/clean.py` | Remove run dirs (keeps baseline) |
 | `validate` | `workflow/validate.py` | Check suites/arches/cann configs |
+| `guide` | `workflow/guide.py` | Interactive tour of the real flow (runnable script) |
+| `demo` | `workflow/demo.py` | Interactive sandboxed walkthrough, no hardware |
+| `onboarding` | `workflow/onboarding.py` | Guided first-run setup |
 
 The *knowledge* for this workflow lives in the skills
 (`run-testcase`, `extract-logs`, `generate-report`, `review-inconsistencies`,
