@@ -11,6 +11,7 @@ compatibility: Requires python3 and git. Portable — the ./harness CLI is an op
 category: regression
 origin: native
 maturity: ready
+owner: skill-foundry
 ---
 
 # Skill Maintainer

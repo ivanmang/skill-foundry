@@ -10,6 +10,7 @@ compatibility: Requires python3 and git. CPU-ST needs clang++>=15 or g++>=13; NP
 category: regression
 origin: native
 maturity: ready
+owner: skill-foundry
 ---
 
 # PTO-ISA regression adapter

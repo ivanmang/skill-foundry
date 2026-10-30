@@ -5,6 +5,7 @@ category: ops-dev
 license: CANN Open Software License Agreement Version 2.0
 origin: cannbot
 maturity: ready
+owner: cannbot
 ---
 
 # ops-direct-invoke 工作流维护

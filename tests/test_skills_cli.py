@@ -38,7 +38,7 @@ class SkillsCliSurfaceTest(unittest.TestCase):
 
 class InstallSelectionTest(unittest.TestCase):
     def _args(self, **kw):
-        defaults = {"origin": None, "category": None, "entry": False, "name": None, "maturity": None}
+        defaults = {"origin": None, "category": None, "entry": False, "name": None, "maturity": None, "owner": None}
         defaults.update(kw)
         return argparse.Namespace(**defaults)
 

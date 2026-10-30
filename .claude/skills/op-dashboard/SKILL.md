@@ -5,6 +5,7 @@ category: ascendc-dev
 license: CANN Open Software License Agreement Version 2.0
 origin: cannbot
 maturity: ready
+owner: cannbot
 ---
 
 # op-dashboard：AscendC 算子结果汇报看板

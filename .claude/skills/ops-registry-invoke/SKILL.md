@@ -7,6 +7,7 @@ stages: workflow-dispatch, workflow-orchestrator
 license: CANN Open Software License Agreement Version 2.0
 origin: cannbot
 maturity: ready
+owner: cannbot
 ---
 
 # ACLNN 算子开发工作流入口

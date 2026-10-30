@@ -5,6 +5,7 @@ category: perf-optimize
 license: CANN Open Software License Agreement Version 2.0
 origin: cannbot
 maturity: ready
+owner: cannbot
 ---
 
 # AscendC 性能静态检视

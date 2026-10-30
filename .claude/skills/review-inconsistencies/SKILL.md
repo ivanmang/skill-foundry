@@ -10,6 +10,7 @@ compatibility: Requires python3. The comparison rules are deterministic and port
 category: regression
 origin: native
 maturity: ready
+owner: skill-foundry
 ---
 
 # Review Inconsistencies

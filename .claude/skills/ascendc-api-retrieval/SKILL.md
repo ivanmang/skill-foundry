@@ -8,6 +8,7 @@ metadata:
   version: "1.0.0"
 origin: cannbot
 maturity: ready
+owner: cannbot
 ---
 
 # Ascend C API 检索技能

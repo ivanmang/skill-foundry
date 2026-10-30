@@ -10,6 +10,7 @@ compatibility: Requires python3 and git. Needs ASCEND_HOME_PATH + the ptoas-vmi 
 category: regression
 origin: native
 maturity: ready
+owner: skill-foundry
 ---
 
 # PTO-VMI regression adapter

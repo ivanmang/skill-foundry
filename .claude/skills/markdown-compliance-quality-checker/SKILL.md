@@ -11,6 +11,7 @@ category: doc-quality
 license: CANN Open Software License Agreement Version 2.0
 origin: cannbot
 maturity: ready
+owner: cannbot
 ---
 
 # 生态资料合规性质检技能

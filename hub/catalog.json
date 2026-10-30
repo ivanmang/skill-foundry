@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated": "2026-10-30T07:43:43.034642+00:00",
+  "generated": "2026-10-30T07:53:13.246724+00:00",
   "skills": [
     {
       "name": "aclnn-doc-gen",
@@ -10,6 +10,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "owner": "cannbot",
       "maturity": "ready",
       "status": "published"
     },
@@ -21,6 +22,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "owner": "cannbot",
       "maturity": "ready",
       "status": "published"
     },
@@ -32,6 +34,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "owner": "cannbot",
       "maturity": "ready",
       "status": "published"
     },
@@ -43,6 +46,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "owner": "cannbot",
       "maturity": "ready",
       "status": "published"
     },
@@ -54,6 +58,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "owner": "cannbot",
       "maturity": "ready",
       "status": "published"
     },
@@ -65,6 +70,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "owner": "cannbot",
       "maturity": "ready",
       "status": "published"
     },
@@ -76,6 +82,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "owner": "cannbot",
       "maturity": "ready",
       "status": "published"
     },
@@ -87,6 +94,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "owner": "cannbot",
       "maturity": "ready",
       "status": "published"
     },
@@ -98,6 +106,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "owner": "cannbot",
       "maturity": "ready",
       "status": "published"
     },
@@ -109,6 +118,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "owner": "cannbot",
       "maturity": "ready",
       "status": "published"
     },
@@ -120,6 +130,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "owner": "cannbot",
       "maturity": "ready",
       "status": "published"
     },
@@ -131,6 +142,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "owner": "cannbot",
       "maturity": "ready",
       "status": "published"
     },
@@ -142,6 +154,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "owner": "cannbot",
       "maturity": "ready",
       "status": "published"
     },
@@ -153,6 +166,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "owner": "cannbot",
       "maturity": "ready",
       "status": "published"
     },
@@ -164,6 +178,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "owner": "cannbot",
       "maturity": "ready",
       "status": "published"
     },
@@ -175,6 +190,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "owner": "cannbot",
       "maturity": "ready",
       "status": "published"
     },
@@ -186,6 +202,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "owner": "cannbot",
       "maturity": "ready",
       "status": "published"
     },
@@ -197,6 +214,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "owner": "cannbot",
       "maturity": "ready",
       "status": "published"
     },
@@ -208,6 +226,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "owner": "cannbot",
       "maturity": "ready",
       "status": "published"
     },
@@ -219,6 +238,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "owner": "cannbot",
       "maturity": "ready",
       "status": "published"
     },
@@ -230,6 +250,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "owner": "cannbot",
       "maturity": "ready",
       "status": "published"
     },
@@ -241,6 +262,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "owner": "cannbot",
       "maturity": "ready",
       "status": "published"
     },
@@ -252,6 +274,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "owner": "cannbot",
       "maturity": "ready",
       "status": "published"
     },
@@ -263,6 +286,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "owner": "cannbot",
       "maturity": "ready",
       "status": "published"
     },
@@ -274,6 +298,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "owner": "cannbot",
       "maturity": "ready",
       "status": "published"
     },
@@ -285,6 +310,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "owner": "cannbot",
       "maturity": "ready",
       "status": "published"
     },
@@ -296,6 +322,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "owner": "cannbot",
       "maturity": "ready",
       "status": "published"
     },
@@ -307,6 +334,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "owner": "cannbot",
       "maturity": "ready",
       "status": "published"
     },
@@ -318,6 +346,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "owner": "cannbot",
       "maturity": "ready",
       "status": "published"
     },
@@ -329,6 +358,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "owner": "cannbot",
       "maturity": "ready",
       "status": "published"
     },
@@ -340,6 +370,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "owner": "cannbot",
       "maturity": "ready",
       "status": "published"
     },
@@ -351,6 +382,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "owner": "cannbot",
       "maturity": "ready",
       "status": "published"
     },
@@ -362,6 +394,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "owner": "cannbot",
       "maturity": "ready",
       "status": "published"
     },
@@ -373,6 +406,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "owner": "cannbot",
       "maturity": "ready",
       "status": "published"
     },
@@ -384,6 +418,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "owner": "cannbot",
       "maturity": "ready",
       "status": "published"
     },
@@ -395,6 +430,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "owner": "cannbot",
       "maturity": "ready",
       "status": "published"
     },
@@ -406,6 +442,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "owner": "cannbot",
       "maturity": "ready",
       "status": "published"
     },
@@ -417,6 +454,7 @@
       "entry": false,
       "stages": [],
       "origin": "native",
+      "owner": "skill-foundry",
       "maturity": "ready",
       "status": "published"
     },
@@ -434,6 +472,7 @@
         "skill-maintainer"
       ],
       "origin": "native",
+      "owner": "skill-foundry",
       "maturity": "ready",
       "status": "published"
     },
@@ -445,6 +484,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "owner": "cannbot",
       "maturity": "ready",
       "status": "published"
     },
@@ -456,6 +496,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "owner": "cannbot",
       "maturity": "ready",
       "status": "published"
     },
@@ -467,6 +508,7 @@
       "entry": false,
       "stages": [],
       "origin": "native",
+      "owner": "skill-foundry",
       "maturity": "ready",
       "status": "published"
     },
@@ -478,6 +520,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "owner": "cannbot",
       "maturity": "ready",
       "status": "published"
     },
@@ -489,6 +532,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "owner": "cannbot",
       "maturity": "ready",
       "status": "published"
     },
@@ -500,6 +544,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "owner": "cannbot",
       "maturity": "ready",
       "status": "published"
     },
@@ -511,6 +556,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "owner": "cannbot",
       "maturity": "ready",
       "status": "published"
     },
@@ -522,6 +568,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "owner": "cannbot",
       "maturity": "ready",
       "status": "published"
     },
@@ -533,6 +580,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "owner": "cannbot",
       "maturity": "ready",
       "status": "published"
     },
@@ -548,6 +596,7 @@
         "workflow-orchestrator"
       ],
       "origin": "cannbot",
+      "owner": "cannbot",
       "maturity": "ready",
       "status": "published"
     },
@@ -559,6 +608,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "owner": "cannbot",
       "maturity": "ready",
       "status": "published"
     },
@@ -570,6 +620,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "owner": "cannbot",
       "maturity": "ready",
       "status": "published"
     },
@@ -581,6 +632,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "owner": "cannbot",
       "maturity": "ready",
       "status": "published"
     },
@@ -592,6 +644,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "owner": "cannbot",
       "maturity": "ready",
       "status": "published"
     },
@@ -603,6 +656,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "owner": "cannbot",
       "maturity": "ready",
       "status": "published"
     },
@@ -614,6 +668,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "owner": "cannbot",
       "maturity": "ready",
       "status": "published"
     },
@@ -625,6 +680,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "owner": "cannbot",
       "maturity": "ready",
       "status": "published"
     },
@@ -642,6 +698,7 @@
         "ops-perf-postprocess"
       ],
       "origin": "cannbot",
+      "owner": "cannbot",
       "maturity": "ready",
       "status": "published"
     },
@@ -653,6 +710,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "owner": "cannbot",
       "maturity": "ready",
       "status": "published"
     },
@@ -664,6 +722,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "owner": "cannbot",
       "maturity": "ready",
       "status": "published"
     },
@@ -675,6 +734,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "owner": "cannbot",
       "maturity": "ready",
       "status": "published"
     },
@@ -689,6 +749,7 @@
         "workflow-orchestrator"
       ],
       "origin": "cannbot",
+      "owner": "cannbot",
       "maturity": "ready",
       "status": "published"
     },
@@ -700,6 +761,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "owner": "cannbot",
       "maturity": "ready",
       "status": "published"
     },
@@ -711,6 +773,7 @@
       "entry": false,
       "stages": [],
       "origin": "native",
+      "owner": "skill-foundry",
       "maturity": "ready",
       "status": "published"
     },
@@ -722,6 +785,7 @@
       "entry": false,
       "stages": [],
       "origin": "native",
+      "owner": "skill-foundry",
       "maturity": "ready",
       "status": "published"
     },
@@ -733,6 +797,7 @@
       "entry": true,
       "stages": [],
       "origin": "cannbot",
+      "owner": "cannbot",
       "maturity": "ready",
       "status": "published"
     },
@@ -744,6 +809,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "owner": "cannbot",
       "maturity": "ready",
       "status": "published"
     },
@@ -755,6 +821,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "owner": "cannbot",
       "maturity": "ready",
       "status": "published"
     },
@@ -766,6 +833,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "owner": "cannbot",
       "maturity": "ready",
       "status": "published"
     },
@@ -777,6 +845,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "owner": "cannbot",
       "maturity": "ready",
       "status": "published"
     },
@@ -788,6 +857,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "owner": "cannbot",
       "maturity": "ready",
       "status": "published"
     },
@@ -799,6 +869,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "owner": "cannbot",
       "maturity": "ready",
       "status": "published"
     },
@@ -810,6 +881,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "owner": "cannbot",
       "maturity": "ready",
       "status": "published"
     },
@@ -821,6 +893,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "owner": "cannbot",
       "maturity": "ready",
       "status": "published"
     },
@@ -832,6 +905,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "owner": "cannbot",
       "maturity": "ready",
       "status": "published"
     },
@@ -843,6 +917,7 @@
       "entry": false,
       "stages": [],
       "origin": "native",
+      "owner": "skill-foundry",
       "maturity": "ready",
       "status": "published"
     },
@@ -854,6 +929,7 @@
       "entry": false,
       "stages": [],
       "origin": "native",
+      "owner": "skill-foundry",
       "maturity": "ready",
       "status": "published"
     },
@@ -865,6 +941,7 @@
       "entry": false,
       "stages": [],
       "origin": "native",
+      "owner": "skill-foundry",
       "maturity": "ready",
       "status": "published"
     },
@@ -876,6 +953,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "owner": "cannbot",
       "maturity": "ready",
       "status": "published"
     },
@@ -887,6 +965,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "owner": "cannbot",
       "maturity": "ready",
       "status": "published"
     },
@@ -898,6 +977,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "owner": "cannbot",
       "maturity": "ready",
       "status": "published"
     },
@@ -909,6 +989,7 @@
       "entry": false,
       "stages": [],
       "origin": "native",
+      "owner": "skill-foundry",
       "maturity": "ready",
       "status": "published"
     },
@@ -920,6 +1001,7 @@
       "entry": false,
       "stages": [],
       "origin": "native",
+      "owner": "skill-foundry",
       "maturity": "ready",
       "status": "published"
     },
@@ -931,6 +1013,7 @@
       "entry": false,
       "stages": [],
       "origin": "native",
+      "owner": "skill-foundry",
       "maturity": "ready",
       "status": "published"
     },
@@ -942,6 +1025,7 @@
       "entry": false,
       "stages": [],
       "origin": "native",
+      "owner": "skill-foundry",
       "maturity": "ready",
       "status": "published"
     },
@@ -953,6 +1037,7 @@
       "entry": false,
       "stages": [],
       "origin": "native",
+      "owner": "skill-foundry",
       "maturity": "ready",
       "status": "published"
     },
@@ -964,6 +1049,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "owner": "cannbot",
       "maturity": "ready",
       "status": "published"
     },
@@ -975,6 +1061,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "owner": "cannbot",
       "maturity": "ready",
       "status": "published"
     },
@@ -986,6 +1073,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "owner": "cannbot",
       "maturity": "ready",
       "status": "published"
     },
@@ -997,6 +1085,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "owner": "cannbot",
       "maturity": "ready",
       "status": "published"
     },
@@ -1008,6 +1097,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "owner": "cannbot",
       "maturity": "ready",
       "status": "published"
     },
@@ -1019,6 +1109,7 @@
       "entry": true,
       "stages": [],
       "origin": "cannbot",
+      "owner": "cannbot",
       "maturity": "ready",
       "status": "published"
     },
@@ -1030,6 +1121,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "owner": "cannbot",
       "maturity": "ready",
       "status": "published"
     },
@@ -1041,6 +1133,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "owner": "cannbot",
       "maturity": "ready",
       "status": "published"
     },
@@ -1052,6 +1145,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "owner": "cannbot",
       "maturity": "ready",
       "status": "published"
     },
@@ -1063,6 +1157,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "owner": "cannbot",
       "maturity": "ready",
       "status": "published"
     },
@@ -1074,6 +1169,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "owner": "cannbot",
       "maturity": "ready",
       "status": "published"
     },
@@ -1085,6 +1181,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "owner": "cannbot",
       "maturity": "ready",
       "status": "published"
     },
@@ -1096,6 +1193,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "owner": "cannbot",
       "maturity": "ready",
       "status": "published"
     },
@@ -1107,6 +1205,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "owner": "cannbot",
       "maturity": "ready",
       "status": "published"
     },
@@ -1118,6 +1217,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "owner": "cannbot",
       "maturity": "ready",
       "status": "published"
     },
@@ -1129,6 +1229,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "owner": "cannbot",
       "maturity": "ready",
       "status": "published"
     },
@@ -1140,6 +1241,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "owner": "cannbot",
       "maturity": "ready",
       "status": "published"
     },
@@ -1151,6 +1253,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "owner": "cannbot",
       "maturity": "ready",
       "status": "published"
     },
@@ -1162,6 +1265,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "owner": "cannbot",
       "maturity": "ready",
       "status": "published"
     },
@@ -1173,6 +1277,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "owner": "cannbot",
       "maturity": "ready",
       "status": "published"
     },
@@ -1184,6 +1289,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "owner": "cannbot",
       "maturity": "ready",
       "status": "published"
     },
@@ -1195,6 +1301,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "owner": "cannbot",
       "maturity": "ready",
       "status": "published"
     },
@@ -1209,6 +1316,7 @@
         "workflow-orchestrator"
       ],
       "origin": "cannbot",
+      "owner": "cannbot",
       "maturity": "ready",
       "status": "published"
     },
@@ -1220,6 +1328,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "owner": "cannbot",
       "maturity": "ready",
       "status": "published"
     },
@@ -1231,6 +1340,7 @@
       "entry": false,
       "stages": [],
       "origin": "cannbot",
+      "owner": "cannbot",
       "maturity": "ready",
       "status": "published"
     }

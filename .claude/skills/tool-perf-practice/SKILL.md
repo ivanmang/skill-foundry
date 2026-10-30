@@ -5,6 +5,7 @@ category: perf-analysis
 license: CANN Open Software License Agreement Version 2.0
 origin: cannbot
 maturity: ready
+owner: cannbot
 ---
 
 # Ascend C 算子性能优化最佳实践

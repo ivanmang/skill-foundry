@@ -1,0 +1,28 @@
+# Code owners — GitLab/gitcode CODEOWNERS.
+#
+# GitLab reads this file from the repo root (also `.gitlab/CODEOWNERS`). The
+# LAST matching pattern wins, so put specific families above the catch-alls.
+#
+# Replace @ivanmang with your team group (e.g. @cann/skill-foundry) once the
+# group exists — these are the reviewers gitcode auto-assigns to an MR touching
+# the matching path.
+
+# --- Shared knowledge corpus (the product) ------------------------------
+# Per-family owners are ideal; add a line per family as ownership crystallizes.
+.claude/skills/            @ivanmang
+learnings/                 @ivanmang
+hub/                       @ivanmang
+
+# --- Harness + tooling (the machinery the skills call) ------------------
+skill_foundry/             @ivanmang
+config/                    @ivanmang
+scripts/                   @ivanmang
+tests/                     @ivanmang
+harness                    @ivanmang
+Makefile                   @ivanmang
+pyproject.toml             @ivanmang
+
+# --- Docs + indexes (auto-generated, but still reviewed) -----------------
+docs/                      @ivanmang
+README.md                  @ivanmang
+AGENTS.md                  @ivanmang

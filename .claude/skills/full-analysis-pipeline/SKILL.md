@@ -12,6 +12,7 @@ entry: true
 stages: run-testcase, extract-logs, generate-report, review-inconsistencies, skill-maintainer
 origin: native
 maturity: ready
+owner: skill-foundry
 ---
 
 # Full Analysis Pipeline

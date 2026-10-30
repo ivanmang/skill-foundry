@@ -10,6 +10,7 @@ compatibility: Requires python3 and git. NPU-sim suites additionally require a C
 category: regression
 origin: native
 maturity: ready
+owner: skill-foundry
 ---
 
 # Run Testcase

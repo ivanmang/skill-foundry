@@ -12,6 +12,7 @@ compatibility: Requires python3. Outer suite gate: sv567-nx1-outer.
 category: perf-analysis
 origin: native
 maturity: ready
+owner: skill-foundry
 ---
 
 # tilelangGym VMI Gmap close

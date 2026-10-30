@@ -6,6 +6,7 @@ compatibility: Requires python3. Pair with tilelanggym-st-report.
 category: perf-analysis
 origin: native
 maturity: ready
+owner: skill-foundry
 ---
 
 # tilelangGym SEMANTICS_GATE

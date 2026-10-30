@@ -5,6 +5,7 @@ category: repo-ops
 license: CANN Open Software License Agreement Version 2.0
 origin: cannbot
 maturity: ready
+owner: cannbot
 ---
 
 # 仓库构建指南

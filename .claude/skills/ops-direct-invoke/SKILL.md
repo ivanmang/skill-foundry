@@ -7,6 +7,7 @@ stages: repo-requirement, repo-env-check, workflow-orchestrator
 license: CANN Open Software License Agreement Version 2.0
 origin: cannbot
 maturity: ready
+owner: cannbot
 ---
 
 # 直调算子开发

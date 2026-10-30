@@ -14,6 +14,7 @@ compatibility: Requires python3. Pack gate needs TILELANGGYM_PACK; full opencode
 category: perf-analysis
 origin: native
 maturity: ready
+owner: skill-foundry
 ---
 
 # tilelangGym ST explore (skill-foundry)

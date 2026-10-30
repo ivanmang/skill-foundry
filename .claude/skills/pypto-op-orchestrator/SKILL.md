@@ -6,6 +6,7 @@ entry: true
 license: CANN Open Software License Agreement Version 2.0
 origin: cannbot
 maturity: ready
+owner: cannbot
 ---
 
 使用 workflow-orchestrator skill 启动对应工作流：

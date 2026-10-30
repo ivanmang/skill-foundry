@@ -9,6 +9,7 @@ compatibility: Requires python3. A standalone parser ships in scripts/parse_gtes
 category: regression
 origin: native
 maturity: ready
+owner: skill-foundry
 ---
 
 # Extract Logs

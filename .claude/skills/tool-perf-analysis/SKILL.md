@@ -5,6 +5,7 @@ category: perf-analysis
 license: CANN Open Software License Agreement Version 2.0
 origin: cannbot
 maturity: ready
+owner: cannbot
 ---
 
 # Profiling 报告快照解析（tool-perf-analysis）

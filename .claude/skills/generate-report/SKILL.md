@@ -9,6 +9,7 @@ compatibility: Requires python3. The report itself is plain Markdown + inline HT
 category: regression
 origin: native
 maturity: ready
+owner: skill-foundry
 ---
 
 # Generate Report

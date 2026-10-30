@@ -6,6 +6,7 @@ category: ops-dev
 license: CANN Open Software License Agreement Version 2.0
 origin: cannbot
 maturity: ready
+owner: cannbot
 ---
 
 # ACLNN ST 测试产物验收

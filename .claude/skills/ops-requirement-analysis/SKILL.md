@@ -6,6 +6,7 @@ category: ops-dev
 license: CANN Open Software License Agreement Version 2.0
 origin: cannbot
 maturity: ready
+owner: cannbot
 ---
 
 # 算子需求分析 Skill

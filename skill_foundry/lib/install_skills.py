@@ -43,7 +43,7 @@ AGENTS = [
 def select_dirs(args) -> list[Path]:
     """Return the skill dirs matching the selection flags (all when none)."""
     dirs: list[Path] = []
-    need_fm = bool(args.origin or args.category or args.entry or args.maturity)
+    need_fm = bool(args.origin or args.category or args.entry or args.maturity or args.owner)
     for sd in sorted(SKILLS.iterdir()):
         sm = sd / "SKILL.md"
         if not sd.is_dir() or not sm.exists():
@@ -55,6 +55,8 @@ def select_dirs(args) -> list[Path]:
         if args.name and sd.name not in args.name:
             continue
         if args.origin and (fm.get("origin") or "").strip() != args.origin:
+            continue
+        if args.owner and (fm.get("owner") or "").strip() != args.owner:
             continue
         if args.maturity and (fm.get("maturity") or "ready").strip() != args.maturity:
             continue
@@ -102,6 +104,7 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--scope", choices=["core", "all"], default=None,
                     help="Preset: 'core' = the owned (origin: native) skills; 'all' = everything.")
     ap.add_argument("--origin", default=None, help="Only skills with this origin (native|cannbot).")
+    ap.add_argument("--owner", default=None, help="Only skills with this owner (skill-foundry|cannbot|…).")
     ap.add_argument("--maturity", default=None, help="Only skills with this maturity (ready|draft|deprecated).")
     ap.add_argument("--category", default=None, help="Only skills in this category.")
     ap.add_argument("--entry", action="store_true", help="Only entry-point skills.")

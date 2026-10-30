@@ -7,6 +7,7 @@ stages: ops-perf-baseline-evaluate, ops-perf-preparation, ops-perf-analysis, ops
 license: CANN Open Software License Agreement Version 2.0
 origin: cannbot
 maturity: ready
+owner: cannbot
 ---
 
 # 算子性能优化主编排
