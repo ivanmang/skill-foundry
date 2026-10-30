@@ -15,6 +15,9 @@ Checks:
   - license / metadata / allowed-tools: optional (parsed, not further constrained)
   - category: optional per the Agent Skills spec, but required by hub discovery —
     reported as a non-fatal warning when absent (does not affect the exit code).
+  - reference integrity: every skill: URI, ../<name>/SKILL.md link and
+    skills/<name>/ path reference must resolve to a local skill or a declared
+    external (config/externals.json); unknown names are fatal.
 
 Exit codes: 0 valid, 1 invalid, 2 usage.
 """
@@ -22,14 +25,25 @@ Exit codes: 0 valid, 1 invalid, 2 usage.
 from __future__ import annotations
 
 import argparse
+import json
 import re
 from pathlib import Path
 
 from skill_foundry.paths import ROOT as HARNESS  # noqa: E402
 DEFAULT_ROOT = HARNESS / ".claude" / "skills"
+EXTERNALS_FILE = HARNESS / "config" / "externals.json"
 
 NAME_RE = re.compile(r"^[a-z0-9-]+$")
 FRONT_RE = re.compile(r"^---\s*\n(.*?)^---\s*$", re.MULTILINE | re.DOTALL)
+
+# Patterns that unambiguously name another skill (exclude bare backtick names —
+# too noisy). `(?<![a-z0-9_-])` keeps "cannbot-skills/…" and "npu_skills/…" from
+# matching the literal "skills/".
+REF_PATTERNS = (
+    re.compile(r"skill:([a-z0-9][a-z0-9-]*)"),
+    re.compile(r"\.\./([a-z0-9][a-z0-9-]*)/SKILL\.md"),
+    re.compile(r"(?<![a-z0-9_-])skills/([a-z0-9][a-z0-9-]*)/"),
+)
 
 
 def parse_frontmatter(text: str) -> tuple[dict, str | None]:
@@ -112,6 +126,45 @@ def validate_skill(folder: Path) -> list[str]:
     return errors
 
 
+def load_external_names(path: Path = EXTERNALS_FILE) -> set[str]:
+    """Return the declared external skill names (empty when no manifest)."""
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return set()
+    skills = data.get("skills") if isinstance(data, dict) else None
+    return {str(n) for n in skills} if isinstance(skills, dict) else set()
+
+
+def check_references(root: Path, externals: set[str] | None = None) -> list[str]:
+    """Return dangling cross-skill reference violations.
+
+    Scans SKILL.md and references/*.md for ``skill:`` URIs, ``../<name>/SKILL.md``
+    links and ``skills/<name>/`` path references. Each referenced name must be a
+    local skill or a declared external; anything else is a dangling reference.
+    """
+    if externals is None:
+        externals = load_external_names()
+    local = {d.name for d in root.iterdir() if d.is_dir() and not d.name.startswith(".")}
+    errors: list[str] = []
+    for sk in sorted(p for p in root.iterdir() if p.is_dir() and not p.name.startswith(".")):
+        files = [sk / "SKILL.md"]
+        refdir = sk / "references"
+        if refdir.is_dir():
+            files += sorted(refdir.glob("*.md"))
+        for f in files:
+            text = f.read_text(encoding="utf-8", errors="replace")
+            for pat in REF_PATTERNS:
+                for m in pat.finditer(text):
+                    name = m.group(1)
+                    if name in local or name in externals:
+                        continue
+                    errors.append(
+                        f"{sk.name}: reference to unknown skill '{name}' in {f.name} "
+                        "(declare it in config/externals.json if external)")
+    return errors
+
+
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description="Validate SKILL.md files against the Agent Skills spec.")
     ap.add_argument("--root", default=str(DEFAULT_ROOT), help="Path to the skills dir (default .claude/skills).")
@@ -142,18 +195,24 @@ def main(argv: list[str] | None = None) -> int:
                     f"{d.name}: frontmatter 'category' is missing "
                     "(optional per spec, but required by hub discovery)")
 
+    ref_errors = check_references(root)
+
     if not args.quiet:
         for w in all_warnings:
             print(f"  ⚠ {w}")
 
-    if all_errors:
-        print(f"skill conformance: {len(all_errors)} issue(s) in {len(skill_dirs)} skill(s)")
+    total_issues = len(all_errors) + len(ref_errors)
+    if total_issues:
+        print(f"skill validation: {total_issues} issue(s) across {len(skill_dirs)} skill(s)")
         for e in all_errors:
+            print(f"  ✗ {e}")
+        for e in ref_errors:
             print(f"  ✗ {e}")
         return 1
 
     if not args.quiet:
-        print(f"skill conformance: OK — {len(skill_dirs)} skill(s) valid per agentskills.io/specification")
+        print(f"skill validation: OK — {len(skill_dirs)} skill(s) valid "
+              "(spec + reference integrity)")
     return 0
 
 

@@ -17,6 +17,12 @@ bash -n harness skill_foundry/workflow/baseline.sh skill_foundry/cli/selfcheck.s
 echo "== skill spec conformance =="
 python3 -m skill_foundry.lib.validate_skills
 
+echo "== catalog + skills index fresh =="
+./harness skills --check
+
+echo "== unit tests =="
+if [ -d tests ]; then python3 -m unittest discover -s tests -q; fi
+
 echo "== bundled parser in sync =="
 diff -q skill_foundry/lib/parse_gtest.py .claude/skills/extract-logs/scripts/parse_gtest.py \
   || { echo "  ✗ extract-logs/scripts/parse_gtest.py drifted from lib/parse_gtest.py" >&2; exit 1; }
