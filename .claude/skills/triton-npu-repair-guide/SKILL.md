@@ -5,6 +5,7 @@ description: >-
   Use when a Triton Ascend NPU operator hits compile, JIT, launch, or kernel-structure errors or precision mismatches.
   Does not replace triton-npu-gen-test, triton-npu-gen-bench, or harness specs.
 category: triton
+license: CANN Open Software License Agreement Version 2.0
 ---
 
 # Triton repair experience (Ascend)

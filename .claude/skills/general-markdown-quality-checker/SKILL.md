@@ -13,6 +13,7 @@ metadata:
   author: Huawei Technologies Co., Ltd.
   category: utility-doc
 category: doc-quality
+license: CANN Open Software License Agreement Version 2.0
 ---
 
 # 生态资料通用质检技能

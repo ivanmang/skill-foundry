@@ -3,7 +3,7 @@
 本文是将当前工作流部署的 vendor 自定义算子对接 **TTK `aclnn` 模式** 的完整操作手册。
 以 `AddCustom`（`aclnnAddCustom`）为贯穿示例，流程对任意本工程算子通用。
 
-环境（`$PY`/`$TTK`/CANN）按 [`../../ttk-env-check/SKILL.md`](../../ttk-env-check/SKILL.md) 的「环境约定」设定，**勿写死路径**。  
+环境（`$PY`/`$TTK`/CANN）按下方「1. 前置检查」的变量约定（`docs/{OP}/develop/env.sh` 产物）设定，**勿写死路径**。  
 TTK 以源码方式使用：`cd $TTK` 后 `python3 -m ttk aclnn ...`。  
 命令以 `<OpType>`（驼峰，如 `AddCustom`）/ `<op>`（小写，如 `add_custom`）/ `<aclnnOp>`（如 `aclnnAddCustom`）作通用占位符。
 
@@ -18,8 +18,8 @@ TTK 以源码方式使用：`cd $TTK` 后 `python3 -m ttk aclnn ...`。
 | `ASCEND_OPP_PATH` | CANN opp 根目录 | `source <CANN 安装路径>/set_env.sh` 自动导出 |
 | `ASCEND_TOOLKIT_HOME` | CANN toolkit 根目录 | 同上 |
 | `ASCEND_CUSTOM_OPP_PATH` | **必须为空 / 不设**（见Pitfall 2） | 不设 |
-| `$PY` | 执行 python（需 numpy/torch/decorator/ttk） | 环境变量 `PY` 指定，默认 `python3`；见 ttk-env-check |
-| `$TTK` | ops-test-kit 检出目录 | 环境变量 `TTK` 指定；见 ttk-env-check |
+| `$PY` | 执行 python（需 numpy/torch/decorator/ttk） | 环境变量 `PY` 指定，默认 `python3`；见 §1.3（env.sh 产物） |
+| `$TTK` | ops-test-kit 检出目录 | 环境变量 `TTK` 指定；见 §1.3（env.sh 产物） |
 
 执行 `source .../set_env.sh` 后再检查 `ASCEND_OPP_PATH` / `ASCEND_TOOLKIT_HOME` 是否已设置。
 
@@ -131,7 +131,7 @@ source docs/{OP}/develop/env.sh                    # ttk-env-check 产物
 : "${TTK:?}"; : "${PY:=python3}"
 CSV=<path/to/blackbox_all.csv>
 GOLDEN=<path/to/golden.py>
-INPUT_DIST_ARG=$("$PY" <ops-ttk skill 目录>/scripts/derive_input_dist.py --spec <docs/{OP}/spec.yaml 绝对路径>)  # spec data_distribution: normal → --input-dist normal；否则空
+INPUT_DIST_ARG=$("$PY" <blackbox-tester skill 目录>/derive_input_dist.py --spec <docs/{OP}/spec.yaml 绝对路径>)  # spec data_distribution: normal → --input-dist normal；否则空
 OUT=<path/to/result.csv>
 VENDOR="$ASCEND_OPP_PATH/vendors/$OPTYPE"
 export LD_LIBRARY_PATH="$VENDOR/op_api/lib:$LD_LIBRARY_PATH"

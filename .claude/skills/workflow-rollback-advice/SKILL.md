@@ -2,6 +2,7 @@
 name: workflow-rollback-advice
 description: Generate failure analysis / redo advice for workflow rollback: analyze the failed task's session records and historical artifacts.
 category: workflow
+license: CANN Open Software License Agreement Version 2.0
 ---
 
 # Workflow Rollback Advice

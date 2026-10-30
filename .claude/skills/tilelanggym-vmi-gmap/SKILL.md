@@ -9,6 +9,7 @@ description: >
   moves vs prior SoT.
 license: CANN Open Software License Agreement Version 2.0
 compatibility: Requires python3. Outer suite gate: sv567-nx1-outer.
+category: perf-analysis
 ---
 
 # tilelangGym VMI Gmap close

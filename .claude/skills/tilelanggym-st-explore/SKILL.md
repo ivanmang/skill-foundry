@@ -11,6 +11,7 @@ description: >
   claiming SoftLib≻SIMD or SIMD≻SoftLib (reject IPC-only PNGs).
 license: CANN Open Software License Agreement Version 2.0
 compatibility: Requires python3. Pack gate needs TILELANGGYM_PACK; full opencode hours are out of band.
+category: perf-analysis
 ---
 
 # tilelangGym ST explore (skill-foundry)

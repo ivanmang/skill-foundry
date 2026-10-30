@@ -2,6 +2,7 @@
 name: ascendc-performance-review
 description: Static review of AscendC operator code for performance bad smells (no execution). Indexed checklist (PRC series): fast-path gated off by arch macros, hardcoded platform params, memory-access issues (double buffer / copy merge / core balance / UB tiling), RegBase/VF/SIMT/scalar and header overhead. For pre-optimization review and static evidence for bottleneck analysis.
 category: perf-optimize
+license: CANN Open Software License Agreement Version 2.0
 ---
 
 # AscendC 性能静态检视
@@ -15,7 +16,7 @@ category: perf-optimize
 3. 每条 finding 必须引用检查点 ID + 文件/行号 + 证据形态（按卡片要求）。
 4. 结论依赖 `#if` 架构宏取值的，一律先按 PRC-ARCH-001 的打表命令取证目标 SoC 的宏取值，禁止从宏名反推平台。
 5. 平台参数（核数/UB/L2）先看代码怎么取的、是否真正参与切分表达式，再谈数值（PRC-ARCH-002）；环境取不到真实数值时注明"不可得"，不据此标 blocker。
-6. arch22（A2/A3）目标先读 [arch22 适用性矩阵](skill:ascendc-performance-best-practices) `reference/common/arch22/perf_review_applicability.md`，按矩阵加载通用卡片，再加载 `PRC-MM-*`/`PRC-FA-*` 专项；A5 目标不得加载 arch22 专项卡片。A2/A3 共用同一套实现，验证结论可互换；保留实际测试型号与证据引用。
+6. arch22（A2/A3）目标先读 [arch22 适用性矩阵](skill:ascendc-performance-best-practices) `reference/common/arch22/perf_review_applicability.md`（`skill:` 指向 external cannbot-skills 域 skill，经 `npx skills add` 装配；未装配时 arch22 MM/FA 专项卡片不可加载），按矩阵加载通用卡片，再加载 `PRC-MM-*`/`PRC-FA-*` 专项；A5 目标不得加载 arch22 专项卡片。A2/A3 共用同一套实现，验证结论可互换；保留实际测试型号与证据引用。
 
 ## 交付
 

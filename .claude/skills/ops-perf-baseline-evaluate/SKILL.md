@@ -2,6 +2,7 @@
 name: ops-perf-baseline-evaluate
 description: For accepted operator performance tasks: check environment/NPU, freeze or generate cases, produce per-case baseline targets, and run on-device msprof collection + speedup comparison vs a reference (compare/quick -> performance.json + markdown). Baseline-evaluation stage only. Dispatched by ops-perf-optimize.
 category: perf-optimize
+license: CANN Open Software License Agreement Version 2.0
 ---
 
 # 基线评估

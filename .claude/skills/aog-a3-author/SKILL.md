@@ -10,6 +10,7 @@ description: >
   Usage:
     /aog-a3-author {op_dir} {workspace}     # parse op_dir, emit scripts to workspace
 category: ascendc-dev
+license: CANN Open Software License Agreement Version 2.0
 ---
 
 # /aog-a3-author

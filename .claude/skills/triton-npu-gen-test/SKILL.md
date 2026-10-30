@@ -2,6 +2,7 @@
 name: triton-npu-gen-test
 description: Generate correctness test code for an Ascend NPU operator from source code and task context. Use when you need to author a new operator test file, choose between standalone and differential test styles, infer the callable under test, or honor a requested output location.
 category: triton
+license: CANN Open Software License Agreement Version 2.0
 ---
 
 # Test Gen

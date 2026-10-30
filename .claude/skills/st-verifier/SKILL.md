@@ -3,6 +3,7 @@ name: st-verifier
 description: ACLNN ST test-artifact acceptance: verify case-structure coverage (coverage_audit.py re-computes expected coverage with build_model), design conformance (branch verification vs design Validation.md matrix), and full framework inclusion.
 disable-model-invocation: true
 category: ops-dev
+license: CANN Open Software License Agreement Version 2.0
 ---
 
 # ACLNN ST 测试产物验收
@@ -12,7 +13,7 @@ category: ops-dev
 ## 内容
 - `references/coverage_audit.py`:**结构覆盖度审计**——独立用白盒统一入口的 `build_model` 重算该阶段期望的结构覆盖签名集，
   比对交付 `design_doc_cases.json` 里 cases 的实际覆盖(size/align/dtype 须全覆盖、广播分支须有真实广播对)。
-  逻辑单一真源在白盒统一入口 `skills/ascendc-whitebox-design/references/whitebox_designer.py`,本脚本薄封装、不复制逻辑。
+  逻辑单一真源在白盒统一入口 external skill `ascendc-whitebox-design`（经 ops-registry-invoke 入口 `npx skills add` 从 cannbot-skills 主线装配）的 `references/whitebox_designer.py`,本脚本薄封装、不复制逻辑。
 - `references/README.md`:用法。
 
 ## 五类检查（据任务类型选相关项，逐项实质检查，优先可执行命令 + 退出码）

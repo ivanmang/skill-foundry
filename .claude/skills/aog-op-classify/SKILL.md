@@ -7,6 +7,7 @@ description: >
   one-off inspection: `Skill(name="aog-op-classify", args="workspace/{op}")`.
   Use when Phase O1.7 needs operator classification and KB recommendations.
 category: ascendc-dev
+license: CANN Open Software License Agreement Version 2.0
 ---
 
 # /aog-op-classify (v2)

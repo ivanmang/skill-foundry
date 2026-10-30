@@ -2,6 +2,7 @@
 name: ascendc-api-retrieval
 description: Search/reference Ascend C operator development API documentation (LocalTensor, GlobalTensor, TPipe, TQue, DataCopy, vector/matrix/math/tiling/sync APIs). Use before generating any Ascend C code or answering Ascend C API questions. Primary: the RAG retrieval service. Fallback (no service): local asc-devkit files then online community search via scripts/.
 license: Apache-2.0
+category: knowledge
 metadata:
   author: CANN Team
   version: "1.0.0"
@@ -10,7 +11,6 @@ metadata:
 # Ascend C API 检索技能
 
 你接入了覆盖华为昇腾 Ascend C 算子开发接口的**官方文档检索服务**。
-category: knowledge
 
 作为 Agent，你需要完成四个阶段：**上下文获取 → 规划 → 检索 → 生成**。用户上下文获取阶段负责收集用户和 Agent 的信息；规划阶段负责确定查询词；检索阶段负责调用RAG检索服务获取相关文档；生成阶段基于检索返回的文档内容作答。
 

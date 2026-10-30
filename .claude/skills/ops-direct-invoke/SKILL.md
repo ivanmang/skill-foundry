@@ -2,6 +2,7 @@
 name: ops-direct-invoke
 description: Main-session entry for user direct-invoke operator development/fix/continuation requests: as PM, aligns requirements and environment, orchestrates the workflow, and organizes delivery. Not for dispatched-node execution/acceptance, template reading, or workflow maintenance.
 category: ops-dev
+license: CANN Open Software License Agreement Version 2.0
 ---
 
 # 直调算子开发

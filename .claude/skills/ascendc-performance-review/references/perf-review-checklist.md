@@ -8,6 +8,10 @@ status: ready
 
 知识来源与抓取口径：cann-samples@6e6260c8（2026-08-24，全部 dav-3510 实测样例，第一优先证据源）；华为官方《Ascend C 最佳实践》（CANN 商用版 9.0.0，机制类补充，部分收益数字仅 A2 平台）；cann/ops-nn 与 ops-transformer 在库 A5(arch35) 纯 Vector 算子 tiling 源码对照分析（2026-08-27，11 个算子，dav-3510，结构判定为主、收益数字未单独上板的条目标 draft）；A5 UB bank 上板微基准实测（2026-08-27，Ascend950PR_9579，bank_probe：1R1W 无感、2R 错位 32B 约 +2%、16KB 对齐无惩罚，供 PRC-MEM-009）；arch22 MatMul 证据来自 asc-devkit 的 `dav-2201` Matmul 样例，arch22 FA 证据来自 ops-transformer FIA 的 `op_host/op_kernel/arch22` 源码。后两类当前完成源码/样例级验证，A2/A3 可互换验证结论，收益数值保留实际测试平台。
 
+## 外部依赖
+
+- `skill:ascendc-performance-best-practices`（arch22 MatMul/FlashAttention 主题分册真源）：**external** cannbot-skills 域 skill（`ops/` 下），经入口 skill `npx skills add` 装配，不随本仓分发。未装配时七条 arch22 专项卡片不可加载（A5 目标本来就不加载）。本索引只持有 `PRC-MM-*`/`PRC-FA-*` 编号与 anchor，不复制其正文。
+
 ## 使用方式
 
 1. 检视 Agent 先读本索引，得到全部检查点 ID 与适用范围；

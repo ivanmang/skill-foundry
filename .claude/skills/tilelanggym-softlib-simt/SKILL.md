@@ -11,6 +11,7 @@ description: >
   opcode_lanes_ipc overlays both arms (reject IPC-only).
 license: CANN Open Software License Agreement Version 2.0
 compatibility: Requires python3. Pair with tilelanggym-st-explore Done-bar.
+category: perf-analysis
 ---
 
 # tilelangGym SoftLib SIMT schedule

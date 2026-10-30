@@ -2,6 +2,7 @@
 name: cake-evo
 description: Evolutionary AscendC operator generation: spawn parallel variants with different optimization strategies and select the best. Top-level orchestrator for multi-round kernel optimization.
 category: ascendc-dev
+license: CANN Open Software License Agreement Version 2.0
 ---
 
 ## What I do

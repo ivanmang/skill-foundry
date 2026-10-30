@@ -13,6 +13,7 @@ description: >
     /aog-report-gen {project_name} --init       # create REPORT.md from template if absent
     /aog-report-gen {project_name} --audit      # dry-run: check sections + freshness, no edits
 category: ascendc-dev
+license: CANN Open Software License Agreement Version 2.0
 ---
 
 # /aog-report-gen

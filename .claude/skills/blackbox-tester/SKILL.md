@@ -3,19 +3,20 @@ name: blackbox-tester
 description: TTK black-box execution. Use ops-test-kit aclnn mode to run full black-box precision execution and reporting for a workflow's vendor custom operators: split L0/L1 forward and L2 negative suites, load golden plugins, run ttk aclnn, parse result.csv into two gate conclusions (L0/L1 all-green + L2 all-rejected).
 disable-model-invocation: true
 category: ops-dev
+license: CANN Open Software License Agreement Version 2.0
 ---
 
 # TTK 黑盒精度验收
 
 本技能以 **ops-test-kit（TTK）aclnn 模式** 对当前工作流部署的 vendor 自定义算子做端到端黑盒精度验收。
-环境（`$PY` / `$TTK` / CANN）按 [`ttk-env-check`](../ttk-env-check/SKILL.md) 的「环境约定」设定，**勿写死路径**。
+环境（`$PY` / `$TTK` / CANN）按下方「核心步骤」开头的变量定义设定（源自 `docs/{OP}/develop/env.sh`），**勿写死路径**。
 
 TTK 以源码方式使用：需 `cd $TTK` 后 `python3 -m ttk aclnn ...`。
 
 详细命令、环境变量与排障见 [`references/ttk-aclnn-guide.md`](references/ttk-aclnn-guide.md)；TestSpec 编写规范见 TTK 仓 `ttk-how-write-plugin` skill（`$TTK/.claude/skills/ttk-how-write-plugin/SKILL.md`）+ `$TTK/ttk/test_spec/examples/`（6 个官方示例）。
 **全量黑盒大规模失败（`561002` / `NO_OUTPUT` / `errcode95`）时先按 guide §8「黑盒失败分诊 SOP」分诊**（最小复现 + `nm -D` 排除 built-in 冲突），再落框架加载修复（Pitfall 9/10，模板见 [`references/sitecustomize_rtld_global.py.templ`](references/sitecustomize_rtld_global.py.templ)）；禁止直接进 kernel/tiling 修复循环。
 
-TTK 通用权威参考见 [`ops-ttk`](../ops-ttk/SKILL.md) 指引的 TTK 仓 4 个标准 skill（`$TTK/.claude/skills/`）：命令参数（`ttk-how-run-test`）、CSV 字段（`ttk-how-write-case`）、TestSpec 插件（`ttk-how-write-plugin`）、精度排障（`ttk-how-diagnose`）。
+TTK 通用权威参考为 TTK 仓自带 4 个标准 skill（`$TTK/.claude/skills/`）：命令参数（`ttk-how-run-test`）、CSV 字段（`ttk-how-write-case`）、TestSpec 插件（`ttk-how-write-plugin`）、精度排障（`ttk-how-diagnose`）。
 
 ---
 
@@ -32,9 +33,8 @@ OUTDIR="$PKG/tests/blackbox/ttk"; mkdir -p "$OUTDIR"
 MERGED="$OUTDIR/blackbox_all.csv"                # 步骤 1 产物：L0/L1 正向套件（数值精度全绿门禁）
 NEG="$OUTDIR/blackbox_l2_neg.csv"               # 步骤 1 产物：L2 负向套件（异常/预期失败，单独跑、反向门禁）
 GOLDEN=<docs/{OP}/develop/golden.py 绝对路径>     # TestSpec spec 文件（直接 --plugin 指向，无需包装）
-SKILL_DIR=<本 blackbox-tester skill 目录绝对路径>  # 含 preflight.py / parse_result.py / references/
-TTK_SKILL=<ops-ttk skill 目录绝对路径>   # 经 skills/ops-ttk 软链解析，含 assets/ 与 scripts/
-INPUT_DIST_ARG=$("$PY" "$TTK_SKILL/scripts/derive_input_dist.py" --spec <绝对路径>/docs/{OP}/spec.yaml)  # spec 任一输入 data_distribution: normal → "--input-dist normal"；否则空（TTK 默认 uniform）
+SKILL_DIR=<本 blackbox-tester skill 目录绝对路径>  # 含 preflight.py / parse_result.py / derive_input_dist.py / references/
+INPUT_DIST_ARG=$("$PY" "$SKILL_DIR/derive_input_dist.py" --spec <绝对路径>/docs/{OP}/spec.yaml)  # spec 任一输入 data_distribution: normal → "--input-dist normal"；否则空（TTK 默认 uniform）
 ```
 
 ### 步骤 1：定位并分离 L0/L1（正向）与 L2（负向）

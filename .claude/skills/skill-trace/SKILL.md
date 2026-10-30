@@ -7,6 +7,7 @@ description: >
   (3) Final summary to correlate skills with outcomes.
 allowed-tools: Read, Write, Edit, Bash
 category: ascendc-dev
+license: CANN Open Software License Agreement Version 2.0
 ---
 
 # Skill Trace — 技能调用追踪

@@ -3,6 +3,7 @@ name: ops-requirement-analysis
 description: Produce a REQUIREMENTS.md for a to-be-developed operator: op-name resolution -> model / competitor (TF-PyTorch) / CANN-proposal research -> requirement summary. Triggers on operator requirement docs.
 disable-model-invocation: true
 category: ops-dev
+license: CANN Open Software License Agreement Version 2.0
 ---
 
 # 算子需求分析 Skill
@@ -74,7 +75,7 @@ category: ops-dev
    必须先在本地内置 `REG_OP` 命中处锚定官方签名，再逐一列出其余同名实体并明确「以本地内置官方 IR 为准，本需求沿用其输入输出签名」；
    禁止在没有官方 IR 证据时自行杜撰 vendor/自定义同名算子语义。
 3. **「旧代际已支持、需补齐新代际」优先按代际补齐语义理解、且以官方 IR 芯片覆盖为据**：提示词出现「旧平台已有、需在新平台补齐」等表述时，
-   先按公共 skill [`npu-arch`](../npu-arch/SKILL.md) 查代号→芯片代际映射，映射表见 [`npu-arch-guide.md` §架构代号别名](../npu-arch/references/npu-arch-guide.md)（A2→Ascend910B、A3→Ascend910_93、A5→Ascend950 等），
+   先按公共 skill `npu-arch`（external：经 ops-registry-invoke 入口 `npx skills add` 从 cannbot-skills 主线装配；未装配时以本处速查为准）查代号→芯片代际映射（A2→Ascend910B、A3→Ascend910_93、A5→Ascend950），
    再以官方 `REG_OP` 的芯片覆盖（`AddConfig`）核对：旧代际确实已支持、目标代际缺失 → 属**芯片代际补齐**（沿用既有接口，补实现），
    **不是**算子功能层面新增属性；不得仅凭提示词字符串把代际标签包装成 mode/谓词属性。
 

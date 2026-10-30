@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated": "2026-10-30T05:54:47.197725+00:00",
+  "generated": "2026-10-30T06:24:29.112175+00:00",
   "skills": [
     {
       "name": "aclnn-doc-gen",
@@ -400,6 +400,31 @@
     {
       "name": "task-progress",
       "description": "Track and manage task progress via a PROGRESS.md. MUST use when: (1) Starting a new task or operator workflow, (2) Entering or completing any step/stage/substage, (3) After context compaction or reset \u2014 read PROGRESS.md first to recover state. Also call when the user asks about current progress or status.",
+      "status": "published"
+    },
+    {
+      "name": "tilelanggym-semantics-gate",
+      "description": "Use before any SoftLib/SIMD close-loop claim in a tilelangGym ST ANALYSIS or RESULT \u2014 run SEMANTICS_GATE S1-S4 and emit PASS|INCONCLUSIVE|wrong-arm; reject shared-VF + post-VF-gold as G-sensitivity; opcode must match lowering (VCMAX wish-name vs VCGMAX); no SoftLib/VMI ranking without era=; reject unlabeled SoftLib SIMT Nx1 vs 1xG merge; reject outer-axis Nx1 using VCGMAX/VCMAX or reused inner Gmap SoT. SoftLib\u227bSIMD publish still requires st-report PR9 overlays both arms.",
+      "status": "published"
+    },
+    {
+      "name": "tilelanggym-softlib-simt",
+      "description": "Use when exploring or closing SoftLib SIMT (__simt_vf__) absmax/Case-3 for a gold G \u2014 motif classes (warp-redux contig vs within-group contig vs stock); schedule matrix LDS.32/64, membar/bar vs fused, vec-misched on/off, unroll/pack, LD|abs+REDUX|ST pipeline, sparse STS; forced 1xG SoT ladder dual-drain / loadall+absall (all G) / wc-multi / G64-128 dual-drain / T in {128,256,512}; SoT cell axis=1xG only; before SoftLib SIMT DONE; forbid DONE on t676-class LDS matrix alone; when SoftLib\u227bSIMD claimed, FORCED PR9 opcode_lanes_ipc overlays both arms (reject IPC-only).",
+      "status": "published"
+    },
+    {
+      "name": "tilelanggym-st-explore",
+      "description": "Use when the user gives SoftLib/ST (or sibling) problem definition / Aims / output expectation and wants the full exploration loop through a detailed ANALYSIS report \u2014 from semantic lock through case design, frontend pick, measure, theory match (~70\u201380%), close, and st-report; mandatory EXPLORATION_TRACE.md before MB DONE; SoftLib motif-seed ladder + coverage COMPARE (tag names) even when KPI COMPARE is N/A; FORCED PR9 opcode_lanes_ipc overlays for both arms before MB/ANALYSIS DONE when claiming SoftLib\u227bSIMD or SIMD\u227bSoftLib (reject IPC-only PNGs).",
+      "status": "published"
+    },
+    {
+      "name": "tilelanggym-st-report",
+      "description": "Use when writing or rewriting a tilelangGym ST ANALYSIS report (SV*/CF*/SP*/SB*) to the standard spine from Aims + design only \u2014 no dig numbers, no agent memory; after RESULT fill COMPARE harvest (or N/A) plus motif-seed Coverage COMPARE; FORCED PR9 running-IPC + opcode-lane mix overlay (plot_style=opcode_lanes_ipc) \u2014 reject IPC-only *_running_ipc.png; require EXPLORATION_TRACE.md link when explore-from-prompt / clean regress; when SIMT-over-SIMD (or reverse) or both-arm perf compare closes, require PR9 overlays + per-segment opcode mix + stage mid-IPC for BOTH arms.",
+      "status": "published"
+    },
+    {
+      "name": "tilelanggym-vmi-gmap",
+      "description": "Use when tracking or closing MB-SV*-VMI-Gmap / SoftLib Gmap sweeps \u2014 classify functional PASS vs tried schedules vs best-sweep DONE per reduce_axis (inner VC/VCG vs outer VMAX); outer absmax-vs-Case-3 dual-era + VAND no-path goes to alternate-builder before DONE; measure until DONE or explicit stop \u2014 never treat UNMEASURED-only as success; dig-vs-live delta checklist when el/cyc moves vs prior SoT.",
       "status": "published"
     },
     {

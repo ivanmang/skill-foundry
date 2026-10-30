@@ -3,6 +3,7 @@ name: dsl-optimization
 disable-model-invocation: true
 description: Iteratively optimize AscendDSL code for performance — tiling tuning, vectorization, pipeline adjustments. Use after evaluation shows correctness passes but speedup is below target.
 category: ascendc-dev
+license: CANN Open Software License Agreement Version 2.0
 ---
 
 ## What I do

@@ -3,6 +3,7 @@ name: workflow-dispatch
 description: Architecture routing dispatch for operator-development workflows.
 disable-model-invocation: true
 category: workflow
+license: CANN Open Software License Agreement Version 2.0
 ---
 
 # 工作流架构路由

@@ -2,6 +2,7 @@
 name: triton-npu-convert
 description: Convert one PyTorch operator to a Triton, TileLang, or AscendC Ascend NPU implementation through a spec-first workflow, preserve its public API and input helpers, and validate it with run-test-convert. Use when the user asks to convert a PyTorch operator into an Ascend NPU kernel implementation.
 category: triton
+license: CANN Open Software License Agreement Version 2.0
 ---
 
 # Ascend NPU Convert

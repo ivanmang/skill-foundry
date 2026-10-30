@@ -2,6 +2,7 @@
 name: triton-npu-prepare-optimize-baseline
 description: Establish a reusable canonical optimize baseline by reusing or generating harnesses, performing minimum repair, and passing `triton-npu-optimize-state` `submit-baseline`. Use when an Ascend NPU optimize workspace has no accepted baseline or the existing baseline is no longer canonical.
 category: triton
+license: CANN Open Software License Agreement Version 2.0
 ---
 
 # Prepare Optimize Baseline

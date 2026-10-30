@@ -14,7 +14,7 @@ size/align/dtype 结构轴须全覆盖；广播分支（design_facts 设 `allow_
 报告打印到 stdout；**退出码 0 = 覆盖达标，1 = 不足**（供 st-verifier 卡口）。
 
 - **只信 build_model 重算的期望，不读 cases/JSON 里 agent 自述的 target_sigs** —— 独立于被测产物。
-- 逻辑单一真源在 `skills/ascendc-whitebox-design/references/whitebox_designer.py`（`build_model` / `_dims_from_opspec` /
+- 逻辑单一真源在 external skill `ascendc-whitebox-design` （经 ops-registry-invoke 入口 `npx skills add` 装配）的 `references/whitebox_designer.py`（`build_model` / `_dims_from_opspec` /
   `case_sig` / `_coverage_audit_cases`）；本脚本只薄封装、不复制逻辑，避免漂移。
 
 ## 其它检查（非脚本化，见 SKILL.md）

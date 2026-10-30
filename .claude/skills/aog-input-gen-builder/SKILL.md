@@ -16,6 +16,7 @@ description: >
   cases (FFT op#23, variable-length lists) still need manual authoring
   but should be rare.
 category: ascendc-dev
+license: CANN Open Software License Agreement Version 2.0
 ---
 
 # /aog-input-gen-builder

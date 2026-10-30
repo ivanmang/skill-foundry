@@ -3,6 +3,7 @@ name: easyasc-dsl-bridge
 disable-model-invocation: true
 description: 'Generate the torch_npu pybind cpp and ModelNew Python wrapper that wire an easyasc-codegen kernel into CAKE evaluation. Uses easyasc-style EXECOP dispatch instead of CAKE''s stock pytorch_npu_helper.hpp::EXEC_NPU_CMD, which throws aicore exception 507015 on these kernels. Runs as stage 6, after easyasc-codegen, deriving parameter ordering from the autogen aclnn header.'
 category: ascendc-dev
+license: CANN Open Software License Agreement Version 2.0
 ---
 
 ## What I do

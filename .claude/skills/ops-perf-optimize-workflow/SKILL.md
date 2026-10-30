@@ -2,6 +2,7 @@
 name: ops-perf-optimize-workflow
 description: Five-stage main orchestrator for AscendC / CANNBot-DSL operator performance optimization. Triggers only when the user explicitly requests performance optimization/tuning of a concrete operator or code directory (or a CANNBot-DSL network case). Handles request intake, dispatch, gate review, looping, recovery, and continuous reporting. For a quick single-report analysis use tool-perf-analysis; for HTML viz use tool-perf-report; for best-practice lookup use tool-perf-practice.
 category: perf-optimize
+license: CANN Open Software License Agreement Version 2.0
 ---
 
 # 算子性能优化主编排

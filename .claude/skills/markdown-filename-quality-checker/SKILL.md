@@ -2,6 +2,7 @@
 name: markdown-filename-quality-checker
 description: Check Markdown filenames for spec/correctness on a single file or a directory of files.
 category: doc-quality
+license: CANN Open Software License Agreement Version 2.0
 ---
 
 # 生态资料文档名称质检技能

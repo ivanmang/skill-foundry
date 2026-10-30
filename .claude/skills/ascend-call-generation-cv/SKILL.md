@@ -3,6 +3,7 @@ name: ascend-call-generation-cv
 disable-model-invocation: true
 description: Generate AscendC CV project scaffold (workspace alloc, AIC+AIV dispatch, Catlass headers) from functional PyTorch for Cube+Vector fused operators (matmul+activation, norm+matmul+scale). Use after functional-conversion when operator_type is "cv".
 category: ascendc-dev
+license: CANN Open Software License Agreement Version 2.0
 ---
 
 ## What I do

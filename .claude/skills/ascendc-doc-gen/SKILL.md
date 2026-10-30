@@ -7,6 +7,7 @@ metadata:
   author: tzh
   category: doc-generation
 category: doc-gen
+license: CANN Open Software License Agreement Version 2.0
 ---
 
 # AscendC API 文档生成

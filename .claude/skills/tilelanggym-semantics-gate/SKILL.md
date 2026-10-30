@@ -10,6 +10,7 @@ description: >
   overlays both arms.
 license: CANN Open Software License Agreement Version 2.0
 compatibility: Requires python3. Pair with tilelanggym-st-report.
+category: perf-analysis
 ---
 
 # tilelangGym SEMANTICS_GATE

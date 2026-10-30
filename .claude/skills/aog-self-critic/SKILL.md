@@ -10,6 +10,7 @@ description: >
   cross-session retrospective analysis — until then, the checks below are
   seeded from the user's explicit feedback memories.
 category: ascendc-dev
+license: CANN Open Software License Agreement Version 2.0
 ---
 
 # /aog-self-critic

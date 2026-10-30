@@ -2,6 +2,7 @@
 name: triton-npu-analyze-compiler-source
 description: Use when an optimize round has compiler source analysis enabled and needs source-backed explanation for a performance-related lowering symptom, suspicious pass effect, or compiler-side behavior that profiler and IR evidence have already narrowed but not fully explained.
 category: triton
+license: CANN Open Software License Agreement Version 2.0
 ---
 
 # Analyze Compiler Source For Performance

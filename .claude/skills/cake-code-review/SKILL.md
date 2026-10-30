@@ -3,6 +3,7 @@ name: cake-code-review
 disable-model-invocation: true
 description: Review AscendC kernel code for structural red-line violations (P0–P3) and algorithm correctness. Use after dsl-lowering, before ascendc-evaluation. Outputs rectification report; guides fix → recompile → unit test → system test.
 category: ascendc-dev
+license: CANN Open Software License Agreement Version 2.0
 ---
 
 # AscendC 编码红线 Review 技能包
