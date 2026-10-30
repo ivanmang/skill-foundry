@@ -89,3 +89,11 @@ SoftLib SIMT / VMI best-sweep / MB_* **DONE forbidden** until:
 ## Coverage COMPARE spelling
 
 TRACE Coverage may list SoftLib T-ladder as full tags (`softlib_simt_T128`, `softlib_simt_T256`, `softlib_simt_T512`) **or** the tip abbreviated slash row (`softlib_simt_T128` / `T256` / `T512`). The pack gate accepts both.
+
+## SIMD Case-3 pack / VL×G (t591u/t593u · names only)
+
+- **NG=8-first:** default VL=8×G (G32→VL256 · G16→VL128 · G8→VL64) for VCG*/vcmax(group=NG=8)
+- Required seed: `pack_ub_vl256` · `keeplive_vbrc_vl256` · `pack_ub_vl64` (cliff)
+- Sens open: UNMEASURED `pack_ub_vl128` · optional extra Legal **G8×VL=256** (≠ replace NG=8-first)
+- Top-3: `tilelanggym-simd-per-g-mapping` · harness §2 · **PRC-SCH-003**
+- No dig el/cyc

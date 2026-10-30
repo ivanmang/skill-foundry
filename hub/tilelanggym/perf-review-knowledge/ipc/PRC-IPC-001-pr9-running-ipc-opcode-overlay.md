@@ -19,6 +19,10 @@ Filename convention: `*_running_ipc_pr9.png` (+ optional `*_pr9_staged.png` with
 
 **IPC-only** `*_running_ipc.png` (single axes, no lanes / no `_pr9`) is **rejected** under this card — not “almost PR9”.
 
+### Stage taxonomy (shared with §8 · t589u)
+
+Seg ids `S_load` · `S_reduce` · `S_scale` · `S_eltwise` · `S_store` (+ optional `S_sync`) for stage mid-IPC / `*_pr9_staged.png` / per-segment mix must share one defining-opcode map. Prefer harness `scripts.st_report.stage_taxonomy.STAGE_TAXONOMY` (SoftLib: LDS · REDUX+FADD+SEL+FSETP_I · FDIV_I · FMUL · STS; SIMD: VLDI · VCMAX+VMAX+VAND · VSEL+VDIV+VDUP · VMUL · VSTI). ISA-mix stays ops/N families (orthogonal). Do not invent a second stage split in ANALYSIS prose.
+
 ### 实测摘要（SB8=SV8 Case-3 G32 · t773u）
 
 | arm | PR9 mid-med | official mid IPC | official el/cyc |
