@@ -1,6 +1,6 @@
 ---
 name: tool-perf-report
-description: 面向算子的 msOpProf 数据采集与可视化技能。用于执行环境检查、最小非重复采集、已有采集结果重绘，以及生成包含 Details、Roofline、Timeline、Cache、Source、片上内存、Warp Stall、指令时间线和原始数据页面的独立 HTML 报告。当用户要求将上板采集的算子性能数据生成可视化报告、查看某个性能模块页面、或基于已有采集目录重建报告时触发。
+description: 面向算子的 msOpProf 数据可视化。执行环境检查、最小非重复采集、已有采集结果重绘，生成独立 HTML 报告（Details/Roofline/Timeline/Cache/Source/片上内存/Warp Stall/指令时间线/原始数据）。采集用 tool-perf-collect，解读用 tool-perf-analysis。触发：把上板采集的性能数据生成可视化报告、查看性能模块页面、重建报告。
 ---
 
 # msOpProf 采集与可视化

@@ -1,6 +1,6 @@
 ---
 name: tool-perf-analysis
-description: NPU Profiling 报告数据提取、解读与优化方向建议。输入最小信封 payload（version / scope / report_id / report_name / report_path / op_name / collected_at），解包 report_path 指向的 .npu-rep 报告获取全部明细（CSV × 6 + Summary.jsonl + HardwareInfo.jsonl + trace），按 scope（compute / memory / summary）路由解析，提取流水线占用、算力利用率、资源冲突、带宽、L2 命中率、roofline 等指标，输出统一格式的数据摘要、瓶颈判定、带证据/代价/排除条件/验证方式的优化方向建议（通用类 + matmul / MC² / conversion 族特化）和数据不足时的补采建议。当用户消息中包含 report_path + scope 的 JSON payload、或要求"解读 profiling 报告数据"、"这个报告说明了什么"、"报告里能回答哪些问题"、"这个算子该怎么优化"时触发。
+description: NPU Profiling 报告数据解读与分析。输入 report_path+scope 的 .npu-rep 信封 payload，解包提取指标（流水线占用/算力利用率/资源冲突/带宽/L2命中率/roofline），按 scope 路由解析，输出数据摘要、瓶颈判定、以及带证据/代价/排除条件/验证方式的优化方向建议（不出代码）。采集用 tool-perf-collect，优化实施用 tool-perf-optimize，可视化用 tool-perf-report。触发：解读 profiling 报告、报告说明了什么、报告里能回答哪些问题、这个算子该怎么优化、report_path+scope payload。
 ---
 
 # Profiling 报告快照解析（tool-perf-analysis）

@@ -1,7 +1,6 @@
 ---
 name: tool-perf-practice
-trigger: query
-description: Ascend C 算子性能优化最佳实践库。按算子族组织优化经验与参考代码总结，供性能优化实施阶段查询。触发：查询某类算子的性能优化参考实现、实施某项优化时需加载对应优化经验时。
+description: Ascend C 算子性能优化最佳实践库。按算子族（matmul / mc2 / conversion 等）组织优化经验与参考代码总结，供性能优化实施阶段查询。触发：查询某类算子的性能优化参考实现、实施某项优化时需加载对应优化经验。
 ---
 
 # Ascend C 算子性能优化最佳实践
