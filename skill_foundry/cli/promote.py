@@ -46,20 +46,38 @@ def _norm(s: str | None) -> str:
     return one(s).lower()
 
 
+def _identity_line(e: dict, target: Path | None) -> str:
+    """The exact one-line text this entry would append (normalized).
+
+    Used for dedupe + presence checks so they compare whole rendered bullets
+    (or known-failures titles) rather than substrings of a field — a short
+    `correct` value like "y" must not match "ready" in the target body.
+    """
+    if target is not None:
+        for ln in build_snippet(e, target).splitlines():
+            s = one(ln)
+            if s:
+                return _norm(s)
+    return _norm(e.get("correct") or e.get("action") or "")
+
+
 def dedupe_pending(pending: list[dict], root: Path) -> tuple[list[dict], dict[str, str]]:
     active: list[dict] = []
     skipped: dict[str, str] = {}
     seen: set[str] = set()
     for e in pending:
-        key = _norm(e.get("correct"))
+        t = resolve_target(e, root)
+        key = _identity_line(e, t)
         if key and key in seen:
             skipped[e["id"]] = "duplicate of an earlier pending entry"
             continue
-        seen.add(key)
-        t = resolve_target(e, root)
-        if t and t.exists() and key and key in _norm(t.read_text(encoding="utf-8", errors="replace")):
-            skipped[e["id"]] = f"already present in {t.relative_to(root)}"
-            continue
+        if key:
+            seen.add(key)
+        if t is not None and t.exists() and key:
+            lines = {_norm(ln) for ln in t.read_text(encoding="utf-8", errors="replace").splitlines()}
+            if key in lines:
+                skipped[e["id"]] = f"already present in {t.relative_to(root)}"
+                continue
         active.append(e)
     return active, skipped
 

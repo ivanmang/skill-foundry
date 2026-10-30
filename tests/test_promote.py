@@ -102,5 +102,40 @@ class ApplyAllTest(unittest.TestCase):
         self.assertTrue(all(e["status"] == "promoted" for e in entries))
 
 
+class DedupeTest(unittest.TestCase):
+    def _root(self):
+        root = Path(tempfile.mkdtemp())
+        sk = root / ".claude" / "skills" / "foo"
+        sk.mkdir(parents=True)
+        (sk / "SKILL.md").write_text(
+            "---\nname: foo\ndescription: d\ncategory: c\n---\n\n# Foo\n\n## Gotchas\n\n- keep me\n",
+            encoding="utf-8",
+        )
+        return root
+
+    def _e(self, eid, action, wrong="w"):
+        return {
+            "id": eid, "category": "correction", "context": "t", "skill": "foo",
+            "wrong": wrong, "correct": action, "action": action, "status": "pending",
+        }
+
+    def test_short_value_substring_is_not_treated_as_present(self):
+        # "y" is a substring of "ready" in the frontmatter; it must NOT dedupe.
+        root = self._root()
+        active, skipped = promote.dedupe_pending([self._e("LRN-1", "y")], root)
+        self.assertEqual(skipped, {})
+        self.assertEqual([x["id"] for x in active], ["LRN-1"])
+
+    def test_exact_existing_bullet_is_deduped(self):
+        root = self._root()
+        e = self._e("LRN-1", "dup action", wrong="dup wrong")
+        target = root / ".claude" / "skills" / "foo" / "SKILL.md"
+        line = [ln for ln in promote.build_snippet(e, target).splitlines() if ln.strip()][0]
+        target.write_text(target.read_text(encoding="utf-8") + line + "\n", encoding="utf-8")
+        active, skipped = promote.dedupe_pending([e], root)
+        self.assertEqual(active, [])
+        self.assertEqual(skipped["LRN-1"], "already present in .claude/skills/foo/SKILL.md")
+
+
 if __name__ == "__main__":
     unittest.main()
