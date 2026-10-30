@@ -25,15 +25,15 @@ Two loops, always:
 
 ```text
 USE      run → extract → report → review (diff vs baseline)
-IMPROVE  capture → propose → apply → push (--direct) or MR (--pr) → next run is smarter
+IMPROVE  capture → propose → gate + LLM review → apply → push (--direct) or MR (--pr)
 ```
 
 And a simple rule of thumb for who does what:
 
 - 🟢 **the scripts do** — run, extract, report, review (driven by the agent).
-- 🟢 **harness does** — capture, propose, promote (the skill-ops loop).
+- 🟢 **harness does** — capture, propose, gate, LLM-review, then promote (the skill-ops loop).
 - 🟡 **you / a reviewer do** — the triage judgment (`teach`); and with `--pr`,
-  merging the MR (with `--direct` the push is automatic and tokenless).
+  you only touch red CI MRs (green ones auto-merge).
 
 And six rules that keep the regression signal honest:
 
@@ -448,8 +448,8 @@ Auto-edit is expensive and risky — `SKILL.md` + `known-failures.md` are the
 team's shared source of truth that every future run reads. The worst failure
 mode isn't a bad memory entry; it's a wrong "known failure" that silently
 annotates a real regression as known and hides it. So the machine may grow its
-memory freely, but shared knowledge changes through a promotion — `--direct`
-straight to `main` (fast, tokenless) or `--pr` with a human merge.
+memory freely, but shared knowledge changes only after the gates and an LLM
+judge APPROVE — `--direct` to `main`, or `--pr` auto-merged when CI is green.
 
 ---
 
