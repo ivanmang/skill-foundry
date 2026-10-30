@@ -8,7 +8,9 @@ description: >
   overlay (plot_style=opcode_lanes_ipc) — reject IPC-only *_running_ipc.png;
   require EXPLORATION_TRACE.md link when explore-from-prompt / clean regress;
   when SIMT-over-SIMD (or reverse) or both-arm perf compare closes, require
-  PR9 overlays + per-segment opcode mix + stage mid-IPC for BOTH arms.
+  PR9 overlays + per-segment opcode mix + stage mid-IPC for BOTH arms;
+  §8.1/§8.2/*_pr9_staged.png share harness STAGE_TAXONOMY defining-opcode map
+  (ISA-mix stays ops/N orthogonal).
 license: CANN Open Software License Agreement Version 2.0
 compatibility: Requires python3. PR9 helper scripts/make_pr9_running_ipc_overlay.py.
 category: perf-analysis
@@ -34,6 +36,22 @@ owner: skill-foundry
 - SoftLib≻SIMD / both-arm compare → PR9 **both** arms + stage mid-IPC table.
 - Cite ready PRC-ids (`PRC-IPC-001` …); KPI COMPARE may be N/A on clean; Coverage COMPARE required.
 - SoftLib SoT = axis=1xG; Nx1 SoftLib = appendix.
+
+## Stage taxonomy (shared · t589u)
+
+Seg ids `S_load` · `S_reduce` · `S_scale` · `S_eltwise` · `S_store` (+ optional `S_sync`) must use the **same defining-opcode map** for §8.1 per-segment mix, §8.2 stage mid-IPC, and `*_pr9_staged.png`. Prefer harness export when present:
+
+- Module: `scripts.st_report.stage_taxonomy.STAGE_TAXONOMY`
+- JSON: `benches/<st>/plots/stage_taxonomy.json` (or repo `scripts/st_report/stage_taxonomy.json`)
+
+Do **not** invent a second stage split. Window = first..last issue of defining opcodes (overlap OK).
+
+| frontend | S_load | S_reduce | S_scale | S_eltwise | S_store |
+|----------|--------|----------|---------|-----------|---------|
+| SoftLib | LDS | REDUX+FADD+SEL+FSETP_I | FDIV_I | FMUL | STS |
+| SIMD | VLDI | VCMAX+VMAX+VAND | VSEL+VDIV+VDUP | VMUL | VSTI |
+
+ISA-mix (§9 / ops/N families) stays **orthogonal** — optionally label families with the same `S_*` names; do not fold ops/N into tick-window mid-IPC.
 
 ## Gate
 
