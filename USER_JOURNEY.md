@@ -288,8 +288,8 @@ correct the agent's triage — go to Step 7 and teach it.
 ## Step 7 — Teach it (the learning loop)
 
 You found something the harness didn't know. Capture it, propose the fix, and
-promote it — capture is automatic, promotion is automatic (`--direct`) or
-reviewed (`--pr`).
+promote it — capture is automatic; promotion is **gated and LLM-reviewed by
+default** before anything is written.
 
 > Most of the time you don't type a command at all: the skills tell the agent
 > to log it automatically when you correct it ("remember …", "no, that's
@@ -335,20 +335,27 @@ It renders a **reviewable git-style diff** into the right place (a new
 skips duplicates / entries already present in the target file. Nothing is
 written yet.
 
-### 7c. Apply + publish (`--direct` to main, or `--pr` for an MR)
+### 7c. Publish (gated + LLM-reviewed, then automatic)
 
 ```bash
-./harness promote --direct   # apply + commit + push straight to origin/main (no token)
-./harness promote --pr       # …or MR-gated: branch + commit + push + auto-create the MR
+./harness promote --direct    # gates → LLM judge APPROVEs → push straight to main
+./harness promote --pr        # …or MR: gates → CI → auto-merges when green
+./harness promote --no-review # skip the judge (mechanical gates still run)
+./harness promote --force     # bypass the gates (human override)
 ```
 
-One command finishes the loop: it writes the edit, marks the entry `promoted`,
-appends a summary to `promoted.md`, and logs a dated block in `corrections.md`.
+Every publish runs the **mechanical gates** (add-only — never removes/changes an
+existing check · no-secrets · size cap · spec) and then an **LLM judge** before
+writing anything. The judge is `SKILL_REVIEWER` (a command that reads the diff on
+stdin and replies `APPROVE` / `HOLD` / `REJECT`); if it isn't set, you confirm
+interactively — and in a non-interactive session it **fails closed** rather than
+merging unreviewed.
+
 `--direct` commits on the current branch and pushes `origin HEAD` (SSH key, no
-token). `--pr` commits on a `feat/learnings-<date>` branch, pushes, and
-**creates the merge request** (via `glab` or the GitCode API with
-`GITCODE_TOKEN`/`GITLAB_TOKEN`; otherwise it prints the MR-new URL) — **you
-merge it on the remote**; branch protection is the gate.
+token). `--pr` commits on a `feat/learnings-<date>` branch, pushes, creates the
+MR (via `glab` or the GitCode API with `GITCODE_TOKEN`/`GITLAB_TOKEN`), and
+requests **auto-merge when the CI gates pass** — a clean promotion lands without
+you, and you only see it if the gates are red.
 
 ---
 
@@ -379,7 +386,7 @@ loop, and every teammate gets it via git.
 |---|---|
 | Nightly | `.gitcode/workflows/promote-learnings.yml` surfaces pending learnings |
 | On push/PR | `.gitcode/workflows/selfcheck.yml` runs `./harness selfcheck` |
-| Weekly / on demand | reviewer merges `feat/learnings-*` MRs (with `--pr`); `--direct` just lands on `main` |
+| Weekly / on demand | with `--pr`, green MRs auto-merge (CI gates); only red ones need you · `--direct` lands on `main` after the LLM judge |
 | After suite changes | `bash skill_foundry/workflow/baseline.sh <target>` to re-pin the baseline |
 | After a correction | re-run one representative case to verify it improved triage |
 | Housekeeping | `python3 -m skill_foundry.workflow.clean --keep 3` / `python3 -m skill_foundry.workflow.history` / `make check` |
@@ -409,8 +416,8 @@ loop, and every teammate gets it via git.
 | Clean run dirs | `python3 -m skill_foundry.workflow.clean [--dry-run] [--keep N]` |
 | Validate config | `python3 -m skill_foundry.workflow.validate` |
 | Capture correction | `./harness teach "… -> … -> …"` (or wizard) |
-| Propose promotion | `./harness promote --propose` |
-| Apply + publish | `./harness promote --direct` (or `--pr` for an MR) |
+| Propose promotion (diff, no write) | `./harness promote --propose` |
+| Publish (gated + LLM-reviewed) | `./harness promote --direct` (or `--pr`; `--no-review` skips the judge, `--force` bypasses the gates) |
 | Self-check | `./harness selfcheck` |
 
 ---
@@ -422,9 +429,10 @@ loop, and every teammate gets it via git.
 | Run / extract / report / review / dry-run | 🟢 automatic | scripts (agent-driven) |
 | Capture a correction (`recent.md`, append-only) | 🟢 automatic | harness **or** the AI (when you correct it) |
 | Draft promotion (diff, no write) | 🟢 automatic | harness |
-| Apply + commit + push (`--direct` to `main`) | 🟢 automatic | harness |
-| Apply + commit + push + **create the MR** (`--pr`) | 🟢 automatic | harness |
-| **Merge the MR** (with `--pr`) | 🟡 remote-gated (branch protection) | you / a reviewer |
+| Mechanical gates (add-only · no-secrets · size · spec) | 🟢 automatic | harness |
+| **LLM review** (judge must APPROVE) | 🟢 automatic | `SKILL_REVIEWER` (or you, interactively) |
+| Apply + commit + push (`--direct`) / create the MR (`--pr`) | 🟢 automatic | harness |
+| **Merge the MR** (`--pr`) | 🟢 auto-merge on green CI; you only on red | CI / you |
 | Remove / change an existing check | 🔴 never automatic | — |
 
 Capture is triggered by `./harness teach` or by the agent reacting to your
