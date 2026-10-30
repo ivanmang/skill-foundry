@@ -69,7 +69,7 @@ skill-foundry/
 ├── .mcp.json                         ─▶ MCP config for agents
 │
 ├── skill_foundry/
-│   ├── __main__.py + dispatch.py      ─▶ router (10 verbs, product only)
+│   ├── __main__.py + dispatch.py      ─▶ router (9 verbs, product only)
 │   ├── cli/                           ─▶ THE PRODUCT + shell
 │   │     capture.py · promote_skill.py · teach.py · promote.py · skills.py
 │   │     menu.py · wrap.py · complete.py · selfcheck.sh
@@ -157,7 +157,7 @@ skills_list    → ./harness skills --json
 skills_load    → read SKILL.md + references
 capture_skill  → ./harness capture-skill …
 teach          → ./harness teach …
-promote        → ./harness promote --<mode>   (default direct)
+promote        → ./harness promote --<mode>   (default pr)
 ```
 
 ---
@@ -186,7 +186,7 @@ and promotes the knowledge that measurement produces.
 🟢 automatic                            🟡 human (rare)               🔴 never
 ─────────────────────────────────────────┼─────────────────────────────┼─────────────────────────
 agent: run regression scripts             USER: triage judgment         ANYONE:
-       capture (teach)                     red-CI MRs (--pr)            remove/change
+       capture (teach)                     review + merge the MR (--pr)   remove/change
 harness: gates + LLM review + promote      re-pin the baseline           an existing check
 ```
 

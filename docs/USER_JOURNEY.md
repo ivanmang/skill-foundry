@@ -122,7 +122,7 @@ Each step is a **framed block** that makes the workflow self-explanatory:
 
   Who does what
     ▸ command   python3 -m skill_foundry.workflow.run --target demo --all-suites
-    🟢 harness  runs the suite and normalizes the log into run.json
+    🟢 scripts  runs the suite and normalizes the log into run.json
     🟡 you       nothing — press Enter to run
 
   Your move  ·  ↑/↓ choose  ·  Enter confirm  ·  1–6 jump  ·  q quit
@@ -137,8 +137,8 @@ Each step is a **framed block** that makes the workflow self-explanatory:
 `run this step & continue` runs the step *and* advances to the next, so holding
 Enter walks the whole journey; `skip` / `back` / `jump` / `explain` give control.
 The first three steps are **USE**, the next four are **IMPROVE** — and the
-"Who does what" box marks where a human is needed (teach = your triage call,
-apply auto-creates the MR; merge = you on the remote).
+"Who does what" box marks where a human is needed (teach = your triage call;
+apply writes the edit locally — a real publish uses `--pr`, and you merge the PR).
 
 The interactive `python3 -m skill_foundry.workflow.guide` (without `--demo`) walks the **real** pto-isa
 flow the same way: env check → choose suites → run → report → review → teach →
@@ -335,7 +335,7 @@ It renders a **reviewable git-style diff** into the right place (a new
 skips duplicates / entries already present in the target file. Nothing is
 written yet.
 
-### 7c. Publish (gated + LLM-reviewed, then automatic)
+### 7c. Publish (gated + LLM-reviewed, then human-merged)
 
 ```bash
 ./harness promote --apply     # write locally (gates + LLM judge APPROVE)
@@ -351,7 +351,7 @@ merging unreviewed.
 
 `--pr` commits on a `feat/learnings-<date>` branch, pushes it, and creates the
 PR (gitcode v5 API with `GITCODE_TOKEN`); a human merges it after the CI gates
-pass — you only see it if the gates are red.
+pass — a human merges it after the CI gates are green.
 
 ---
 

@@ -9,9 +9,9 @@ docs/USER_JOURNEY.md is the narrative walkthrough.)
 ## What this is
 
 A shared, self-improving skill-foundry built on open **Agent Skills**
-(`SKILL.md`). One entry point — `./harness` — wraps **run → report → review**
-(the USE loop) and **teach → promote → MR** (the IMPROVE loop), against a
-pinned baseline that makes "regression" a mechanical diff.
+(`SKILL.md`). One entry point — `./harness help` — points at the two loops:
+**run → report → review** (the USE loop, thin scripts) and **teach → promote → MR**
+(the IMPROVE loop, the harness).
 
 ```text
 USE      python3 -m skill_foundry.workflow.run → report → review   (diff vs pinned baseline)
@@ -47,7 +47,8 @@ regression thresholds.
 
 | Role | What it does |
 |---|---|
-| 🟢 **harness (automatic)** | run, extract logs, report, review, capture a correction, propose a diff, apply + commit + push + create the MR, dry-run previews |
+| 🟢 **thin scripts (automatic, agent-driven)** | run suites, extract logs, report, review, dry-run previews |
+| 🟢 **harness (automatic, gated + LLM-reviewed)** | capture a correction, propose a diff, apply + commit + push on a branch, open an MR |
 | 🤖 **AI / agent (automatic, on trigger)** | auto-captures a correction when you correct it (`"no / actually / remember …"`) and replies with the `LRN-…` id; triages per the skill |
 | 🟡 **you (remote gate)** | the triage *content* (`wrong → correct → action`) and **merging the MR on the remote** (branch protection) |
 | 🔴 **never automatic** | remove or change an existing check |
@@ -120,7 +121,7 @@ Agent-Skills-compatible agent:
 | `python3 -m skill_foundry.workflow.guide` | interactive tour of the real flow |
 | `python3 -m skill_foundry.workflow.demo` | interactive sandboxed walkthrough |
 | `python3 -m skill_foundry.workflow.history` / `clean` / `validate` | housekeeping |
-| `./harness selfcheck` | compile-check + skill-spec validation + demo smoke |
+| `./harness selfcheck` | compile + skill-spec + reference integrity + index freshness + unit tests + demo smoke |
 | `./harness help [verb]` · `./harness version` | this help / per-verb examples / version |
 
 Run `./harness help <verb>` for any verb's detailed examples.

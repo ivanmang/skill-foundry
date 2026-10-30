@@ -197,15 +197,15 @@ STEPS: list[dict] = [
     dict(key="propose", short="propose", needs=("teach",), title="Improve — auto-propose a diff",
          what="promote.py --propose turns the pending entry into a reviewable git-style diff — no write yet.",
          more="This is the automation boundary: propose is automatic (optional review); apply is also automatic "
-              "(--pr commits, pushes, and creates the MR). Nothing changes in the shared skills until the MR is "
+              "(gates + LLM judge, writes locally). Nothing changes in the shared skills until a --pr is "
               "MERGED on the remote — branch protection is the gate.",
          run=step_propose),
     dict(key="apply", short="apply", needs=("propose",), title="Improve — apply + bookkeeping  🟢 AUTO",
-         what="--pr applies the edit, commits, pushes, and AUTO-CREATES the MR. You only merge it on the remote (branch protection gates the merge).",
+         what="--apply writes the edit into the skill (gates + LLM judge first). The demo stops at a local write; a real publish uses --pr, and you merge the PR.",
          more="Capture is automatic — recent.md is the harness's own memory, append-only, cheap, revertible. "
-              "Apply is now also automatic: --pr applies + commits + pushes + opens the MR (via glab or the GitCode API "
-              "with GITCODE_TOKEN). The only human step left is MERGING the MR on the remote — same principle as "
-              "Claude Code auto-writing memory, with branch protection as the gate. "
+              "Apply runs the gates + the judge and writes the edit locally. A real publish is --pr: "
+              "branch + push + auto-open a PR (gitcode v5 API with GITCODE_TOKEN), then you merge it — "
+              "same principle as Claude Code auto-writing memory, with branch protection as the gate. "
               "RED line: the harness never auto-REMOVES or auto-CHANGES an existing check — it only ADDS.",
          run=step_apply),
     dict(key="rerun", short="rerun", needs=("apply",), title="Improve — re-render with the new knowledge",
@@ -236,9 +236,9 @@ ROLES: dict[str, tuple[str, str, str]] = {
     "propose": ("./harness promote --propose",
                 "drafts a git-style diff (writes nothing yet)",
                 "nothing — just review the proposed diff"),
-    "apply": ("./harness promote --pr",
-              "applies + commits + pushes + auto-creates the MR (glab / GITCODE_TOKEN)",
-              "merge the MR on the remote (branch protection gates it)"),
+    "apply": ("./harness promote --apply",
+              "writes the edit into the skill (gates + LLM judge run first; the demo uses a stub judge)",
+              "nothing in the demo — a real publish uses --pr, and you merge the PR"),
     "rerun": ("python3 -m skill_foundry.workflow.report --run <run.json> --known …",
               "re-renders with the new corpus → failure annotated 'known'",
               "nothing — watch the line flip to 'known'"),
@@ -303,7 +303,7 @@ def _header(idx: int, done: set[str]) -> None:
     cmd, auto, human = ROLES.get(s["key"], ("—", "—", "—"))
     print(ui.c("  Who does what", ui.BOLD))
     print(f"    ▸ command   {cmd}")
-    print(ui.c(f"    🟢 harness  {auto}", ui.GREEN))
+    print(ui.c(f"    🟢 auto     {auto}", ui.GREEN))
     print(ui.c(f"    🟡 you       {human}", ui.YELLOW))
     print()
     sys.stdout.flush()
@@ -324,8 +324,9 @@ def intro() -> None:
 
   Who does what, automatically:
 
-    🟢 harness — runs on its own: run, extract, report, review, capture (teach),
-                 propose (draft a diff), dry-run previews.
+    🟢 scripts  — run, extract, report, review (thin scripts the agent runs).
+    🟢 harness  — capture (teach), propose (draft a diff), gates + LLM review,
+                 apply + branch + push + auto-open the PR (--pr).
     🤖 AI      — auto-captures a correction when you correct it ("no / actually /
                  remember …") and replies with the LRN-… id; triages per the skill.
     🟡 you     — your judgment (the wrong → correct → action content) and merging
@@ -336,7 +337,7 @@ def intro() -> None:
 
     🟢 Auto-APPEND is safe  — the harness logs lessons to its own memory
                               (learnings/recent.md) freely.
-    🟡 Auto-EDIT is gated    — --pr auto-applies + pushes + creates the MR; the
+    🟡 Auto-EDIT is gated    — --pr opens a PR after the gates + LLM judge; the
                               shared skills change only when you MERGE it on the
                               remote (branch protection).
 
