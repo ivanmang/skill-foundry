@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import argparse
 import datetime as _dt
+import os
 import shutil
 import subprocess
 import sys
@@ -76,6 +77,16 @@ def main(argv: list[str] | None = None) -> int:
     if not (args.apply or args.pr):
         print("choose --propose / --apply / --pr", file=sys.stderr)
         return 2
+
+    if args.pr and not (os.environ.get("GITCODE_TOKEN") or os.environ.get("GITLAB_TOKEN")):
+        print(
+            "\n"
+            "⚠️  GITCODE_TOKEN is NOT set — the PR will NOT be auto-created.\n"
+            "    `--pr` will push the branch and print a manual PR-new URL instead.\n"
+            "    To enable auto PR creation, add to env.sh (gitignored) and re-source:\n"
+            "      export GITCODE_TOKEN=<your gitcode access token>   # gitcode → Settings → Access Tokens\n",
+            file=sys.stderr,
+        )
 
     # ── gates: spec conformance + secrets — always enforced ──
     body = (src / "SKILL.md").read_text(encoding="utf-8", errors="replace")

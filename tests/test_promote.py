@@ -7,6 +7,9 @@ the same target file (or section) must compose, not overwrite each other.
 
 from __future__ import annotations
 
+import contextlib
+import io
+import os
 import tempfile
 import unittest
 from pathlib import Path
@@ -135,6 +138,25 @@ class DedupeTest(unittest.TestCase):
         active, skipped = promote.dedupe_pending([e], root)
         self.assertEqual(active, [])
         self.assertEqual(skipped["LRN-1"], "already present in .claude/skills/foo/SKILL.md")
+
+
+class PrTokenWarningTest(unittest.TestCase):
+    def test_pr_without_gitcode_token_warns_but_proceeds(self):
+        saved = (os.environ.get("GITCODE_TOKEN"), os.environ.get("GITLAB_TOKEN"))
+        os.environ.pop("GITCODE_TOKEN", None)
+        os.environ.pop("GITLAB_TOKEN", None)
+        tmp = Path(tempfile.mkdtemp())
+        try:
+            buf = io.StringIO()
+            with contextlib.redirect_stderr(buf):
+                rc = promote.main(["--pr", "--root", str(tmp)])
+            self.assertEqual(rc, 0)  # no learnings file -> 0; the token is only a warning
+            self.assertIn("GITCODE_TOKEN", buf.getvalue())
+        finally:
+            if saved[0] is not None:
+                os.environ["GITCODE_TOKEN"] = saved[0]
+            if saved[1] is not None:
+                os.environ["GITLAB_TOKEN"] = saved[1]
 
 
 if __name__ == "__main__":

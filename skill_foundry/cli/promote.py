@@ -483,6 +483,15 @@ def main(argv: list[str] | None = None) -> int:
         args.apply = True
         if not args.branch:
             args.branch = f"feat/learnings-{_dt.datetime.now():%Y%m%d}"
+        if not (os.environ.get("GITCODE_TOKEN") or os.environ.get("GITLAB_TOKEN")):
+            print(
+                "\n"
+                "⚠️  GITCODE_TOKEN is NOT set — the PR will NOT be auto-created.\n"
+                "    `--pr` will push the branch and print a manual PR-new URL instead.\n"
+                "    To enable auto PR creation, add to env.sh (gitignored) and re-source:\n"
+                "      export GITCODE_TOKEN=<your gitcode access token>   # gitcode → Settings → Access Tokens\n",
+                file=sys.stderr,
+            )
 
     root = Path(args.root).resolve()
     lp = Path(args.learnings).resolve() if args.learnings else root / "learnings" / "recent.md"

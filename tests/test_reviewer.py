@@ -4,7 +4,9 @@
 from __future__ import annotations
 
 import os
+import sys
 import unittest
+from unittest import mock
 
 from skill_foundry.lib import reviewer
 
@@ -59,6 +61,18 @@ class ApproveIntegrationTest(unittest.TestCase):
         os.environ.pop("SKILL_REVIEWER", None)
         try:
             self.assertFalse(reviewer.approve("+ see skill:totally-unknown-skill\n"))
+        finally:
+            if saved is not None:
+                os.environ["SKILL_REVIEWER"] = saved
+
+    def test_clean_diff_without_llm_fails_closed(self):
+        # SKILL_REVIEWER is mandatory: even a clean diff must not auto-approve
+        # when there is no LLM judge and no interactive terminal.
+        saved = os.environ.get("SKILL_REVIEWER")
+        os.environ.pop("SKILL_REVIEWER", None)
+        try:
+            with mock.patch.object(sys.stdin, "isatty", return_value=False):
+                self.assertFalse(reviewer.approve("+ - add a useful gotcha about buffer sizing\n"))
         finally:
             if saved is not None:
                 os.environ["SKILL_REVIEWER"] = saved

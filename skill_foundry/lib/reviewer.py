@@ -10,11 +10,13 @@ gates and before anything is written. It is two layers:
    - placeholder markers (TODO / FIXME / TBD / …)
    - contradictions and near-duplicates against the target's existing checks
 
-2. **LLM judge** (`SKILL_REVIEWER`, optional) — the *semantic* layer. A shell
-   command that reads the diff on stdin and prints APPROVE / HOLD / REJECT.
+2. **LLM judge** (`SKILL_REVIEWER`, **required**) — the *semantic* layer. A
+   shell command that reads the diff on stdin and prints APPROVE / HOLD / REJECT.
+   Without it there is no semantic review: in an interactive session the human
+   is asked; otherwise the promotion fails closed.
 
-The final verdict is the most restrictive of the two (and, if a terminal is
-available and no LLM is configured, an interactive human confirmation).
+The final verdict is the most restrictive of the two (and the human merge at the
+end is always the final gate).
 
 Example:
   export SKILL_REVIEWER='claude -p "Strict skill reviewer. Review the diff on
@@ -174,23 +176,22 @@ def approve(
         print(f"review verdict: {final.upper()}")
         return final == "approve"
 
-    # No LLM configured — the builtin judge decides, with an interactive escape
-    # hatch for a HOLD (needs a human's judgment).
-    if verdict == "hold":
-        if not sys.stdin.isatty():
-            print("review verdict: HOLD (builtin; no LLM reviewer and no TTY)", file=sys.stderr)
-            return False
-        print(diff_text)
-        print()
-        try:
-            ans = input("Builtin review held — promote anyway? [a]pprove / [h]old / [r]eject: ").strip().lower()
-        except (EOFError, KeyboardInterrupt):
-            print("(no input — holding)", file=sys.stderr)
-            return False
-        return ans in ("a", "approve", "y", "yes")
+    # LLM judge is mandatory — no SKILL_REVIEWER configured.
+    if not sys.stdin.isatty():
+        print("✗ SKILL_REVIEWER is required: set it to an LLM judge command "
+              "(reads the diff on stdin, prints APPROVE/HOLD/REJECT), or run "
+              "interactively.", file=sys.stderr)
+        return False
 
-    print("review verdict: APPROVE (builtin; no LLM reviewer configured)")
-    return True
+    # interactive fallback — a human is the judge
+    print(diff_text)
+    print()
+    try:
+        ans = input("No SKILL_REVIEWER set — [a]pprove / [h]old / [r]eject: ").strip().lower()
+    except (EOFError, KeyboardInterrupt):
+        print("(no input — holding)", file=sys.stderr)
+        return False
+    return ans in ("a", "approve", "y", "yes")
 
 
 if __name__ == "__main__":

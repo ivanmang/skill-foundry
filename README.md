@@ -297,10 +297,11 @@ MR that a human merges after CI is green.
 #    (review is mandatory: set SKILL_REVIEWER or run interactively)
 ```
 
-> **Auto-create the PR:** set `export GITCODE_TOKEN=…` (a gitcode personal access
-> token) in `env.sh`. With it, `--pr` creates the pull request itself via the gitcode
-> v5 API; without it, the agent pushes the branch and prints the PR-new URL for you to
-> open. Details: `.claude/skills/skill-maintainer/references/mr-automation.md`.
+> **⚠️ Strongly recommended — GITCODE_TOKEN:** set `export GITCODE_TOKEN=…` (a gitcode
+> personal access token) in `env.sh` so `--pr` creates the PR itself via the gitcode v5
+> API. It's optional — if unset the agent pushes the branch and prints a manual PR-new
+> URL — but every `--pr` run will print a loud reminder to add it.
+> Details: `.claude/skills/skill-maintainer/references/mr-automation.md`.
 
 See `.claude/skills/skill-maintainer/SKILL.md` and the live walkthrough:
 `python3 -m skill_foundry.workflow.demo` (narration in `demo/NARRATION.md`).
