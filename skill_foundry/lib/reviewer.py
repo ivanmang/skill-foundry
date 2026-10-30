@@ -1,23 +1,67 @@
-"""Promotion reviewer — an LLM judge (or interactive fallback) for every promotion.
+"""Promotion reviewer — a real judge, not a rubber stamp.
 
-Review is ON by default for `promote` / `promote-skill`: the gates run, then the
-judge must APPROVE before anything is applied. Set SKILL_REVIEWER to a shell
-command that reads the diff on **stdin** and prints a single verdict word —
-APPROVE, HOLD, or REJECT. If unset, review falls back to an interactive prompt
-(you — slower, but no LLM dependency); pass `--no-review` to skip the judge.
+Review runs on every promotion (`promote` / `promote-skill`) after the mechanical
+gates and before anything is written. It is two layers:
 
-Example (Claude Code CLI):
-  export SKILL_REVIEWER='claude -p "You are a strict skill reviewer. Review the
-  following diff for a promotion into the shared skills corpus. Reply exactly
-  one word: APPROVE, HOLD, or REJECT."'
+1. **Built-in deterministic review** (always runs, no config) — catches the
+   *structural* bad-judgment cases a diff can't hide:
+   - dangling cross-skill references (skill: / ../X/SKILL.md / skills/X/)
+   - secrets slipped into the added content
+   - placeholder markers (TODO / FIXME / TBD / …)
+   - contradictions and near-duplicates against the target's existing checks
+
+2. **LLM judge** (`SKILL_REVIEWER`, optional) — the *semantic* layer. A shell
+   command that reads the diff on stdin and prints APPROVE / HOLD / REJECT.
+
+The final verdict is the most restrictive of the two (and, if a terminal is
+available and no LLM is configured, an interactive human confirmation).
+
+Example:
+  export SKILL_REVIEWER='claude -p "Strict skill reviewer. Review the diff on
+  stdin. Reply exactly one word: APPROVE, HOLD, or REJECT."'
 """
 
 from __future__ import annotations
 
+import difflib
 import os
 import re
 import subprocess
 import sys
+
+from skill_foundry.paths import ROOT  # noqa: E402
+from skill_foundry.lib import gates, validate_skills  # noqa: E402
+
+_VERDICT_ORDER = {"reject": 0, "hold": 1, "approve": 2}
+
+_NEGATION_MARKERS = (
+    "never", "do not", "don't", "forbid", "forbidden", "must not", "should not",
+    "禁止", "不得", "严禁",
+)
+
+_PLACEHOLDER_MARKERS = ("todo", "fixme", "tbd", "xxx", "placeholder", "lorem ipsum")
+
+_MIN_LINE = 20  # ignore very short added lines for conflict/duplicate checks
+
+
+def _norm(s: str) -> str:
+    s = (s or "").strip()
+    # strip leading list markers / quotes
+    s = re.sub(r"^[-*•#>]+", "", s).strip()
+    return re.sub(r"\s+", " ", s).lower()
+
+
+def _core(s: str) -> str:
+    """Strip the '(was: …) — <context>' provenance suffix before comparing."""
+    return _norm(re.sub(r"\s*\(was:.*$", "", s))
+
+
+def _worst(a: str, b: str) -> str:
+    return a if _VERDICT_ORDER[a] < _VERDICT_ORDER[b] else b
+
+
+def _has_negation(s: str) -> bool:
+    return any(k in s for k in _NEGATION_MARKERS)
 
 
 def llm_verdict(diff_text: str) -> str | None:
@@ -37,27 +81,120 @@ def llm_verdict(diff_text: str) -> str | None:
 
 
 def can_review() -> bool:
-    """True if a review can actually happen: an LLM reviewer is configured, or stdin is interactive."""
+    """True if a review can happen: an LLM reviewer is configured or stdin is a TTY."""
     return bool(os.environ.get("SKILL_REVIEWER")) or sys.stdin.isatty()
 
 
-def approve(diff_text: str) -> bool:
-    """Return True if the promotion is approved (LLM judge, else interactive)."""
-    v = llm_verdict(diff_text)
-    if v is not None:
-        print(f"review verdict: {v.upper()}")
-        return v == "approve"
-    # interactive fallback (no SKILL_REVIEWER configured)
-    print(diff_text)
-    print()
-    try:
-        ans = input("Promote? [a]pprove / [h]old / [r]eject: ").strip().lower()
-    except (EOFError, KeyboardInterrupt):
-        print("(no input — holding)", file=sys.stderr)
+def builtin_review(
+    diff_text: str,
+    target_content: str = "",
+    added_text: str | None = None,
+    local_skills: set[str] | None = None,
+    externals: set[str] | None = None,
+) -> tuple[str, list[str]]:
+    """Deterministic review. Returns (verdict, reasons); verdict in approve|hold|reject."""
+    if added_text is None:
+        added_text = "\n".join(
+            ln[1:] for ln in diff_text.splitlines()
+            if ln.startswith("+") and not ln.startswith("+++")
+        )
+    if local_skills is None:
+        sd = ROOT / ".claude" / "skills"
+        local_skills = {d.name for d in sd.iterdir() if d.is_dir() and not d.name.startswith(".")}
+    if externals is None:
+        externals = validate_skills.load_external_names()
+
+    reject: list[str] = []
+    hold: list[str] = []
+
+    # 1. dangling cross-skill references introduced by this change
+    for pat in validate_skills.REF_PATTERNS:
+        for m in pat.finditer(added_text):
+            name = m.group(1)
+            if name not in local_skills and name not in externals:
+                reject.append(f"dangling reference to unknown skill '{name}'")
+
+    # 2. secrets
+    for pat in gates.SECRET_PATTERNS:
+        if pat.search(added_text):
+            reject.append("possible secret in added content")
+
+    # 3. placeholder markers
+    for kw in _PLACEHOLDER_MARKERS:
+        if re.search(rf"\b{re.escape(kw)}\b", added_text, re.I):
+            hold.append(f"placeholder marker '{kw}'")
+
+    # 4. contradiction / near-duplicate vs the target's existing checks
+    existing = [
+        ln for ln in target_content.splitlines()
+        if ln.strip() and not ln.lstrip().startswith(("#", "<!--"))
+    ]
+    added_lines = [ln for ln in added_text.splitlines() if ln.strip()]
+    for aln in added_lines:
+        a = _core(aln)
+        if len(a) < _MIN_LINE:
+            continue
+        for eln in existing:
+            e = _core(eln)
+            if len(e) < _MIN_LINE:
+                continue
+            ratio = difflib.SequenceMatcher(None, a, e).ratio()
+            if ratio >= 0.92:
+                if _has_negation(a) != _has_negation(e):
+                    reject.append(f"contradicts existing check: {eln.strip()[:70]}")
+                else:
+                    hold.append(f"near-duplicate of existing line: {eln.strip()[:70]}")
+                break
+
+    if reject:
+        return "reject", reject
+    if hold:
+        return "hold", hold
+    return "approve", []
+
+
+def approve(
+    diff_text: str,
+    target_content: str = "",
+    added_text: str | None = None,
+) -> bool:
+    """Return True if the promotion is approved (builtin judge + optional LLM)."""
+    verdict, reasons = builtin_review(diff_text, target_content, added_text)
+    if reasons:
+        print("builtin review:")
+        for r in reasons:
+            print(f"  ⚠ {r}")
+    if verdict == "reject":
+        print("review verdict: REJECT (builtin)")
         return False
-    return ans in ("a", "approve", "y", "yes")
+
+    llm = llm_verdict(diff_text)
+    if llm is not None:
+        final = _worst(verdict, llm)
+        print(f"review verdict: {final.upper()}")
+        return final == "approve"
+
+    # No LLM configured — the builtin judge decides, with an interactive escape
+    # hatch for a HOLD (needs a human's judgment).
+    if verdict == "hold":
+        if not sys.stdin.isatty():
+            print("review verdict: HOLD (builtin; no LLM reviewer and no TTY)", file=sys.stderr)
+            return False
+        print(diff_text)
+        print()
+        try:
+            ans = input("Builtin review held — promote anyway? [a]pprove / [h]old / [r]eject: ").strip().lower()
+        except (EOFError, KeyboardInterrupt):
+            print("(no input — holding)", file=sys.stderr)
+            return False
+        return ans in ("a", "approve", "y", "yes")
+
+    print("review verdict: APPROVE (builtin; no LLM reviewer configured)")
+    return True
 
 
 if __name__ == "__main__":
-    # test helper: echo the verdict for a pasted diff
-    print(llm_verdict(sys.stdin.read()) or "no reviewer configured")
+    v, rs = builtin_review(sys.stdin.read())
+    print(f"verdict: {v}")
+    for r in rs:
+        print(f"  ⚠ {r}")

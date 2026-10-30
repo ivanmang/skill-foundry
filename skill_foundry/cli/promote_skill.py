@@ -85,11 +85,8 @@ def main(argv: list[str] | None = None) -> int:
         gates.render(violations)
         return 2
 
-    # ── review (mandatory): LLM judge, or interactive fallback ──
-    if not reviewer.can_review():
-        print("✗ review required but no SKILL_REVIEWER and no TTY — set SKILL_REVIEWER.", file=sys.stderr)
-        return 2
-    if not reviewer.approve(f"# promote skill: {name}\n\n{body}"):
+    # ── review (mandatory): builtin judge + optional LLM + interactive fallback ──
+    if not reviewer.approve(f"# promote skill: {name}\n\n{body}", added_text=body):
         print("✗ review did not APPROVE — nothing applied.")
         return 0
 

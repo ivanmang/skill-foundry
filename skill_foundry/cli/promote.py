@@ -386,23 +386,21 @@ def apply_all(root: Path, lp: Path, entries: list[dict], pending: list[dict],
         gates.render(violations)
         return 2
 
-    # 3. review (mandatory: LLM judge, or interactive fallback)
+    # 3. review (mandatory: builtin judge + optional LLM + interactive fallback)
     if review:
         diffs = []
+        old_texts = []
         for t, old, new, _es in plan:
             if new != old:
                 diffs.append("\n".join(difflib.unified_diff(
                     old.splitlines(), new.splitlines(),
                     fromfile=f"a/{t.relative_to(root)}", tofile=f"b/{t.relative_to(root)}", lineterm="",
                 )))
+                old_texts.append(old)
         if not diffs:
             print("nothing to review — no pending changes.")
             return 0
-        if not reviewer.can_review():
-            print("✗ review required but no SKILL_REVIEWER and no TTY — "
-                  "set SKILL_REVIEWER to proceed.", file=sys.stderr)
-            return 2
-        if not reviewer.approve("\n\n".join(diffs)):
+        if not reviewer.approve("\n\n".join(diffs), target_content="\n\n".join(old_texts)):
             print("✗ review did not APPROVE — nothing applied.")
             return 0
 
