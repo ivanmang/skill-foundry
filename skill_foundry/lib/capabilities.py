@@ -26,18 +26,33 @@ def _which(name: str) -> str | None:
     return shutil.which(name)
 
 
+def _compiler_version(name: str) -> tuple[int, int] | None:
+    """Return (major, minor) for a compiler on PATH, or None if undetectable."""
+    p = _which(name)
+    if not p:
+        return None
+    try:
+        if name in ("g++", "gcc"):
+            # gcc --version omits the word "version"; -dumpfullversion is parseable.
+            out = subprocess.run([p, "-dumpfullversion"], capture_output=True, text=True, timeout=20).stdout
+            m = re.search(r"(\d+)\.(\d+)", out)
+        else:
+            out = subprocess.run([p, "--version"], capture_output=True, text=True, timeout=20).stdout
+            m = re.search(r"version\s+(\d+)\.?(\d*)", out)
+    except Exception:
+        return None
+    if not m:
+        return None
+    return (int(m.group(1)), int(m.group(2) or 0))
+
+
 def has_compiler(min_clang: int = 15, min_gcc: int = 13) -> bool:
     for name, kind in (("clang++", "clang"), ("g++", "gcc")):
-        p = _which(name)
-        if not p:
+        v = _compiler_version(name)
+        if v is None:
             continue
-        try:
-            out = subprocess.run([p, "--version"], capture_output=True, text=True, timeout=20).stdout
-        except Exception:
-            continue
-        m = re.search(r"version\s+(\d+)", out)
-        if m and ((kind == "clang" and int(m.group(1)) >= min_clang)
-                  or (kind == "gcc" and int(m.group(1)) >= min_gcc)):
+        major = v[0]
+        if (kind == "clang" and major >= min_clang) or (kind == "gcc" and major >= min_gcc):
             return True
     return False
 
