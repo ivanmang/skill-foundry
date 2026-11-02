@@ -179,6 +179,42 @@ def check() -> int:
     return 0
 
 
+def mine() -> int:
+    """Show what each detected agent's user dir exposes vs the hub catalog."""
+    from skill_foundry.lib import install_skills
+    all_skills = collect()
+    hub = {s["name"]: s for s in all_skills if s["status"] == "published"}
+    owned = {n for n, s in hub.items() if (s.get("origin") or "") == "native"}
+
+    print(f"agent visibility — hub has {len(hub)} skills ({len(owned)} owned / native)")
+    print()
+    visible: set[str] = set()
+    for label, parent, hint in install_skills.AGENTS:
+        names = install_skills.agent_skill_names(parent)
+        visible |= set(names)
+        harness = sorted(set(names) & set(hub))
+        missing_owned = sorted(owned - set(names))
+        d = parent / "skills"
+        where = str(d) if d.exists() else f"{d} (not present)"
+        print(f"  {label:<14} {where}")
+        line = f"      sees {len(harness)}/{len(hub)} harness skills"
+        if missing_owned:
+            line += f"  — missing owned: {', '.join(missing_owned)}"
+        print(line)
+        if not harness and d.exists():
+            print("      (no harness skills visible)")
+    print()
+    local_only = sorted(visible - set(hub))
+    if local_only:
+        print(f"  local-only skills (visible but not in the hub): {', '.join(local_only)}")
+        print("      these live in an agent's user dir, not in this repo — declare them in")
+        print("      config/externals.json if other skills reference them by name.")
+        print()
+    print("  install the owned skills:   ./harness skills --install --scope core")
+    print("  install everything:         ./harness skills --install")
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description="List/search skills, refresh catalog + index.")
     ap.add_argument("--search", default=None, help="Filter by name/description/category substring.")
@@ -194,12 +230,16 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--check", action="store_true", help="Fail if catalog/index are stale (no writes).")
     ap.add_argument("--install", action="store_true", help="Symlink skills into each detected agent's user dir.")
     ap.add_argument("--uninstall", action="store_true", help="Remove the harness skill symlinks.")
+    ap.add_argument("--dry-run", action="store_true", help="With --install/--uninstall: show what would change (no writes).")
+    ap.add_argument("--mine", action="store_true", help="Show what each detected agent can see vs the hub (discoverability check).")
     ap.add_argument("--json", action="store_true")
     args = ap.parse_args(argv)
 
     if args.install or args.uninstall:
         from skill_foundry.lib import install_skills
         argv = ["--uninstall"] if args.uninstall else []
+        if args.dry_run:
+            argv += ["--dry-run"]
         if args.scope:
             argv += ["--scope", args.scope]
         if args.origin:
@@ -213,6 +253,9 @@ def main(argv: list[str] | None = None) -> int:
         if args.entry:
             argv += ["--entry"]
         return install_skills.main(argv)
+
+    if args.mine:
+        return mine()
 
     if args.refresh:
         refresh()
@@ -231,6 +274,19 @@ def main(argv: list[str] | None = None) -> int:
 
     published = [s for s in skills if s["status"] == "published"]
     drafts = [s for s in skills if s["status"] == "draft"]
+    filtered = bool(args.search or args.category or args.origin or args.owner
+                    or args.maturity or args.entry)
+    if not filtered and not args.inbox:
+        entries = [s for s in published if s["entry"]]
+        print(f"{len(published)} published · {len(drafts)} draft(s)")
+        print("\n  Entry points (start here):")
+        for s in entries:
+            print(f"    [✓] {s['name']:<24}{s['category']:<14}{_first_sentence(s['description'], 72)}")
+        others = len(published) - len(entries)
+        print(f"\n  …and {others} more skills — navigate with:")
+        print("    ./harness skills --search <q>   ·   --category <c>   ·   --entry   ·   --mine")
+        return 0
+
     print(f"{len(published)} published · {len(drafts)} draft(s)")
     for s in skills:
         mark = "✓" if s["status"] == "published" else "◷"

@@ -28,6 +28,7 @@ from __future__ import annotations
 import difflib
 import os
 import re
+import shlex
 import subprocess
 import sys
 
@@ -71,9 +72,15 @@ def llm_verdict(diff_text: str) -> str | None:
     cmd = os.environ.get("SKILL_REVIEWER")
     if not cmd:
         return None
+    # Run as an argv list (no shell) so a reviewer command can't inject shell.
     try:
-        r = subprocess.run(cmd, shell=True, input=diff_text,
-                           capture_output=True, text=True, timeout=180)
+        argv = shlex.split(cmd)
+    except ValueError:
+        argv = [cmd]
+    if not argv:
+        return None
+    try:
+        r = subprocess.run(argv, input=diff_text, capture_output=True, text=True, timeout=180)
     except Exception as exc:  # pragma: no cover - environmental
         print(f"reviewer error: {exc}", file=sys.stderr)
         return None
@@ -163,9 +170,9 @@ def approve(
     """Return True if the promotion is approved (builtin judge + optional LLM)."""
     verdict, reasons = builtin_review(diff_text, target_content, added_text)
     if reasons:
-        print("builtin review:")
+        print("builtin review:", file=sys.stderr)
         for r in reasons:
-            print(f"  ⚠ {r}")
+            print(f"  ⚠ {r}", file=sys.stderr)
     if verdict == "reject":
         print("review verdict: REJECT (builtin)")
         return False

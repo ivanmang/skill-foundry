@@ -41,10 +41,10 @@ no hardware, works on any machine.
 
 - "Now the important part. A person says: *that's a known vcvt round-field
   issue, not a new bug.*"
-- "Capture is automatic: `skill_foundry/cli/teach.py` writes a strict `LRN-…` entry to
+- "Capture is automatic: `./harness teach` writes a strict `LRN-…` entry to
   `recent.md` — one command, no freeform editing. `session_digest.py` can even
   draft the same entry straight from the run's failures."
-- "`promote.py --propose` turns that pending entry into a **reviewable
+- "`./harness promote --propose` turns that pending entry into a **reviewable
   git-style diff** into the right file — no write yet. Then `--apply` writes it,
   marks the entry `promoted` in `recent.md`, and appends a summary to
   `promoted.md` + an audit block to `corrections.md`."
@@ -68,7 +68,7 @@ no hardware, works on any machine.
 - **"Why not just a CI script?"** CI runs tests; this captures *how we triage*,
   *what we learned*, and *how to present it* — the part agents (and people)
   keep re-deriving. It sits on top of the existing `.gitcode` CI, doesn't replace it.
-- **"Is the learning manual?"** Capture is automated (`skill_foundry/cli/teach.py` /
+- **"Is the learning manual?"** Capture is automated (`./harness teach` /
   `session_digest.py`); promotion is a scripted, gated diff: the mechanical
   gates (add-only · no-secrets) + an LLM judge must APPROVE, then `--pr`
   opens a PR a human merges after CI is green — reviewable, revertable.

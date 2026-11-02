@@ -193,7 +193,10 @@ def run_one(repo: Path, suite: dict, arches: dict, target_cfg: dict,
     mode = suite.get("mode") or ""
     cmd = build_command(suite, arches, repo, testcase, gtest_filter)
     if mode in NEEDS_ASCEND and not os.environ.get("ASCEND_HOME_PATH"):
-        return _error_result(suite, cmd, "ASCEND_HOME_PATH not set — source ./env.sh (or export it) before running npu/costmodel/comm suites.")
+        state, from_sh = capabilities.ascend_state()
+        hint = ("env.sh present but not sourced — run `source ./env.sh`"
+                if state == "envsh" else "ASCEND_HOME_PATH not set")
+        return _error_result(suite, cmd, hint)
 
     env_setup = target_cfg.get("env_setup", "") or ""
     env = target_cfg.get("env", {}) or {}
@@ -529,13 +532,21 @@ def main(argv: list[str] | None = None) -> int:
             else:
                 print(f"  skip {s['name']}: {reason}")
         if not runnable and not args.dry_run:
-            usage_error("none of the enabled suites are runnable in this environment; see python3 -m skill_foundry.workflow.run --list / python3 -m skill_foundry.workflow.diagnose.")
+            usage_error(
+                "none of the enabled suites are runnable in this environment.\n"
+                "  → the sandboxed demo runs anywhere:  python3 -m skill_foundry.workflow.demo\n"
+                "  → real runs need a canonical machine: cpu-st needs clang++>=15 or g++>=13 (ecs/yellow/b10);\n"
+                "    npu-sim needs a CANN toolkit — if env.sh exists, run `source ./env.sh` first.\n"
+                "  → see python3 -m skill_foundry.workflow.run --list / python3 -m skill_foundry.workflow.diagnose"
+            )
         suites = runnable
 
     if args.dry_run:
         print(f"\ndry-run: would run {len(suites)} suite(s) for '{args.target}':")
         if not suites:
             print("  (none — every enabled suite was skipped above)")
+            print("  nothing runnable here — try the sandboxed demo: python3 -m skill_foundry.workflow.demo")
+            print("  (real runs need ecs/yellow/b10 for cpu-st; a CANN toolkit for npu-sim)")
         for s in suites:
             tmo = s.get("timeout_s") or 0
             upto = f"  (up to {tmo // 60}m)" if tmo else ""

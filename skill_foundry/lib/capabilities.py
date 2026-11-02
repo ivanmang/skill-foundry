@@ -19,6 +19,7 @@ from pathlib import Path
 from skill_foundry.paths import ROOT as HARNESS  # noqa: E402
 _CACHE_FILE = HARNESS / ".cache" / "cann-lanes.json"
 _CACHE_TTL = 300  # seconds; headers/simulators change rarely, but a re-scan is cheap
+_UNSET = object()
 
 
 def _which(name: str) -> str | None:
@@ -43,6 +44,58 @@ def has_compiler(min_clang: int = 15, min_gcc: int = 13) -> bool:
 
 def has_ascend() -> bool:
     return bool(os.environ.get("ASCEND_HOME_PATH"))
+
+
+_ENV_SH_ASCEND_CACHE: str | object | None = _UNSET
+
+
+def env_sh_ascend() -> str | None:
+    """The ASCEND_HOME_PATH that env.sh would export, if env.sh exists (else None)."""
+    global _ENV_SH_ASCEND_CACHE
+    if _ENV_SH_ASCEND_CACHE is not _UNSET:
+        return _ENV_SH_ASCEND_CACHE  # type: ignore[return-value]
+    value: str | None = None
+    try:
+        text = (HARNESS / "env.sh").read_text(encoding="utf-8", errors="replace")
+    except OSError:
+        text = ""
+    for line in text.splitlines():
+        s = line.strip()
+        if s.startswith("#") or "ASCEND_HOME_PATH" not in s:
+            continue
+        m = re.search(r'ASCEND_HOME_PATH\s*=\s*"?([^"\s]+)"?', s)
+        if m:
+            candidate = m.group(1)
+            # skip unresolved shell-expansion placeholders (e.g. env.example.sh's
+            # `${ASCEND_HOME_PATH:-}`) — only a concrete path is useful.
+            if candidate and "$" not in candidate:
+                value = candidate
+            break
+    _ENV_SH_ASCEND_CACHE = value
+    return value
+
+
+def ascend_state() -> tuple[str, str]:
+    """(state, path) for ASCEND_HOME_PATH.
+
+    'sourced' — the env var is set; 'envsh' — env.sh sets it but it isn't
+    sourced yet; 'none' — no ASCEND_HOME_PATH anywhere.
+    """
+    env = os.environ.get("ASCEND_HOME_PATH")
+    if env:
+        return ("sourced", env)
+    from_sh = env_sh_ascend()
+    if from_sh:
+        return ("envsh", from_sh)
+    return ("none", "")
+
+
+def _ascend_missing_reason() -> str:
+    """Why ASCEND_HOME_PATH isn't usable right now (env.sh hint when relevant)."""
+    state, _path = ascend_state()
+    if state == "envsh":
+        return "env.sh present but not sourced — run `source ./env.sh`"
+    return "ASCEND_HOME_PATH not set"
 
 
 def _simulator_dirs() -> list[Path]:
@@ -133,7 +186,7 @@ def suite_reason(suite: dict, arches: dict) -> tuple[bool, str]:
 
     if mode == "npu-sim":
         if not has_ascend():
-            return (False, "ASCEND_HOME_PATH not set")
+            return (False, _ascend_missing_reason())
         arch = suite.get("arch") or ""
         arch_info = arches.get(arch, {})
         soc = arch_info.get("soc", "")
@@ -149,18 +202,18 @@ def suite_reason(suite: dict, arches: dict) -> tuple[bool, str]:
 
     if mode == "npu":
         if not has_ascend():
-            return (False, "ASCEND_HOME_PATH not set")
+            return (False, _ascend_missing_reason())
         ok = has_hardware()
         return (ok, "no NPU device (npu-smi failed)" if not ok else "ok")
 
     if mode == "costmodel":
         if not has_ascend():
-            return (False, "ASCEND_HOME_PATH not set")
+            return (False, _ascend_missing_reason())
         return (True, "ok")
 
     if mode == "comm":
         if not has_ascend():
-            return (False, "ASCEND_HOME_PATH not set")
+            return (False, _ascend_missing_reason())
         ok = has_mpi()
         return (ok, "mpirun not found" if not ok else "ok")
 

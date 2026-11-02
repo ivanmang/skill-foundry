@@ -20,8 +20,8 @@ python3 -m skill_foundry.lib.validate_skills
 echo "== catalog + skills index fresh =="
 ./harness skills --check
 
-echo "== unit tests =="
-if [ -d tests ]; then python3 -m unittest discover -s tests -q; fi
+echo "== unit tests (negative-path output below is expected; the line must end 'OK') =="
+if [ -d tests ]; then python3 -m unittest discover -s tests -q 2>&1 | sed 's/^/  /'; fi
 
 echo "== bundled parser in sync =="
 diff -q skill_foundry/lib/parse_gtest.py .claude/skills/extract-logs/scripts/parse_gtest.py \

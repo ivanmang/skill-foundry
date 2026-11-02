@@ -109,7 +109,7 @@ THE PRODUCT — the skill-ops loop (capture → promote → hub → discover):
   promote-skill  Publish a draft into .claude/skills/    [--propose | --apply | --pr]
   teach          Log a correction (a lesson)             ["wrong -> correct -> action" | wizard | --edit]
   promote        Publish learnings into skills           [--propose | --apply | --pr]
-  skills         List/search skills · install · refresh  [--search, --category, --origin, --scope, --entry, --inbox, --install, --uninstall, --refresh, --check, --json]
+  skills         List/search skills · install · refresh  [--search, --category, --origin, --scope, --entry, --inbox, --install, --uninstall, --dry-run, --mine, --refresh, --check, --json]
 
 SHELL:
   menu           Curated menu (bare ./harness default)
@@ -169,7 +169,7 @@ Examples:
   ./harness promote --pr        # apply + push a branch + open an MR
 """,
     "skills": """\
-./harness skills [--search <q>] [--category <c>] [--origin <o>] [--scope core|all] [--entry] [--inbox] [--install | --uninstall] [--refresh] [--check] [--json]
+./harness skills [--search <q>] [--category <c>] [--origin <o>] [--scope core|all] [--entry] [--inbox] [--install | --uninstall] [--dry-run] [--mine] [--refresh] [--check] [--json]
 List/search skills (published .claude/skills/ + drafts hub/inbox/).
   --search    filter by name/description/category substring
   --category  filter by exact category
@@ -180,7 +180,9 @@ List/search skills (published .claude/skills/ + drafts hub/inbox/).
   --check     fail if catalog/index are stale (no writes)
   --install   symlink skills into each detected agent's user dir (respects filters)
   --uninstall remove the harness skill symlinks (respects filters)
-Examples: ./harness skills --search review      ./harness skills --install --scope core
+  --dry-run   with --install/--uninstall: show what would change (no writes)
+  --mine      show what each detected agent can see vs the hub
+Examples: ./harness skills --search review      ./harness skills --install --scope core      ./harness skills --mine
 """,
     "selfcheck": """\
 ./harness selfcheck — compile + skill-spec + reference integrity + index freshness + demo smoke.

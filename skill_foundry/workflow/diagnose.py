@@ -54,11 +54,18 @@ def collect_issues() -> list[dict]:
     })
 
     ascend = os.environ.get("ASCEND_HOME_PATH", "")
+    ascend_state, ascend_envsh = capabilities.ascend_state()
+    if ascend:
+        ascend_detail = ascend
+    elif ascend_state == "envsh":
+        ascend_detail = f"not sourced — env.sh sets {ascend_envsh}"
+    else:
+        ascend_detail = "not set"
     issues.append({
         "check": "ASCEND_HOME_PATH",
         "ok": bool(ascend),
-        "detail": ascend or "not set",
-        "fix": "cp env.example.sh env.sh && source ./env.sh  (or pick one in python3 -m skill_foundry.workflow.guide)",
+        "detail": ascend_detail,
+        "fix": "source ./env.sh  (or cp env.example.sh env.sh first)  — or pick one in python3 -m skill_foundry.workflow.guide",
     })
 
     # per target: repo checkout + each enabled suite's prereqs

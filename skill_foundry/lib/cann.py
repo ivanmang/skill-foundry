@@ -147,7 +147,7 @@ def main(argv: list[str] | None = None) -> int:
         return 1
 
     if args.json:
-        print(json.dumps({"tookits": infos}, indent=2))
+        print(json.dumps({"toolkits": infos}, indent=2))
         return 0
 
     for info in infos:

@@ -108,7 +108,8 @@ def step_review() -> None:
 
 
 def step_teach() -> None:
-    print("  (auto-capture) python3 -m skill_foundry.cli.teach records the correction in strict LRN-… format:\n")
+    print("  (auto-capture) ./harness teach records the correction in strict LRN-… format")
+    print("      (run here as python3 -m skill_foundry.cli.teach --file … to target the sandbox):\n")
     _run([sys.executable, "-m", "skill_foundry.cli.teach",
           f"device vcvt round-field mismatch in {FAIL_CASE} -> known vcvt round-field pattern; annotate instead of re-triage -> promote vcvt round-field swap into known-failures",
           "--file", SB2 / "learnings" / "recent.md"])
@@ -122,13 +123,14 @@ def step_teach() -> None:
 
 
 def step_propose() -> None:
-    print("  (auto-propose) promote.py turns the pending entry into a reviewable diff "
-          "(no write yet):\n")
+    print("  (auto-propose) ./harness promote --propose turns the pending entry into a reviewable diff")
+    print("      (run here as python3 -m skill_foundry.cli.promote --root … to target the sandbox):\n")
     _run([sys.executable, "-m", "skill_foundry.cli.promote", "--root", SB2, "--propose"])
 
 
 def step_apply() -> None:
-    print("  (apply) write the edit into the sandbox known-failures.md:\n")
+    print("  (apply) ./harness promote --apply writes the edit into the skill (gates + LLM judge)")
+    print("      (run here as python3 -m skill_foundry.cli.promote --root … to target the sandbox):\n")
     os.environ.setdefault("SKILL_REVIEWER", "echo APPROVE")  # scripted demo: stub judge
     _run([sys.executable, "-m", "skill_foundry.cli.promote", "--root", SB2, "--apply"])
     before_txt = (SB2 / ".claude" / "skills" / "pto-isa" / "references" / "known-failures.before.md").read_text(encoding="utf-8")
@@ -157,9 +159,8 @@ def step_takeaway() -> None:
   Run artifacts:  {run}/run.json, report.md, report-known.md, demo-suite.log
   Sandbox (loop): {sb}
 
-  - USE:      run.py → parse_gtest → build_report → diff_runs
-  - IMPROVE:  teach / session_digest.py (capture) →
-              promote.py --propose (draft diff) → --apply → annotated next report
+  - USE:      run → report → review   (python3 -m skill_foundry.workflow.run / .report / .review)
+  - IMPROVE:  ./harness teach → ./harness promote --propose → --apply → annotated next report
 
   The real targets (pto-isa, pto-vmi) use the same flow with config/suites.json.
 
@@ -189,19 +190,19 @@ STEPS: list[dict] = [
               "never report average alone.",
          run=step_review),
     dict(key="teach", short="teach", needs=("review",), title="Improve — auto-capture the correction",
-         what="A person says 'that's a known vcvt round-field issue'. The AI logs it automatically (python3 -m skill_foundry.cli.teach) as a strict, parseable LRN-… entry.",
+         what="A person says 'that's a known vcvt round-field issue'. The AI logs it automatically (./harness teach) as a strict, parseable LRN-… entry.",
          more="Capture is automatic and append-only: when you correct the agent ('no / actually / remember …'), "
               "it runs ./harness teach by itself and replies with the LRN-… id — one command, strict format, no freeform editing. "
               "session_digest.py can even draft the same entry straight from the run's failures.",
          run=step_teach),
     dict(key="propose", short="propose", needs=("teach",), title="Improve — auto-propose a diff",
-         what="promote.py --propose turns the pending entry into a reviewable git-style diff — no write yet.",
+         what="./harness promote --propose turns the pending entry into a reviewable git-style diff — no write yet.",
          more="This is the automation boundary: propose is automatic (optional review); apply is also automatic "
               "(gates + LLM judge, writes locally). Nothing changes in the shared skills until a --pr is "
               "MERGED on the remote — branch protection is the gate.",
          run=step_propose),
     dict(key="apply", short="apply", needs=("propose",), title="Improve — apply + bookkeeping  🟢 AUTO",
-         what="--apply writes the edit into the skill (gates + LLM judge first). The demo stops at a local write; a real publish uses --pr, and you merge the PR.",
+         what="./harness promote --apply writes the edit into the skill (gates + LLM judge first). The demo stops at a local write; a real publish uses --pr, and you merge the PR.",
          more="Capture is automatic — recent.md is the harness's own memory, append-only, cheap, revertible. "
               "Apply runs the gates + the judge and writes the edit locally. A real publish is --pr: "
               "branch + push + auto-open a PR (gitcode v5 API with GITCODE_TOKEN), then you merge it — "
