@@ -40,6 +40,17 @@ AGENTS = [
 ]
 
 
+def agent_skill_names(parent: Path) -> list[str]:
+    """Skill names visible to an agent via its user skills dir (any dir/symlink)."""
+    d = parent / "skills"
+    if not d.exists():
+        return []
+    return sorted(
+        p.name for p in d.iterdir()
+        if (p.is_dir() or p.is_symlink()) and not p.name.startswith(".")
+    )
+
+
 def select_dirs(args) -> list[Path]:
     """Return the skill dirs matching the selection flags (all when none)."""
     dirs: list[Path] = []

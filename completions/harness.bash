@@ -18,7 +18,7 @@ _harness_complete() {
     local opts_teach="--edit --category --context --skill --wrong --correct --action --file --id --dry-run"
     local opts_capture_skill="--description --dry-run"
     local opts_promote_skill="--propose --apply --pr"
-    local opts_skills="--search --category --origin --owner --maturity --entry --inbox --refresh --check --json --install --uninstall --scope"
+    local opts_skills="--search --category --origin --owner --maturity --entry --inbox --refresh --check --json --install --uninstall --dry-run --mine --scope"
 
     if [[ $COMP_CWORD -eq 1 ]]; then
         COMPREPLY=( $(compgen -W "$cmds" -- "$cur") )

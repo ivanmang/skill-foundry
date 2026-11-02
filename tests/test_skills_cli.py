@@ -26,7 +26,7 @@ def _help_args() -> str:
 class SkillsCliSurfaceTest(unittest.TestCase):
     def test_discovery_flags_present(self):
         help_text = _help_args()
-        for flag in ("--search", "--category", "--origin", "--entry", "--inbox", "--check", "--json"):
+        for flag in ("--search", "--category", "--origin", "--entry", "--inbox", "--check", "--json", "--dry-run", "--mine"):
             self.assertIn(flag, help_text, f"missing {flag}")
 
     def test_install_uninstall_flags_present(self):

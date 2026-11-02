@@ -5,7 +5,8 @@
     "cannbot": "https://gitcode.com/cann/cannbot.git",
     "cannbot-knowledge": "cannbot-knowledge sister repo — ships the knowledge-query / ops-knowledge-ingest skills",
     "cannbot-dsl": "cannbot-dsl sister repo — ships the cannbot-dsl / cannbot-dsl-best-practice skills",
-    "ttk": "ops-test-kit checkout — skills live under $TTK/.claude/skills/"
+    "ttk": "ops-test-kit checkout — skills live under $TTK/.claude/skills/",
+    "local": "skills that live in an agent's user skills dir (~/.pi/skills/ etc.) rather than this repo"
   },
   "skills": {
     "npu-arch": { "source": "cannbot-skills", "note": "codename -> chip-generation mapping (A2/A3/A5...)" },
@@ -37,6 +38,9 @@
     "ttk-how-run-test": { "source": "ttk", "note": "TTK command args" },
     "ttk-how-write-case": { "source": "ttk", "note": "TTK CSV fields" },
     "ttk-how-write-plugin": { "source": "ttk", "note": "TTK TestSpec plugin" },
-    "ttk-how-diagnose": { "source": "ttk", "note": "TTK precision triage" }
+    "ttk-how-diagnose": { "source": "ttk", "note": "TTK precision triage" },
+    "a6-yellow-zone": { "source": "local", "note": "A6 simulator (dav_9201) yellow-zone workflow — lives in ~/.pi/skills/" },
+    "daily-dashboard-refresh": { "source": "local", "note": "Daily CCE-VMI dashboard refresh on ecs — lives in ~/.pi/skills/" },
+    "v200-v926": { "source": "local", "note": "V200/v926 simulator workflow — lives in ~/.pi/skills/" }
   }
 }
