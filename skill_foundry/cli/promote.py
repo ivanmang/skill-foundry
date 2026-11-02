@@ -248,13 +248,50 @@ def mr_url(web: str, branch: str, base: str = "main") -> str:
     return f"{web}/merge_requests/new?source_branch={branch}&target_branch={base}"
 
 
-def build_mr_body(what: str, why: str = "", testing: str = "", notes: str = "") -> str:
-    """Assemble the standard MR description: What / Why / Testing / Notes."""
+def _line_diff_stats(old: str, new: str) -> str:
+    """Return '+a/−d' line-change stats between two texts (for the files table)."""
+    sm = difflib.SequenceMatcher(None, old.splitlines(), new.splitlines())
+    added = removed = 0
+    for tag, i1, i2, j1, j2 in sm.get_opcodes():
+        if tag == "insert":
+            added += j2 - j1
+        elif tag == "delete":
+            removed += i2 - i1
+        elif tag == "replace":
+            removed += i2 - i1
+            added += j2 - j1
+    return f"+{added}/−{removed}"
+
+
+def build_mr_body(what: str, files: list | None = None, why: str = "", impact: str = "",
+                  testing: str = "", rollback: str = "", notes: str = "") -> str:
+    """Assemble the standard MR description.
+
+    Sections, in order: What · Files changed (table) · Why · Impact · Testing ·
+    Rollback · Notes. ``files`` is a list of dicts:
+      {"path": …, "change": added|modified|removed, "detail": …, "stats": "+n/−m"}
+    Empty optional sections are omitted.
+    """
     parts = [("## What", what)]
+    if files:
+        header = "| File | Change | What changed | Diff |"
+        sep = "|---|---|---|---|"
+        rows = []
+        for f in files:
+            path = f.get("path", "")
+            change = f.get("change") or "modified"
+            detail = f.get("detail") or "—"
+            stats = f.get("stats") or "—"
+            rows.append(f"| `{path}` | {change} | {detail} | {stats} |")
+        parts.append(("## Files changed", "\n".join([header, sep] + rows)))
     if why:
         parts.append(("## Why", why))
+    if impact:
+        parts.append(("## Impact", impact))
     if testing:
         parts.append(("## Testing", testing))
+    if rollback:
+        parts.append(("## Rollback", rollback))
     if notes:
         parts.append(("## Notes", notes))
     return "\n\n".join(f"{h}\n{b}" for h, b in parts).strip()
@@ -453,13 +490,37 @@ def apply_all(root: Path, lp: Path, entries: list[dict], pending: list[dict],
         if push:
             title = (f"chore: promote learnings ({len(changed)} entries) — "
                      f"{_dt.datetime.now():%Y-%m-%d}")
+            files = []
+            for t, old, new, entries_for_target in plan:
+                if new != old:
+                    detail = "; ".join(
+                        (e.get("correct") or e.get("action") or e["id"]).strip()
+                        for e in entries_for_target
+                    )
+                    files.append({
+                        "path": str(t.relative_to(root)),
+                        "change": "added" if not old.strip() else "modified",
+                        "detail": detail,
+                        "stats": _line_diff_stats(old, new),
+                    })
+            files += [
+                {"path": "learnings/recent.md", "change": "modified", "detail": "promoted entries marked promoted", "stats": ""},
+                {"path": "learnings/promoted.md", "change": "modified", "detail": "promotion summary appended", "stats": ""},
+                {"path": "learnings/corrections.md", "change": "modified", "detail": "audit trail appended", "stats": ""},
+            ]
             body = build_mr_body(
                 what=f"Promote {len(changed)} learning(s) into the skills corpus "
                      f"({', '.join(sorted({e['id'] for e in pending}))}).",
+                files=files,
                 why="Corrections captured during triage flow into reusable skill "
                     "knowledge; the mechanical gates and LLM judge already passed.",
+                impact="Updates the shared skill corpus (SKILL.md / known-failures.md) "
+                       "that every future regression run reads — the next run annotates "
+                       "these failures as known instead of re-triaging them.",
                 testing="./harness selfcheck  (skill spec + reference integrity + "
                         "index freshness + unit tests + demo smoke)",
+                rollback="Add-only promotion: revert the merge commit (git revert <sha>) "
+                         "to remove the entries cleanly.",
                 notes="\n".join(
                     f"- {e['id']} [{e.get('skill') or '?'}]: {e.get('correct') or e.get('action') or ''}"
                     for e in pending),

@@ -164,11 +164,44 @@ class BuildMrBodyTest(unittest.TestCase):
         self.assertEqual(promote.build_mr_body("did X"), "## What\ndid X")
 
     def test_optional_sections(self):
-        body = promote.build_mr_body("did X", why="because Y", testing="ran Z", notes="- note")
+        body = promote.build_mr_body(
+            "did X", why="because Y", impact="affects W", testing="ran Z",
+            rollback="revert R", notes="- note",
+        )
         self.assertIn("## What\ndid X", body)
         self.assertIn("\n\n## Why\nbecause Y", body)
+        self.assertIn("\n\n## Impact\naffects W", body)
         self.assertIn("\n\n## Testing\nran Z", body)
+        self.assertIn("\n\n## Rollback\nrevert R", body)
         self.assertIn("\n\n## Notes\n- note", body)
+
+    def test_section_order(self):
+        body = promote.build_mr_body(
+            "did X", files=[{"path": "a.py", "detail": "d"}],
+            why="Y", impact="I", testing="T", rollback="R", notes="N",
+        )
+        positions = [body.index(h) for h in (
+            "## What", "## Files changed", "## Why", "## Impact",
+            "## Testing", "## Rollback", "## Notes",
+        )]
+        self.assertEqual(positions, sorted(positions))
+
+    def test_files_changed_table(self):
+        body = promote.build_mr_body(
+            "did X", why="because Y",
+            files=[
+                {"path": "a.py", "change": "modified", "detail": "fixed regex", "stats": "+5/−2"},
+                {"path": "b.md", "change": "added", "detail": "new doc", "stats": "+10/−0"},
+            ],
+        )
+        self.assertIn("| File | Change | What changed | Diff |", body)
+        self.assertIn("| `a.py` | modified | fixed regex | +5/−2 |", body)
+        self.assertIn("| `b.md` | added | new doc | +10/−0 |", body)
+        self.assertLess(body.index("## Files changed"), body.index("## Why"))
+
+    def test_line_diff_stats(self):
+        self.assertEqual(promote._line_diff_stats("a\nb\n", "a\nc\n"), "+1/−1")
+        self.assertEqual(promote._line_diff_stats("", "x\n"), "+1/−0")
 
 
 if __name__ == "__main__":
