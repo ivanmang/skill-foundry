@@ -95,7 +95,9 @@ Agent-Skills-compatible agent:
   agents read `.agents/skills/` (a symlink to the same skills). Zero setup.
 - **Always-on** — `./harness skills --install` links each skill into the
   installed agents' user dirs (`~/.claude/skills/`, `~/.pi/skills/`,
-  `~/.agents/skills/`); `--uninstall` removes them. Restart/reload.
+  `~/.agents/skills/`); `--uninstall` removes them. `--dry-run` previews the
+  links, and `--mine` shows what each agent currently sees vs the hub.
+  Restart/reload.
 
 ---
 
@@ -103,7 +105,7 @@ Agent-Skills-compatible agent:
 
 | Command | Purpose |
 |---|---|
-| `python3 -m skill_foundry.workflow.status` | one-glance dashboard (env, suites, baseline, learnings, last run) |
+| `python3 -m skill_foundry.workflow.status` | one-glance dashboard (env, suites, baseline, learnings, skills visibility, last run) |
 | `python3 -m skill_foundry.workflow.diagnose` | check this machine + print the exact fix for each issue |
 | `python3 -m skill_foundry.workflow.onboarding` | guided first-run setup |
 | `./harness menu` | curated interactive menu (also the bare `./harness` default) |
@@ -112,7 +114,7 @@ Agent-Skills-compatible agent:
 | `python3 -m skill_foundry.workflow.review` | diff a run vs the pinned baseline (p99 + CA metrics) |
 | `./harness capture-skill` | draft a NEW skill into `hub/inbox/` |
 | `./harness promote-skill` | promote a draft into `.claude/skills/` (`--propose`/`--apply`/`--pr`) |
-| `./harness skills` | list/search skills · `--install` / `--uninstall` into agents · `--refresh` the catalog |
+| `./harness skills` | list/search skills (entry points first) · `--install` / `--uninstall` / `--dry-run` into agents · `--mine` visibility check · `--refresh` the catalog |
 | `./harness teach` | log a correction (append-only) |
 | `./harness promote` | pending learnings → skills (`--propose` / `--apply` / `--pr`) |
 | `bash skill_foundry/workflow/baseline.sh` | re-pin `reports/baseline/<target>.json` (per target) |

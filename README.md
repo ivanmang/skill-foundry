@@ -37,6 +37,26 @@ See both loops in ~2 minutes: `python3 -m skill_foundry.workflow.demo`.
 
 ---
 
+## tilelangGym (SoftLib/ST Motif gate)
+
+First-class target for SoftLib/ST improve-loop **compliance** gates (Motif ladder,
+Done-bar, `EXPLORATION_TRACE`, PRC orphan gate, forced PR9 `_pr9` overlays, RESULT
+`era=` / `reduce_axis=` / motif tags). Named **tilelangGym** in `config/suites.json`.
+
+```bash
+export TILELANGGYM_PACK=$PWD/demo/fixtures/tilelanggym-pack-ok
+python3 -m skill_foundry.workflow.run --target tilelangGym --list
+python3 -m skill_foundry.workflow.run --target tilelangGym --suite sv567-1xg-clean
+python3 -m skill_foundry.workflow.run --target tilelangGym --suite sv567-nx1-outer
+python3 -m skill_foundry.lib.validate_skills
+./harness selfcheck   # includes fixture gate + PRC index
+```
+
+Point `TILELANGGYM_PACK` at a real tip pack (e.g. closed 1×G / Nx1 explore dirs) for
+review against live TRACE/PR9/ANALYSIS. Full opencode launch hours remain custom.
+
+---
+
 ## Quick start
 
 ```bash
@@ -161,7 +181,7 @@ runs directly as thin scripts the skills reference.
   promote-skill  Publish a draft into .claude/skills/   [--propose | --apply | --pr]
   teach          Log a correction                       ["wrong -> correct -> action" | wizard | --edit]
   promote        Publish learnings into skills          [--propose | --apply | --pr]
-  skills         List/search · install · refresh        [--search, --category, --origin, --owner, --maturity, --scope, --entry, --inbox, --install, --uninstall, --refresh, --check, --json]
+  skills         List/search · install · refresh        [--search, --category, --origin, --owner, --maturity, --scope, --entry, --inbox, --install, --uninstall, --dry-run, --mine, --refresh, --check, --json]
   menu           Curated menu (bare ./harness default)
   selfcheck      Compile + skill-spec + reference integrity + index freshness + demo smoke
 
@@ -321,20 +341,3 @@ See `.claude/skills/skill-maintainer/SKILL.md` and the live walkthrough:
 | `report --open` → xdg-open errors / no browser | handled: WSL opens via `explorer.exe`; else prints the path |
 | skills not showing up in the agent | run `./harness skills --install`, then restart/reload the agent |
 | `--pr` printed a PR-new URL instead of creating it | set `export GITCODE_TOKEN=<gitcode access token>` in `env.sh` — see `skill-maintainer/references/mr-automation.md` |
-## tilelangGym (SoftLib/ST Motif gate)
-
-First-class target for SoftLib/ST improve-loop **compliance** gates (Motif ladder,
-Done-bar, `EXPLORATION_TRACE`, PRC orphan gate, forced PR9 `_pr9` overlays, RESULT
-`era=` / `reduce_axis=` / motif tags). Named **tilelangGym** in `config/suites.json`.
-
-```bash
-export TILELANGGYM_PACK=$PWD/demo/fixtures/tilelanggym-pack-ok
-python3 -m skill_foundry.workflow.run --target tilelangGym --list
-python3 -m skill_foundry.workflow.run --target tilelangGym --suite sv567-1xg-clean
-python3 -m skill_foundry.workflow.run --target tilelangGym --suite sv567-nx1-outer
-python3 -m skill_foundry.lib.validate_skills
-./harness selfcheck   # includes fixture gate + PRC index
-```
-
-Point `TILELANGGYM_PACK` at a real tip pack (e.g. closed 1×G / Nx1 explore dirs) for
-review against live TRACE/PR9/ANALYSIS. Full opencode launch hours remain custom.

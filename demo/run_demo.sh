@@ -79,7 +79,8 @@ python3 -m skill_foundry.workflow.review --run "$RUN_DIR/run.json" --baseline "$
 pause
 
 section "4 · IMPROVE — auto-capture → auto-propose → apply"
-echo "  (auto-capture) python3 -m skill_foundry.cli.teach records the correction in strict format:"
+echo "  (auto-capture) ./harness teach records the correction in strict format"
+echo "                (here via python3 -m skill_foundry.cli.teach --file … to target the sandbox):"
 python3 -m skill_foundry.cli.teach "device vcvt round-field mismatch in VecOpTest.case_vcvt_bf16fp16_128x128 -> known vcvt round-field pattern; annotate instead of re-triage -> promote vcvt round-field swap into known-failures" \
     --file "$SB2/learnings/recent.md"
 echo
@@ -87,11 +88,13 @@ echo "  (auto-draft alternative) session_digest.py drafts pending entries from t
 python3 -m skill_foundry.lib.session_digest --run "$RUN_DIR/run.json" --file "$SB2/learnings/recent.md" || true
 pause
 
-echo "  (auto-propose) promote.py turns the pending entry into a reviewable diff:"
+echo "  (auto-propose) ./harness promote --propose turns the pending entry into a reviewable diff"
+echo "                (here via python3 -m skill_foundry.cli.promote --root … to target the sandbox):"
 python3 -m skill_foundry.cli.promote --root "$SB2" --propose
 pause
 
-echo "  (apply) write the edit into the sandbox known-failures.md:"
+echo "  (apply) ./harness promote --apply writes the edit into the skill (gates + LLM judge)"
+echo "         (here via python3 -m skill_foundry.cli.promote --root … to target the sandbox):"
 SKILL_REVIEWER='echo APPROVE' python3 -m skill_foundry.cli.promote --root "$SB2" --apply   # scripted demo: stub judge
 echo
 echo "  Mechanical effect — known-failure signatures go 0 → 1:"
@@ -115,9 +118,8 @@ cat <<EOF
 Run artifacts:  $RUN_DIR/run.json, report.md, report-known.md, demo-suite.log
 Sandbox (loop): $SANDBOX
 
-- USE:      run.py → parse_gtest.py → report.py → review.py
-- IMPROVE:  teach / session_digest.py (capture) →
-            promote.py --propose (draft diff) → --apply → annotated next report
+- USE:      run → report → review  (python3 -m skill_foundry.workflow.run / .report / .review)
+- IMPROVE:  ./harness teach → ./harness promote --propose → --apply → annotated next report
 
 The real targets (pto-isa, pto-vmi) use the same flow with config/suites.json.
 EOF
