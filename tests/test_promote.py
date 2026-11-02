@@ -170,13 +170,22 @@ class BuildMrBodyTest(unittest.TestCase):
         self.assertIn("\n\n## Testing\nran Z", body)
         self.assertIn("\n\n## Notes\n- note", body)
 
-    def test_files_changed_section(self):
+    def test_files_changed_table(self):
         body = promote.build_mr_body(
             "did X", why="because Y",
-            files=[("a.py", "fixed regex"), ("b.md", "")],
+            files=[
+                {"path": "a.py", "change": "modified", "detail": "fixed regex", "stats": "+5/−2"},
+                {"path": "b.md", "change": "added", "detail": "new doc", "stats": "+10/−0"},
+            ],
         )
-        self.assertIn("\n\n## Files changed\n- `a.py` — fixed regex\n- `b.md`", body)
+        self.assertIn("| File | Change | What changed | Diff |", body)
+        self.assertIn("| `a.py` | modified | fixed regex | +5/−2 |", body)
+        self.assertIn("| `b.md` | added | new doc | +10/−0 |", body)
         self.assertLess(body.index("## Files changed"), body.index("## Why"))
+
+    def test_line_diff_stats(self):
+        self.assertEqual(promote._line_diff_stats("a\nb\n", "a\nc\n"), "+1/−1")
+        self.assertEqual(promote._line_diff_stats("", "x\n"), "+1/−0")
 
 
 if __name__ == "__main__":

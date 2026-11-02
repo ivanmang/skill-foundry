@@ -248,21 +248,42 @@ def mr_url(web: str, branch: str, base: str = "main") -> str:
     return f"{web}/merge_requests/new?source_branch={branch}&target_branch={base}"
 
 
+def _line_diff_stats(old: str, new: str) -> str:
+    """Return '+a/−d' line-change stats between two texts (for the files table)."""
+    sm = difflib.SequenceMatcher(None, old.splitlines(), new.splitlines())
+    added = removed = 0
+    for tag, i1, i2, j1, j2 in sm.get_opcodes():
+        if tag == "insert":
+            added += j2 - j1
+        elif tag == "delete":
+            removed += i2 - i1
+        elif tag == "replace":
+            removed += i2 - i1
+            added += j2 - j1
+    return f"+{added}/−{removed}"
+
+
 def build_mr_body(what: str, why: str = "", testing: str = "", notes: str = "",
                   files: list | None = None) -> str:
     """Assemble the standard MR description.
 
-    Sections, in order: What · Files changed · Why · Testing · Notes.
-    ``files`` is a list of ``(path, what-changed)`` tuples; empty ``what-changed``
-    renders just the path.
+    Sections, in order: What · Files changed (table) · Why · Testing · Notes.
+    ``files`` is a list of dicts:
+      {"path": …, "change": added|modified|removed, "detail": …, "stats": "+n/−m"}
+    Empty ``change``/``detail``/``stats`` render as a dash.
     """
     parts = [("## What", what)]
     if files:
-        lines = "\n".join(
-            f"- `{path}` — {desc}" if desc else f"- `{path}`"
-            for path, desc in files
-        )
-        parts.append(("## Files changed", lines))
+        header = "| File | Change | What changed | Diff |"
+        sep = "|---|---|---|---|"
+        rows = []
+        for f in files:
+            path = f.get("path", "")
+            change = f.get("change") or "modified"
+            detail = f.get("detail") or "—"
+            stats = f.get("stats") or "—"
+            rows.append(f"| `{path}` | {change} | {detail} | {stats} |")
+        parts.append(("## Files changed", "\n".join([header, sep] + rows)))
     if why:
         parts.append(("## Why", why))
     if testing:
@@ -468,15 +489,20 @@ def apply_all(root: Path, lp: Path, entries: list[dict], pending: list[dict],
             files = []
             for t, old, new, entries_for_target in plan:
                 if new != old:
-                    desc = "; ".join(
+                    detail = "; ".join(
                         (e.get("correct") or e.get("action") or e["id"]).strip()
                         for e in entries_for_target
                     )
-                    files.append((str(t.relative_to(root)), desc))
+                    files.append({
+                        "path": str(t.relative_to(root)),
+                        "change": "added" if not old.strip() else "modified",
+                        "detail": detail,
+                        "stats": _line_diff_stats(old, new),
+                    })
             files += [
-                ("learnings/recent.md", "promoted entries marked promoted"),
-                ("learnings/promoted.md", "promotion summary appended"),
-                ("learnings/corrections.md", "audit trail appended"),
+                {"path": "learnings/recent.md", "change": "modified", "detail": "promoted entries marked promoted", "stats": ""},
+                {"path": "learnings/promoted.md", "change": "modified", "detail": "promotion summary appended", "stats": ""},
+                {"path": "learnings/corrections.md", "change": "modified", "detail": "audit trail appended", "stats": ""},
             ]
             body = build_mr_body(
                 what=f"Promote {len(changed)} learning(s) into the skills corpus "
