@@ -290,22 +290,43 @@ def _api_create_mr(web: str, branch: str, base: str, title: str) -> str | None:
 
 
 def _gitcode_create_pr(owner: str, repo: str, head: str, base: str, title: str, token: str) -> str | None:
-    """Create a gitcode pull request via the v5 API; return its html_url."""
-    url = (f"https://api.gitcode.com/api/v5/repos/{owner}/{repo}/pulls"
-           f"?access_token={urllib.parse.quote(token)}")
+    """Create a gitcode pull request via the v5 API; return its html_url.
+
+    Prefers sending the token as an ``Authorization`` header so it never lands
+    in a URL (and thus in proxy/access logs); falls back to the legacy
+    ``access_token`` query param for servers that only accept that form.
+    """
+    api = f"https://api.gitcode.com/api/v5/repos/{owner}/{repo}/pulls"
     payload = json.dumps({"title": title, "head": head, "base": base}).encode()
-    req = urllib.request.Request(url, data=payload, method="POST",
-                                 headers={"Content-Type": "application/json"})
-    with urllib.request.urlopen(req, timeout=60) as resp:
-        data = json.loads(resp.read().decode())
-    return data.get("html_url") or data.get("web_url")
+
+    def _post(url: str, headers: dict) -> str | None:
+        req = urllib.request.Request(url, data=payload, method="POST", headers=headers)
+        with urllib.request.urlopen(req, timeout=60) as resp:
+            data = json.loads(resp.read().decode())
+        return data.get("html_url") or data.get("web_url")
+
+    attempts = [
+        (api, {"Authorization": f"token {token}", "Content-Type": "application/json"}),
+        (api, {"Authorization": f"Bearer {token}", "Content-Type": "application/json"}),
+        (f"{api}?access_token={urllib.parse.quote(token)}", {"Content-Type": "application/json"}),
+    ]
+    for url, headers in attempts:
+        try:
+            out = _post(url, headers)
+            if out:
+                return out
+        except Exception:
+            continue
+    return None
 
 
 def create_mr(web: str, branch: str, base: str, title: str) -> tuple[str, bool]:
     """Create an MR/PR on the platform. Returns (url, created).
 
-    gitcode (this repo's remote) uses its own v5 API with ``access_token``; the
-    standard GitLab API and glab do not work against it.
+    gitcode (this repo's remote) uses its own v5 API; the standard GitLab API
+    and glab do not work against it. The token is sent as an Authorization
+    header first (falls back to the access_token query param if the host
+    rejects headers).
     """
     token = os.environ.get("GITCODE_TOKEN") or os.environ.get("GITLAB_TOKEN")
     m = re.search(r"gitcode\.com/([^/]+)/([^/]+?)(?:\.git)?$", web or "")
