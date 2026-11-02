@@ -24,14 +24,38 @@ created automatically depends on how the platform is reached.
 ```
 POST https://api.gitcode.com/api/v5/repos/{owner}/{repo}/pulls?access_token=<TOKEN>
 Content-Type: application/json
-{ "title": …, "head": <source branch>, "base": <target branch> }
+{ "title": …, "head": <source branch>, "base": <target branch>, "body": <description> }
 ```
 
-- Auth is the `access_token` **query parameter** (not a header).
+- Auth is the `access_token` **query parameter** (not a header — `Authorization: token`
+  and `Bearer` both return 401; verified live).
+- `body` is the PR description; the API accepts it on create and on `PATCH`.
 - Response `html_url` is the PR web URL, e.g.
   `https://gitcode.com/<owner>/<repo>/merge_requests/<n>`.
 - This is Gitee-style, not GitLab-style — `/api/v4` + `PRIVATE-TOKEN` do **not**
   work against gitcode (verified live).
+
+## Standard MR description
+
+Every MR the agent opens carries a description in this shape (built by
+`promote.build_mr_body`):
+
+```markdown
+## What
+<what changed, one or two sentences>
+
+## Why
+<the problem / root cause this fixes>
+
+## Testing
+<how it was verified — commands run, targets, results>
+
+## Notes
+<optional: anything else a reviewer needs>
+```
+
+`## Why` / `## Testing` / `## Notes` are optional; `## What` is always present.
+`./harness promote --pr` fills this automatically from the promoted entries.
 
 ## Token handling
 
