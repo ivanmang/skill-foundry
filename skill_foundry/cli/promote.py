@@ -263,14 +263,14 @@ def _line_diff_stats(old: str, new: str) -> str:
     return f"+{added}/−{removed}"
 
 
-def build_mr_body(what: str, why: str = "", testing: str = "", notes: str = "",
-                  files: list | None = None) -> str:
+def build_mr_body(what: str, files: list | None = None, why: str = "", impact: str = "",
+                  testing: str = "", rollback: str = "", notes: str = "") -> str:
     """Assemble the standard MR description.
 
-    Sections, in order: What · Files changed (table) · Why · Testing · Notes.
-    ``files`` is a list of dicts:
+    Sections, in order: What · Files changed (table) · Why · Impact · Testing ·
+    Rollback · Notes. ``files`` is a list of dicts:
       {"path": …, "change": added|modified|removed, "detail": …, "stats": "+n/−m"}
-    Empty ``change``/``detail``/``stats`` render as a dash.
+    Empty optional sections are omitted.
     """
     parts = [("## What", what)]
     if files:
@@ -286,8 +286,12 @@ def build_mr_body(what: str, why: str = "", testing: str = "", notes: str = "",
         parts.append(("## Files changed", "\n".join([header, sep] + rows)))
     if why:
         parts.append(("## Why", why))
+    if impact:
+        parts.append(("## Impact", impact))
     if testing:
         parts.append(("## Testing", testing))
+    if rollback:
+        parts.append(("## Rollback", rollback))
     if notes:
         parts.append(("## Notes", notes))
     return "\n\n".join(f"{h}\n{b}" for h, b in parts).strip()
@@ -510,8 +514,13 @@ def apply_all(root: Path, lp: Path, entries: list[dict], pending: list[dict],
                 files=files,
                 why="Corrections captured during triage flow into reusable skill "
                     "knowledge; the mechanical gates and LLM judge already passed.",
+                impact="Updates the shared skill corpus (SKILL.md / known-failures.md) "
+                       "that every future regression run reads — the next run annotates "
+                       "these failures as known instead of re-triaging them.",
                 testing="./harness selfcheck  (skill spec + reference integrity + "
                         "index freshness + unit tests + demo smoke)",
+                rollback="Add-only promotion: revert the merge commit (git revert <sha>) "
+                         "to remove the entries cleanly.",
                 notes="\n".join(
                     f"- {e['id']} [{e.get('skill') or '?'}]: {e.get('correct') or e.get('action') or ''}"
                     for e in pending),

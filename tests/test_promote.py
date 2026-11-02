@@ -164,11 +164,27 @@ class BuildMrBodyTest(unittest.TestCase):
         self.assertEqual(promote.build_mr_body("did X"), "## What\ndid X")
 
     def test_optional_sections(self):
-        body = promote.build_mr_body("did X", why="because Y", testing="ran Z", notes="- note")
+        body = promote.build_mr_body(
+            "did X", why="because Y", impact="affects W", testing="ran Z",
+            rollback="revert R", notes="- note",
+        )
         self.assertIn("## What\ndid X", body)
         self.assertIn("\n\n## Why\nbecause Y", body)
+        self.assertIn("\n\n## Impact\naffects W", body)
         self.assertIn("\n\n## Testing\nran Z", body)
+        self.assertIn("\n\n## Rollback\nrevert R", body)
         self.assertIn("\n\n## Notes\n- note", body)
+
+    def test_section_order(self):
+        body = promote.build_mr_body(
+            "did X", files=[{"path": "a.py", "detail": "d"}],
+            why="Y", impact="I", testing="T", rollback="R", notes="N",
+        )
+        positions = [body.index(h) for h in (
+            "## What", "## Files changed", "## Why", "## Impact",
+            "## Testing", "## Rollback", "## Notes",
+        )]
+        self.assertEqual(positions, sorted(positions))
 
     def test_files_changed_table(self):
         body = promote.build_mr_body(

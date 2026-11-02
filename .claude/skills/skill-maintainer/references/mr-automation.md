@@ -42,7 +42,7 @@ Every MR the agent opens carries a description in this shape (built by
 
 ```markdown
 ## What
-<what changed, one or two sentences>
+<what changed — prose, can be a few sentences>
 
 ## Files changed
 
@@ -53,16 +53,22 @@ Every MR the agent opens carries a description in this shape (built by
 ## Why
 <the problem / root cause this fixes>
 
+## Impact
+<what's affected — commands, targets, users, blast radius>
+
 ## Testing
-<how it was verified — commands run, targets, results>
+<how verified — commands, results, before/after>
+
+## Rollback
+<how to revert / risk if it goes wrong>
 
 ## Notes
-<optional: anything else a reviewer needs>
+<optional: follow-ups, related links>
 ```
 
 `## Files changed` is a table: **File · Change (added/modified/removed) · What
-changed · Diff (+n/−m)**. `## Why` / `## Testing` / `## Notes` are optional;
-`## What` and `## Files changed` are always present.
+changed · Diff (+n/−m)**. `## Why` / `## Impact` / `## Testing` / `## Rollback` /
+`## Notes` are optional; `## What` and `## Files changed` are always present.
 `./harness promote --pr` fills the table automatically from the promoted entries
 (change type + line stats are computed from the edit).
 
