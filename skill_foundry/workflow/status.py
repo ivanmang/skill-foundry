@@ -21,6 +21,7 @@ from skill_foundry.paths import ROOT as HARNESS  # noqa: E402
 
 from skill_foundry.lib import capabilities  # noqa: E402
 from skill_foundry.lib import cann as detect_cann  # noqa: E402
+from skill_foundry.lib import install_skills  # noqa: E402
 from skill_foundry.lib import runs as _runs  # noqa: E402
 from skill_foundry.lib import targets  # noqa: E402
 from skill_foundry.lib.term import GREEN, RED, YELLOW, BOLD, c, mark  # noqa: E402
@@ -74,6 +75,32 @@ def _target_rows(cfg: dict, only: str | None) -> list[dict]:
     return rows
 
 
+def _agent_visibility() -> dict:
+    """Which harness skills each detected agent can currently see, plus local-only skills."""
+    try:
+        cat = json.loads((HARNESS / "hub" / "catalog.json").read_text(encoding="utf-8"))
+        skills = cat.get("skills", [])
+    except (OSError, ValueError):
+        skills = []
+    hub = {s.get("name", "") for s in skills if s.get("status") == "published"}
+    owned = {s.get("name", "") for s in skills if s.get("origin") == "native"}
+    visible: set[str] = set()
+    per_agent: dict[str, list[str]] = {}
+    for label, parent, _hint in install_skills.AGENTS:
+        names = install_skills.agent_skill_names(parent)
+        per_agent[label] = names
+        visible |= set(names)
+    harness_seen = sorted(visible & hub)
+    return {
+        "hub_total": len(hub),
+        "owned_total": len(owned),
+        "visible_total": len(harness_seen),
+        "missing_owned": sorted(owned - visible),
+        "local_only": sorted(visible - hub),
+        "per_agent": per_agent,
+    }
+
+
 def _baseline_info(name: str) -> dict:
     bpath = targets.baseline_path(name)
     bdata = json.loads(bpath.read_text(encoding="utf-8")) if bpath.exists() else {}
@@ -97,6 +124,11 @@ def collect(only: str | None = None) -> dict:
             ascend_version = detect_cann.analyze(Path(ascend), detect_cann.load_config())["version"]
         except Exception:
             ascend_version = "?"
+    ascend_state, ascend_envsh = capabilities.ascend_state()
+    ascend_hint = None
+    if not ascend:
+        ascend_hint = (f"not sourced — env.sh sets {ascend_envsh} (run `source ./env.sh`)"
+                       if ascend_state == "envsh" else "not set")
 
     # baseline now lives per-target (see _target_rows); no shared baseline block.
     last_info = None
@@ -119,8 +151,11 @@ def collect(only: str | None = None) -> dict:
             "git": bool(shutil.which("git")),
             "ascend": ascend,
             "ascend_version": ascend_version,
+            "ascend_state": ascend_state,
+            "ascend_hint": ascend_hint,
         },
         "targets": _target_rows(cfg, only),
+        "skills": _agent_visibility(),
         "learnings": {
             "pending": pending_count(HARNESS / "learnings" / "recent.md"),
             "promoted": promoted_count(HARNESS / "learnings" / "promoted.md"),
@@ -131,10 +166,15 @@ def collect(only: str | None = None) -> dict:
 
 def render(data: dict) -> None:
     env = data["env"]
-    ascend_desc = env["ascend_version"] or env["ascend"] or "not set"
+    if env["ascend"]:
+        ascend_desc = env["ascend_version"] or env["ascend"]
+        ascend_ok = True
+    else:
+        ascend_desc = env.get("ascend_hint") or "not set"
+        ascend_ok = False
     print(c(" environment", BOLD))
     print(f"  {mark(env['python3'])} python3    {mark(env['git'])} git")
-    print(f"  {mark(bool(env['ascend']))} ASCEND_HOME_PATH  {c(ascend_desc, GREEN if env['ascend'] else YELLOW)}")
+    print(f"  {mark(ascend_ok)} ASCEND_HOME_PATH  {c(ascend_desc, GREEN if ascend_ok else YELLOW)}")
 
     for t in data["targets"]:
         print(c(f"\n target: {t['label']}  ({t['name']})", BOLD))
@@ -155,6 +195,14 @@ def render(data: dict) -> None:
     print(c("\n learnings", BOLD))
     print(f"  {ln['pending']} pending · {ln['promoted']} promoted"
           + ("   → ./harness promote --propose" if ln["pending"] else ""))
+
+    sk = data["skills"]
+    print(c("\n skills", BOLD))
+    print(f"  agents see {sk['visible_total']} of {sk['hub_total']} harness skills"
+          + (f" ({sk['owned_total']} owned — missing: {', '.join(sk['missing_owned'])})" if sk['missing_owned'] else ""))
+    if sk["local_only"]:
+        print(f"  local-only (not in hub): {', '.join(sk['local_only'])}")
+    print("  see per-agent: ./harness skills --mine   ·   install owned: ./harness skills --install --scope core")
 
     lr = data["last_run"]
     print(c("\n last run", BOLD))
