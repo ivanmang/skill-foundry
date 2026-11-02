@@ -30,8 +30,8 @@ commands, env, and triage.
 | Suite | Command |
 |---|---|
 | CPU-ST | `python3 tests/run_cpu.py --clean --verbose` (needs clang++>=15 or g++>=13) |
-| NPU-sim A5 | `python3 tests/script/run_st.py -r sim -v a5 -t all` |
-| NPU-sim A3 | `python3 tests/script/run_st.py -r sim -v a3 -t all` |
+| NPU-sim A5 | `bash tests/run_st.sh --a5 --sim --all` |
+| NPU-sim A3 | `bash tests/run_st.sh --a3 --sim --all` |
 | NPU-sim A6 | `python3 tests/script/run_st.py -r sim -v a6 -t all` |
 
 Via the workflow script (normalizes to run.json + reports + diffs):
@@ -40,9 +40,8 @@ Via the workflow script (normalizes to run.json + reports + diffs):
 python3 -m skill_foundry.workflow.status                       # what can run here (auto-detected)
 python3 -m skill_foundry.workflow.run --all-suites --dry-run   # preview before running
 python3 -m skill_foundry.workflow.run --all-suites --parallel  # runnable suites concurrently
-python3 -m skill_foundry.workflow.run --suite npu-sim-a5 --testcase tpartargmax          # one testcase
-python3 -m skill_foundry.workflow.run --suite npu-sim-a5 --testcase tadd --filter 'TADDTest.case_*'
-python3 -m skill_foundry.workflow.run --suite cpu-st --testcase tadd --filter 'TADDTest.case_*'
+python3 -m skill_foundry.workflow.run --suite npu-sim-a5              # full A5 ST suite (run_st.sh)
+python3 -m skill_foundry.workflow.run --suite cpu-st --testcase tadd --filter 'TADDTest.case_*'   # one gtest case
 ```
 
 Single testcase / filter (raw pto-isa runner):

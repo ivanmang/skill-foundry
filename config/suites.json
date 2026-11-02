@@ -40,18 +40,16 @@
           "arch": "a5",
           "enabled": true,
           "milestone": "M1",
+          "runner": "generic",
           "command": [
-            "python3",
-            "tests/script/run_st.py",
-            "-r",
-            "sim",
-            "-v",
-            "a5",
-            "-t",
-            "all"
+            "bash",
+            "tests/run_st.sh",
+            "--a5",
+            "--sim",
+            "--all"
           ],
           "timeout_s": 7200,
-          "description": "NPU ST on the A5 simulator (Ascend950PR_9599 -> Ascend910_9599)."
+          "description": "NPU ST on the A5 simulator (Ascend950PR_9599 -> Ascend910_9599) — full suite via tests/run_st.sh."
         },
         {
           "name": "npu-sim-a3",
@@ -59,18 +57,16 @@
           "arch": "a3",
           "enabled": true,
           "milestone": "M1",
+          "runner": "generic",
           "command": [
-            "python3",
-            "tests/script/run_st.py",
-            "-r",
-            "sim",
-            "-v",
-            "a3",
-            "-t",
-            "all"
+            "bash",
+            "tests/run_st.sh",
+            "--a3",
+            "--sim",
+            "--all"
           ],
           "timeout_s": 7200,
-          "description": "NPU ST on the A3 simulator (Ascend910B1)."
+          "description": "NPU ST on the A3 simulator (Ascend910B1) — full suite via tests/run_st.sh."
         },
         {
           "name": "npu-sim-a6",
