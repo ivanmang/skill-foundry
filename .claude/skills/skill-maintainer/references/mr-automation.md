@@ -44,6 +44,9 @@ Every MR the agent opens carries a description in this shape (built by
 ## What
 <what changed, one or two sentences>
 
+## Files changed
+- `path/to/file` — what changed in it
+
 ## Why
 <the problem / root cause this fixes>
 
@@ -54,8 +57,10 @@ Every MR the agent opens carries a description in this shape (built by
 <optional: anything else a reviewer needs>
 ```
 
-`## Why` / `## Testing` / `## Notes` are optional; `## What` is always present.
-`./harness promote --pr` fills this automatically from the promoted entries.
+`## Files changed` lists every file plus a one-line "what changed". `## Why` /
+`## Testing` / `## Notes` are optional; `## What` and `## Files changed` are
+always present. `./harness promote --pr` fills the description automatically
+from the promoted entries (`files` = the skill files + learnings bookkeeping).
 
 ## Token handling
 

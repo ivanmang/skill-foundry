@@ -248,9 +248,21 @@ def mr_url(web: str, branch: str, base: str = "main") -> str:
     return f"{web}/merge_requests/new?source_branch={branch}&target_branch={base}"
 
 
-def build_mr_body(what: str, why: str = "", testing: str = "", notes: str = "") -> str:
-    """Assemble the standard MR description: What / Why / Testing / Notes."""
+def build_mr_body(what: str, why: str = "", testing: str = "", notes: str = "",
+                  files: list | None = None) -> str:
+    """Assemble the standard MR description.
+
+    Sections, in order: What · Files changed · Why · Testing · Notes.
+    ``files`` is a list of ``(path, what-changed)`` tuples; empty ``what-changed``
+    renders just the path.
+    """
     parts = [("## What", what)]
+    if files:
+        lines = "\n".join(
+            f"- `{path}` — {desc}" if desc else f"- `{path}`"
+            for path, desc in files
+        )
+        parts.append(("## Files changed", lines))
     if why:
         parts.append(("## Why", why))
     if testing:
@@ -453,9 +465,23 @@ def apply_all(root: Path, lp: Path, entries: list[dict], pending: list[dict],
         if push:
             title = (f"chore: promote learnings ({len(changed)} entries) — "
                      f"{_dt.datetime.now():%Y-%m-%d}")
+            files = []
+            for t, old, new, entries_for_target in plan:
+                if new != old:
+                    desc = "; ".join(
+                        (e.get("correct") or e.get("action") or e["id"]).strip()
+                        for e in entries_for_target
+                    )
+                    files.append((str(t.relative_to(root)), desc))
+            files += [
+                ("learnings/recent.md", "promoted entries marked promoted"),
+                ("learnings/promoted.md", "promotion summary appended"),
+                ("learnings/corrections.md", "audit trail appended"),
+            ]
             body = build_mr_body(
                 what=f"Promote {len(changed)} learning(s) into the skills corpus "
                      f"({', '.join(sorted({e['id'] for e in pending}))}).",
+                files=files,
                 why="Corrections captured during triage flow into reusable skill "
                     "knowledge; the mechanical gates and LLM judge already passed.",
                 testing="./harness selfcheck  (skill spec + reference integrity + "

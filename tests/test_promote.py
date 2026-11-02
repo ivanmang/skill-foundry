@@ -170,6 +170,14 @@ class BuildMrBodyTest(unittest.TestCase):
         self.assertIn("\n\n## Testing\nran Z", body)
         self.assertIn("\n\n## Notes\n- note", body)
 
+    def test_files_changed_section(self):
+        body = promote.build_mr_body(
+            "did X", why="because Y",
+            files=[("a.py", "fixed regex"), ("b.md", "")],
+        )
+        self.assertIn("\n\n## Files changed\n- `a.py` — fixed regex\n- `b.md`", body)
+        self.assertLess(body.index("## Files changed"), body.index("## Why"))
+
 
 if __name__ == "__main__":
     unittest.main()
