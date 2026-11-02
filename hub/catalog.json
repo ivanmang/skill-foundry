@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated": "2026-10-30T07:53:13.246724+00:00",
+  "generated": "2026-11-02T02:24:33.000719+00:00",
   "skills": [
     {
       "name": "aclnn-doc-gen",
@@ -994,6 +994,18 @@
       "status": "published"
     },
     {
+      "name": "tilelanggym-simd-per-g-mapping",
+      "description": "Use when optimizing or closing SoftLib/CCE or VMI PTO-DSL SIMD reduce for a gold group size G \u2014 pick opcode by reduce_axis (inner\u2192VC/VCGMAX, outer\u2192VMAX-only, Harness \u00a722); explore per-G VL\u00d7datablock\u00d7gold G; Case-3 pack_ub/keeplive ladder; NG=8-first VL=8\u00d7G (t593u) + Top-3 VL\u00d7G sensitivity guesses (t591u); stage\u00d7VL-util (PRC-SCH-003).",
+      "category": "perf-analysis",
+      "license": "CANN Open Software License Agreement Version 2.0",
+      "entry": false,
+      "stages": [],
+      "origin": "native",
+      "owner": "skill-foundry",
+      "maturity": "ready",
+      "status": "published"
+    },
+    {
       "name": "tilelanggym-softlib-simt",
       "description": "Use when exploring or closing SoftLib SIMT (__simt_vf__) absmax/Case-3 for a gold G \u2014 motif classes (warp-redux contig vs within-group contig vs stock); schedule matrix LDS.32/64, membar/bar vs fused, vec-misched on/off, unroll/pack, LD|abs+REDUX|ST pipeline, sparse STS; forced 1xG SoT ladder dual-drain / loadall+absall (all G) / wc-multi / G64-128 dual-drain / T in {128,256,512}; SoT cell axis=1xG only; before SoftLib SIMT DONE; forbid DONE on t676-class LDS matrix alone; when SoftLib\u227bSIMD claimed, FORCED PR9 opcode_lanes_ipc overlays both arms (reject IPC-only).",
       "category": "perf-analysis",
@@ -1019,7 +1031,7 @@
     },
     {
       "name": "tilelanggym-st-report",
-      "description": "Use when writing or rewriting a tilelangGym ST ANALYSIS report (SV*/CF*/SP*/SB*) to the standard spine from Aims + design only \u2014 no dig numbers, no agent memory; after RESULT fill COMPARE harvest (or N/A) plus motif-seed Coverage COMPARE; FORCED PR9 running-IPC + opcode-lane mix overlay (plot_style=opcode_lanes_ipc) \u2014 reject IPC-only *_running_ipc.png; require EXPLORATION_TRACE.md link when explore-from-prompt / clean regress; when SIMT-over-SIMD (or reverse) or both-arm perf compare closes, require PR9 overlays + per-segment opcode mix + stage mid-IPC for BOTH arms.",
+      "description": "Use when writing or rewriting a tilelangGym ST ANALYSIS report (SV*/CF*/SP*/SB*) to the standard spine from Aims + design only \u2014 no dig numbers, no agent memory; after RESULT fill COMPARE harvest (or N/A) plus motif-seed Coverage COMPARE; FORCED PR9 running-IPC + opcode-lane mix overlay (plot_style=opcode_lanes_ipc) \u2014 reject IPC-only *_running_ipc.png; require EXPLORATION_TRACE.md link when explore-from-prompt / clean regress; when SIMT-over-SIMD (or reverse) or both-arm perf compare closes, require PR9 overlays + per-segment opcode mix + stage mid-IPC for BOTH arms; \u00a78.1/\u00a78.2/*_pr9_staged.png share harness STAGE_TAXONOMY defining-opcode map (ISA-mix stays ops/N orthogonal).",
       "category": "perf-analysis",
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
@@ -1031,7 +1043,7 @@
     },
     {
       "name": "tilelanggym-vmi-gmap",
-      "description": "Use when tracking or closing MB-SV*-VMI-Gmap / SoftLib Gmap sweeps \u2014 classify functional PASS vs tried schedules vs best-sweep DONE per reduce_axis (inner VC/VCG vs outer VMAX); outer absmax-vs-Case-3 dual-era + VAND no-path goes to alternate-builder before DONE; measure until DONE or explicit stop \u2014 never treat UNMEASURED-only as success; dig-vs-live delta checklist when el/cyc moves vs prior SoT.",
+      "description": "Use when tracking or closing MB-SV*-VMI-Gmap / SoftLib Gmap sweeps \u2014 classify functional PASS vs tried schedules vs best-sweep DONE per reduce_axis (inner VC/VCG vs outer VMAX, Harness \u00a722); outer absmax-vs-Case-3 dual-era + VAND no-path \u2192 alternate-builder before DONE; measure until DONE or an explicit stop reason \u2014 never treat UNMEASURED-only as success; dig-vs-live delta checklist when el/cyc moves vs prior SoT.",
       "category": "perf-analysis",
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
