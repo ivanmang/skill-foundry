@@ -159,5 +159,17 @@ class PrTokenWarningTest(unittest.TestCase):
                 os.environ["GITLAB_TOKEN"] = saved[1]
 
 
+class BuildMrBodyTest(unittest.TestCase):
+    def test_what_always_present(self):
+        self.assertEqual(promote.build_mr_body("did X"), "## What\ndid X")
+
+    def test_optional_sections(self):
+        body = promote.build_mr_body("did X", why="because Y", testing="ran Z", notes="- note")
+        self.assertIn("## What\ndid X", body)
+        self.assertIn("\n\n## Why\nbecause Y", body)
+        self.assertIn("\n\n## Testing\nran Z", body)
+        self.assertIn("\n\n## Notes\n- note", body)
+
+
 if __name__ == "__main__":
     unittest.main()

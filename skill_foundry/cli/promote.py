@@ -248,15 +248,28 @@ def mr_url(web: str, branch: str, base: str = "main") -> str:
     return f"{web}/merge_requests/new?source_branch={branch}&target_branch={base}"
 
 
-def _glab_create_mr(branch: str, base: str, title: str) -> str | None:
+def build_mr_body(what: str, why: str = "", testing: str = "", notes: str = "") -> str:
+    """Assemble the standard MR description: What / Why / Testing / Notes."""
+    parts = [("## What", what)]
+    if why:
+        parts.append(("## Why", why))
+    if testing:
+        parts.append(("## Testing", testing))
+    if notes:
+        parts.append(("## Notes", notes))
+    return "\n\n".join(f"{h}\n{b}" for h, b in parts).strip()
+
+
+def _glab_create_mr(branch: str, base: str, title: str, body: str = "") -> str | None:
     glab = shutil.which("glab")
     if not glab:
         return None
     try:
-        r = subprocess.run(
-            [glab, "mr", "create", "--source-branch", branch,
-             "--target-branch", base, "--title", title, "--yes"],
-            capture_output=True, text=True, timeout=60)
+        cmd = [glab, "mr", "create", "--source-branch", branch,
+               "--target-branch", base, "--title", title, "--yes"]
+        if body:
+            cmd += ["--description", body]
+        r = subprocess.run(cmd, capture_output=True, text=True, timeout=60)
         if r.returncode == 0:
             m = re.search(r"https?://\S*merge_requests/\d+", (r.stdout or "") + " " + (r.stderr or ""))
             return m.group(0) if m else None
@@ -265,7 +278,7 @@ def _glab_create_mr(branch: str, base: str, title: str) -> str | None:
     return None
 
 
-def _api_create_mr(web: str, branch: str, base: str, title: str) -> str | None:
+def _api_create_mr(web: str, branch: str, base: str, title: str, body: str = "") -> str | None:
     """Create a GitLab/GitCode MR via the REST API (human merges; no auto-merge)."""
     token = os.environ.get("GITCODE_TOKEN") or os.environ.get("GITLAB_TOKEN")
     if not token:
@@ -278,6 +291,7 @@ def _api_create_mr(web: str, branch: str, base: str, title: str) -> str | None:
         api = f"{u.scheme}://{u.netloc}/api/v4/projects/{proj}/merge_requests"
         payload = urllib.parse.urlencode({
             "source_branch": branch, "target_branch": base, "title": title,
+            "description": body,
         }).encode()
         req = urllib.request.Request(
             api, data=payload, method="POST",
@@ -289,58 +303,43 @@ def _api_create_mr(web: str, branch: str, base: str, title: str) -> str | None:
         return None
 
 
-def _gitcode_create_pr(owner: str, repo: str, head: str, base: str, title: str, token: str) -> str | None:
+def _gitcode_create_pr(owner: str, repo: str, head: str, base: str, title: str, token: str, body: str = "") -> str | None:
     """Create a gitcode pull request via the v5 API; return its html_url.
 
-    Prefers sending the token as an ``Authorization`` header so it never lands
-    in a URL (and thus in proxy/access logs); falls back to the legacy
-    ``access_token`` query param for servers that only accept that form.
+    gitcode v5 authenticates ONLY via the ``access_token`` query param
+    (Authorization headers return 401 — verified live). ``body`` becomes the
+    PR description.
     """
-    api = f"https://api.gitcode.com/api/v5/repos/{owner}/{repo}/pulls"
-    payload = json.dumps({"title": title, "head": head, "base": base}).encode()
-
-    def _post(url: str, headers: dict) -> str | None:
-        req = urllib.request.Request(url, data=payload, method="POST", headers=headers)
-        with urllib.request.urlopen(req, timeout=60) as resp:
-            data = json.loads(resp.read().decode())
-        return data.get("html_url") or data.get("web_url")
-
-    attempts = [
-        (api, {"Authorization": f"token {token}", "Content-Type": "application/json"}),
-        (api, {"Authorization": f"Bearer {token}", "Content-Type": "application/json"}),
-        (f"{api}?access_token={urllib.parse.quote(token)}", {"Content-Type": "application/json"}),
-    ]
-    for url, headers in attempts:
-        try:
-            out = _post(url, headers)
-            if out:
-                return out
-        except Exception:
-            continue
-    return None
+    api = (f"https://api.gitcode.com/api/v5/repos/{owner}/{repo}/pulls"
+           f"?access_token={urllib.parse.quote(token)}")
+    payload = json.dumps({"title": title, "head": head, "base": base, "body": body}).encode()
+    req = urllib.request.Request(api, data=payload, method="POST",
+                                 headers={"Content-Type": "application/json"})
+    with urllib.request.urlopen(req, timeout=60) as resp:
+        data = json.loads(resp.read().decode())
+    return data.get("html_url") or data.get("web_url")
 
 
-def create_mr(web: str, branch: str, base: str, title: str) -> tuple[str, bool]:
+def create_mr(web: str, branch: str, base: str, title: str, body: str = "") -> tuple[str, bool]:
     """Create an MR/PR on the platform. Returns (url, created).
 
-    gitcode (this repo's remote) uses its own v5 API; the standard GitLab API
-    and glab do not work against it. The token is sent as an Authorization
-    header first (falls back to the access_token query param if the host
-    rejects headers).
+    gitcode (this repo's remote) uses its own v5 API with ``access_token`` query
+    auth; the standard GitLab API and glab do not work against it. ``body`` (if
+    given) is the MR description.
     """
     token = os.environ.get("GITCODE_TOKEN") or os.environ.get("GITLAB_TOKEN")
     m = re.search(r"gitcode\.com/([^/]+)/([^/]+?)(?:\.git)?$", web or "")
     if m and token:
         try:
-            url = _gitcode_create_pr(m.group(1), m.group(2), branch, base, title, token)
+            url = _gitcode_create_pr(m.group(1), m.group(2), branch, base, title, token, body)
             if url:
                 return url, True
         except Exception:
             pass
-    url = _glab_create_mr(branch, base, title)
+    url = _glab_create_mr(branch, base, title, body)
     if url:
         return url, True
-    url = _api_create_mr(web, branch, base, title)
+    url = _api_create_mr(web, branch, base, title, body)
     if url:
         return url, True
     return mr_url(web, branch, base), False
@@ -454,6 +453,17 @@ def apply_all(root: Path, lp: Path, entries: list[dict], pending: list[dict],
         if push:
             title = (f"chore: promote learnings ({len(changed)} entries) — "
                      f"{_dt.datetime.now():%Y-%m-%d}")
+            body = build_mr_body(
+                what=f"Promote {len(changed)} learning(s) into the skills corpus "
+                     f"({', '.join(sorted({e['id'] for e in pending}))}).",
+                why="Corrections captured during triage flow into reusable skill "
+                    "knowledge; the mechanical gates and LLM judge already passed.",
+                testing="./harness selfcheck  (skill spec + reference integrity + "
+                        "index freshness + unit tests + demo smoke)",
+                notes="\n".join(
+                    f"- {e['id']} [{e.get('skill') or '?'}]: {e.get('correct') or e.get('action') or ''}"
+                    for e in pending),
+            )
             # Create the MR directly over the existing SSH transport using
             # GitLab push options — no token/glab needed. If the host rejects
             # them, fall back to a plain push + token/glab (or a manual URL).
@@ -474,7 +484,7 @@ def apply_all(root: Path, lp: Path, entries: list[dict], pending: list[dict],
                     pushed = subprocess.run(["git", "-C", str(root), "push", "-u", "origin", branch],
                                             capture_output=True, text=True)
                 if pushed.returncode == 0:
-                    url, created = create_mr(remote_web_url(root) or "", branch, "main", title)
+                    url, created = create_mr(remote_web_url(root) or "", branch, "main", title, body)
                     if created:
                         print(f"\n✓ Opened merge request (human merges):\n  {url}")
                     else:
