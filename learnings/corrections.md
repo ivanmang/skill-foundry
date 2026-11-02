@@ -19,3 +19,7 @@ what changed, and why.
 ## 2026-10-30 — skill-maintainer
 - Promoted: LRN-20261030-002
 - Action: Keep category in YAML frontmatter (hub discovery depends on it) and run harness skills --refresh after adding or changing skills.
+
+## 2026-10-30 — skill-maintainer
+- Promoted: LRN-20261030-003
+- Action: Auto-create the PR via the gitcode v5 API using GITCODE_TOKEN from env.sh (promote --pr); see references/mr-automation.md for the options

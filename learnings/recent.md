@@ -26,3 +26,13 @@ write entries; `skill_foundry/cli/promote.py` parses and promotes them.
 - action: Keep category in YAML frontmatter (hub discovery depends on it) and run harness skills --refresh after adding or changing skills.
 - status: promoted
 
+## LRN-20261030-003
+- id: LRN-20261030-003
+- category: correction
+- context: gitcode-mr-automation
+- skill: skill-maintainer
+- wrong: gitcode ignored GitLab push options and returned 404 on /api/v4, so promote --pr only pushed the branch and printed a manual PR URL
+- correct: gitcode is Gitee-style: POST api.gitcode.com/api/v5/repos/{owner}/{repo}/pulls?access_token=<token> with {title,head,base}
+- action: Auto-create the PR via the gitcode v5 API using GITCODE_TOKEN from env.sh (promote --pr); see references/mr-automation.md for the options
+- status: promoted
+
