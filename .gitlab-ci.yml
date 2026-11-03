@@ -1,6 +1,25 @@
-# gitcode (GitLab) CI — mirrors the local pre-push gate (.githooks/pre-push).
-# Blocks a merge when the skill corpus or the generated index is stale, or when
-# a cross-skill reference dangles or a unit test regresses.
+# gitcode (GitLab) CI — the merge gate for skill changes.
+#
+# Runs as a merge-request pipeline (the gate that fires "when you merge the
+# PR") and on pushes to main, mirroring the local pre-push gate
+# (.githooks/pre-push). Blocks the merge when:
+#   - the skill corpus or the generated index is stale
+#   - a cross-skill reference dangles
+#   - a skill is missing required metadata (category/origin/owner)
+#   - a unit test regresses
+#
+# To make this a *required* merge gate, enable branch protection on `main` and
+# require the `skill-gate` status check (repo → Settings → Repository →
+# Protected branches). This file only defines the pipeline; the "required
+# before merge" toggle is a repo setting, not a file.
+
+workflow:
+  rules:
+    # Merge-request pipeline: runs on every MR and gates the merge button.
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    # Also gate pushes to the default branch (post-merge sanity).
+    - if: $CI_COMMIT_BRANCH == "main"
+
 stages:
   - check
 
@@ -9,5 +28,5 @@ skill-gate:
   image: python:3.11-slim
   script:
     - python3 -m skill_foundry.lib.validate_skills --strict   # spec + reference integrity + repo metadata
-    - python3 -m skill_foundry.cli.skills --check       # catalog/index freshness
-    - python3 -m unittest discover -s tests             # unit tests
+    - python3 -m skill_foundry.cli.skills --check             # catalog/index freshness
+    - python3 -m unittest discover -s tests                   # unit tests
