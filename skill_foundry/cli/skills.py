@@ -22,6 +22,7 @@ import argparse
 import datetime as _dt
 import json
 import sys
+from collections import Counter
 
 from skill_foundry.paths import ROOT as HARNESS  # noqa: E402
 from skill_foundry.lib import validate_skills  # noqa: E402 — reuse its frontmatter parser
@@ -217,6 +218,93 @@ def mine() -> int:
     return 0
 
 
+def _page_skill_md(s: dict) -> None:
+    from skill_foundry.paths import ROOT
+
+    p = ROOT / s["path"] / "SKILL.md"
+    if not p.exists():
+        print("  (no SKILL.md)")
+        return
+    print("\n" + "─" * 76)
+    print(p.read_text(encoding="utf-8", errors="replace").rstrip())
+    print("─" * 76 + "\n")
+
+
+def _skill_detail(s: dict) -> bool:
+    """Show one skill's details + an action menu. Return False to quit the browser."""
+    from skill_foundry.lib import ui
+
+    print()
+    print(f"  {s['name']}  ·  {s.get('category') or '<none>'}")
+    meta = f"status: {s['status']}   origin: {s.get('origin') or '?'}   owner: {s.get('owner') or '?'}   maturity: {s.get('maturity') or 'ready'}"
+    print(f"  {meta}")
+    if s.get("entry"):
+        print("  ★ entry point")
+    print(f"  path: {s.get('path')}")
+    print()
+    print(f"  {s.get('description', '').strip()}")
+    print()
+
+    actions = [("📄 view SKILL.md", "view")]
+    if s["status"] == "published":
+        actions.append(("📦 install this skill", "install"))
+    else:
+        actions.append(("💾 propose promote (preview)", "propose"))
+    actions.extend([("⟋ back", "back"), ("❌ quit", "quit")])
+
+    while True:
+        act = ui.select_menu("Action (↑/↓ · Enter · q = back)", actions)
+        if act in (None, "back"):
+            return True
+        if act == "quit":
+            return False
+        if act == "view":
+            _page_skill_md(s)
+        elif act == "install":
+            from skill_foundry.lib import install_skills
+            install_skills.main(["--name", s["name"]])
+            print()
+        elif act == "propose":
+            from skill_foundry.cli import promote_skill
+            promote_skill.main([s["name"], "--propose"])
+            print()
+
+
+def _browse_interactive(skills: list[dict]) -> int:
+    """Arrow-key browser: ↑/↓ to pick a skill, Enter for details + actions."""
+    from skill_foundry.lib import ui
+
+    published = [s for s in skills if s["status"] == "published"]
+    drafts = [s for s in skills if s["status"] == "draft"]
+    order = published + drafts
+    if not order:
+        print("no skills to browse")
+        return 0
+
+    title = ui.c(
+        f"Browse skills ({len(published)} published · {len(drafts)} draft) — ↑/↓ select · Enter detail · q quit",
+        ui.BOLD,
+    )
+    while True:
+        labels = []
+        for s in order:
+            mark = "✓ " if s["status"] == "published" else "◷ draft "
+            cat = s.get("category") or "<none>"
+            owner = s.get("owner") or ""
+            labels.append(
+                (f"{mark}{s['name']:<28} {cat:<15} {_first_sentence(s['description'], 44)} · {owner}",
+                 s["name"])
+            )
+        name = ui.select_menu(title, labels)
+        if not name:
+            return 0
+        s = next((x for x in order if x["name"] == name), None)
+        if s is None:
+            continue
+        if not _skill_detail(s):
+            return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description="List/search skills, refresh catalog + index.")
     ap.add_argument("--search", default=None, help="Filter by name/description/category substring.")
@@ -283,15 +371,36 @@ def main(argv: list[str] | None = None) -> int:
     drafts = [s for s in skills if s["status"] == "draft"]
     filtered = bool(args.search or args.category or args.origin or args.owner
                     or args.maturity or args.entry)
+    if sys.stdin.isatty() and not args.json and not args.inbox and not filtered:
+        return _browse_interactive(skills)
     if not filtered and not args.inbox:
         entries = [s for s in published if s["entry"]]
         print(f"{len(published)} published · {len(drafts)} draft(s)")
-        print("\n  Entry points (start here):")
-        for s in entries:
-            print(f"    [✓] {s['name']:<24}{s['category']:<14}{_first_sentence(s['description'], 72)}")
-        others = len(published) - len(entries)
-        print(f"\n  …and {others} more skills — navigate with:")
-        print("    ./harness skills --search <q>   ·   --category <c>   ·   --entry   ·   --mine")
+        if entries:
+            print("\n  Entry points (start here):")
+            for s in entries:
+                owner = f"  [{s['owner']}]" if s.get("owner") else ""
+                print(f"    [✓] {s['name']:<28}{s['category']:<15}{_first_sentence(s['description'], 62)}{owner}")
+        by_cat = Counter(s["category"] or "<none>" for s in published)
+        print("\n  Skills by category:")
+        cats = sorted(by_cat.items(), key=lambda kv: (-kv[1], kv[0]))
+        colw = max((len(c) for c, _ in cats), default=0) + 1
+        row = []
+        for cat, n in cats:
+            row.append(f"{cat:<{colw}}({n})")
+            if len(row) == 3:
+                print("    " + "  ".join(row))
+                row = []
+        if row:
+            print("    " + "  ".join(row))
+        if drafts:
+            print("\n  Drafts (hub/inbox — pending promotion):")
+            for s in drafts:
+                print(f"    [◷] {s['name']:<28}{s['category'] or '<none>'}")
+                print(f"         → ./harness promote-skill {s['name']} --pr")
+        print("\n  Navigate:")
+        print("    ./harness skills --category <c>  ·  --search <q>  ·  --owner <o>  ·  --origin <o>")
+        print("    ./harness skills --entry         ·  --mine         ·  --inbox")
         return 0
 
     print(f"{len(published)} published · {len(drafts)} draft(s)")
@@ -299,7 +408,8 @@ def main(argv: list[str] | None = None) -> int:
         mark = "✓" if s["status"] == "published" else "◷"
         desc = _first_sentence(s["description"], 80)
         extra = " [entry]" if s["entry"] else ""
-        print(f"  [{mark}] {s['name']:<24}{s['category']:<14}{desc}{extra}")
+        owner = f"  [{s['owner']}]" if s.get("owner") else ""
+        print(f"  [{mark}] {s['name']:<24}{s['category']:<14}{desc}{extra}{owner}")
         if s["status"] == "draft":
             print(f"       draft → ./harness promote-skill {s['name']}")
     return 0
