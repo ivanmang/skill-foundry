@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import argparse
 import datetime as _dt
+import json
 import os
 import shutil
 import subprocess
@@ -39,6 +40,7 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--propose", action="store_true", help="Show what would be copied (no write).")
     ap.add_argument("--apply", action="store_true", help="Copy into .claude/skills/ and remove the draft.")
     ap.add_argument("--pr", action="store_true", help="--apply + commit + push + open an MR (human merges).")
+    ap.add_argument("--json", action="store_true", help="Emit machine-readable JSON.")
     args = ap.parse_args(argv)
 
     names = drafts()
@@ -67,11 +69,21 @@ def main(argv: list[str] | None = None) -> int:
         return 1
 
     if args.propose:
-        print(f"### promote {name} → .claude/skills/{name}")
-        for p in sorted(src.rglob("*")):
-            if p.is_file():
-                print(f"  + {p.relative_to(src)}")
-        print(f"  - {src.relative_to(HARNESS)} (draft removed)")
+        files = [str(p.relative_to(src)) for p in sorted(src.rglob("*")) if p.is_file()]
+        sm = src / "SKILL.md"
+        body = sm.read_text(encoding="utf-8") if sm.exists() else ""
+        if args.json:
+            print(json.dumps({"status": "proposed", "name": name,
+                              "dest": str(dst.relative_to(HARNESS)),
+                              "files": files, "removes_draft": True,
+                              "skill_md": body}))
+        else:
+            print(f"### promote {name} → .claude/skills/{name}")
+            for f in files:
+                print(f"  + {f}")
+            print(f"  - {src.relative_to(HARNESS)} (draft removed)")
+            if sm.exists():
+                print(f"\n--- SKILL.md ---\n{body}")
         return 0
 
     if not (args.apply or args.pr):
@@ -92,19 +104,30 @@ def main(argv: list[str] | None = None) -> int:
     body = (src / "SKILL.md").read_text(encoding="utf-8", errors="replace")
     violations = list(dict.fromkeys(gates.check_skill_spec(src) + gates.check_secrets(body)))
     if violations:
-        print("✗ promotion blocked by gates (fix the violation):", file=sys.stderr)
-        gates.render(violations)
+        if args.json:
+            print(json.dumps({"status": "blocked", "name": name,
+                              "violations": gates.violations_json(violations)}))
+        else:
+            print("✗ promotion blocked by gates (fix the violation):", file=sys.stderr)
+            gates.render(violations)
         return 2
 
     # ── review (mandatory): builtin judge + optional LLM + interactive fallback ──
     if not reviewer.approve(f"# promote skill: {name}\n\n{body}", added_text=body):
-        print("✗ review did not APPROVE — nothing applied.")
+        if args.json:
+            print(json.dumps({"status": "rejected", "name": name,
+                              "reason": "review did not APPROVE"}))
+        else:
+            print("✗ review did not APPROVE — nothing applied.")
         return 0
 
     shutil.copytree(src, dst)
     shutil.rmtree(src)
-    print(f"✓ promoted {name} → {dst}")
+    if not args.json:
+        print(f"✓ promoted {name} → {dst}")
 
+    mr_url = None
+    branch = None
     if args.pr:
         branch = f"feat/skill-{name}-{_dt.datetime.now():%Y%m%d}"
         subprocess.run(["git", "-C", str(HARNESS), "add", "-A",
@@ -115,23 +138,33 @@ def main(argv: list[str] | None = None) -> int:
         subprocess.run(["git", "-C", str(HARNESS), "-c", "user.name=skill-foundry",
                         "-c", "user.email=harness@example.com",
                         "commit", "-m", f"feat: promote skill {name}"], check=True)
-        print(f"Committed on branch '{branch}'.")
+        if not args.json:
+            print(f"Committed on branch '{branch}'.")
         pushed = subprocess.run(["git", "-C", str(HARNESS), "push", "-u", "origin", branch])
         if pushed.returncode == 0:
             web = PR.remote_web_url(HARNESS)
             if web:
                 url, created = PR.create_mr(web, branch, "main", f"feat: promote skill {name}")
-                print(f"\n{'✓ Opened merge request (human merges)' if created else 'Pushed branch. Open the MR'}:\n  {url}")
+                mr_url = url
+                if not args.json:
+                    print(f"\n{'✓ Opened merge request (human merges)' if created else 'Pushed branch. Open the MR'}:\n  {url}")
                 try:
                     _browser.open_browser(url)
                 except Exception:
                     pass
         else:
-            print(f"\nPush failed (exit {pushed.returncode}) — push manually: git -C {HARNESS} push -u origin {branch}",
-                  file=sys.stderr)
-    else:
+            if not args.json:
+                print(f"\nPush failed (exit {pushed.returncode}) — push manually: git -C {HARNESS} push -u origin {branch}",
+                      file=sys.stderr)
+    elif not args.json:
         print("  (--apply: copied locally, not committed. Use --pr to commit + open the MR.)")
 
+    if args.json:
+        result = {"status": "promoted", "name": name, "dest": str(dst.relative_to(HARNESS))}
+        if args.pr:
+            result["branch"] = branch
+            result["mr_url"] = mr_url
+        print(json.dumps(result))
     return 0
 
 

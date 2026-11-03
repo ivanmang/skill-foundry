@@ -67,7 +67,8 @@ cd skill-foundry
 
 # the product — the skill-ops loop (all ./harness does):
 ./harness skills                                   # what skills exist?
-./harness capture-skill code-review                # draft a new skill
+./harness capture-skill code-review                # draft a new skill (then add category/origin/owner)
+./harness promote-skill code-review --pr           # publish the draft (see docs/CREATING_SKILLS.md)
 ./harness teach "symptom -> correct -> action"     # log a correction
 ./harness promote --pr                             # publish learnings (open an MR; human merges)
 

@@ -5,8 +5,49 @@ It assumes you've cloned the repo and know the two loops at a high level. If
 not, read [USER_JOURNEY.md](USER_JOURNEY.md) first.
 
 **The one-sentence version:** every new skill goes
-**capture → propose → validate → `--pr` → refresh → selfcheck**, and the only
+**author → propose → gate → `--pr` → refresh → selfcheck**, and the only
 write to the shared corpus is a human-merged MR.
+
+---
+
+## Fast path — let your agent write it (recommended)
+
+Most users never type a `SKILL.md` by hand: they describe the skill in plain
+language, and their LLM agent authors it, fills the frontmatter, runs the
+checks, and opens the MR. It's the same pipeline — the only difference is who
+drafts the file. Your job reduces to **reviewing the diff and merging**.
+
+```text
+You (plain language to your agent):
+  "Create a skill opt-verify: it runs a reference on the golden cases, diffs the
+   kernel output against it, and fails on any mismatch > 1e-6. Tell me the exact
+   command and where results are written."
+
+Agent (deterministic steps, then you verify):
+  1. ./harness skills --search verify              # dedupe — extend, don't fork
+  2. write hub/inbox/opt-verify/SKILL.md            # full file, ALL frontmatter fields
+      (name = folder · description = what+when · category · origin · owner · maturity)
+  3. ./harness promote-skill --propose opt-verify   # optional: preview the copy
+  4. ./harness promote-skill --pr opt-verify        # gates + LLM judge + MR
+  5. ./harness skills --refresh && ./harness selfcheck
+
+You:
+  - review the MR diff
+  - merge
+```
+
+The agent may skip `capture-skill` and author the file directly (it's just
+Markdown) — `promote-skill` picks up any draft from `hub/inbox/`. That's cleaner
+than the `capture-skill` path, which is for humans typing interactively and
+leaves the frontmatter minimal. Sections §2–§6 below are the *reference* these
+steps rest on — read them only when a draft needs correcting.
+
+**What "done" means for the agent** (all machine-checkable):
+- frontmatter complete — `name` matches the folder, `description` states what + when
+- `category` / `origin` / `owner` / `maturity` set
+- no dangling `skill:` refs · no secrets · no TODO/FIXME placeholders
+- `promote-skill` gates pass (spec + no-secrets + review)
+- after promotion: `validate_skills` clean + `selfcheck` green
 
 ---
 

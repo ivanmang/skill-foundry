@@ -408,8 +408,21 @@ def _open(url: str | None) -> None:
         pass
 
 
-def propose_all(root: Path, lp: Path, pending: list[dict]) -> int:
+def propose_all(root: Path, lp: Path, pending: list[dict], json_out: bool = False) -> int:
     plan, skipped = plan_entries(root, pending)
+    if json_out:
+        print(json.dumps({
+            "status": "proposed",
+            "changes": [
+                {"entries": [e["id"] for e in es], "target": str(t.relative_to(root)),
+                 "diff": "\n".join(difflib.unified_diff(
+                     old.splitlines(), new.splitlines(),
+                     fromfile=f"a/{t.relative_to(root)}", tofile=f"b/{t.relative_to(root)}", lineterm=""))}
+                for t, old, new, es in plan if new != old
+            ],
+            "skipped": [{"id": e["id"], "reason": "unmapped"} for e in skipped],
+        }))
+        return 0
     for e in skipped:
         print(f"SKIP {e['id']}: unmapped (skill={e.get('skill')!r})")
     for t, old, new, entries in plan:
@@ -426,12 +439,13 @@ def propose_all(root: Path, lp: Path, pending: list[dict]) -> int:
 
 
 def apply_all(root: Path, lp: Path, entries: list[dict], pending: list[dict],
-              branch: str | None, push: bool, review: bool = True) -> int:
+              branch: str | None, push: bool, review: bool = True, json_out: bool = False) -> int:
     # 1. build the plan — one element per target file; snippets accumulate in
     #    order so multiple entries sharing a target compose instead of clobbering.
     plan, skipped = plan_entries(root, pending)
     for e in skipped:
-        print(f"SKIP {e['id']}: unmapped")
+        if not json_out:
+            print(f"SKIP {e['id']}: unmapped")
 
     # 2. gates (add-only · secrets · size) — always enforced
     violations: list[str] = []
@@ -439,8 +453,11 @@ def apply_all(root: Path, lp: Path, entries: list[dict], pending: list[dict],
         violations += gates.gate(old, new)
     violations = list(dict.fromkeys(v for v in violations if v))
     if violations:
-        print("✗ promotion blocked by gates (fix the violation):", file=sys.stderr)
-        gates.render(violations)
+        if json_out:
+            print(json.dumps({"status": "blocked", "violations": gates.violations_json(violations)}))
+        else:
+            print("✗ promotion blocked by gates (fix the violation):", file=sys.stderr)
+            gates.render(violations)
         return 2
 
     # 3. review (mandatory: builtin judge + optional LLM + interactive fallback)
@@ -455,10 +472,16 @@ def apply_all(root: Path, lp: Path, entries: list[dict], pending: list[dict],
                 )))
                 old_texts.append(old)
         if not diffs:
-            print("nothing to review — no pending changes.")
+            if json_out:
+                print(json.dumps({"status": "noop", "reason": "no pending changes"}))
+            else:
+                print("nothing to review — no pending changes.")
             return 0
         if not reviewer.approve("\n\n".join(diffs), target_content="\n\n".join(old_texts)):
-            print("✗ review did not APPROVE — nothing applied.")
+            if json_out:
+                print(json.dumps({"status": "rejected", "reason": "review did not APPROVE"}))
+            else:
+                print("✗ review did not APPROVE — nothing applied.")
             return 0
 
     # 4. write
@@ -468,7 +491,8 @@ def apply_all(root: Path, lp: Path, entries: list[dict], pending: list[dict],
             t.parent.mkdir(parents=True, exist_ok=True)
             t.write_text(new, encoding="utf-8")
             changed.append(t)
-            print(f"APPLIED {', '.join(e['id'] for e in entries_for_target)} → {t.relative_to(root)}")
+            if not json_out:
+                print(f"APPLIED {', '.join(e['id'] for e in entries_for_target)} → {t.relative_to(root)}")
         for e in entries_for_target:
             e["status"] = "promoted"
             _promote_log_lines(root, e)
@@ -479,6 +503,7 @@ def apply_all(root: Path, lp: Path, entries: list[dict], pending: list[dict],
     add_paths = [str(t.relative_to(root)) for t in changed]
     add_paths += [str(lp.relative_to(root)), "learnings/promoted.md", "learnings/corrections.md"]
 
+    mr_url_out: str | None = None
     if branch:
         subprocess.run(["git", "-C", str(root), "-c", "user.name=skill-foundry",
                         "-c", "user.email=harness@example.com", "checkout", "-b", branch], check=True)
@@ -486,7 +511,8 @@ def apply_all(root: Path, lp: Path, entries: list[dict], pending: list[dict],
         subprocess.run(["git", "-C", str(root), "-c", "user.name=skill-foundry",
                         "-c", "user.email=harness@example.com", "commit",
                         "-m", f"chore: promote learnings ({len(changed)} entries)"], check=True)
-        print(f"Committed on branch '{branch}' ({len(changed)} file(s) changed).")
+        if not json_out:
+            print(f"Committed on branch '{branch}' ({len(changed)} file(s) changed).")
         if push:
             title = (f"chore: promote learnings ({len(changed)} entries) — "
                      f"{_dt.datetime.now():%Y-%m-%d}")
@@ -535,7 +561,9 @@ def apply_all(root: Path, lp: Path, entries: list[dict], pending: list[dict],
                                     capture_output=True, text=True)
             mr_url = _mr_url_from_push(pushed.stdout, pushed.stderr) if pushed.returncode == 0 else None
             if mr_url:
-                print(f"\n✓ Created merge request:\n  {mr_url}")
+                mr_url_out = mr_url
+                if not json_out:
+                    print(f"\n✓ Created merge request:\n  {mr_url}")
                 _open(mr_url)
             else:
                 # The remote didn't create an MR (push options unsupported or
@@ -546,18 +574,30 @@ def apply_all(root: Path, lp: Path, entries: list[dict], pending: list[dict],
                                             capture_output=True, text=True)
                 if pushed.returncode == 0:
                     url, created = create_mr(remote_web_url(root) or "", branch, "main", title, body)
-                    if created:
-                        print(f"\n✓ Opened merge request (human merges):\n  {url}")
-                    else:
-                        print(f"\nPushed branch '{branch}'. Create the merge request manually "
-                              f"(set GITCODE_TOKEN or install glab to auto-open):\n  {url}")
+                    mr_url_out = url
+                    if not json_out:
+                        if created:
+                            print(f"\n✓ Opened merge request (human merges):\n  {url}")
+                        else:
+                            print(f"\nPushed branch '{branch}'. Create the merge request manually "
+                                  f"(set GITCODE_TOKEN or install glab to auto-open):\n  {url}")
                     _open(url)
                 else:
-                    print(f"\nPush failed (exit {pushed.returncode}) — push manually:"
-                          f"\n  git -C {root} push -u origin {branch}", file=sys.stderr)
+                    if not json_out:
+                        print(f"\nPush failed (exit {pushed.returncode}) — push manually:"
+                              f"\n  git -C {root} push -u origin {branch}", file=sys.stderr)
 
     promoted_count = sum(len(es) for _, _, _, es in plan)
-    print(f"\nPromoted {promoted_count} of {len(pending)} pending entries.")
+    if json_out:
+        print(json.dumps({
+            "status": "applied",
+            "promoted": promoted_count,
+            "total": len(pending),
+            "files": [str(t.relative_to(root)) for t, old, new, _es in plan if new != old],
+            "mr_url": mr_url_out,
+        }))
+    else:
+        print(f"\nPromoted {promoted_count} of {len(pending)} pending entries.")
     return 0
 
 
@@ -569,6 +609,7 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--apply", action="store_true", help="Apply edits locally and mark entries promoted.")
     ap.add_argument("--branch", default=None, help="With --apply: create + commit on this branch.")
     ap.add_argument("--pr", action="store_true", help="With --apply: push the branch and open an MR (human merges).")
+    ap.add_argument("--json", action="store_true", help="Emit machine-readable JSON.")
     args = ap.parse_args(argv)
 
     if args.pr:
@@ -588,13 +629,19 @@ def main(argv: list[str] | None = None) -> int:
     root = Path(args.root).resolve()
     lp = Path(args.learnings).resolve() if args.learnings else root / "learnings" / "recent.md"
     if not lp.exists():
-        print(f"No learnings file at {lp}")
+        if args.json:
+            print(json.dumps({"status": "noop", "reason": "no learnings file"}))
+        else:
+            print(f"No learnings file at {lp}")
         return 0
 
     entries = parse_entries(lp.read_text(encoding="utf-8"))
     pending = [e for e in entries if e.get("status") == "pending"]
     if not pending:
-        print("No pending entries to promote.")
+        if args.json:
+            print(json.dumps({"status": "noop", "reason": "no pending entries"}))
+        else:
+            print("No pending entries to promote.")
         return 0
 
     active, skipped = dedupe_pending(pending, root)
@@ -602,14 +649,18 @@ def main(argv: list[str] | None = None) -> int:
         if e.get("id") in skipped:
             e["status"] = "rejected"
     for eid, reason in skipped.items():
-        print(f"SKIP {eid}: {reason}")
+        if not args.json:
+            print(f"SKIP {eid}: {reason}")
     if not active:
-        print("No new pending entries to promote (all duplicates / already present).")
+        if args.json:
+            print(json.dumps({"status": "noop", "reason": "no new pending entries (duplicates/present)"}))
+        else:
+            print("No new pending entries to promote (all duplicates / already present).")
         return 0
 
     if args.apply:
-        return apply_all(root, lp, entries, active, args.branch, args.pr)
-    return propose_all(root, lp, active)
+        return apply_all(root, lp, entries, active, args.branch, args.pr, json_out=args.json)
+    return propose_all(root, lp, active, json_out=args.json)
 
 
 if __name__ == "__main__":
