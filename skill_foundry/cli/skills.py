@@ -103,6 +103,8 @@ def _build_index(skills: list[dict]) -> str:
         "> Regenerate with `./harness skills --refresh`. To route a task: pick the "
         "entry point that matches the request, then follow its stages.",
         "",
+        "> **Adding a skill?** See [CREATING_SKILLS.md](CREATING_SKILLS.md).",
+        "",
         "## Entry points (start here)",
         "",
     ]
@@ -225,6 +227,8 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--scope", choices=["core", "all"], default=None,
                     help="Preset for --install/--uninstall ('core' = origin: native).")
     ap.add_argument("--entry", action="store_true", help="Entry points only.")
+    ap.add_argument("--name", action="append", default=None,
+                    help="Only this skill, by folder name (repeatable; --install/--uninstall only).")
     ap.add_argument("--inbox", action="store_true", help="Show drafts only.")
     ap.add_argument("--refresh", action="store_true", help="Rewrite hub/catalog.json + docs/SKILLS_INDEX.md.")
     ap.add_argument("--check", action="store_true", help="Fail if catalog/index are stale (no writes).")
@@ -252,6 +256,9 @@ def main(argv: list[str] | None = None) -> int:
             argv += ["--category", args.category]
         if args.entry:
             argv += ["--entry"]
+        if args.name:
+            for _name in args.name:
+                argv += ["--name", _name]
         return install_skills.main(argv)
 
     if args.mine:
