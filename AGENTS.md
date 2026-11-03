@@ -87,7 +87,8 @@ python3 -m skill_foundry.lib.cann          # CANN/arch detection
 ## tilelangGym target (SoftLib/ST)
 
 - Skills: `tilelanggym-st-explore`, `tilelanggym-softlib-simt`, `tilelanggym-st-report`,
-  `tilelanggym-semantics-gate`, `tilelanggym-vmi-gmap`.
+  `tilelanggym-semantics-gate`, `tilelanggym-vmi-gmap`, `tilelanggym-block-scale`,
+  `tilelanggym-column-scale`.
 - **USE (gate):** set `TILELANGGYM_PACK` to a closed pack (fixture under
   `demo/fixtures/tilelanggym-pack-ok` for smoke), then
   `python3 -m skill_foundry.workflow.run --target tilelangGym --suite sv567-1xg-clean`

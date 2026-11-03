@@ -42,6 +42,10 @@ owner: skill-foundry
 **Forbidden early DONE:** freeze t676-class LDS/membar/misched only; crown G64/128 on
 wc-multi alone while dual_drain untried.
 
+## Other scales
+
+This skill is the per-group Case-3 ladder. One scale for the whole tile, then `x / scale`, is `skill:tilelanggym-block-scale`. One scale per column, then `x * (1 / scale[col])`, is `skill:tilelanggym-column-scale`. Those two formulas are different programs. Stay on this ladder when the user wrote a per-group reduce.
+
 ## PRC
 
 | Claim | PRC-id |
