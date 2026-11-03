@@ -91,3 +91,4 @@ Full table: `references/env.md`.
 - NPU-sim `-v` auto-derives the simulator soc; do not pass an extra soc flag.
 - Comm async tests need CANN 9.0+ — keep them gated (M3).
 - Lint pins: clang-format v18.1.8, `~/.local/bin/ruff` v0.14.14.
+- A6 ST testcases are separate copies under `tests/npu/a6/src/st/testcase/<name>/` (not arch-guarded a5 reuse); register them in `ALL_TESTCASES`, use per-test `aclInit`/`aclrtSetDevice`/…/`aclrtResetDevice`/`aclFinalize`, and `tests/common/test_common.h`.
