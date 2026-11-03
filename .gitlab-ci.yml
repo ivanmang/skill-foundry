@@ -8,6 +8,6 @@ skill-gate:
   stage: check
   image: python:3.11-slim
   script:
-    - python3 -m skill_foundry.lib.validate_skills      # spec + reference integrity
+    - python3 -m skill_foundry.lib.validate_skills --strict   # spec + reference integrity + repo metadata
     - python3 -m skill_foundry.cli.skills --check       # catalog/index freshness
     - python3 -m unittest discover -s tests             # unit tests
