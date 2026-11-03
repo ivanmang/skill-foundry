@@ -48,6 +48,7 @@ perf-review-knowledge/
 | PRC-SCH-001 | Compiler asm memory clobber vs HW SMEM_BAR | SoftLib SIMT（SV1 fence1 · Case-3 dual_drain G32）vs SIMD VMI VL-res；命名陷阱 SoftLib “membar” tag | [sch/PRC-SCH-001](sch/PRC-SCH-001-asm-memory-clobber-vs-smem-bar.md) | ready |
 | PRC-SCH-002 | Scale：VDIV／paint／VMUL vs SoftLib FDIV_I+FMUL | SV8/SB8 Case-3 G32 · era=case3-quant-bcast · KEEP-X · SoftLib dual_drain vs SIMD VL-res | [sch/PRC-SCH-002](sch/PRC-SCH-002-scale-path-vdiv-vs-fdiv.md) | ready |
 | PRC-SCH-003 | Case-3 pack-UB／keeplive_vbrc vs VSEL range-paint | SV8/SB8 Case-3 G32 · era=case3-quant-bcast · SIMD VMI pack_ub / keeplive_vbrc vs VL-res VSEL paint; VL×gold-G candidates (t591u) | [sch/PRC-SCH-003](sch/PRC-SCH-003-case3-pack-ub-vs-vsel-paint.md) | ready |
+| PRC-SCH-005 | load-ahead (load-4, load-2) versus dual-drain | SIMT Case-3 G32 · era=case3-quant-bcast · float32 · axis=1xG · 64×64, 64×128, 128×128 | [sch/PRC-SCH-005](sch/PRC-SCH-005-groups-ahead-load4.md) | ready |
 
 ### IPC——running-IPC / PR9 overlay
 
@@ -62,4 +63,4 @@ perf-review-knowledge/
 | PRC-MEM-001 | KEEP-X / VL-resident vs UB 再載 X | SV8/SB8 Case-3 G32 SoftLib dual_drain + SIMD VL-res；对比 G16 size-1 UB-reload | [mem/PRC-MEM-001](mem/PRC-MEM-001-keep-x-vl-resident.md) | ready |
 | PRC-MEM-002 | HW SMEM_BAR：G16 size-1 scratch vs G32 无 bar | SV8/SB8 Case-3 · G16 size-1 SIMD scratch vs G32 SoftLib/VL-res；S_sync | [mem/PRC-MEM-002](mem/PRC-MEM-002-smem-bar-g16-vs-g32.md) | ready |
 
-统计：6 条（ready 6 / draft 0）。
+统计：7 条（ready 7 / draft 0）。
