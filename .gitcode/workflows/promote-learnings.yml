@@ -14,7 +14,7 @@ on:
 jobs:
   JOB_promote:
     name: Promote learnings
-    runs-on: [self-hosted]   # e.g. [self-hosted, arch=x64, spec=small]
+    runs-on: [ ubuntu-latest, x64, small ]   # AtomGit cloud runner (2C/8G/50G)
     steps:
       - name: Checkout
         identifier: process_checkout
