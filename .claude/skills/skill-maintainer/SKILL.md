@@ -67,10 +67,21 @@ The same loop as one command each (gates + LLM judge are built in):
 
 ```bash
 ./harness teach "wrong -> correct -> action"   # capture (wizard / shorthand / --edit)
+./harness learn "wrong -> correct -> action"   # capture + promote (--pr opens the MR)
+./harness capture-session [--session X.jsonl]   # draft learnings from a pi session transcript
 ./harness promote --propose                    # diff, no write
 ./harness promote --apply                      # write locally (no commit)
 ./harness promote --pr                         # branch + push + auto-open an MR (human merges)
 python3 -m skill_foundry.lib.session_digest --run reports/<id>/run.json --apply   # draft from a run
+```
+
+`learn` and `capture-session` both need an LLM judge (`SKILL_REVIEWER`, or
+`SKILL_CAPTURER` for capture-session). In this environment the available CLI is
+`pi -p` (reads stdin, prints once):
+
+```bash
+export SKILL_REVIEWER="pi -p --no-tools --no-extensions --no-skills --no-context-files --no-mcp --thinking off \
+  \"Strict skill reviewer. Read the diff on stdin and reply exactly one word: APPROVE, HOLD, or REJECT.\""
 ```
 
 Publishing is strict: review is mandatory, the gates cannot be bypassed, and the
