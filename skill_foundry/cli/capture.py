@@ -10,6 +10,7 @@ Usage:
 from __future__ import annotations
 
 import argparse
+import json
 import os
 import re
 import subprocess
@@ -93,21 +94,26 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--description", default=None, help="Description (what + when to use).")
     ap.add_argument("--body", default=None, help="Instructions body (Markdown); skips the editor.")
     ap.add_argument("--dry-run", action="store_true", help="Print the SKILL.md without writing.")
+    ap.add_argument("--json", action="store_true", help="Emit machine-readable JSON.")
     args = ap.parse_args(argv)
+
+    def fail(msg: str, code: int = 2) -> int:
+        if args.json:
+            print(json.dumps({"status": "error", "error": msg}))
+        else:
+            print(f"error: {msg}", file=sys.stderr)
+        return code
 
     name = args.name or prompt("Skill name (lowercase-hyphen)")
     err = valid_name(name)
     if err:
-        print(f"error: {err}", file=sys.stderr)
-        return 2
+        return fail(err)
 
     description = args.description or prompt("Description (what it does + when to use)")
     if not description.strip():
-        print("error: description is required", file=sys.stderr)
-        return 2
+        return fail("description is required")
     if len(description) > 1024:
-        print(f"error: description exceeds 1024 chars ({len(description)})", file=sys.stderr)
-        return 2
+        return fail(f"description exceeds 1024 chars ({len(description)})")
 
     if args.body is not None:
         body = args.body
@@ -120,14 +126,28 @@ def main(argv: list[str] | None = None) -> int:
     text = render_skill(name, description.strip(), body)
 
     if args.dry_run:
-        print(text)
+        if args.json:
+            print(json.dumps({"status": "dry-run", "name": name, "skill_md": text}))
+        else:
+            print(text)
         return 0
 
     dest = INBOX / name
     dest.mkdir(parents=True, exist_ok=True)
     (dest / "SKILL.md").write_text(text, encoding="utf-8")
-    print(f"✓ captured draft → {dest / 'SKILL.md'}")
-    print(f"  next: ./harness promote-skill {name} --pr   (review the diff, then a human merges)")
+    if args.json:
+        print(json.dumps({
+            "status": "captured",
+            "name": name,
+            "path": str((dest / "SKILL.md").relative_to(HARNESS)),
+            "next": f"promote-skill {name} --pr",
+            "hint": "add category/origin/owner/maturity to the frontmatter before promoting",
+        }))
+    else:
+        print(f"✓ captured draft → {dest / 'SKILL.md'}")
+        print(f"  ⚠ add the discovery frontmatter before promoting — category, origin, owner (and maturity)")
+        print(f"    (the promote gate requires them; capture writes only name/description/license)")
+        print(f"  next: ./harness promote-skill {name} --pr   (review the diff, then a human merges)")
     return 0
 
 

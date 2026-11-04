@@ -24,15 +24,20 @@ for the full roles & interaction model.
    - review flags a gap (missing check, wrong threshold, un-triaged failure)
    - an external tool / command behaves unexpectedly
    Reply with the `LRN-…` id you logged.
-   For a **brand-new skill** (not a lesson about an existing one), draft it with
-   `./harness capture-skill <name>`, then promote it.
+   For a **brand-new skill** (not a lesson about an existing one), author
+   `hub/inbox/<name>/SKILL.md` directly with the **full** frontmatter —
+   `name`, `description`, `category`, `origin`, `owner`, `maturity` are all
+   required to pass the promote gate — then `./harness promote-skill <name> --pr`.
+   (`./harness capture-skill <name>` is the interactive alternative; it emits a
+   minimal frontmatter, so add the discovery fields yourself.)
 4. **Promote captured lessons** with `./harness promote --pr` (learnings) or
    `./harness promote-skill <name> --pr` (new skills). Publication is **strict
-   and controlled**: the mechanical gates (add-only · no-secrets · size · spec)
-   always run, then an LLM judge (`SKILL_REVIEWER`) must APPROVE before anything
-   is written — in a non-interactive session you need `SKILL_REVIEWER` set, or it
-   fails closed. Review cannot be skipped and the gates cannot be bypassed. The
-   only publish path is `--pr`, which opens an MR a human merges; **never
+   and controlled**: the gates always run — learnings: add-only · no-secrets ·
+   size; new skills: spec (incl. `category`/`origin`/`owner`) · no-secrets —
+   then an LLM judge (`SKILL_REVIEWER`) must APPROVE before anything is written —
+   in a non-interactive session you need `SKILL_REVIEWER` set, or it fails
+   closed. Review cannot be skipped and the gates cannot be bypassed. The only
+   publish path is `--pr`, which opens an MR a human merges; **never
    self-merge**.
 5. **Never remove or change an existing check** — the harness only adds.
 

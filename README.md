@@ -11,11 +11,13 @@ The first bundled workflow is **regression** (`run → report → review` on the
 
 - [Vision](docs/VISION.md) — the product framing
 - [Architecture](docs/ARCHITECTURE.md) — user / agent / harness / MCP roles & interaction
+- [Creating Skills](docs/CREATING_SKILLS.md) — guide for adding a new skill
 - [AGENTS.md](AGENTS.md) — the agent-facing contract
 
 > **New here?** Start with the [Handbook](docs/HANDBOOK.md) (canonical
-> reference) or the [User Journey](docs/USER_JOURNEY.md). One entry point for
-> everything: `./harness help`.
+> reference) or the [User Journey](docs/USER_JOURNEY.md); to add a skill, see
+> [Creating Skills](docs/CREATING_SKILLS.md). One entry point for everything:
+> `./harness help`.
 
 ---
 
@@ -65,7 +67,8 @@ cd skill-foundry
 
 # the product — the skill-ops loop (all ./harness does):
 ./harness skills                                   # what skills exist?
-./harness capture-skill code-review                # draft a new skill
+./harness capture-skill code-review                # draft a new skill (then add category/origin/owner)
+./harness promote-skill code-review --pr           # publish the draft (see docs/CREATING_SKILLS.md)
 ./harness teach "symptom -> correct -> action"     # log a correction
 ./harness promote --pr                             # publish learnings (open an MR; human merges)
 

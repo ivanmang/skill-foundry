@@ -45,6 +45,13 @@ SIMDSL_RE = re.compile(
     r"(?:compile=(\d+(?:\.\d+)?)\S*\s+launch=(\d+(?:\.\d+)?)\S*)?$"
 )
 
+# run_st.py / run_cpu.py hard-crash line: the test BINARY aborted before gtest
+# printed its own summary (SIGABRT/SIGSEGV etc.), so no `[ FAILED ] N tests`
+# line exists — record the crashed binary as one failure. Only match the
+# "died with <Signals...>" crash form; a "returned non-zero exit status" line
+# means gtest already reported `[ FAILED ] N tests`, which is counted above.
+BINARY_CRASH_RE = re.compile(r"run binary failed:.*?\./([A-Za-z0-9_]+).*died with")
+
 
 def parse_text(text: str, suite: str = "") -> dict:
     cases: dict[str, dict] = {}  # name -> {status, duration_s}
@@ -71,14 +78,14 @@ def parse_text(text: str, suite: str = "") -> dict:
 
         m = GTEST_FAILED_RE.match(line)
         if m:
-            summary["failed"] = int(m.group(1))
+            summary["failed"] += int(m.group(1))
             evidence.append(line)
             have_counts = True
             continue
 
         m = GTEST_PASSED_RE.match(line)
         if m:
-            summary["passed"] = int(m.group(1))
+            summary["passed"] += int(m.group(1))
             evidence.append(line)
             have_counts = True
             continue
@@ -117,6 +124,15 @@ def parse_text(text: str, suite: str = "") -> dict:
             name = m.group(2)
             dur = float(m.group(4)) if m.group(4) else None
             add_case(name, status, dur)
+            evidence.append(line)
+            continue
+
+        # run_st.py / run_cpu.py binary crash (SIGABRT/SIGSEGV) — no gtest
+        # summary is emitted, so count the crashed binary as a FAIL case.
+        m = BINARY_CRASH_RE.search(line)
+        if m:
+            add_case(m.group(1), "FAIL")
+            summary["failed"] += 1
             evidence.append(line)
             continue
 

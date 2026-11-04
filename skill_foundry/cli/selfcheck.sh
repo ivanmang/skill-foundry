@@ -14,8 +14,8 @@ echo "== bash syntax =="
 bash -n harness skill_foundry/workflow/baseline.sh skill_foundry/cli/selfcheck.sh \
   demo/run_demo.sh completions/harness.bash mcp/*.sh
 
-echo "== skill spec conformance =="
-python3 -m skill_foundry.lib.validate_skills
+echo "== skill spec conformance (strict: repo metadata required) =="
+python3 -m skill_foundry.lib.validate_skills --strict
 
 echo "== catalog + skills index fresh =="
 ./harness skills --check

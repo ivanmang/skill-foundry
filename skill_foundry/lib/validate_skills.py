@@ -126,6 +126,35 @@ def validate_skill(folder: Path) -> list[str]:
     return errors
 
 
+# Repo-publishing requirements, stricter than the open Agent Skills spec:
+# category / origin / owner are optional per the spec but required for hub
+# discovery (catalog, index, and --category/--origin/--owner filters), so the
+# promotion gate and `--strict` hard-fail without them.
+REQUIRED_METADATA = ("category", "origin", "owner")
+KNOWN_ORIGINS = {"native", "cannbot", "local"}
+KNOWN_MATURITY = {"ready", "draft", "deprecated"}
+
+
+def check_skill_metadata(folder: Path) -> list[str]:
+    sm = folder / "SKILL.md"
+    if not sm.exists():
+        return []  # validate_skill already reports the missing file
+    fm, err = parse_frontmatter(sm.read_text(encoding="utf-8", errors="replace"))
+    if err:
+        return []  # validate_skill already reports the frontmatter error
+    errors = []
+    for field in REQUIRED_METADATA:
+        if not (fm.get(field) or "").strip():
+            errors.append(f"{folder.name}: frontmatter '{field}' is required")
+    origin = (fm.get("origin") or "").strip()
+    if origin and origin not in KNOWN_ORIGINS:
+        errors.append(f"{folder.name}: origin '{origin}' invalid — one of {sorted(KNOWN_ORIGINS)}")
+    maturity = (fm.get("maturity") or "").strip()
+    if maturity and maturity not in KNOWN_MATURITY:
+        errors.append(f"{folder.name}: maturity '{maturity}' invalid — one of {sorted(KNOWN_MATURITY)}")
+    return errors
+
+
 def load_external_names(path: Path = EXTERNALS_FILE) -> set[str]:
     """Return the declared external skill names (empty when no manifest)."""
     try:
@@ -168,6 +197,8 @@ def check_references(root: Path, externals: set[str] | None = None) -> list[str]
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description="Validate SKILL.md files against the Agent Skills spec.")
     ap.add_argument("--root", default=str(DEFAULT_ROOT), help="Path to the skills dir (default .claude/skills).")
+    ap.add_argument("--strict", action="store_true",
+                    help="Also require repo metadata (category/origin/owner) as errors, not warnings.")
     ap.add_argument("--quiet", action="store_true", help="Only print errors.")
     args = ap.parse_args(argv)
 
@@ -185,15 +216,18 @@ def main(argv: list[str] | None = None) -> int:
     all_warnings: list[str] = []
     for d in skill_dirs:
         errs = validate_skill(d)
+        if args.strict:
+            errs += check_skill_metadata(d)
         if errs:
             all_errors.extend(errs)
-        sm = d / "SKILL.md"
-        if sm.exists():
-            fm, _err = parse_frontmatter(sm.read_text(encoding="utf-8", errors="replace"))
-            if not (fm.get("category") or "").strip():
-                all_warnings.append(
-                    f"{d.name}: frontmatter 'category' is missing "
-                    "(optional per spec, but required by hub discovery)")
+        if not args.strict:
+            sm = d / "SKILL.md"
+            if sm.exists():
+                fm, _err = parse_frontmatter(sm.read_text(encoding="utf-8", errors="replace"))
+                if not (fm.get("category") or "").strip():
+                    all_warnings.append(
+                        f"{d.name}: frontmatter 'category' is missing "
+                        "(optional per spec, but required by hub discovery)")
 
     ref_errors = check_references(root)
 

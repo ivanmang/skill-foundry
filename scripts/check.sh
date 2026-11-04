@@ -8,7 +8,7 @@ HARNESS="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$HARNESS"
 
 echo "== skill spec + reference integrity =="
-python3 -m skill_foundry.lib.validate_skills
+python3 -m skill_foundry.lib.validate_skills --strict
 
 echo "== catalog + skills index fresh =="
 ./harness skills --check

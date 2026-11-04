@@ -137,6 +137,7 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--file", default=str(log_correction.DEFAULT_FILE))
     ap.add_argument("--id", default=None)
     ap.add_argument("--dry-run", action="store_true")
+    ap.add_argument("--json", action="store_true", help="Emit machine-readable JSON.")
     args = ap.parse_args(argv)
 
     run_id, target = latest_run()
@@ -172,17 +173,27 @@ def main(argv: list[str] | None = None) -> int:
         entry["id"] = args.id
 
     if not any(entry.get(k) for k in ("wrong", "correct", "action")):
-        print("Nothing to log (wrong/correct/action are all empty).", file=sys.stderr)
+        if args.json:
+            print(json.dumps({"status": "error", "error": "Nothing to log (wrong/correct/action are all empty)."}))
+        else:
+            print("Nothing to log (wrong/correct/action are all empty).", file=sys.stderr)
         return 1
 
     entry.setdefault("category", "correction")
     if args.dry_run:
         entry.setdefault("id", f"LRN-{_dt.datetime.now():%Y%m%d}-DRY")
-        print(log_correction.format_entry(entry))
+        if args.json:
+            print(json.dumps({"status": "dry-run", "entry": entry}))
+        else:
+            print(log_correction.format_entry(entry))
         return 0
 
     eid = log_correction.append_entry(args.file, entry)
-    print(f"✓ logged {eid} ({entry.get('category', 'correction')}) → {args.file}")
+    entry["id"] = eid
+    if args.json:
+        print(json.dumps({"status": "logged", "id": eid, "file": args.file, "entry": entry}))
+    else:
+        print(f"✓ logged {eid} ({entry.get('category', 'correction')}) → {args.file}")
     return 0
 
 
