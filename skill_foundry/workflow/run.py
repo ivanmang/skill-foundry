@@ -627,7 +627,9 @@ def main(argv: list[str] | None = None) -> int:
         print(f"\nWrote {run_json}")
 
     failed = any(s.get("status") != "PASS" for s in record["suites"])
-    if failed and not args.no_capture:
+    # The demo target fails a mock case on purpose and runs its own sandboxed
+    # learning loop, so never auto-capture from it into the real learnings file.
+    if failed and not args.no_capture and args.target != "demo":
         _auto_capture(run_json)
     chaining = args.report or args.open or args.review
     _print_next_steps(record, failed, args.json, chaining)
