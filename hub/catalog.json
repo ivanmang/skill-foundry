@@ -982,6 +982,30 @@
       "status": "published"
     },
     {
+      "name": "tilelanggym-block-scale",
+      "description": "Use when a TileLang or SIMT kernel has one scale for the whole tile: scale = max(eps, max of |X|), then Out = X / scale. Keep a partial max in the thread, finish it with one reducer, and divide the values already held. On a flat vector fix 128 threads and stride. A per-column scale is skill:tilelanggym-column-scale. A per-group Case-3 reduce is skill:tilelanggym-softlib-simt.",
+      "category": "perf-analysis",
+      "license": "CANN Open Software License Agreement Version 2.0",
+      "entry": false,
+      "stages": [],
+      "origin": "native",
+      "owner": "skill-foundry",
+      "maturity": "ready",
+      "status": "published"
+    },
+    {
+      "name": "tilelanggym-column-scale",
+      "description": "Use when a TileLang or SIMT kernel has one scale per column: scale[col] = max over rows of |X[row, col]|, then Out[row, col] = X[row, col] * (1 / scale[col]). Keep the max in the lane, take the inverse once, and multiply the held rows. This kernel has no reducer and no barrier. One scale for the whole tile is skill:tilelanggym-block-scale. A per-group Case-3 reduce is skill:tilelanggym-softlib-simt.",
+      "category": "perf-analysis",
+      "license": "CANN Open Software License Agreement Version 2.0",
+      "entry": false,
+      "stages": [],
+      "origin": "native",
+      "owner": "skill-foundry",
+      "maturity": "ready",
+      "status": "published"
+    },
+    {
       "name": "tilelanggym-semantics-gate",
       "description": "Use when validating any SoftLib/SIMD close-loop claim in a tilelangGym ST ANALYSIS or RESULT \u2014 run SEMANTICS_GATE S1-S4 and reject wrong arms (shared-VF gold, era-less ranking, outer-axis VCGMAX, IPC-only overlays).",
       "category": "perf-analysis",

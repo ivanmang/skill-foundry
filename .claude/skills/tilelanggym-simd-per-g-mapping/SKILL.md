@@ -43,6 +43,7 @@ Before VL×datablock / recipe explore, name **`reduce_axis`**:
 
 - Keep **separate SoT tables** for inner vs outer — never copy inner Gmap el/cyc into an Nx1 VMI cell.
 - SoftLib SIMT §21 `axis=` labels still apply for SIMT layout; they do **not** replace this SIMD opcode pick.
+- The SIMT body for the outer column scale is `skill:tilelanggym-column-scale`. One scale for the whole tile is `skill:tilelanggym-block-scale`.
 
 ## SoftLib SIMT (pointer)
 

@@ -93,6 +93,10 @@ The live set is four values per thread, then those four are stored and dropped. 
 
 The measured table is PRC-SCH-005. Do not paste those el/cyc into this file.
 
+## Other scales
+
+This skill is the per-group Case-3 ladder. One scale for the whole tile, then `x / scale`, is `skill:tilelanggym-block-scale`. One scale per column, then `x * (1 / scale[col])`, is `skill:tilelanggym-column-scale`. Those two formulas are different programs. Stay on this ladder when the user wrote a per-group reduce.
+
 ## PRC
 
 | Claim | PRC-id |

@@ -49,6 +49,8 @@ perf-review-knowledge/
 | PRC-SCH-002 | Scale：VDIV／paint／VMUL vs SoftLib FDIV_I+FMUL | SV8/SB8 Case-3 G32 · era=case3-quant-bcast · KEEP-X · SoftLib dual_drain vs SIMD VL-res | [sch/PRC-SCH-002](sch/PRC-SCH-002-scale-path-vdiv-vs-fdiv.md) | ready |
 | PRC-SCH-003 | Case-3 pack-UB／keeplive_vbrc vs VSEL range-paint | SV8/SB8 Case-3 G32 · era=case3-quant-bcast · SIMD VMI pack_ub / keeplive_vbrc vs VL-res VSEL paint; VL×gold-G candidates (t591u) | [sch/PRC-SCH-003](sch/PRC-SCH-003-case3-pack-ub-vs-vsel-paint.md) | ready |
 | PRC-SCH-005 | load-ahead (load-4, load-2) versus dual-drain | SIMT Case-3 G32 · era=case3-quant-bcast · float32 · axis=1xG · 64×64, 64×128, 128×128 | [sch/PRC-SCH-005](sch/PRC-SCH-005-groups-ahead-load4.md) | ready |
+| PRC-SCH-006 | Block scale — one tile scale, loop versus cross | SV2 block scale · one scale for the whole tile · float32 · flat reduce and 2D column-then-redux | [sch/PRC-SCH-006](sch/PRC-SCH-006-block-scale.md) | ready |
+| PRC-SCH-007 | Column scale — one scale per column, inverse in the lane | SV2.A column scale · one scale per column · float32 · no cross-thread redux | [sch/PRC-SCH-007](sch/PRC-SCH-007-column-scale.md) | ready |
 
 ### IPC——running-IPC / PR9 overlay
 
@@ -70,4 +72,4 @@ perf-review-knowledge/
 | PRC-SIMT-001 | Dual-drain fence count versus el/cyc | SoftLib SIMT Case-3 G32 · era=case3-quant-bcast · R64×C128 E=8192 T=512 · walls 0/1/2/3 | [simt/PRC-SIMT-001](simt/PRC-SIMT-001-dual-drain-fence-count.md) | ready |
 | PRC-SIMT-003 | LDS.32 versus LDS.64 on within-group Case-3 | SoftLib SIMT Case-3 G32 · era=case3-quant-bcast · R64×C128 E=8192 · T=128 and T=256 | [simt/PRC-SIMT-003](simt/PRC-SIMT-003-lds32-vs-lds64.md) | ready |
 
-统计：9 条（ready 9 / draft 0）。
+统计：11 条（ready 11 / draft 0）。
