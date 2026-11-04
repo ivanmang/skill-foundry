@@ -459,6 +459,17 @@ def _chain_after_run(run_json, target: str, do_report: bool, do_open: bool, do_r
             print(f"review skipped: {exc}", file=sys.stderr)
 
 
+def _auto_capture(run_json: Path) -> None:
+    """Draft learnings for FAILed cases right after a run (best-effort)."""
+    from skill_foundry.lib import session_digest
+
+    try:
+        print("\n  capturing failures → learnings/recent.md")
+        session_digest.main(["--run", str(run_json), "--apply"])
+    except Exception as exc:  # capture is advisory; never break the runner
+        print(f"  capture skipped: {exc}", file=sys.stderr)
+
+
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description="Run a declared regression suite and record a normalized run.")
     ap.add_argument("--target", default=None, help="Target key in config/suites.json (default: config default_target).")
@@ -480,6 +491,7 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--report", action="store_true", help="Render report.md/.html after the run (auto-annotates known failures).")
     ap.add_argument("--open", action="store_true", help="Open the HTML report in a browser (implies --report).")
     ap.add_argument("--review", action="store_true", help="Diff the run vs the pinned baseline after the run.")
+    ap.add_argument("--no-capture", action="store_true", help="Skip auto-drafting learnings from FAILed cases.")
     args = ap.parse_args(argv)
 
     cfg = load_json(Path(args.config))
@@ -615,6 +627,8 @@ def main(argv: list[str] | None = None) -> int:
         print(f"\nWrote {run_json}")
 
     failed = any(s.get("status") != "PASS" for s in record["suites"])
+    if failed and not args.no_capture:
+        _auto_capture(run_json)
     chaining = args.report or args.open or args.review
     _print_next_steps(record, failed, args.json, chaining)
     if chaining:

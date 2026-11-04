@@ -77,6 +77,9 @@ Full table: `references/env.md`.
 3. Match against `references/known-failures.md` before treating as new.
 4. If the user corrects the triage, or the cause is new and reusable, log it
    so it can be promoted: `./harness teach "symptom -> fix -> where"`.
+5. Build/run failures are auto-drafted to `learnings/recent.md` by the workflow
+   (`session_digest` after a run) and the ST runners (`ingest_error` on a build
+   error); review the drafts and `./harness promote --pr` anything reusable.
 
 ## References
 
