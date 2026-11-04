@@ -62,4 +62,11 @@ perf-review-knowledge/
 | PRC-MEM-001 | KEEP-X / VL-resident vs UB 再載 X | SV8/SB8 Case-3 G32 SoftLib dual_drain + SIMD VL-res；对比 G16 size-1 UB-reload | [mem/PRC-MEM-001](mem/PRC-MEM-001-keep-x-vl-resident.md) | ready |
 | PRC-MEM-002 | HW SMEM_BAR：G16 size-1 scratch vs G32 无 bar | SV8/SB8 Case-3 · G16 size-1 SIMD scratch vs G32 SoftLib/VL-res；S_sync | [mem/PRC-MEM-002](mem/PRC-MEM-002-smem-bar-g16-vs-g32.md) | ready |
 
-统计：6 条（ready 6 / draft 0）。
+### SIMT——SoftLib 调度
+
+| ID | 名称 | 适用范围 | 知识点文件 | status |
+|---|---|---|---|---|
+| PRC-SIMT-001 | Dual-drain fence count versus el/cyc | SoftLib SIMT Case-3 G32 · era=case3-quant-bcast · R64×C128 E=8192 T=512 · walls 0/1/2/3 | [simt/PRC-SIMT-001](simt/PRC-SIMT-001-dual-drain-fence-count.md) | ready |
+| PRC-SIMT-003 | LDS.32 versus LDS.64 on within-group Case-3 | SoftLib SIMT Case-3 G32 · era=case3-quant-bcast · R64×C128 E=8192 · T=128 and T=256 | [simt/PRC-SIMT-003](simt/PRC-SIMT-003-lds32-vs-lds64.md) | ready |
+
+统计：8 条（ready 8 / draft 0）。
