@@ -90,6 +90,20 @@ the gitcode v5 API using `GITCODE_TOKEN` — see
 [references/mr-automation.md](references/mr-automation.md) for the options and
 the exact endpoint.
 
+## Session-end auto-capture (pi)
+
+For interactive triage (no run record), a pi extension runs `capture-session`
+automatically when a session exits (`session_shutdown` with reason `quit`):
+
+```bash
+cp docs/session-capture.extension.ts ~/.pi/agent/extensions/skill-capture.ts
+# opt out:  export SKILL_CAPTURE_ON_EXIT=0
+# override: export SKILL_FOUNDRY_HARNESS=/path/to/skill-foundry/harness
+```
+
+It spawns `./harness capture-session --session <file> --apply` detached, so the
+session's reusable findings draft themselves into `learnings/recent.md` at exit.
+
 ## Auto-capture triggers
 
 Log an `LRN-…` entry (and reply with its id) when any of these happen:

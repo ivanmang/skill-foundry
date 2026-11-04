@@ -42,8 +42,7 @@ CAPTURER_PROMPT = (
 )
 
 DEFAULT_CAPTURER = (
-    "pi -p --no-tools --no-extensions --no-skills --no-context-files --no-mcp --thinking low "
-    "\"You are reading stdin.\""
+    "pi -p --no-tools --no-extensions --no-skills --no-context-files --no-mcp --thinking low"
 )
 
 
@@ -97,8 +96,11 @@ def run_capturer(transcript: str, capturer: str) -> str:
     argv = shlex.split(capturer)
     if not argv:
         raise ValueError("empty capturer command")
+    # The instruction is appended as the prompt; the transcript rides on stdin.
+    argv.append(CAPTURER_PROMPT)
     result = subprocess.run(
-        argv, input=transcript, capture_output=True, text=True, timeout=300, check=False,
+        argv, input=transcript + "\n\n---END OF TRANSCRIPT---", capture_output=True, text=True,
+        timeout=300, check=False,
     )
     return (result.stdout or "") + "\n" + (result.stderr or "")
 
