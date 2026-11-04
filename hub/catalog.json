@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated": "2026-11-04T02:18:49.132220+00:00",
+  "generated": "2026-11-04T03:24:59.700052+00:00",
   "skills": [
     {
       "name": "aclnn-doc-gen",
@@ -1031,7 +1031,7 @@
     },
     {
       "name": "tilelanggym-softlib-simt",
-      "description": "Use when exploring or closing SoftLib SIMT (__simt_vf__) absmax/Case-3 for a gold G \u2014 motif classes (warp-redux contig vs within-group contig vs stock); schedule matrix LDS.32/64, membar/bar vs fused, vec-misched on/off, unroll/pack, LD|abs+REDUX|ST pipeline, sparse STS; forced 1xG SoT ladder dual-drain / loadall+absall (all G) / wc-multi / G64-128 dual-drain / T in {128,256,512}; SoT cell axis=1xG only; before SoftLib SIMT DONE; forbid DONE on t676-class LDS matrix alone; when SoftLib\u227bSIMD claimed, FORCED PR9 opcode_lanes_ipc overlays both arms (reject IPC-only).",
+      "description": "Use when exploring or closing SoftLib SIMT (__simt_vf__) absmax/Case-3 for a gold G \u2014 motif classes (warp-redux contig vs within-group contig vs stock); schedule matrix LDS.32/64, membar/bar vs fused, vec-misched on/off, unroll/pack, LD|abs+REDUX|ST pipeline, sparse STS; forced 1xG SoT ladder dual-drain / loadall+absall (all G) / load-ahead, load-4 and load-2 (G32 Case-3) / wc-multi / G64-128 dual-drain / T in {128,256,512}; SoT cell axis=1xG only; before SoftLib SIMT DONE; forbid DONE on t676-class LDS matrix alone; when SoftLib\u227bSIMD claimed, FORCED PR9 opcode_lanes_ipc overlays both arms (reject IPC-only). Also when a TileLang or SIMT kernel does a per-group reduce and then reuses the loaded value (SV8-like): adapt load-ahead (load-4 or load-2) instead of one-thread-one-group.",
       "category": "perf-analysis",
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
