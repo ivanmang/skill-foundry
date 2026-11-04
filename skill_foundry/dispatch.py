@@ -20,6 +20,8 @@ VERB_MODULES: dict[str, tuple[str, list[str] | None]] = {
     "capture-skill": ("skill_foundry.cli.capture", None),
     "promote-skill": ("skill_foundry.cli.promote_skill", None),
     "teach": ("skill_foundry.cli.teach", None),
+    "learn": ("skill_foundry.cli.learn", None),
+    "capture-session": ("skill_foundry.cli.capture_session", None),
     "promote": ("skill_foundry.cli.promote", None),
     "skills": ("skill_foundry.cli.skills", None),
 
@@ -108,6 +110,8 @@ THE PRODUCT — the skill-ops loop (capture → promote → hub → discover):
   capture-skill  Draft a NEW skill into hub/inbox/       [--description, --dry-run]
   promote-skill  Publish a draft into .claude/skills/    [--propose | --apply | --pr]
   teach          Log a correction (a lesson)             ["wrong -> correct -> action" | wizard | --edit]
+  learn          Log + promote (and --pr) in one step    ["wrong -> correct -> action" | --pr]
+  capture-session Draft learnings from a pi session     [--session X.jsonl | --apply]
   promote        Publish learnings into skills           [--propose | --apply | --pr]
   skills         List/search skills · install · refresh  [--search, --category, --origin, --scope, --entry, --inbox, --install, --uninstall, --dry-run, --mine, --refresh, --check, --json]
 
