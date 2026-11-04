@@ -77,6 +77,9 @@ Full table: `references/env.md`.
 3. Match against `references/known-failures.md` before treating as new.
 4. If the user corrects the triage, or the cause is new and reusable, log it
    so it can be promoted: `./harness teach "symptom -> fix -> where"`.
+5. Build/run failures are auto-drafted to `learnings/recent.md` by the workflow
+   (`session_digest` after a run) and the ST runners (`ingest_error` on a build
+   error); review the drafts and `./harness promote --pr` anything reusable.
 
 ## References
 
@@ -91,3 +94,4 @@ Full table: `references/env.md`.
 - NPU-sim `-v` auto-derives the simulator soc; do not pass an extra soc flag.
 - Comm async tests need CANN 9.0+ — keep them gated (M3).
 - Lint pins: clang-format v18.1.8, `~/.local/bin/ruff` v0.14.14.
+- A6 ST testcases are separate copies under `tests/npu/a6/src/st/testcase/<name>/` (not arch-guarded a5 reuse); register them in `ALL_TESTCASES`, use per-test `aclInit`/`aclrtSetDevice`/…/`aclrtResetDevice`/`aclFinalize`, and `tests/common/test_common.h`.

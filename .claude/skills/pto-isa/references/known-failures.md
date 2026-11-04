@@ -55,6 +55,18 @@ Classify a failure against these before treating it as new. Format:
   `aclInit`/`aclrtSetDevice` BEFORE importing pto machinery.
   See `.pi/skills/a6-yellow-zone` / `~/a6-vmi-dashboard/cann-a6-camodel-bug-report.md`.
 
+### `tcvt_common.hpp:2883:21: no matching function for call to 'castData_2D_NoPostUpdate'` (A6)
+- Symptoms: A6 device compile of `tcvt_fp4_lut` fails with the above; the generic FP4→FP8 path has no `castData` overloads.
+- Cause: the FP4 E2M1→E4M3 LUT dispatch guard was A5-only (`#if defined(PTO_NPU_ARCH_A5)`), so A6 fell through to `implTCVT`.
+- Fix: pair A6 with A5 at `tcvt_common.hpp:2915` and `:3259` (`#if defined(PTO_NPU_ARCH_A5) || defined(PTO_NPU_ARCH_A6)`); fixed by pto-isa `7c0141eb`.
+- Seen in: 2026-11-03 A6 `tcvt_fp4_lut` port
+
+### `copy_gm_to_ubuf` does not support the given target feature (A6)
+- Symptoms: A6 device compile fails at a raw `copy_gm_to_ubuf` call in a ported a5 kernel.
+- Cause: the 7-arg `copy_gm_to_ubuf` builtin is A5-only; A6 needs the 13-arg `copy_gm_to_ubuf_align_v2`.
+- Fix: use `pto_copy_gm_to_ubuf_align_v2` (`arch_cce_intrinsic.hpp`), which forwards `pre_allocation`/`non_eod_ctrl=false` on A6.
+- Seen in: 2026-11-03 A6 `tcvt_fp4_lut` port
+
 ## Adding an entry
 
 Append, don't overwrite. Keep the signature greppable (first error line) so the
