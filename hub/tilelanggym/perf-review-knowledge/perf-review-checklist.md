@@ -48,6 +48,7 @@ perf-review-knowledge/
 | PRC-SCH-001 | Compiler asm memory clobber vs HW SMEM_BAR | SoftLib SIMT（SV1 fence1 · Case-3 dual_drain G32）vs SIMD VMI VL-res；命名陷阱 SoftLib “membar” tag | [sch/PRC-SCH-001](sch/PRC-SCH-001-asm-memory-clobber-vs-smem-bar.md) | ready |
 | PRC-SCH-002 | Scale：VDIV／paint／VMUL vs SoftLib FDIV_I+FMUL | SV8/SB8 Case-3 G32 · era=case3-quant-bcast · KEEP-X · SoftLib dual_drain vs SIMD VL-res | [sch/PRC-SCH-002](sch/PRC-SCH-002-scale-path-vdiv-vs-fdiv.md) | ready |
 | PRC-SCH-003 | Case-3 pack-UB／keeplive_vbrc vs VSEL range-paint | SV8/SB8 Case-3 G32 · era=case3-quant-bcast · SIMD VMI pack_ub / keeplive_vbrc vs VL-res VSEL paint; VL×gold-G candidates (t591u) | [sch/PRC-SCH-003](sch/PRC-SCH-003-case3-pack-ub-vs-vsel-paint.md) | ready |
+| PRC-SCH-005 | load-ahead (load-4, load-2) versus dual-drain | SIMT Case-3 G32 · era=case3-quant-bcast · float32 · axis=1xG · 64×64, 64×128, 128×128 | [sch/PRC-SCH-005](sch/PRC-SCH-005-groups-ahead-load4.md) | ready |
 | PRC-SCH-006 | Block scale — one tile scale, loop versus cross | SV2 block scale · one scale for the whole tile · float32 · flat reduce and 2D column-then-redux | [sch/PRC-SCH-006](sch/PRC-SCH-006-block-scale.md) | ready |
 | PRC-SCH-007 | Column scale — one scale per column, inverse in the lane | SV2.A column scale · one scale per column · float32 · no cross-thread redux | [sch/PRC-SCH-007](sch/PRC-SCH-007-column-scale.md) | ready |
 
@@ -64,4 +65,11 @@ perf-review-knowledge/
 | PRC-MEM-001 | KEEP-X / VL-resident vs UB 再載 X | SV8/SB8 Case-3 G32 SoftLib dual_drain + SIMD VL-res；对比 G16 size-1 UB-reload | [mem/PRC-MEM-001](mem/PRC-MEM-001-keep-x-vl-resident.md) | ready |
 | PRC-MEM-002 | HW SMEM_BAR：G16 size-1 scratch vs G32 无 bar | SV8/SB8 Case-3 · G16 size-1 SIMD scratch vs G32 SoftLib/VL-res；S_sync | [mem/PRC-MEM-002](mem/PRC-MEM-002-smem-bar-g16-vs-g32.md) | ready |
 
-统计：8 条（ready 8 / draft 0）。
+### SIMT——SoftLib 调度
+
+| ID | 名称 | 适用范围 | 知识点文件 | status |
+|---|---|---|---|---|
+| PRC-SIMT-001 | Dual-drain fence count versus el/cyc | SoftLib SIMT Case-3 G32 · era=case3-quant-bcast · R64×C128 E=8192 T=512 · walls 0/1/2/3 | [simt/PRC-SIMT-001](simt/PRC-SIMT-001-dual-drain-fence-count.md) | ready |
+| PRC-SIMT-003 | LDS.32 versus LDS.64 on within-group Case-3 | SoftLib SIMT Case-3 G32 · era=case3-quant-bcast · R64×C128 E=8192 · T=128 and T=256 | [simt/PRC-SIMT-003](simt/PRC-SIMT-003-lds32-vs-lds64.md) | ready |
+
+统计：11 条（ready 11 / draft 0）。
