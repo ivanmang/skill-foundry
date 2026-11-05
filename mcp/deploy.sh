@@ -6,7 +6,7 @@
 #   scp mcp/deploy.sh b10:~/ && ssh b10 'bash ~/deploy.sh'
 set -euo pipefail
 
-REPO_URL="git@gitcode.com:ivanmang/skill-foundry.git"
+REPO_URL="https://github.com/ivanmang/skill-foundry.git"
 INSTALL_DIR="${1:-$HOME/skill-foundry}"
 VENV="$INSTALL_DIR/.venv-mcp"
 SYSTEMD_UNIT=/etc/systemd/system/skill-foundry-mcp.service

@@ -125,7 +125,7 @@ class RuleProcessor:
                 'rule_type': rule.rule_type,
                 'rule_desc': rule.rule_desc,
                 'rule_level': rule.rule_level,
-                'reference_doc_path': rule.reference_doc_path
+                'reference_doc_path': rule.reference_doc_path,
                 'description_format': rule.description_format
             }
             grouped[item_name].append(rule_dict)

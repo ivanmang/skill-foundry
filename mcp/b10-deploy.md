@@ -38,7 +38,7 @@ systemd unit instead (see [Persistence](#persistence)).
 ## Manual steps (what deploy.sh does)
 
 ```bash
-git clone git@gitcode.com:ivanmang/skill-foundry.git ~/skill-foundry
+git clone https://github.com/ivanmang/skill-foundry.git ~/skill-foundry
 cd ~/skill-foundry
 python3 -m venv .venv-mcp && source .venv-mcp/bin/activate
 pip install -r mcp/requirements.txt
