@@ -17,7 +17,19 @@ include = ["skill_foundry*"]
 [tool.ruff]
 line-length = 88
 target-version = "py310"
+# Lint the product code (skill_foundry/ + mcp/ + tests/ + scripts/ + setup.py).
+# The bundled skill corpus (.claude/skills, plus its skills/ and .agents/ symlinks),
+# demo fixtures, and hub knowledge are CONTENT — many scripts there are imported
+# skills or illustrative example outputs, not this repo's runnable code, so they
+# are excluded from the merge gate.
+extend-exclude = [
+    ".claude",
+    ".agents",
+    "skills",
+    "demo",
+    "hub",
+]
 
 [tool.ruff.lint]
-# Default rule set (E4/E7/E9/F). No extra rules: the codebase is intentionally
+# Default rule set (E4/E7/E9/F). No extra rules: the product code is
 # lint-clean under the defaults only.

@@ -145,8 +145,8 @@ def main(argv: list[str] | None = None) -> int:
         }))
     else:
         print(f"✓ captured draft → {dest / 'SKILL.md'}")
-        print(f"  ⚠ add the discovery frontmatter before promoting — category, origin, owner (and maturity)")
-        print(f"    (the promote gate requires them; capture writes only name/description/license)")
+        print("  ⚠ add the discovery frontmatter before promoting — category, origin, owner (and maturity)")
+        print("    (the promote gate requires them; capture writes only name/description/license)")
         print(f"  next: ./harness promote-skill {name} --pr   (review the diff, then a human merges)")
     return 0
 

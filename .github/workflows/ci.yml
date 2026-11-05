@@ -28,12 +28,11 @@ jobs:
       - name: Run canonical self-check
         run: ./skill_foundry/cli/selfcheck.sh
 
-  # Soft signal only (does not block merges): the codebase is not yet ruff-clean
-  # (356 findings as of migration). Once cleaned up, drop `continue-on-error`.
+  # Merge gate: product code must be ruff-clean. The bundled skill corpus is
+  # excluded via [tool.ruff] extend-exclude in pyproject.toml.
   lint:
-    name: Ruff (non-blocking)
+    name: Ruff
     runs-on: ubuntu-latest
-    continue-on-error: true
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
