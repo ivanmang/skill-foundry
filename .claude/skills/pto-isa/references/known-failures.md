@@ -67,6 +67,24 @@ Classify a failure against these before treating it as new. Format:
 - Fix: use `pto_copy_gm_to_ubuf_align_v2` (`arch_cce_intrinsic.hpp`), which forwards `pre_allocation`/`non_eod_ctrl=false` on A6.
 - Seen in: 2026-11-03 A6 `tcvt_fp4_lut` port
 
+### `ScheTop.cpp:126 thrId < s_thrCnt` SIGABRT (npu-sim-a5)
+- Symptoms: 8 layout-conversion kernels SIGABRT with `ScheTop.cpp:126` assertion; deterministic per data-movement testcase (e.g. `tload_mix` case #65 NCHW2FZ4D_int8_t), reproduced in a **serial** run — not a concurrency/load artifact.
+- Cause: camodel `esl_top_thread_cnt` is 32 while the cases need 64. Config lives at `/usr/local/CANN/cann-9.1.0/x86_64-linux/simulator/dav_3510/camodel/camodel_v100.json` and is root-owned read-only.
+- Fix: `sudo sed -i` the in-place file (`"esl_top_thread_cnt"` 32 → 64) on both sim-dir copies. Repro requires a full no-timeout binary run — `tload_mix` looks green under a 120/180 s manual timeout only because it stops before case 65.
+- Seen in: 2026-11-05 npu-sim-a5 full + serial rerun
+
+### `camodel_v100.json` overrides ignored
+- Symptoms: a CWD copy of `camodel_v100.json` (or env override) has no effect; the in-place file is root-owned read-only.
+- Cause: camodel loads the config by hardcoded basename from the sim dir next to `libpem_davinci.so`; only an in-place edit works.
+- Fix: edit the in-place file with sudo (`esl_top_thread_cnt` 32 → 64); CWD/env override is silently ignored.
+- Seen in: 2026-11-05 npu-sim-a5
+
+### `TMOVTest.case_nz2nd_3` flaky (3×OK + 2×FAIL in one run)
+- Symptoms: the same testcase reports OK 3 times and FAILED 2 times within a single run.
+- Cause: pto-isa numeric/nondeterminism, not a camodel failure.
+- Fix: triage backlog — treat as a pto-isa numeric issue; re-run to confirm stability before attributing to camodel.
+- Seen in: 2026-11-05 npu-sim-a5
+
 ## Adding an entry
 
 Append, don't overwrite. Keep the signature greppable (first error line) so the

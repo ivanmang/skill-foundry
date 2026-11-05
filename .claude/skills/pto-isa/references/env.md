@@ -32,6 +32,20 @@ on any machine.
 | `PTO_ISA_PATH` | pto-isa include root; must precede CANN include for A6 |
 | `MPI_HOME` / `MPI_LIB_PATH` | comm ST (M3) |
 
+## Required sourcing before sim runs
+
+NPU-sim runs need the CANN environment sourced in the **execution** shell — a
+non-login SSH session does not pick up `.bashrc`, so `run_st.py` fails
+immediately with `ASCEND_HOME_PATH` unset:
+
+```bash
+source /usr/local/CANN/cann-9.1.0/bin/setenv.bash
+```
+
+`config/suites.json` `env_setup` sources `set_env.sh` only as a fallback; on
+machines like ecs where the login shell is non-interactive, source
+`setenv.bash` first (or in the run wrapper).
+
 ## Machines (team zones)
 
 | Zone | Host | Role |

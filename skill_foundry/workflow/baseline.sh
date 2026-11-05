@@ -6,6 +6,10 @@
 # reports/baseline/<target>.json is committed.
 #
 # Safety: refuses to pin a baseline if ANY suite did not PASS, unless --force.
+#
+# A populated baseline that legitimately contains known failures cannot be set
+# by the normal PASS-only path; pin it with a direct copy of the run.json into
+# reports/baseline/<target>.json (treat as a force-like step), then commit.
 set -euo pipefail
 
 HARNESS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"

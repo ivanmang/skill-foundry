@@ -62,3 +62,20 @@ PRs include a description in the
 | 🟢 harness (gated + LLM-reviewed) | capture a correction, propose a diff, apply + push (add-only · no-secrets · size · spec, then LLM judge APPROVE) |
 | 🟡 you (gate) | triage content (`wrong → correct → action`) + merging the MR |
 | 🔴 never automatic | remove/change an existing check |
+
+## Git reconciliation
+
+If a checkout diverges from `origin/main` (unpushed baseline, duplicated
+local fix, or drifted commits), reconcile cleanly rather than force-pushing:
+
+```bash
+git fetch origin
+# 1. reset to the shared upstream, keeping any wanted commit(s) aside first
+#    (e.g. a baseline pin):  git cherry-pick <baseline-sha>  AFTER the reset
+# 2. hard-reset the branch to origin/main
+# 3. cherry-pick the wanted commit(s) back on top
+# 4. push, then fast-forward any other local clones
+```
+
+Never force-push a diverged `main` — reset → cherry-pick → push keeps history
+linear and every clone able to fast-forward.

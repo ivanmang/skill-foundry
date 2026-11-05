@@ -23,3 +23,7 @@ what changed, and why.
 ## 2026-10-30 — skill-maintainer
 - Promoted: LRN-20261030-003
 - Action: Auto-create the PR via the gitcode v5 API using GITCODE_TOKEN from env.sh (promote --pr); see references/mr-automation.md for the options
+
+## 2026-11-05 — pto-isa
+- Promoted: LRN-20261105-002, -003, -007, -008, -009, -011, -012, -016, -017
+- Action: documented camodel_v100.json esl_top_thread_cnt override + ScheTop.cpp:126 crash (merge of -002/-003/-011/-012) and TMOVTest nz2nd_3 flaky (-017) in known-failures.md; setenv.bash sourcing (-007/-016) in env.md; baseline known-failure pin + git reconciliation (-008/-009) in workflow docs.
