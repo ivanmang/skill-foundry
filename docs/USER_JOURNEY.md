@@ -62,7 +62,7 @@ You'll usually wear the first hat, sometimes the last two.
 ## Step 0 — One-time setup
 
 ```bash
-git clone git@gitcode.com:ivanmang/skill-foundry.git
+git clone git@github.com:ivanmang/skill-foundry.git
 cd skill-foundry
 
 # one command sets up env.sh, picks a CANN, and verifies pto-isa (interactive)
@@ -350,8 +350,8 @@ interactively — and in a non-interactive session it **fails closed** rather th
 merging unreviewed.
 
 `--pr` commits on a `feat/learnings-<date>` branch, pushes it, and creates the
-PR (gitcode v5 API with `GITCODE_TOKEN`); a human merges it after the CI gates
-pass — a human merges it after the CI gates are green.
+PR (GitHub `gh pr create` / `GH_TOKEN`, or GitCode v5 API); a human merges it
+after the CI gates are green.
 
 ---
 
@@ -380,8 +380,8 @@ loop, and every teammate gets it via git.
 
 | Cadence | Action |
 |---|---|
-| Nightly | `.gitcode/workflows/promote-learnings.yml` surfaces pending learnings |
-| On push/PR | `.gitcode/workflows/selfcheck.yml` runs `./harness selfcheck` |
+| On push/PR | `.github/workflows/ci.yml` runs `selfcheck` + lint + typecheck + package |
+| On push/PR | `.github/workflows/mirror-to-gitcode.yml` mirrors `main` + tags to GitCode |
 | Weekly / on demand | with `--pr`, you merge each PR after CI gates pass |
 | After suite changes | `bash skill_foundry/workflow/baseline.sh <target>` to re-pin the baseline |
 | After a correction | re-run one representative case to verify it improved triage |

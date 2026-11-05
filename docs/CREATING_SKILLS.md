@@ -223,9 +223,9 @@ existing skill line-by-line; copying a brand-new skill is already add-only.)
 A **human merges the MR** after CI is green — that is the final, deliberate step.
 For local-only iteration (no push), use `./harness promote-skill --apply`.
 
-> **Recommended:** set `export GITCODE_TOKEN=<token>` (or `GITLAB_TOKEN`) in
-> `env.sh` so `--pr` can auto-create the MR via the gitcode v5 API. Without it,
-> the agent pushes the branch and prints a manual PR-new URL.
+> **Recommended:** set `export GH_TOKEN=<token>` (GitHub) or `GITCODE_TOKEN`
+> (GitCode) in `env.sh` so `--pr` can auto-create the PR. Without it, the agent
+> pushes the branch and prints a manual PR-new URL.
 
 ---
 
@@ -289,4 +289,4 @@ python3 -m skill_foundry.lib.validate_skills
 | Warning: `category is missing` | add `category:` to frontmatter and re-`refresh` |
 | `reference to unknown skill 'x'` | fix the link or declare `x` in `config/externals.json` |
 | skill not showing up in the agent | `./harness skills --install --name my-skill`, then restart / `/reload` |
-| `--pr` printed a PR-new URL instead of creating one | set `GITCODE_TOKEN` in `env.sh` |
+| `--pr` printed a PR-new URL instead of creating one | set `GH_TOKEN` (or `gh auth login`) — see `skill-maintainer/references/mr-automation.md` |

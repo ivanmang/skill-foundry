@@ -72,7 +72,7 @@ are recorded when a CAModel instruction dump is present. See
 ## Getting started
 
 ```bash
-git clone git@gitcode.com:ivanmang/skill-foundry.git
+git clone git@github.com:ivanmang/skill-foundry.git
 cd skill-foundry
 
 python3 -m skill_foundry.workflow.onboarding   # guided: detect env, write env.sh, pick CANN, verify pto-isa
@@ -211,9 +211,9 @@ Exit codes: `0` clean, `1` ran-with-failures, `2` usage.
 - **Capability cache** — `capabilities.py` caches CANN header/simulator scans in
   `.cache/cann-lanes.json` (5-min TTL), so `status`/`list`/`dry-run` are instant
   on slow mounts.
-- **CI** — `.gitcode/workflows/selfcheck.yml` runs on push/PR;
-  `promote-learnings.yml` surfaces pending learnings nightly;
-  `dashboard.yml` renders `status --json` + `diagnose --strict` on a schedule.
+- **CI** — `.github/workflows/ci.yml` runs on push/PR (`selfcheck` + `lint` +
+  `typecheck` + `package`); `.github/workflows/secret-scan.yml` runs gitleaks;
+  `.github/workflows/mirror-to-gitcode.yml` mirrors `main` + tags to GitCode.
 
 ---
 
@@ -230,8 +230,8 @@ Exit codes: `0` clean, `1` ran-with-failures, `2` usage.
   · size) and the review (built-in judge + LLM judge `SKILL_REVIEWER`), writes
   the edit, flips the entry to `promoted`, appends a summary to
   `promoted.md` + an audit block to `corrections.md`. `--pr` instead commits on
-  a `feat/learnings-<date>` branch, pushes, and **auto-creates the PR** (gitcode
-  v5 API with `GITCODE_TOKEN`) — a human merges it after CI is green.
+  a `feat/learnings-<date>` branch, pushes, and **auto-creates the PR** (GitHub
+  `gh pr create` / `GH_TOKEN`, or GitCode v5 API) — a human merges it after CI is green.
 
 Files: `learnings/recent.md` (pending log) · `promoted.md` (promoted log) ·
 `corrections.md` (audit trail). Skills + `known-failures.md` are the shared
