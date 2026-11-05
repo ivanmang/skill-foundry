@@ -1,0 +1,57 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  # The canonical gate: everything `make check` runs. Self-contained (mock gtest
+  # runner + fixture packs), so it runs on any GitHub-hosted ubuntu runner with
+  # no CANN toolchain, simulator, or NPU. This is the merge gate.
+  selfcheck:
+    name: Self-check (gate + demo + tilelangGym)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Run canonical self-check
+        run: ./skill_foundry/cli/selfcheck.sh
+
+  # Soft signal only (does not block merges): the codebase is not yet ruff-clean
+  # (356 findings as of migration). Once cleaned up, drop `continue-on-error`.
+  lint:
+    name: Ruff (non-blocking)
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install "ruff==0.15.0"
+      - run: ruff check .
+
+  # Packaging: `pip install -e .` (PEP 660) must work and the console script
+  # must resolve. Catches pyproject.toml / setup.py regressions.
+  package:
+    name: Editable install + CLI smoke
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install -e .
+      - run: skill-foundry version
+      - run: skill-foundry skills --check

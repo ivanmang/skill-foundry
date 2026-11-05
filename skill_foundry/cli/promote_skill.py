@@ -90,13 +90,14 @@ def main(argv: list[str] | None = None) -> int:
         print("choose --propose / --apply / --pr", file=sys.stderr)
         return 2
 
-    if args.pr and not (os.environ.get("GITCODE_TOKEN") or os.environ.get("GITLAB_TOKEN")):
+    if args.pr and not any(os.environ.get(k) for k in ("GITCODE_TOKEN", "GITLAB_TOKEN", "GH_TOKEN", "GITHUB_TOKEN")):
         print(
             "\n"
-            "⚠️  GITCODE_TOKEN is NOT set — the PR will NOT be auto-created.\n"
+            "⚠️  No PR token is set — the PR will NOT be auto-created.\n"
             "    `--pr` will push the branch and print a manual PR-new URL instead.\n"
             "    To enable auto PR creation, add to env.sh (gitignored) and re-source:\n"
-            "      export GITCODE_TOKEN=<your gitcode access token>   # gitcode → Settings → Access Tokens\n",
+            "      GitHub:  export GH_TOKEN=<github token>          # (or run `gh auth login`)\n"
+            "      GitCode: export GITCODE_TOKEN=<gitcode token>\n",
             file=sys.stderr,
         )
 

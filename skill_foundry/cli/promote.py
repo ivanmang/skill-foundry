@@ -245,6 +245,8 @@ def remote_web_url(root: Path) -> str | None:
 
 
 def mr_url(web: str, branch: str, base: str = "main") -> str:
+    if re.search(r"github\.com/", web or ""):
+        return f"{web}/compare/{base}...{branch}"
     return f"{web}/merge_requests/new?source_branch={branch}&target_branch={base}"
 
 
@@ -357,12 +359,52 @@ def _gitcode_create_pr(owner: str, repo: str, head: str, base: str, title: str, 
     return data.get("html_url") or data.get("web_url")
 
 
+def _gh_create_pr(branch: str, base: str, title: str, body: str = "") -> str | None:
+    """Create a GitHub PR with the `gh` CLI; return its html_url."""
+    gh = shutil.which("gh")
+    if not gh:
+        return None
+    try:
+        cmd = [gh, "pr", "create", "--head", branch, "--base", base, "--title", title]
+        if body:
+            cmd += ["--body", body]
+        r = subprocess.run(cmd, capture_output=True, text=True, timeout=60)
+        if r.returncode == 0:
+            text = (r.stdout or "") + " " + (r.stderr or "")
+            m = re.search(r"https?://github\.com/\S+/pull/\d+", text)
+            if m:
+                return m.group(0)
+            return (r.stdout or "").strip() or None
+    except Exception:
+        return None
+    return None
+
+
+def _github_create_pr(owner: str, repo: str, head: str, base: str, title: str, token: str, body: str = "") -> str | None:
+    """Create a GitHub pull request via the REST API; return its html_url."""
+    api = f"https://api.github.com/repos/{owner}/{repo}/pulls"
+    payload = json.dumps({"title": title, "head": head, "base": base, "body": body}).encode()
+    req = urllib.request.Request(
+        api, data=payload, method="POST",
+        headers={
+            "Authorization": f"Bearer {token}",
+            "Accept": "application/vnd.github+json",
+            "X-GitHub-Api-Version": "2022-11-28",
+            "Content-Type": "application/json",
+        },
+    )
+    with urllib.request.urlopen(req, timeout=60) as resp:
+        data = json.loads(resp.read().decode())
+    return data.get("html_url")
+
+
 def create_mr(web: str, branch: str, base: str, title: str, body: str = "") -> tuple[str, bool]:
     """Create an MR/PR on the platform. Returns (url, created).
 
-    gitcode (this repo's remote) uses its own v5 API with ``access_token`` query
-    auth; the standard GitLab API and glab do not work against it. ``body`` (if
-    given) is the MR description.
+    gitcode (uses its own v5 API with ``access_token`` query auth), GitHub
+    (``gh`` CLI, else REST with ``GH_TOKEN``/``GITHUB_TOKEN``) are handled
+    directly; the standard GitLab API and glab cover GitLab hosts. ``body`` (if
+    given) is the PR description.
     """
     token = os.environ.get("GITCODE_TOKEN") or os.environ.get("GITLAB_TOKEN")
     m = re.search(r"gitcode\.com/([^/]+)/([^/]+?)(?:\.git)?$", web or "")
@@ -373,6 +415,20 @@ def create_mr(web: str, branch: str, base: str, title: str, body: str = "") -> t
                 return url, True
         except Exception:
             pass
+    mgh = re.search(r"github\.com/([^/]+)/([^/]+?)(?:\.git)?$", web or "")
+    if mgh:
+        url = _gh_create_pr(branch, base, title, body)
+        if url:
+            return url, True
+        token = os.environ.get("GH_TOKEN") or os.environ.get("GITHUB_TOKEN")
+        if token:
+            try:
+                url = _github_create_pr(mgh.group(1), mgh.group(2), branch, base, title, token, body)
+                if url:
+                    return url, True
+            except Exception:
+                pass
+        return mr_url(web, branch, base), False
     url = _glab_create_mr(branch, base, title, body)
     if url:
         return url, True
@@ -616,13 +672,14 @@ def main(argv: list[str] | None = None) -> int:
         args.apply = True
         if not args.branch:
             args.branch = f"feat/learnings-{_dt.datetime.now():%Y%m%d}"
-        if not (os.environ.get("GITCODE_TOKEN") or os.environ.get("GITLAB_TOKEN")):
+        if not any(os.environ.get(k) for k in ("GITCODE_TOKEN", "GITLAB_TOKEN", "GH_TOKEN", "GITHUB_TOKEN")):
             print(
                 "\n"
-                "⚠️  GITCODE_TOKEN is NOT set — the PR will NOT be auto-created.\n"
+                "⚠️  No PR token is set — the PR will NOT be auto-created.\n"
                 "    `--pr` will push the branch and print a manual PR-new URL instead.\n"
                 "    To enable auto PR creation, add to env.sh (gitignored) and re-source:\n"
-                "      export GITCODE_TOKEN=<your gitcode access token>   # gitcode → Settings → Access Tokens\n",
+                "      GitHub:  export GH_TOKEN=<github token>          # (or run `gh auth login`)\n"
+                "      GitCode: export GITCODE_TOKEN=<gitcode token>\n",
                 file=sys.stderr,
             )
 

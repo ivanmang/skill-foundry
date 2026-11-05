@@ -74,6 +74,26 @@ changed · Diff (+n/−m)**. `## Why` / `## Impact` / `## Testing` / `## Rollbac
 
 ## Token handling
 
-- Keep `export GITCODE_TOKEN=…` in `env.sh` (gitignored). **Never commit it** —
-  the no-secrets gate rejects it, and it is a credential.
+- Keep `export GH_TOKEN=…` (GitHub) or `export GITCODE_TOKEN=…` (GitCode) in
+  `env.sh` (gitignored). **Never commit it** — the no-secrets gate rejects it,
+  and it is a credential.
 - The merge is always human: `--pr` opens the PR but never merges it.
+
+## GitHub (post-migration)
+
+When the repo migrates to GitHub, `--pr` auto-creates the PR through two paths
+(in priority order, both human-merged):
+
+1. **`gh` CLI** — `gh pr create --head <branch> --base main --title …`.
+   Preferred: uses the existing `gh auth` (or `GH_TOKEN`/`GITHUB_TOKEN`).
+2. **GitHub REST API** — `POST https://api.github.com/repos/{owner}/{repo}/pulls`
+   with `Authorization: Bearer <token>` (header auth, not query param).
+
+Env vars accepted: `GH_TOKEN`, then `GITHUB_TOKEN` (GitHub);
+`GITCODE_TOKEN`, then `GITLAB_TOKEN` (GitCode/GitLab). If none are set and `gh`
+is not authenticated, `--pr` pushes the branch and prints the manual URL
+(`https://github.com/<owner>/<repo>/compare/main...<branch>`).
+
+> GitHub ignores the GitLab push options (`-o merge_request.create`) the agent
+> sends first — that push succeeds but creates no PR, and the agent falls
+> through to the paths above. No action needed.

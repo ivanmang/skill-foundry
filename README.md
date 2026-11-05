@@ -1,5 +1,7 @@
 # skill-foundry
 
+[![CI](https://github.com/ivanmang/skill-foundry/actions/workflows/ci.yml/badge.svg)](https://github.com/ivanmang/skill-foundry/actions/workflows/ci.yml)
+
 A **skill-ops platform** built on open Agent Skills (`SKILL.md`): agents and
 humans capture reusable knowledge as Skills during work, and it flows — through
 a reviewed promote step (`--pr` MR) — into a shared hub every
@@ -62,7 +64,7 @@ review against live TRACE/PR9/ANALYSIS. Full opencode launch hours remain custom
 ## Quick start
 
 ```bash
-git clone git@gitcode.com:ivanmang/skill-foundry.git
+git clone git@github.com:ivanmang/skill-foundry.git
 cd skill-foundry
 
 # the product — the skill-ops loop (all ./harness does):
@@ -81,9 +83,15 @@ Only `python3` + `git` are required for the harness itself. Optional: make the
 CLI available anywhere as `skill-foundry`:
 
 ```bash
-pip install -e .        # needs setuptools>=64, pip>=21.3
+python3 -m venv .venv && source .venv/bin/activate   # recommended (any recent pip)
+pip install -e .            # needs setuptools>=64, pip>=21.3
 skill-foundry version
 ```
+
+> Editable install requires a writable environment. On a system Python with
+> user site-packages disabled (or an aged distro pip), use a venv as above —
+> `pip install -e .` targets system site-packages and will fail with
+> `Permission denied`.
 
 ---
 
@@ -250,7 +258,7 @@ env.example.sh            copy to env.sh for machine-local CANN / pto-isa paths
 
 ## Decisions (as agreed)
 
-- Dedicated team repo `https://gitcode.com/ivanmang/skill-foundry.git`.
+- Dedicated team repo `https://github.com/ivanmang/skill-foundry.git`.
 - **Pinned baseline** committed at `reports/baseline/<target>.json`; all other
   `reports/*` artifacts are gitignored.
 - Perf regression flag: **p99 +15%** even if average is stable.
@@ -320,10 +328,11 @@ MR that a human merges after CI is green.
 #    (review is mandatory: set SKILL_REVIEWER or run interactively)
 ```
 
-> **⚠️ Strongly recommended — GITCODE_TOKEN:** set `export GITCODE_TOKEN=…` (a gitcode
-> personal access token) in `env.sh` so `--pr` creates the PR itself via the gitcode v5
-> API. It's optional — if unset the agent pushes the branch and prints a manual PR-new
-> URL — but every `--pr` run will print a loud reminder to add it.
+> **⚠️ Strongly recommended — GH_TOKEN (GitHub) / GITCODE_TOKEN (GitCode):** set
+> `export GH_TOKEN=…` (a GitHub personal access token) in `env.sh`, or run `gh auth login`,
+> so `--pr` creates the PR itself. On GitCode set `GITCODE_TOKEN=…` instead. It's optional
+> — if unset the agent pushes the branch and prints a manual PR-new URL — but every `--pr`
+> run will print a loud reminder to add it.
 > Details: `.claude/skills/skill-maintainer/references/mr-automation.md`.
 
 See `.claude/skills/skill-maintainer/SKILL.md` and the live walkthrough:
@@ -343,4 +352,4 @@ See `.claude/skills/skill-maintainer/SKILL.md` and the live walkthrough:
 | `baseline` refuses to pin | a suite didn't PASS — fix it, or `--force` |
 | `report --open` → xdg-open errors / no browser | handled: WSL opens via `explorer.exe`; else prints the path |
 | skills not showing up in the agent | run `./harness skills --install`, then restart/reload the agent |
-| `--pr` printed a PR-new URL instead of creating it | set `export GITCODE_TOKEN=<gitcode access token>` in `env.sh` — see `skill-maintainer/references/mr-automation.md` |
+| `--pr` printed a PR-new URL instead of creating it | set `export GH_TOKEN=<github token>` (or `gh auth login`) in `env.sh` — for GitCode set `GITCODE_TOKEN` — see `skill-maintainer/references/mr-automation.md` |
