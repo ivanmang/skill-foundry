@@ -34,6 +34,7 @@ from skill_foundry.lib import parse_gtest  # noqa: E402
 from skill_foundry.lib import capabilities  # noqa: E402
 from skill_foundry.lib import perf_metrics  # noqa: E402
 from skill_foundry.lib import targets  # noqa: E402
+from skill_foundry.lib import state  # noqa: E402
 from skill_foundry.lib.term import fmt_dur  # noqa: E402
 
 # Modes that need a CANN toolkit (ASCEND_HOME_PATH) on the runner.
@@ -571,6 +572,7 @@ def main(argv: list[str] | None = None) -> int:
 
     record = {
         "run_id": run_id,
+        "schema_version": state.RUN_SCHEMA_VERSION,
         "generated_at": now_iso(),
         "generated": True,
         "harness_commit": git_ref(HARNESS),

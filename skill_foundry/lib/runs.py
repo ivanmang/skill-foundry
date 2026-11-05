@@ -6,6 +6,7 @@ import json
 from pathlib import Path
 
 from skill_foundry.paths import ROOT as HARNESS  # noqa: E402
+from skill_foundry.lib import state  # noqa: E402
 
 
 def runs_dir() -> Path:
@@ -19,7 +20,7 @@ def iter_runs(reports: Path | None = None) -> list[tuple[Path, dict]]:
     runs: list[tuple[Path, dict]] = []
     for p in d.glob("*/run.json"):
         try:
-            data = json.loads(p.read_text(encoding="utf-8"))
+            data = state.migrate_run(json.loads(p.read_text(encoding="utf-8")))
         except Exception:
             continue
         if not isinstance(data, dict) or not data.get("run_id"):

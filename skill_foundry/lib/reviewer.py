@@ -33,7 +33,7 @@ import subprocess
 import sys
 
 from skill_foundry.paths import ROOT  # noqa: E402
-from skill_foundry.lib import gates, validate_skills  # noqa: E402
+from skill_foundry.lib import gates, metrics, validate_skills  # noqa: E402
 
 _VERDICT_ORDER = {"reject": 0, "hold": 1, "approve": 2}
 
@@ -162,6 +162,13 @@ def builtin_review(
     return "approve", []
 
 
+def _record_judge(verdict: str) -> None:
+    eid = metrics.record("judge", verdict=verdict)
+    if eid:
+        print(f"  · judge event {eid} — calibrate: ./harness metrics --calibrate {eid} approve|reject",
+              file=sys.stderr)
+
+
 def approve(
     diff_text: str,
     target_content: str = "",
@@ -174,12 +181,14 @@ def approve(
         for r in reasons:
             print(f"  ⚠ {r}", file=sys.stderr)
     if verdict == "reject":
+        _record_judge("reject")
         print("review verdict: REJECT (builtin)")
         return False
 
     llm = llm_verdict(diff_text)
     if llm is not None:
         final = _worst(verdict, llm)
+        _record_judge(final)
         print(f"review verdict: {final.upper()}")
         return final == "approve"
 
@@ -198,6 +207,7 @@ def approve(
     except (EOFError, KeyboardInterrupt):
         print("(no input — holding)", file=sys.stderr)
         return False
+    _record_judge("approve" if ans in ("a", "approve", "y", "yes") else "reject")
     return ans in ("a", "approve", "y", "yes")
 
 

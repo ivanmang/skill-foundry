@@ -32,7 +32,7 @@ from pathlib import Path
 from skill_foundry.paths import ROOT as HARNESS  # noqa: E402
 from skill_foundry.lib import browser as _browser  # noqa: E402
 from skill_foundry.lib import gates  # noqa: E402
-from skill_foundry.lib import reviewer  # noqa: E402
+from skill_foundry.lib import metrics, reviewer  # noqa: E402
 
 FIELD_ORDER = ["id", "category", "context", "skill", "wrong", "correct", "action", "status"]
 ENTRY_RE = re.compile(r"^##\s+(LRN-\d{8}-\d{3})")
@@ -539,6 +539,8 @@ def apply_all(root: Path, lp: Path, entries: list[dict], pending: list[dict],
             else:
                 print("✗ review did not APPROVE — nothing applied.")
             return 0
+
+    metrics.record("promote", count=sum(len(es) for _, _, _, es in plan))
 
     # 4. write
     changed: list[Path] = []

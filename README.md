@@ -193,6 +193,7 @@ runs directly as thin scripts the skills reference.
   teach          Log a correction                       ["wrong -> correct -> action" | wizard | --edit]
   promote        Publish learnings into skills          [--propose | --apply | --pr]
   skills         List/search · install · refresh        [--search, --category, --origin, --owner, --maturity, --scope, --entry, --inbox, --install, --uninstall, --dry-run, --mine, --refresh, --check, --json]
+  metrics        Show product-loop telemetry            [--calibrate EVENT_ID --outcome approve|reject]
   menu           Curated menu (bare ./harness default)
   selfcheck      Compile + skill-spec + reference integrity + index freshness + demo smoke
 

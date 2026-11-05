@@ -27,7 +27,7 @@ from pathlib import Path
 from typing import Any
 
 from skill_foundry.paths import ROOT as HARNESS  # noqa: E402
-from skill_foundry.lib import log_correction  # noqa: E402
+from skill_foundry.lib import log_correction, metrics  # noqa: E402
 
 DEFAULT_SKILL = "pto-isa"
 
@@ -191,6 +191,7 @@ def main(argv: list[str] | None = None) -> int:
 
     eid = log_correction.append_entry(args.file, entry)
     entry["id"] = eid
+    metrics.record("capture", id=eid, skill=entry.get("skill"))
     if args.json:
         print(json.dumps({"status": "logged", "id": eid, "file": args.file, "entry": entry}))
     else:

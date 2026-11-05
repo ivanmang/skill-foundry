@@ -22,7 +22,7 @@ from skill_foundry.paths import ROOT as HARNESS  # noqa: E402
 from skill_foundry.cli import promote as PR  # noqa: E402 — reuse remote_web_url / create_mr
 from skill_foundry.lib import browser as _browser  # noqa: E402
 from skill_foundry.lib import gates  # noqa: E402
-from skill_foundry.lib import reviewer  # noqa: E402
+from skill_foundry.lib import metrics, reviewer  # noqa: E402
 
 INBOX = HARNESS / "hub" / "inbox"
 LIVE = HARNESS / ".claude" / "skills"
@@ -123,6 +123,7 @@ def main(argv: list[str] | None = None) -> int:
         return 0
 
     shutil.copytree(src, dst)
+    metrics.record("promote_skill", name=name)
     shutil.rmtree(src)
     if not args.json:
         print(f"✓ promoted {name} → {dst}")
