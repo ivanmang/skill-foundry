@@ -18,7 +18,8 @@ export PTO_ISA_REPO="${PTO_ISA_REPO:-$HOME/pto-isa}"
 # config/suites.json). Example for the pto-vmi target:
 #   export PTO_VMI_REPO="$HOME/pto-vmi"
 
-# Optional: GitCode personal access token — lets `./harness promote --pr`
-# auto-create the pull request (gitcode v5 API, access_token query param).
+# Optional: GitHub personal access token — lets `./harness promote --pr`
+# auto-create the pull request (`gh pr create` / GitHub REST).
 # If unset, --pr still pushes the branch but only prints the PR-new URL.
-#   export GITCODE_TOKEN="<your token>"   # gitcode: Settings → Access Tokens
+#   export GH_TOKEN="<your token>"        # GitHub: Settings → Developer settings → PAT
+# GitCode (legacy fallback): export GITCODE_TOKEN="<token>"   # gitcode: Settings → Access Tokens
