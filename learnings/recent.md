@@ -252,3 +252,36 @@ write entries; `skill_foundry/cli/promote.py` parses and promotes them.
 - action: add to references/known-failures.md triage backlog
 - status: promoted
 
+
+## LRN-20261105-018
+- id: LRN-20261105-018
+- category: feature
+- context: ecs pto-isa readiness
+- skill: pto-isa
+- wrong: Running `--all-suites` could abort the regression when a suite lacks env
+- correct: `--all-suites` skips unavailable suites and runs runnable ones; npu-sim-a6 is skipped due missing CANN headers and dav_9201 simulator
+- action: update pto-isa run docs and add npu-sim-a6 skip to known-failures
+- status: rejected
+
+
+## LRN-20261105-019
+- id: LRN-20261105-019
+- category: error
+- context: ecs cmake/gcc temp file creation
+- skill: pto-isa
+- wrong: gcc/cmake failed to create temp files because /tmp on the root filesystem was full
+- correct: Set TMPDIR=~/tmp before the run so temp files use /home which has free space
+- action: add TMPDIR workaround to ecs known-failures or setup notes
+- status: promoted
+
+
+## LRN-20261105-020
+- id: LRN-20261105-020
+- category: correction
+- context: ecs /tmp cannot create files
+- skill: pto-isa
+- wrong: Assumed full disk blocks caused /tmp file creation failure
+- correct: Root filesystem inode exhaustion (df -i / showed 6553600/6553600 used) can prevent temp file creation even when blocks are free; check df -i
+- action: update ecs triage docs to diagnose inode exhaustion when temp files fail
+- status: promoted
+

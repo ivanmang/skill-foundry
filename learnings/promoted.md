@@ -28,3 +28,6 @@ deliberately rejected with a reason).
 - LRN-20261105-013 — pto-isa — MTE3 ×128 calibration factor 5.3–6.4 (use /5.5); MTE2 read bytes from XT descriptor low 16 bits.
 - LRN-20261105-014 — pto-isa — SIMT type width = bytes/lane; type:2 is exact 64 B/instr.
 - LRN-20261105-015 — pto-isa — ca clock 5 GHz constant (dup of -004).
+- LRN-20261105-019 — pto-isa — ecs temp-file failures: /tmp on root FS; set TMPDIR=~/tmp so temp files land on /home (merged with -020).
+- LRN-20261105-020 — pto-isa — root cause is `/` inode exhaustion (df -i 6553600/6553600), not block-full; diagnose with df -i.
+- LRN-20261105-018 — pto-isa — REJECTED (duplicate): --all-suites auto-skip is already the documented rule; A6=dav_9201 headers-first already in cann-matrix.md.

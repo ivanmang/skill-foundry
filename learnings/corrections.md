@@ -31,3 +31,7 @@ what changed, and why.
 ## 2026-11-05 — pto-isa
 - Promoted: LRN-20261105-001, -004, -005, -006, -010, -013, -014, -015
 - Action: parse_gtest (-001/-010) already in code + tested, marked promoted; CA-metrics facts (-004/-005/-006/-013/-014/-015) inlined as references/ca-metrics.md (clock 5 GHz, SIMT byte/lane widths, MTE3 ×128/5.5) and linked from SKILL.md.
+
+## 2026-11-05 — pto-isa
+- Promoted: LRN-20261105-019, -020 (merged into one env.md note); Rejected: LRN-20261105-018 (duplicate of existing rules + cann-matrix).
+- Action: added ecs temp-file inode-exhaustion note (TMPDIR=~/tmp + df -i) to references/env.md; --all-suites/A6 skip already documented — no change.

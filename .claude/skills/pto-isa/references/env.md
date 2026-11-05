@@ -54,3 +54,16 @@ machines like ecs where the login shell is non-interactive, source
 | Yellow | m00922072@7.246.99.145 | A6 sim `dav_9201`; pull-only from gitcode |
 | b10 | pto-b10.ddns.net:8022 | dashboard host |
 | ecs | 115.175.35.144 | A5 dashboard + CPU/NPU runs |
+
+## ecs temp-file failures (inode exhaustion)
+
+`cmake`/`gcc` can fail to create temp files on ecs even when disk blocks are
+free — the root filesystem `/` runs out of inodes (`df -i /` → 6553600/6553600).
+Fix in the run env:
+
+```bash
+mkdir -p "$HOME/tmp"
+export TMPDIR="$HOME/tmp" TMP="$HOME/tmp" TEMP="$HOME/tmp"
+```
+
+Diagnose with `df -i /` (not `df -h`) whenever temp-file creation fails.
