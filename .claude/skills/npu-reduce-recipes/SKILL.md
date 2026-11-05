@@ -6,8 +6,8 @@ description: >
   deferring packs, or porting A5 reduce intrinsics to A6 v2 instructions.
 category: ascendc-dev
 license: CANN Open Software License Agreement Version 2.0
-origin: local
-maturity: draft
+origin: native
+maturity: ready
 owner: skill-foundry
 ---
 

@@ -7,8 +7,8 @@ description: >
   per-mode validation matrix; A5-validated, carries to A6 unless noted.
 category: ascendc-dev
 license: CANN Open Software License Agreement Version 2.0
-origin: local
-maturity: draft
+origin: native
+maturity: ready
 owner: skill-foundry
 ---
 

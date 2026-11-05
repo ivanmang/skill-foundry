@@ -9,8 +9,8 @@ description: >
   R1/R4/R7/R11-13 plus the case-writing anti-pattern catalog with measured costs.
 category: ascendc-dev
 license: CANN Open Software License Agreement Version 2.0
-origin: local
-maturity: draft
+origin: native
+maturity: ready
 owner: skill-foundry
 ---
 

@@ -7,8 +7,8 @@ description: >
   pattern. Companion to measurement — never a substitute.
 category: perf-optimize
 license: CANN Open Software License Agreement Version 2.0
-origin: local
-maturity: draft
+origin: native
+maturity: ready
 owner: skill-foundry
 ---
 

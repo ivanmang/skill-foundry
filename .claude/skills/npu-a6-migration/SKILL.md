@@ -6,8 +6,8 @@ description: >
   deltas, i-cache, sync, and split-arch build flags.
 category: ascendc-dev
 license: CANN Open Software License Agreement Version 2.0
-origin: local
-maturity: draft
+origin: native
+maturity: ready
 owner: skill-foundry
 ---
 

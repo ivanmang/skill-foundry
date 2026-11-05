@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated": "2026-11-05T08:06:23.171540+00:00",
+  "generated": "2026-11-05T08:33:36.187995+00:00",
   "skills": [
     {
       "name": "aclnn-doc-gen",
@@ -567,9 +567,9 @@
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
       "stages": [],
-      "origin": "local",
+      "origin": "native",
       "owner": "skill-foundry",
-      "maturity": "draft",
+      "maturity": "ready",
       "status": "published"
     },
     {
@@ -579,9 +579,9 @@
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
       "stages": [],
-      "origin": "local",
+      "origin": "native",
       "owner": "skill-foundry",
-      "maturity": "draft",
+      "maturity": "ready",
       "status": "published"
     },
     {
@@ -591,9 +591,9 @@
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
       "stages": [],
-      "origin": "local",
+      "origin": "native",
       "owner": "skill-foundry",
-      "maturity": "draft",
+      "maturity": "ready",
       "status": "published"
     },
     {
@@ -603,9 +603,9 @@
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
       "stages": [],
-      "origin": "local",
+      "origin": "native",
       "owner": "skill-foundry",
-      "maturity": "draft",
+      "maturity": "ready",
       "status": "published"
     },
     {
@@ -615,9 +615,9 @@
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
       "stages": [],
-      "origin": "local",
+      "origin": "native",
       "owner": "skill-foundry",
-      "maturity": "draft",
+      "maturity": "ready",
       "status": "published"
     },
     {
@@ -627,9 +627,9 @@
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
       "stages": [],
-      "origin": "local",
+      "origin": "native",
       "owner": "skill-foundry",
-      "maturity": "draft",
+      "maturity": "ready",
       "status": "published"
     },
     {

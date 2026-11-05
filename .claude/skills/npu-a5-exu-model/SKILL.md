@@ -7,8 +7,8 @@ description: >
   A6 deltas marked inline (see npu-a6-migration for the full A6 model).
 category: ascendc-dev
 license: CANN Open Software License Agreement Version 2.0
-origin: local
-maturity: draft
+origin: native
+maturity: ready
 owner: skill-foundry
 ---
 
