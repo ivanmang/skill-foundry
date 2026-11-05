@@ -1,0 +1,14 @@
+# gitleaks configuration for skill-foundry.
+# Default rules, with allowlists for non-secret detector code and the bundled
+# content corpus (imported skills + illustrative examples are not our secrets
+# to police; product code + history are).
+
+title = "skill-foundry gitleaks config"
+
+[allowlist]
+  description = "Secret-detector code and imported/illustrative content"
+  paths = [
+    '''skill_foundry/lib/gates\.py''',  # the no-secrets gate itself (regex patterns)
+    '''demo/''',                       # sandboxed walkthrough fixtures
+    '''\.claude/''',                   # bundled skills corpus (content, not product code)
+  ]
