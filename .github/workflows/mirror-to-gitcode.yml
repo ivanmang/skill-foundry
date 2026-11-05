@@ -1,0 +1,45 @@
+name: Mirror to GitCode
+
+# One-way mirror: GitHub is the source of truth; GitCode is a read-only copy.
+#
+# Requires a deploy key:
+#   1. `ssh-keygen -t ed25519 -C "github-actions-mirror" -f /tmp/gitcode_deploy`
+#   2. Add /tmp/gitcode_deploy.pub to GitCode repo → Settings → Deploy Keys
+#      (with write access).
+#   3. Add the PRIVATE key as a GitHub Actions secret `GITCODE_DEPLOY_KEY`.
+
+on:
+  push:
+    branches: [main]
+    tags: ["*"]
+  workflow_dispatch: # manual re-sync
+
+permissions:
+  contents: read
+
+jobs:
+  mirror:
+    name: Push main + tags to GitCode
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0 # full history for a faithful mirror
+          fetch-tags: true
+
+      - name: Set up SSH deploy key
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.GITCODE_DEPLOY_KEY }}
+
+      - name: Trust GitCode host key
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan -H gitcode.com >> ~/.ssh/known_hosts
+
+      - name: Push to GitCode
+        run: |
+          git remote add gitcode-mirror git@gitcode.com:ivanmang/skill-foundry.git
+          git push gitcode-mirror main
+          git push gitcode-mirror --tags
