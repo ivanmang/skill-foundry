@@ -33,3 +33,9 @@ extend-exclude = [
 [tool.ruff.lint]
 # Default rule set (E4/E7/E9/F). No extra rules: the product code is
 # lint-clean under the defaults only.
+
+[tool.mypy]
+python_version = "3.10"
+ignore_missing_imports = true
+check_untyped_defs = false
+disallow_untyped_defs = false

@@ -37,6 +37,10 @@ AGENTS = [
     ("claude-code", Path.home() / ".claude", "restart Claude Code (or /reload)"),
     ("pi", Path.home() / ".pi", "/reload in Pi"),
     ("open-standard", Path.home() / ".agents", "restart the agent"),
+    ("codex", Path.home() / ".codex", "restart Codex"),
+    ("cursor", Path.home() / ".cursor", "restart Cursor"),
+    ("copilot", Path.home() / ".github", "restart Copilot"),
+    ("opencode", Path.home() / ".config" / "opencode", "restart OpenCode"),
 ]
 
 

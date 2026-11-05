@@ -1,0 +1,23 @@
+{
+  "_comment": "Single source of truth for fleet hosts and the MCP endpoint. Referenced by README/docs; the operational artifacts are .mcp.json (MCP client config) and mcp/b10-deploy.md (hosting runbook).",
+  "mcp_url": "https://pto-b10.ddns.net/mcp",
+  "hosts": {
+    "b10": {
+      "role": "MCP gateway / skill-ops server host",
+      "notes": "Runs mcp/server.py behind Caddy (TLS). Endpoint is mcp_url above."
+    },
+    "yellow": {
+      "role": "A6 NPU simulator host (dav_9201)",
+      "notes": "Source of the A6 / v200 simulator workflows. No public endpoint."
+    },
+    "ecs": {
+      "role": "CPU-ST + daily dashboard host",
+      "notes": "clang++>=15 / g++>=13; runs pto-isa CPU-ST and the dashboard refresh."
+    }
+  },
+  "secrets": {
+    "_comment": "Where credentials live. Never commit values; names only.",
+    "env_sh": ["GH_TOKEN", "GITCODE_TOKEN"],
+    "github_actions": ["GITCODE_DEPLOY_KEY"]
+  }
+}

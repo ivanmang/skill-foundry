@@ -41,6 +41,21 @@ jobs:
       - run: pip install "ruff==0.15.0"
       - run: ruff check .
 
+  # Type check over the product code. Non-blocking for now: 36 findings remain
+  # (mostly None-narrowing + Path/str in demo narration). Drive to zero, then
+  # drop `continue-on-error` to make it a hard gate like `lint`.
+  typecheck:
+    name: mypy (non-blocking)
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install mypy
+      - run: mypy skill_foundry mcp
+
   # Packaging: `pip install -e .` (PEP 660) must work and the console script
   # must resolve. Catches pyproject.toml / setup.py regressions.
   package:

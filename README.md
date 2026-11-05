@@ -241,7 +241,7 @@ docs/SKILLS_INDEX.md      auto-generated skill map (entry points + category + ow
 .claude-plugin/           plugin.json + marketplace.json (Claude Code plugin + marketplace)
 .mcp.json                 MCP server config (bundled into the plugin)
 mcp/                      MCP server (server.py + deploy/start/tls scripts + runbook)
-config/                   suites.json + arches.json + cann.json (source of truth) + externals.json (declared external skills)
+config/                   suites.json + arches.json + cann.json + fleet.json (source of truth) + externals.json (declared external skills)
 skill_foundry/            the Python package (see skill_foundry/README.md)
   cli/                    THE PRODUCT: skill-ops verbs + shell (teach/promote/skills/…)
   workflow/               bundled regression workflow (run/report/review/status/…)

@@ -1,0 +1,64 @@
+# Contributing to skill-foundry
+
+skill-foundry is a **skill-ops platform**: agents and humans capture reusable
+knowledge as [Agent Skills](https://agentskills.io) (`SKILL.md`), and it flows
+through a reviewed promote step into a shared hub every teammate's agent can use.
+
+## The two loops
+
+```text
+USE      run → report → review     (thin scripts · diff vs pinned baseline)
+IMPROVE  teach → promote --pr      (corrections → skills via a reviewed MR)
+```
+
+## Development setup
+
+```bash
+git clone git@github.com:ivanmang/skill-foundry.git
+cd skill-foundry
+python3 -m venv .venv && source .venv/bin/activate
+pip install -e .
+make check          # full self-check: compile + spec + unit + demo + tilelangGym
+```
+
+The canonical merge gate is `./skill_foundry/cli/selfcheck.sh`; CI runs it on
+every PR. `ruff` is a blocking gate over the product code (`skill_foundry/`,
+`mcp/`, `tests/`, `scripts/`).
+
+## Submitting a change
+
+1. **Open an issue first** for new skills, new targets, or behavior changes.
+   Trivial doc fixes and bug fixes can go straight to a PR.
+2. Branch from `main`, make your change, and open a **pull request on GitHub**
+   (GitCode is a read-only mirror — never open an MR there).
+3. CI must be green (`selfcheck` + `lint` + `package`).
+4. A human merges; **never self-merge**.
+
+PRs include a description in the
+[`.github/PULL_REQUEST_TEMPLATE.md`](.github/PULL_REQUEST_TEMPLATE.md) shape.
+
+## Skills
+
+- Follow the open [Agent Skills spec](https://agentskills.io/specification):
+  required `name` + `description` frontmatter, name matches the folder,
+  lowercase-hyphen, ≤64 chars; description ≤1024 chars.
+- skill-foundry adds discovery fields: `category`, `origin`, `owner`,
+  `maturity` (all required to pass the promote gate).
+- Conformance is machine-checked: `python3 -m skill_foundry.lib.validate_skills --strict`.
+
+## Rules
+
+- **The pinned baseline is ground truth.** Refresh it deliberately, never casually.
+- **Never auto-remove or auto-change an existing check** — promotion is add-only.
+- **p99 > +15% flags a perf regression even if average is stable.**
+- **Exit codes:** `0` clean · `1` ran-with-failures · `2` usage.
+- **Secrets never touch git** — tokens go in the gitignored `env.sh`.
+
+## Automation boundary
+
+| Role | What it does |
+|---|---|
+| 🟢 scripts (automatic) | run, extract, report, review, dry-run previews |
+| 🟢 harness (gated + LLM-reviewed) | capture a correction, propose a diff, apply + push (add-only · no-secrets · size · spec, then LLM judge APPROVE) |
+| 🟡 you (gate) | triage content (`wrong → correct → action`) + merging the MR |
+| 🔴 never automatic | remove/change an existing check |
