@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated": "2026-11-04T03:24:59.700052+00:00",
+  "generated": "2026-11-05T08:06:23.171540+00:00",
   "skills": [
     {
       "name": "aclnn-doc-gen",
@@ -558,6 +558,78 @@
       "origin": "cannbot",
       "owner": "cannbot",
       "maturity": "ready",
+      "status": "published"
+    },
+    {
+      "name": "npu-a5-exu-model",
+      "description": "Use when writing or scheduling A5 (NPU_ARCH 3101) CCE vector kernels: deciding which EXU an instruction issues on, whether ops dual-issue, why slide-heavy loops serialize, or balancing work across EXQ0/EXQ1. A5 facts, sim-validated; A6 deltas marked inline (see npu-a6-migration for the full A6 model).",
+      "category": "ascendc-dev",
+      "license": "CANN Open Software License Agreement Version 2.0",
+      "entry": false,
+      "stages": [],
+      "origin": "local",
+      "owner": "skill-foundry",
+      "maturity": "draft",
+      "status": "published"
+    },
+    {
+      "name": "npu-a6-migration",
+      "description": "Use when porting A5 kernels to A6 (NPU_ARCH 9201 / DavidV121 / dav_9201) or writing A6-native kernels: 3-EXU model, v2 instruction split, bank/service-rule deltas, i-cache, sync, and split-arch build flags.",
+      "category": "ascendc-dev",
+      "license": "CANN Open Software License Agreement Version 2.0",
+      "entry": false,
+      "stages": [],
+      "origin": "local",
+      "owner": "skill-foundry",
+      "maturity": "draft",
+      "status": "published"
+    },
+    {
+      "name": "npu-dist-modes",
+      "description": "Use when choosing vlds/vsts distribution modes (NORM/DINTLV/E2B/BRC/UNPK/BLK loads, NORM/PK/PK4/INTLV stores) or deciding whether a data rearrangement should be an EXU instruction or a load/store mode. LSU-path semantics with a per-mode validation matrix; A5-validated, carries to A6 unless noted.",
+      "category": "ascendc-dev",
+      "license": "CANN Open Software License Agreement Version 2.0",
+      "entry": false,
+      "stages": [],
+      "origin": "local",
+      "owner": "skill-foundry",
+      "maturity": "draft",
+      "status": "published"
+    },
+    {
+      "name": "npu-loop-patterns",
+      "description": "Use when structuring hot vector loops on A5/A6 \u2014 unroll width, loop-carried dependencies, tail handling, predicates (plt/POST_UPDATE), pointer addressing, scalar/ASU pressure \u2014 AND when reviewing kernels for known anti-patterns (chained POST_UPDATE, vcmax-per-VL, PK4-store floods, mid-loop predicate construction, plt-counter duplication, VSQZ store-hint deadlocks). Rules R1/R4/R7/R11-13 plus the case-writing anti-pattern catalog with measured costs.",
+      "category": "ascendc-dev",
+      "license": "CANN Open Software License Agreement Version 2.0",
+      "entry": false,
+      "stages": [],
+      "origin": "local",
+      "owner": "skill-foundry",
+      "maturity": "draft",
+      "status": "published"
+    },
+    {
+      "name": "npu-perf-method",
+      "description": "Use when estimating vector-kernel cycles before measuring, diagnosing which resource bounds a kernel (roofline), or reviewing store patterns: resource budget model, store-cost cliff, LNEXP per-slot vs per-core, i-cache proof pattern. Companion to measurement \u2014 never a substitute.",
+      "category": "perf-optimize",
+      "license": "CANN Open Software License Agreement Version 2.0",
+      "entry": false,
+      "stages": [],
+      "origin": "local",
+      "owner": "skill-foundry",
+      "maturity": "draft",
+      "status": "published"
+    },
+    {
+      "name": "npu-reduce-recipes",
+      "description": "Use when writing or optimizing vector reductions (per-group absmax, row reduce, cascade/pack) on A5 or A6: choosing vcmax/vcgmax/vmax-tree recipes, deferring packs, or porting A5 reduce intrinsics to A6 v2 instructions.",
+      "category": "ascendc-dev",
+      "license": "CANN Open Software License Agreement Version 2.0",
+      "entry": false,
+      "stages": [],
+      "origin": "local",
+      "owner": "skill-foundry",
+      "maturity": "draft",
       "status": "published"
     },
     {
