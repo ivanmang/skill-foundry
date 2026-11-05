@@ -24,6 +24,7 @@ import subprocess
 import sys
 import tempfile
 from pathlib import Path
+from typing import Any
 
 from skill_foundry.paths import ROOT as HARNESS  # noqa: E402
 from skill_foundry.lib import log_correction  # noqa: E402
@@ -33,7 +34,7 @@ DEFAULT_SKILL = "pto-isa"
 
 def latest_run() -> tuple[str | None, str | None]:
     """Return (run_id, target) of the most recent reports/*/run.json."""
-    best: tuple[object, str | None, str | None] | None = None
+    best: tuple[Any, str | None, str | None] | None = None
     for p in sorted((HARNESS / "reports").glob("*/run.json")):
         try:
             data = json.loads(p.read_text(encoding="utf-8"))

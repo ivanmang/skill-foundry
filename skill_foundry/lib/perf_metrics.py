@@ -101,7 +101,12 @@ def _classify(unit: str, op: str) -> tuple[str | None, str]:
 
 
 def duration_stats(cases: list[dict]) -> dict:
-    durs = sorted(c.get("duration_s") for c in cases if c.get("duration_s") is not None)
+    durs: list[float] = []
+    for c in cases:
+        d = c.get("duration_s")
+        if isinstance(d, (int, float)):
+            durs.append(float(d))
+    durs.sort()
     if not durs:
         return {"cases": 0, "min": None, "p50": None, "p99": None, "max": None, "mean": None}
     n = len(durs)
@@ -131,7 +136,7 @@ def parse_ca_dump(path: Path) -> dict | None:
     raw_unit_counts: Counter = Counter()
     instr_counts: dict[str, Counter] = defaultdict(Counter)
 
-    vec_records: list[tuple[int, str, str, str, str]] = []  # tick,unit,op,cat,sub
+    vec_records: list[tuple[int, str, str, str | None, str]] = []  # tick,unit,op,cat,sub
     ex_ticks: list[int] = []
     rvec_ticks: list[int] = []
     wait_ticks: list[int] = []
@@ -394,9 +399,9 @@ def copy_perf(repo: Path, run_dir: Path, suite_name: str,
                 if f.is_file() and f.name.startswith("core0.veccore0"):
                     shutil.copy2(f, dest / f.name)
         else:
-            for f in matches:
-                if Path(f).name.startswith("core0.veccore0"):
-                    shutil.copy2(f, dest / Path(f).name)
+            for m in matches:
+                if Path(m).name.startswith("core0.veccore0"):
+                    shutil.copy2(m, dest / Path(m).name)
 
 
 if __name__ == "__main__":

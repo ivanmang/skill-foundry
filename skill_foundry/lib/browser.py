@@ -54,11 +54,12 @@ def open_browser(path: Path | str) -> str | None:
     """
     target = str(path)
     is_url = target.startswith(("http://", "https://"))
+    host_exe = _host_browser_exe()
 
     # URLs: open in the host browser on WSL, else xdg-open/open/start.
     if is_url:
-        if is_wsl() and _host_browser_exe():
-            r = subprocess.run([_host_browser_exe(), target], check=False)
+        if is_wsl() and host_exe:
+            r = subprocess.run([host_exe, target], check=False)
             if r.returncode == 0:
                 return None
             return f"couldn't open the URL in the host browser. Open manually:\n  {target}"
@@ -71,10 +72,10 @@ def open_browser(path: Path | str) -> str | None:
 
     # Files
     p = Path(target)
-    if is_wsl() and _host_browser_exe():
+    if is_wsl() and host_exe:
         win = to_windows(p)
         if win:
-            r = subprocess.run([_host_browser_exe(), win], check=False)
+            r = subprocess.run([host_exe, win], check=False)
             if r.returncode == 0:
                 return None
             return (

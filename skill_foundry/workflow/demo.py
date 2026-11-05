@@ -47,7 +47,7 @@ def _git(repo: Path, args: list[str]) -> None:
                    stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
 
-def _run(cmd: list[str], check: bool = True) -> int:
+def _run(cmd: list[str | Path], check: bool = True) -> int:
     return subprocess.run([str(x) for x in cmd], cwd=HARNESS, check=check).returncode
 
 

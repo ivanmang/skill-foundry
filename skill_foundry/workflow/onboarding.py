@@ -73,9 +73,10 @@ def main(argv: list[str] | None = None) -> int:
         print(f"  ✓  found: {pto_path}")
     else:
         url = t.get("repo_clone")
-        clone = ui.ask_yesno(f"  {pto_path} not found — clone it now?", "y") if url else False
-        if clone:
-            subprocess.run(["git", "clone", url, str(pto_path)], check=False)
+        if url:
+            clone = ui.ask_yesno(f"  {pto_path} not found — clone it now?", "y")
+            if clone:
+                subprocess.run(["git", "clone", url, str(pto_path)], check=False)
         if pto_path.exists():
             print(ui.c(f"  ✓  cloned: {pto_path}", ui.GREEN))
         else:

@@ -348,13 +348,13 @@ def render_html(records: list[dict], known_sigs: list[str]) -> str:
             rows_html.append(f"<h3>Failures</h3><ul>{items}</ul>")
 
         trows = timing_rows(rec)
-        trs = "".join(
+        timing_trs = "".join(
             "<tr>" + "".join(f"<td>{html.escape(c)}</td>" for c in r) + "</tr>" for r in trows
         )
         rows_html.append(
             "<h3>Timing</h3>"
             "<table><thead><tr><th>suite</th><th>cases</th><th>duration</th><th>min</th><th>p50</th><th>p99</th><th>max</th></tr></thead><tbody>"
-            + trs + "</tbody></table>"
+            + timing_trs + "</tbody></table>"
         )
 
         prows = perf_rows(rec)

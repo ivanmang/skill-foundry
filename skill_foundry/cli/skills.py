@@ -298,9 +298,10 @@ def _browse_interactive(skills: list[dict]) -> int:
         name = ui.select_menu(title, labels)
         if not name:
             return 0
-        s = next((x for x in order if x["name"] == name), None)
-        if s is None:
+        matches = [x for x in order if x["name"] == name]
+        if not matches:
             continue
+        s = matches[0]
         if not _skill_detail(s):
             return 0
 

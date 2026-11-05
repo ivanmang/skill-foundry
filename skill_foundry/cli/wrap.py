@@ -82,10 +82,11 @@ def main(argv: list[str] | None = None) -> int:
         )
 
         if choice == "TYPE":
-            first = _type_command()
-            if first is None:
+            typed = _type_command()
+            if typed is None:
                 print()
                 return 0
+            first = typed
             continue
         if choice == "FULL":
             pick = ui.select_menu(

@@ -41,13 +41,10 @@ jobs:
       - run: pip install "ruff==0.15.0"
       - run: ruff check .
 
-  # Type check over the product code. Non-blocking for now: 36 findings remain
-  # (mostly None-narrowing + Path/str in demo narration). Drive to zero, then
-  # drop `continue-on-error` to make it a hard gate like `lint`.
+  # Type check over the product code (skill_foundry/ + mcp/). Hard merge gate.
   typecheck:
-    name: mypy (non-blocking)
+    name: mypy
     runs-on: ubuntu-latest
-    continue-on-error: true
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5

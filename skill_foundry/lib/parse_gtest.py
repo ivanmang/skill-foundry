@@ -20,6 +20,7 @@ import argparse
 import json
 import re
 from pathlib import Path
+from typing import Any
 
 # gtest final summary lines
 GTEST_PASSED_RE = re.compile(r"^\[\s*PASSED\s*\]\s+(\d+)\s+tests?\.?")
@@ -56,7 +57,7 @@ BINARY_CRASH_RE = re.compile(r"run binary failed:.*?\./([A-Za-z0-9_]+).*died wit
 def parse_text(text: str, suite: str = "") -> dict:
     cases: dict[str, dict] = {}  # name -> {status, duration_s}
     order: list[str] = []
-    summary = {"passed": 0, "failed": 0, "skipped": 0, "total": 0, "status": "UNKNOWN"}
+    summary: dict[str, Any] = {"passed": 0, "failed": 0, "skipped": 0, "total": 0, "status": "UNKNOWN"}
     evidence: list[str] = []
     have_counts = False  # True once a gtest final summary line gave explicit counts
 
