@@ -21,6 +21,7 @@ import os
 from pathlib import Path
 
 from skill_foundry.paths import ROOT as HARNESS  # noqa: E402
+
 CONFIG = HARNESS / "config" / "suites.json"
 DEFAULT_ARCHES = HARNESS / "config" / "arches.json"
 BASELINES_DIR = HARNESS / "reports" / "baseline"
@@ -47,7 +48,9 @@ def get_target(name: str, cfg: dict | None = None) -> dict | None:
 
 def default_target(cfg: dict | None = None) -> str:
     cfg = cfg or load_config()
-    return cfg.get("default_target") or (list_targets(cfg)[0] if list_targets(cfg) else "pto-isa")
+    return cfg.get("default_target") or (
+        list_targets(cfg)[0] if list_targets(cfg) else "pto-isa"
+    )
 
 
 def resolve_repo(target: dict) -> Path:

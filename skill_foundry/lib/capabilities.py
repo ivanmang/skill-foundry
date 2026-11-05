@@ -17,6 +17,7 @@ import time
 from pathlib import Path
 
 from skill_foundry.paths import ROOT as HARNESS  # noqa: E402
+
 _CACHE_FILE = HARNESS / ".cache" / "cann-lanes.json"
 _CACHE_TTL = 300  # seconds; headers/simulators change rarely, but a re-scan is cheap
 _UNSET = object()
@@ -34,10 +35,14 @@ def _compiler_version(name: str) -> tuple[int, int] | None:
     try:
         if name in ("g++", "gcc"):
             # gcc --version omits the word "version"; -dumpfullversion is parseable.
-            out = subprocess.run([p, "-dumpfullversion"], capture_output=True, text=True, timeout=20).stdout
+            out = subprocess.run(
+                [p, "-dumpfullversion"], capture_output=True, text=True, timeout=20
+            ).stdout
             m = re.search(r"(\d+)\.(\d+)", out)
         else:
-            out = subprocess.run([p, "--version"], capture_output=True, text=True, timeout=20).stdout
+            out = subprocess.run(
+                [p, "--version"], capture_output=True, text=True, timeout=20
+            ).stdout
             m = re.search(r"version\s+(\d+)\.?(\d*)", out)
     except Exception:
         return None
@@ -52,7 +57,9 @@ def has_compiler(min_clang: int = 15, min_gcc: int = 13) -> bool:
         if v is None:
             continue
         major = v[0]
-        if (kind == "clang" and major >= min_clang) or (kind == "gcc" and major >= min_gcc):
+        if (kind == "clang" and major >= min_clang) or (
+            kind == "gcc" and major >= min_gcc
+        ):
             return True
     return False
 
@@ -173,11 +180,15 @@ def _toolkit_lanes() -> tuple[set[str], set[str]]:
     key = str(home)
     cached = _load_cache().get(key)
     if cached and (time.time() - cached.get("ts", 0)) < _CACHE_TTL:
-        _CANN_LANES_CACHE = (set(cached.get("headers", [])), set(cached.get("simulators", [])))
+        _CANN_LANES_CACHE = (
+            set(cached.get("headers", [])),
+            set(cached.get("simulators", [])),
+        )
         return _CANN_LANES_CACHE
 
     try:
         from skill_foundry.lib import cann as detect_cann
+
         info = detect_cann.analyze(home, detect_cann.load_config())
         _CANN_LANES_CACHE = (set(info["headers"]), set(info["simulators"]))
         data = _load_cache()

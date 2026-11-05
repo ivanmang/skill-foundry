@@ -106,7 +106,9 @@ def edit_template(context: str, skill: str) -> dict:
         "correct: \n"
         "action: \n"
     )
-    with tempfile.NamedTemporaryFile("w", suffix=".md", delete=False, encoding="utf-8") as f:
+    with tempfile.NamedTemporaryFile(
+        "w", suffix=".md", delete=False, encoding="utf-8"
+    ) as f:
         f.write(tmpl)
         path = f.name
     editor = os.environ.get("EDITOR") or os.environ.get("VISUAL") or "vi"
@@ -120,15 +122,28 @@ def edit_template(context: str, skill: str) -> dict:
         if not line or line.startswith("#") or ":" not in line:
             continue
         key, _, val = line.partition(":")
-        if key.strip() in {"category", "context", "skill", "wrong", "correct", "action"}:
+        if key.strip() in {
+            "category",
+            "context",
+            "skill",
+            "wrong",
+            "correct",
+            "action",
+        }:
             entry[key.strip()] = val.strip()
     return entry
 
 
 def main(argv: list[str] | None = None) -> int:
-    ap = argparse.ArgumentParser(description="Log a correction (friendly wrapper over log_correction.py).")
-    ap.add_argument("note", nargs="?", help="Free text: 'wrong → correct → action' (or '->').")
-    ap.add_argument("--edit", action="store_true", help="Open $EDITOR with a prefilled template.")
+    ap = argparse.ArgumentParser(
+        description="Log a correction (friendly wrapper over log_correction.py)."
+    )
+    ap.add_argument(
+        "note", nargs="?", help="Free text: 'wrong → correct → action' (or '->')."
+    )
+    ap.add_argument(
+        "--edit", action="store_true", help="Open $EDITOR with a prefilled template."
+    )
     ap.add_argument("--category", default=None)
     ap.add_argument("--context", default=None)
     ap.add_argument("--skill", default=None)
@@ -149,11 +164,23 @@ def main(argv: list[str] | None = None) -> int:
         entry = edit_template(ctx_default, sk_default)
     elif args.note:
         w, c, a = split_note(args.note)
-        entry = {"category": "correction", "context": ctx_default, "skill": sk_default,
-                 "wrong": w, "correct": c, "action": a}
+        entry = {
+            "category": "correction",
+            "context": ctx_default,
+            "skill": sk_default,
+            "wrong": w,
+            "correct": c,
+            "action": a,
+        }
     elif any(x is not None for x in (args.wrong, args.correct, args.action)):
-        entry = {"category": "correction", "context": ctx_default, "skill": sk_default,
-                 "wrong": args.wrong or "", "correct": args.correct or "", "action": args.action or ""}
+        entry = {
+            "category": "correction",
+            "context": ctx_default,
+            "skill": sk_default,
+            "wrong": args.wrong or "",
+            "correct": args.correct or "",
+            "action": args.action or "",
+        }
     else:
         entry = wizard(ctx_default, sk_default)
 
@@ -175,9 +202,18 @@ def main(argv: list[str] | None = None) -> int:
 
     if not any(entry.get(k) for k in ("wrong", "correct", "action")):
         if args.json:
-            print(json.dumps({"status": "error", "error": "Nothing to log (wrong/correct/action are all empty)."}))
+            print(
+                json.dumps(
+                    {
+                        "status": "error",
+                        "error": "Nothing to log (wrong/correct/action are all empty).",
+                    }
+                )
+            )
         else:
-            print("Nothing to log (wrong/correct/action are all empty).", file=sys.stderr)
+            print(
+                "Nothing to log (wrong/correct/action are all empty).", file=sys.stderr
+            )
         return 1
 
     entry.setdefault("category", "correction")
@@ -193,7 +229,11 @@ def main(argv: list[str] | None = None) -> int:
     entry["id"] = eid
     metrics.record("capture", id=eid, skill=entry.get("skill"))
     if args.json:
-        print(json.dumps({"status": "logged", "id": eid, "file": args.file, "entry": entry}))
+        print(
+            json.dumps(
+                {"status": "logged", "id": eid, "file": args.file, "entry": entry}
+            )
+        )
     else:
         print(f"✓ logged {eid} ({entry.get('category', 'correction')}) → {args.file}")
     return 0

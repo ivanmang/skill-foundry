@@ -21,7 +21,10 @@ ITEMS = [
     ("🛠  capture a new skill         · draft into hub/inbox/", ["capture-skill"]),
     ("🧠  log a correction           · learnings/recent.md", ["teach"]),
     ("⬆  promote pending learnings  · gated + reviewed → MR", ["promote", "--pr"]),
-    ("📚  browse skills              · list / search / grouped by category", ["skills"]),
+    (
+        "📚  browse skills              · list / search / grouped by category",
+        ["skills"],
+    ),
     ("❓  help", ["help"]),
 ]
 
@@ -53,7 +56,9 @@ def main(argv: list[str] | None = None) -> int:
     print("  capture → promote → hub → discover.")
     print(f"  {published} skills · {drafts} draft(s) · {pending} pending learning(s)\n")
     choice = ui.select_menu(
-        ui.c("What would you like to do?  (↑/↓ choose · Enter select · q quit)", ui.BOLD),
+        ui.c(
+            "What would you like to do?  (↑/↓ choose · Enter select · q quit)", ui.BOLD
+        ),
         ITEMS,
     )
     if not choice:

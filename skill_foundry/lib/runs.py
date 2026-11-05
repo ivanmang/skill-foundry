@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Shared helpers for locating recent runs (internal)."""
+
 from __future__ import annotations
 
 import json
@@ -26,7 +27,10 @@ def iter_runs(reports: Path | None = None) -> list[tuple[Path, dict]]:
         if not isinstance(data, dict) or not data.get("run_id"):
             continue
         runs.append((p, data))
-    runs.sort(key=lambda t: (t[1].get("generated_at") or "", t[0].stat().st_mtime), reverse=True)
+    runs.sort(
+        key=lambda t: (t[1].get("generated_at") or "", t[0].stat().st_mtime),
+        reverse=True,
+    )
     return runs
 
 

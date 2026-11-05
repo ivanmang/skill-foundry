@@ -14,55 +14,100 @@ permissions:
   contents: read
 
 jobs:
-  # The canonical gate: everything `make check` runs. Self-contained (mock gtest
+  # Canonical gate: everything `make check` runs. Self-contained (mock gtest
   # runner + fixture packs), so it runs on any GitHub-hosted ubuntu runner with
   # no CANN toolchain, simulator, or NPU. This is the merge gate.
   selfcheck:
     name: Self-check (gate + demo + tilelangGym)
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
+          cache: pip
       - name: Run canonical self-check
         run: ./skill_foundry/cli/selfcheck.sh
 
-  # Merge gate: product code must be ruff-clean. The bundled skill corpus is
-  # excluded via [tool.ruff] extend-exclude in pyproject.toml.
+  # Product code must be ruff-clean AND ruff-formatted. The bundled skill corpus
+  # is excluded via [tool.ruff] extend-exclude in pyproject.toml.
   lint:
     name: Ruff
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
+          cache: pip
       - run: pip install "ruff==0.15.0"
       - run: ruff check .
+      - run: ruff format --check .
 
-  # Type check over the product code (skill_foundry/ + mcp/). Hard merge gate.
+  # Type check over the product code (skill_foundry/ + mcp/). Pinned mypy for
+  # reproducibility.
   typecheck:
     name: mypy
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-      - run: pip install mypy
+          cache: pip
+      - run: pip install "mypy==2.4.1"
       - run: mypy skill_foundry mcp
 
   # Packaging: `pip install -e .` (PEP 660) must work and the console script
-  # must resolve. Catches pyproject.toml / setup.py regressions.
+  # must resolve; VERSION and pyproject.toml must not drift.
   package:
     name: Editable install + CLI smoke
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
+          cache: pip
       - run: pip install -e .
       - run: skill-foundry version
       - run: skill-foundry skills --check
+      - name: Version consistency (VERSION == pyproject.toml)
+        run: |
+          vfile="$(cat VERSION)"
+          ppy="$(grep -m1 '^version' pyproject.toml | sed 's/^version *= *"\([^"]*\)"/\1/')"
+          [ "$vfile" = "$ppy" ] || { echo "version drift: VERSION=$vfile vs pyproject=$ppy" >&2; exit 1; }
+
+  # Declared Python floor (requires-python = ">=3.10") must stay runnable.
+  python-310:
+    name: Python 3.10 (floor)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+          cache: pip
+      - run: pip install -e .
+      - run: python3 -m unittest discover -s tests -q
+
+  # Soft coverage signal (report always; no hard floor yet — raise it once the
+  # suite grows).
+  coverage:
+    name: Test coverage
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install coverage
+      - run: coverage run -m unittest discover -s tests
+      - run: coverage report --skip-covered

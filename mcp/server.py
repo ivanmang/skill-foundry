@@ -40,7 +40,9 @@ except ImportError:  # pragma: no cover
     print("fastmcp is required — install it: pip install fastmcp", file=sys.stderr)
     raise SystemExit(1)
 
-sys.path.insert(0, str(HARNESS))  # in case the server is launched from a cwd other than the repo
+sys.path.insert(
+    0, str(HARNESS)
+)  # in case the server is launched from a cwd other than the repo
 from skill_foundry import dispatch  # noqa: E402
 
 mcp = FastMCP("harness-mcp")
@@ -74,10 +76,15 @@ def skills_load(name: str) -> str:
     for base in (LIVE, INBOX):
         p = base / name / "SKILL.md"
         if p.exists():
-            refs = [f.relative_to(p.parent).as_posix() for f in p.parent.rglob("*")
-                    if f.is_file() and f.name != "SKILL.md"]
+            refs = [
+                f.relative_to(p.parent).as_posix()
+                for f in p.parent.rglob("*")
+                if f.is_file() and f.name != "SKILL.md"
+            ]
             body = p.read_text(encoding="utf-8")
-            return f"{body}\n\n# references\n" + ("\n".join(f"- {r}" for r in refs) or "- (none)")
+            return f"{body}\n\n# references\n" + (
+                "\n".join(f"- {r}" for r in refs) or "- (none)"
+            )
     return f"skill '{name}' not found"
 
 

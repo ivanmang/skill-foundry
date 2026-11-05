@@ -21,6 +21,7 @@ import sys
 from pathlib import Path
 
 from skill_foundry.paths import ROOT as HARNESS  # noqa: E402
+
 CONFIG = HARNESS / "config" / "cann.json"
 
 
@@ -81,7 +82,9 @@ def candidates() -> list[Path]:
         seeds.append(Path(env))
     # scan ~/Ascend, /usr/local/Ascend, and ~/Ascend_* (full/new/910) two levels deep
     bases = [Path.home() / "Ascend", Path("/usr/local/Ascend")]
-    bases += [p for p in Path.home().iterdir() if p.is_dir() and p.name.startswith("Ascend")]
+    bases += [
+        p for p in Path.home().iterdir() if p.is_dir() and p.name.startswith("Ascend")
+    ]
     for base in bases:
         if not base.exists():
             continue
@@ -120,7 +123,9 @@ def print_row(info: dict, cfg: dict) -> None:
             break
     headers = " ".join(info["headers"]) if info["headers"] else "-"
     sims = " ".join(info["simulators"]) if info["simulators"] else "-"
-    print(f"{info['path']}\n  version: {info['version']}\n  headers: {headers}\n  simulator: {sims}")
+    print(
+        f"{info['path']}\n  version: {info['version']}\n  headers: {headers}\n  simulator: {sims}"
+    )
     if note:
         print(f"  {note}")
 
@@ -128,7 +133,9 @@ def print_row(info: dict, cfg: dict) -> None:
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description="Detect CANN toolkit arch support.")
     ap.add_argument("--home", help="Analyze a single CANN toolkit path.")
-    ap.add_argument("--scan", action="store_true", help="Scan ~/Ascend and /usr/local/Ascend.")
+    ap.add_argument(
+        "--scan", action="store_true", help="Scan ~/Ascend and /usr/local/Ascend."
+    )
     ap.add_argument("--json", action="store_true", help="Emit JSON.")
     args = ap.parse_args(argv)
 
@@ -143,7 +150,10 @@ def main(argv: list[str] | None = None) -> int:
 
     infos = [analyze(r, cfg) for r in roots if looks_like_toolkit(r)]
     if not infos:
-        print("No CANN toolkits found. Set ASCEND_HOME_PATH or run --scan.", file=sys.stderr)
+        print(
+            "No CANN toolkits found. Set ASCEND_HOME_PATH or run --scan.",
+            file=sys.stderr,
+        )
         return 1
 
     if args.json:

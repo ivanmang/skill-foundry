@@ -11,6 +11,7 @@ import json
 import sys
 
 from skill_foundry.paths import ROOT as HARNESS  # noqa: E402
+
 CONFIG = HARNESS / "config"
 
 

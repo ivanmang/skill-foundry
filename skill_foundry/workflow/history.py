@@ -25,7 +25,9 @@ def suite_summary(data: dict) -> str:
 
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description="List recent runs.")
-    ap.add_argument("--limit", "-n", type=int, default=20, help="Max runs to show (default 20).")
+    ap.add_argument(
+        "--limit", "-n", type=int, default=20, help="Max runs to show (default 20)."
+    )
     ap.add_argument("--json", action="store_true", help="Emit JSON.")
     args = ap.parse_args(argv)
 
@@ -36,9 +38,16 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.json:
         out = [
-            {"run_id": d.get("run_id"), "target": d.get("target"),
-             "generated_at": d.get("generated_at"), "host": d.get("host"),
-             "suites": [{"name": s.get("name"), "status": s.get("status")} for s in d.get("suites", [])]}
+            {
+                "run_id": d.get("run_id"),
+                "target": d.get("target"),
+                "generated_at": d.get("generated_at"),
+                "host": d.get("host"),
+                "suites": [
+                    {"name": s.get("name"), "status": s.get("status")}
+                    for s in d.get("suites", [])
+                ],
+            }
             for _, d in runs
         ]
         print(json.dumps(out, indent=2))
@@ -46,8 +55,10 @@ def main(argv: list[str] | None = None) -> int:
 
     print(f"{'run_id':<26} {'target':<10} {'date':<20} suites")
     for _, d in runs:
-        print(f"{d.get('run_id','?'):<26} {d.get('target','?'):<10} "
-              f"{(d.get('generated_at') or '')[:19]:<20} {suite_summary(d)}")
+        print(
+            f"{d.get('run_id', '?'):<26} {d.get('target', '?'):<10} "
+            f"{(d.get('generated_at') or '')[:19]:<20} {suite_summary(d)}"
+        )
     return 0
 
 

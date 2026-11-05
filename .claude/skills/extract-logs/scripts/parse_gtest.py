@@ -30,7 +30,9 @@ GTEST_PASSED_LISTED_RE = re.compile(r"^\[\s*PASSED\s*\]\s+(\d+)\s+test[s]?\.?", 
 # run_cpu.py per-case lines (logged at the Python level, present even when gtest
 # output is suppressed):  [PASS] tadd (0.12s)  /  [FAIL] tadd (1.20s)
 # Also run_st.py style:    [PASS] case ...
-CASE_RE = re.compile(r"^\[(PASS|FAIL|SKIP|SKIPPED)\]\s+(\S+?)\s*(?:\(([\d.]+)[sm]s?\))?\s*$", re.I)
+CASE_RE = re.compile(
+    r"^\[(PASS|FAIL|SKIP|SKIPPED)\]\s+(\S+?)\s*(?:\(([\d.]+)[sm]s?\))?\s*$", re.I
+)
 
 # gtest per-case state machine
 RUN_RE = re.compile(r"^\[\s*RUN\s*\]\s+(\S+)")
@@ -57,7 +59,13 @@ BINARY_CRASH_RE = re.compile(r"run binary failed:.*?\./([A-Za-z0-9_]+).*died wit
 def parse_text(text: str, suite: str = "") -> dict:
     cases: dict[str, dict] = {}  # name -> {status, duration_s}
     order: list[str] = []
-    summary: dict[str, Any] = {"passed": 0, "failed": 0, "skipped": 0, "total": 0, "status": "UNKNOWN"}
+    summary: dict[str, Any] = {
+        "passed": 0,
+        "failed": 0,
+        "skipped": 0,
+        "total": 0,
+        "status": "UNKNOWN",
+    }
     evidence: list[str] = []
     have_counts = False  # True once a gtest final summary line gave explicit counts
 
@@ -65,7 +73,11 @@ def parse_text(text: str, suite: str = "") -> dict:
         if not name:
             return
         if name not in cases:
-            cases[name] = {"name": name, "status": status, "duration_s": duration_s or 0.0}
+            cases[name] = {
+                "name": name,
+                "status": status,
+                "duration_s": duration_s or 0.0,
+            }
             order.append(name)
         else:
             # later, more specific status wins over a tentative one
@@ -147,8 +159,10 @@ def parse_text(text: str, suite: str = "") -> dict:
     if "passed" not in summary:
         summary["passed"] = 0
     summary["total"] = summary["passed"] + summary["failed"] + summary["skipped"]
-    summary["status"] = "PASS" if summary["failed"] == 0 and summary["passed"] > 0 else (
-        "FAIL" if summary["failed"] > 0 else "UNKNOWN"
+    summary["status"] = (
+        "PASS"
+        if summary["failed"] == 0 and summary["passed"] > 0
+        else ("FAIL" if summary["failed"] > 0 else "UNKNOWN")
     )
 
     return {
@@ -160,7 +174,9 @@ def parse_text(text: str, suite: str = "") -> dict:
 
 
 def main(argv: list[str] | None = None) -> int:
-    ap = argparse.ArgumentParser(description="Normalize a test log into a results JSON object.")
+    ap = argparse.ArgumentParser(
+        description="Normalize a test log into a results JSON object."
+    )
     ap.add_argument("--log", required=True, help="Raw log file to parse.")
     ap.add_argument("--suite", default="", help="Suite name to embed in the result.")
     ap.add_argument("--out", help="Write JSON to this path instead of stdout.")

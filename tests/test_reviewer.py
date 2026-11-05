@@ -15,8 +15,11 @@ class BuiltinReviewTest(unittest.TestCase):
     def _review(self, added, target=""):
         # explicit empty skill universe so tests never depend on the real repo
         return reviewer.builtin_review(
-            "", target_content=target, added_text=added,
-            local_skills=set(), externals=set(),
+            "",
+            target_content=target,
+            added_text=added,
+            local_skills=set(),
+            externals=set(),
         )
 
     def test_clean_addition_approves(self):
@@ -72,7 +75,9 @@ class ApproveIntegrationTest(unittest.TestCase):
         os.environ.pop("SKILL_REVIEWER", None)
         try:
             with mock.patch.object(sys.stdin, "isatty", return_value=False):
-                self.assertFalse(reviewer.approve("+ - add a useful gotcha about buffer sizing\n"))
+                self.assertFalse(
+                    reviewer.approve("+ - add a useful gotcha about buffer sizing\n")
+                )
         finally:
             if saved is not None:
                 os.environ["SKILL_REVIEWER"] = saved

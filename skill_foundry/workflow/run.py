@@ -49,8 +49,12 @@ def now_iso() -> str:
 
 def git_ref(path: Path) -> str | None:
     try:
-        out = subprocess.run(["git", "-C", str(path), "rev-parse", "HEAD"],
-                             capture_output=True, text=True, timeout=30)
+        out = subprocess.run(
+            ["git", "-C", str(path), "rev-parse", "HEAD"],
+            capture_output=True,
+            text=True,
+            timeout=30,
+        )
         return out.stdout.strip() if out.returncode == 0 else None
     except Exception:
         return None
@@ -58,8 +62,12 @@ def git_ref(path: Path) -> str | None:
 
 def git_dirty(path: Path) -> bool | None:
     try:
-        out = subprocess.run(["git", "-C", str(path), "status", "--porcelain"],
-                             capture_output=True, text=True, timeout=30)
+        out = subprocess.run(
+            ["git", "-C", str(path), "status", "--porcelain"],
+            capture_output=True,
+            text=True,
+            timeout=30,
+        )
         return bool(out.stdout.strip()) if out.returncode == 0 else None
     except Exception:
         return None
@@ -93,8 +101,13 @@ def _set_flag(cmd: list[str], flag: str, value: str) -> list[str]:
     return cmd
 
 
-def build_command(suite: dict, arches: dict, repo: Path,
-                  testcase: str | None = None, gtest_filter: str | None = None) -> list[str]:
+def build_command(
+    suite: dict,
+    arches: dict,
+    repo: Path,
+    testcase: str | None = None,
+    gtest_filter: str | None = None,
+) -> list[str]:
     arch = suite.get("arch") or ""
     arch_info = arches.get(arch) or {}
     subst = {
@@ -109,8 +122,11 @@ def build_command(suite: dict, arches: dict, repo: Path,
 
     # Inject a single-testcase / gtest-filter selection per runner convention.
     mode = suite.get("mode") or ""
-    runner = suite.get("runner") or ("cpu" if mode == "cpu"
-                                     else ("run_st" if mode in ("npu-sim", "npu", "comm") else "generic"))
+    runner = suite.get("runner") or (
+        "cpu"
+        if mode == "cpu"
+        else ("run_st" if mode in ("npu-sim", "npu", "comm") else "generic")
+    )
     if runner == "cpu":
         if testcase:
             cmd += ["--testcase", testcase]
@@ -127,7 +143,13 @@ def build_command(suite: dict, arches: dict, repo: Path,
 def _empty_results(name: str, status: str, evidence: list[str]) -> dict:
     return {
         "suite": name,
-        "summary": {"passed": 0, "failed": 0, "skipped": 0, "total": 0, "status": status},
+        "summary": {
+            "passed": 0,
+            "failed": 0,
+            "skipped": 0,
+            "total": 0,
+            "status": status,
+        },
         "cases": [],
         "evidence": evidence,
     }
@@ -161,15 +183,20 @@ def _error_result(suite: dict, cmd: list[str], message: str) -> dict:
     }
 
 
-def _popen_run(script: str, repo: Path, log_file: Path, timeout_s: int,
-               on_line=None) -> tuple[int | None, bool, float]:
+def _popen_run(
+    script: str, repo: Path, log_file: Path, timeout_s: int, on_line=None
+) -> tuple[int | None, bool, float]:
     start = time.perf_counter()
     exit_code: int | None = None
     timed_out = False
     with log_file.open("w", encoding="utf-8") as lf:
         proc = subprocess.Popen(
-            ["bash", "-c", script], cwd=str(repo),
-            stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, bufsize=1,
+            ["bash", "-c", script],
+            cwd=str(repo),
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            text=True,
+            bufsize=1,
         )
         try:
             assert proc.stdout is not None
@@ -188,15 +215,26 @@ def _popen_run(script: str, repo: Path, log_file: Path, timeout_s: int,
     return exit_code, timed_out, round(time.perf_counter() - start, 3)
 
 
-def run_one(repo: Path, suite: dict, arches: dict, target_cfg: dict,
-            run_dir: Path, quiet: bool, tui: bool,
-            testcase: str | None = None, gtest_filter: str | None = None) -> dict:
+def run_one(
+    repo: Path,
+    suite: dict,
+    arches: dict,
+    target_cfg: dict,
+    run_dir: Path,
+    quiet: bool,
+    tui: bool,
+    testcase: str | None = None,
+    gtest_filter: str | None = None,
+) -> dict:
     mode = suite.get("mode") or ""
     cmd = build_command(suite, arches, repo, testcase, gtest_filter)
     if mode in NEEDS_ASCEND and not os.environ.get("ASCEND_HOME_PATH"):
         state, from_sh = capabilities.ascend_state()
-        hint = ("env.sh present but not sourced — run `source ./env.sh`"
-                if state == "envsh" else "ASCEND_HOME_PATH not set")
+        hint = (
+            "env.sh present but not sourced — run `source ./env.sh`"
+            if state == "envsh"
+            else "ASCEND_HOME_PATH not set"
+        )
         return _error_result(suite, cmd, hint)
 
     env_setup = target_cfg.get("env_setup", "") or ""
@@ -220,7 +258,9 @@ def run_one(repo: Path, suite: dict, arches: dict, target_cfg: dict,
             i = 0
             while not stop.is_set():
                 elapsed = time.perf_counter() - start
-                sys.stdout.write(f"\r  {SPINNER[i % len(SPINNER)]} {suite['name']} … {elapsed:.0f}s")
+                sys.stdout.write(
+                    f"\r  {SPINNER[i % len(SPINNER)]} {suite['name']} … {elapsed:.0f}s"
+                )
                 sys.stdout.flush()
                 i += 1
                 stop.wait(0.1)
@@ -239,7 +279,9 @@ def run_one(repo: Path, suite: dict, arches: dict, target_cfg: dict,
         if not quiet:
             print(f"\n=== {suite['name']} ===")
         on_line = None if quiet else sys.stdout.write
-        exit_code, timed_out, duration_s = _popen_run(script, repo, log_file, timeout_s, on_line)
+        exit_code, timed_out, duration_s = _popen_run(
+            script, repo, log_file, timeout_s, on_line
+        )
 
     log_text = log_file.read_text(encoding="utf-8", errors="replace")
     results = parse_gtest.parse_text(log_text, suite["name"])
@@ -282,12 +324,17 @@ def print_summary(record: dict) -> None:
     rows = []
     for s in record["suites"]:
         sm = (s.get("results") or {}).get("summary") or {}
-        rows.append([
-            s["name"], s.get("status", "?"),
-            str(sm.get("passed", 0)), str(sm.get("failed", 0)),
-            str(sm.get("skipped", 0)), str(sm.get("total", 0)),
-            fmt_dur(s.get("duration_s")),
-        ])
+        rows.append(
+            [
+                s["name"],
+                s.get("status", "?"),
+                str(sm.get("passed", 0)),
+                str(sm.get("failed", 0)),
+                str(sm.get("skipped", 0)),
+                str(sm.get("total", 0)),
+                fmt_dur(s.get("duration_s")),
+            ]
+        )
     widths = [max(len(h), *(len(r[i]) for r in rows)) for i, h in enumerate(headers)]
 
     def line(cols):
@@ -309,16 +356,18 @@ def summary_object(record: dict) -> dict:
     suites = []
     for s in record["suites"]:
         sm = (s.get("results") or {}).get("summary") or {}
-        suites.append({
-            "name": s["name"],
-            "status": s.get("status"),
-            "passed": sm.get("passed", 0),
-            "failed": sm.get("failed", 0),
-            "skipped": sm.get("skipped", 0),
-            "total": sm.get("total", 0),
-            "duration_s": s.get("duration_s"),
-            "error": s.get("error"),
-        })
+        suites.append(
+            {
+                "name": s["name"],
+                "status": s.get("status"),
+                "passed": sm.get("passed", 0),
+                "failed": sm.get("failed", 0),
+                "skipped": sm.get("skipped", 0),
+                "total": sm.get("total", 0),
+                "duration_s": s.get("duration_s"),
+                "error": s.get("error"),
+            }
+        )
     return {"run_id": record["run_id"], "target": record["target"], "suites": suites}
 
 
@@ -326,28 +375,32 @@ def _suite_rows(target_cfg: dict, arches: dict):
     rows = []
     for s in target_cfg.get("suites", []):
         runnable, reason = capabilities.suite_reason(s, arches)
-        rows.append({
-            "name": s.get("name", ""),
-            "mode": s.get("mode", "-"),
-            "arch": s.get("arch") or "-",
-            "enabled": bool(s.get("enabled")),
-            "runnable": runnable,
-            "reason": reason,
-            "milestone": s.get("milestone", ""),
-            "description": s.get("description", ""),
-        })
+        rows.append(
+            {
+                "name": s.get("name", ""),
+                "mode": s.get("mode", "-"),
+                "arch": s.get("arch") or "-",
+                "enabled": bool(s.get("enabled")),
+                "runnable": runnable,
+                "reason": reason,
+                "milestone": s.get("milestone", ""),
+                "description": s.get("description", ""),
+            }
+        )
     return rows
 
 
 def _arch_rows(arches: dict):
     rows = []
     for name, a in arches.items():
-        rows.append({
-            "name": name,
-            "soc": a.get("soc", "-"),
-            "march": a.get("march") or "-",
-            "chip": a.get("chip", ""),
-        })
+        rows.append(
+            {
+                "name": name,
+                "soc": a.get("soc", "-"),
+                "march": a.get("march") or "-",
+                "chip": a.get("chip", ""),
+            }
+        )
     return rows
 
 
@@ -365,9 +418,19 @@ def list_all(cfg_path: Path, arches_path: Path, target: str, fmt: str) -> int:
         print("| suite | mode | arch | status | milestone | description |")
         print("|---|---|---|---|---|---|")
         for s in suites:
-            st = "✓" if (s["enabled"] and s["runnable"]) else ("!" if s["enabled"] else "—")
-            desc = s["description"] if s["runnable"] else f"{s['description']} ({s['reason']})"
-            print(f"| {s['name']} | {s['mode']} | {s['arch']} | {st} | {s['milestone']} | {desc} |")
+            st = (
+                "✓"
+                if (s["enabled"] and s["runnable"])
+                else ("!" if s["enabled"] else "—")
+            )
+            desc = (
+                s["description"]
+                if s["runnable"]
+                else f"{s['description']} ({s['reason']})"
+            )
+            print(
+                f"| {s['name']} | {s['mode']} | {s['arch']} | {st} | {s['milestone']} | {desc} |"
+            )
         print("\n# Arches\n")
         print("| arch | soc | march | chip |")
         print("|---|---|---|---|")
@@ -377,17 +440,20 @@ def list_all(cfg_path: Path, arches_path: Path, target: str, fmt: str) -> int:
 
     if fmt == "html":
         import html
+
         suites_html = "".join(
             f"<tr><td>{html.escape(s['name'])}</td><td>{html.escape(s['mode'])}</td>"
             f"<td>{html.escape(s['arch'])}</td>"
             f"<td>{'✓' if (s['enabled'] and s['runnable']) else ('!' if s['enabled'] else '—')}</td>"
             f"<td>{html.escape(s['milestone'])}</td>"
             f"<td>{html.escape(s['description'] if s['runnable'] else s['description'] + ' (' + s['reason'] + ')')}</td></tr>"
-            for s in suites)
+            for s in suites
+        )
         arch_html = "".join(
             f"<tr><td>{html.escape(a['name'])}</td><td>{html.escape(a['soc'])}</td>"
             f"<td>{html.escape(a['march'])}</td><td>{html.escape(a['chip'])}</td></tr>"
-            for a in archs)
+            for a in archs
+        )
         print(f"""<!doctype html><html><head><meta charset=\"utf-8\"><title>Suites</title>
 <style>body{{font-family:-apple-system,Segoe UI,Roboto,sans-serif;margin:2rem}}table{{border-collapse:collapse;margin:1rem 0}}th,td{{border:1px solid #ddd;padding:.4rem .6rem;text-align:left}}th{{background:#f5f5f5}}</style>
 </head><body><h1>Run catalog — {html.escape(target)}</h1>
@@ -396,7 +462,9 @@ def list_all(cfg_path: Path, arches_path: Path, target: str, fmt: str) -> int:
 </body></html>""")
         return 0
 
-    print(f"\nSuites for '{target}' — ✓ enabled+runnable, ! enabled-but-missing, — disabled:")
+    print(
+        f"\nSuites for '{target}' — ✓ enabled+runnable, ! enabled-but-missing, — disabled:"
+    )
     for s in suites:
         if s["enabled"] and s["runnable"]:
             mark = "✓"
@@ -405,22 +473,26 @@ def list_all(cfg_path: Path, arches_path: Path, target: str, fmt: str) -> int:
         else:
             mark = " "
         note = "" if (s["runnable"] or not s["enabled"]) else f"  ← {s['reason']}"
-        print(f"  [{mark}] {s['name']:<16} mode={s['mode']:<9} arch={s['arch']:<6} "
-              f"({s['milestone']}) {s['description']}{note}")
+        print(
+            f"  [{mark}] {s['name']:<16} mode={s['mode']:<9} arch={s['arch']:<6} "
+            f"({s['milestone']}) {s['description']}{note}"
+        )
     print("\nArches:")
     for a in archs:
         print(f"  {a['name']:<8} soc={a['soc']:<18} march={a['march']:<16} {a['chip']}")
     return 0
 
 
-def _print_next_steps(record: dict, failed: bool, as_json: bool, chained: bool = False) -> None:
+def _print_next_steps(
+    record: dict, failed: bool, as_json: bool, chained: bool = False
+) -> None:
     n_failed = sum(1 for s in record["suites"] if s.get("status") != "PASS")
     if chained:
         lines = [f"⚠ {n_failed} suite(s) failed." if failed else "✓ all passed."]
     elif failed:
         lines = [
             f"⚠ {n_failed} suite(s) failed.",
-            "next: python3 -m skill_foundry.workflow.report --open   (see the failure)   → triage → ./harness teach \"…\"",
+            'next: python3 -m skill_foundry.workflow.report --open   (see the failure)   → triage → ./harness teach "…"',
         ]
     else:
         lines = [
@@ -436,12 +508,17 @@ def _print_next_steps(record: dict, failed: bool, as_json: bool, chained: bool =
             print("  " + line)
 
 
-def _chain_after_run(run_json, target: str, do_report: bool, do_open: bool, do_review: bool) -> None:
+def _chain_after_run(
+    run_json, target: str, do_report: bool, do_open: bool, do_review: bool
+) -> None:
     """Run report/review in-process right after a run — the one-command USE loop."""
     if do_report:
         from skill_foundry.workflow import report as report_mod
+
         argv = ["--run", str(run_json)]
-        known = HARNESS / ".claude" / "skills" / target / "references" / "known-failures.md"
+        known = (
+            HARNESS / ".claude" / "skills" / target / "references" / "known-failures.md"
+        )
         if known.exists():
             argv += ["--known", str(known)]
         if do_open:
@@ -453,6 +530,7 @@ def _chain_after_run(run_json, target: str, do_report: bool, do_open: bool, do_r
             print(f"report skipped: {exc}", file=sys.stderr)
     if do_review:
         from skill_foundry.workflow import review as review_mod
+
         print()
         try:
             review_mod.main(["--run", str(run_json)])
@@ -472,34 +550,99 @@ def _auto_capture(run_json: Path) -> None:
 
 
 def main(argv: list[str] | None = None) -> int:
-    ap = argparse.ArgumentParser(description="Run a declared regression suite and record a normalized run.")
-    ap.add_argument("--target", default=None, help="Target key in config/suites.json (default: config default_target).")
-    ap.add_argument("--suite", default=None, help="Suite name, or omit with --all-suites.")
-    ap.add_argument("--all-suites", action="store_true", help="Run all enabled suites for the target.")
-    ap.add_argument("--testcase", default=None, help="Run a single testcase inside the selected suite (e.g. tpartargmax).")
-    ap.add_argument("--filter", default=None, help="gtest filter applied to the suite (e.g. 'TADDTest.case_*').")
-    ap.add_argument("--quiet", "-q", action="store_true", help="Suppress per-suite output; print only the summary.")
-    ap.add_argument("--tui", action="store_true", help="Live per-suite spinner + pass/fail line (no raw output).")
-    ap.add_argument("--parallel", action="store_true", help="Run independent suites concurrently (implies per-suite quiet).")
-    ap.add_argument("--json", action="store_true", help="Print the summary as JSON instead of a table.")
-    ap.add_argument("--dry-run", action="store_true", help="Print what WOULD run and exit (no run.json).")
-    ap.add_argument("--list", action="store_true", help="List suites + arches and exit.")
-    ap.add_argument("--format", choices=["text", "markdown", "html"], default="text",
-                    help="Output format for --list (default text).")
+    ap = argparse.ArgumentParser(
+        description="Run a declared regression suite and record a normalized run."
+    )
+    ap.add_argument(
+        "--target",
+        default=None,
+        help="Target key in config/suites.json (default: config default_target).",
+    )
+    ap.add_argument(
+        "--suite", default=None, help="Suite name, or omit with --all-suites."
+    )
+    ap.add_argument(
+        "--all-suites",
+        action="store_true",
+        help="Run all enabled suites for the target.",
+    )
+    ap.add_argument(
+        "--testcase",
+        default=None,
+        help="Run a single testcase inside the selected suite (e.g. tpartargmax).",
+    )
+    ap.add_argument(
+        "--filter",
+        default=None,
+        help="gtest filter applied to the suite (e.g. 'TADDTest.case_*').",
+    )
+    ap.add_argument(
+        "--quiet",
+        "-q",
+        action="store_true",
+        help="Suppress per-suite output; print only the summary.",
+    )
+    ap.add_argument(
+        "--tui",
+        action="store_true",
+        help="Live per-suite spinner + pass/fail line (no raw output).",
+    )
+    ap.add_argument(
+        "--parallel",
+        action="store_true",
+        help="Run independent suites concurrently (implies per-suite quiet).",
+    )
+    ap.add_argument(
+        "--json",
+        action="store_true",
+        help="Print the summary as JSON instead of a table.",
+    )
+    ap.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Print what WOULD run and exit (no run.json).",
+    )
+    ap.add_argument(
+        "--list", action="store_true", help="List suites + arches and exit."
+    )
+    ap.add_argument(
+        "--format",
+        choices=["text", "markdown", "html"],
+        default="text",
+        help="Output format for --list (default text).",
+    )
     ap.add_argument("--run-id", default=None, help="Run id; defaults to <ts>-<target>.")
     ap.add_argument("--config", default=str(HARNESS / "config" / "suites.json"))
     ap.add_argument("--arches", default=str(HARNESS / "config" / "arches.json"))
-    ap.add_argument("--report", action="store_true", help="Render report.md/.html after the run (auto-annotates known failures).")
-    ap.add_argument("--open", action="store_true", help="Open the HTML report in a browser (implies --report).")
-    ap.add_argument("--review", action="store_true", help="Diff the run vs the pinned baseline after the run.")
-    ap.add_argument("--no-capture", action="store_true", help="Skip auto-drafting learnings from FAILed cases.")
+    ap.add_argument(
+        "--report",
+        action="store_true",
+        help="Render report.md/.html after the run (auto-annotates known failures).",
+    )
+    ap.add_argument(
+        "--open",
+        action="store_true",
+        help="Open the HTML report in a browser (implies --report).",
+    )
+    ap.add_argument(
+        "--review",
+        action="store_true",
+        help="Diff the run vs the pinned baseline after the run.",
+    )
+    ap.add_argument(
+        "--no-capture",
+        action="store_true",
+        help="Skip auto-drafting learnings from FAILed cases.",
+    )
     args = ap.parse_args(argv)
 
     cfg = load_json(Path(args.config))
     if args.target is None:
         args.target = targets.default_target(cfg)
     if args.target not in cfg.get("targets", {}):
-        usage_error(f"unknown target '{args.target}'. Known: {targets.list_targets(cfg)}")
+        usage_error(
+            f"unknown target '{args.target}'. Known: {targets.list_targets(cfg)}"
+        )
 
     if args.list:
         return list_all(Path(args.config), Path(args.arches), args.target, args.format)
@@ -509,12 +652,17 @@ def main(argv: list[str] | None = None) -> int:
 
     repo = resolve_repo(target_cfg)
     if not repo.exists():
-        usage_error(f"target repo not found: {repo} (set {target_cfg.get('repo_env', 'PTO_ISA_REPO')} or source ./env.sh — see python3 -m skill_foundry.workflow.diagnose)")
+        usage_error(
+            f"target repo not found: {repo} (set {target_cfg.get('repo_env', 'PTO_ISA_REPO')} or source ./env.sh — see python3 -m skill_foundry.workflow.diagnose)"
+        )
 
     if args.run_id:
         sane = re.sub(r"[^A-Za-z0-9._-]+", "-", args.run_id).strip(".-")
         if sane != args.run_id:
-            print(f"warning: sanitized run-id '{args.run_id}' -> '{sane}'", file=sys.stderr)
+            print(
+                f"warning: sanitized run-id '{args.run_id}' -> '{sane}'",
+                file=sys.stderr,
+            )
         run_id = sane or f"{_dt.datetime.now():%Y%m%d-%H%M%S}-{args.target}"
     else:
         run_id = f"{_dt.datetime.now():%Y%m%d-%H%M%S}-{args.target}"
@@ -528,7 +676,9 @@ def main(argv: list[str] | None = None) -> int:
         )
 
     if args.all_suites and (args.testcase or args.filter):
-        usage_error("--testcase / --filter can only be used with a single --suite, not --all-suites.")
+        usage_error(
+            "--testcase / --filter can only be used with a single --suite, not --all-suites."
+        )
 
     suites = select_suites(target_cfg, None if args.all_suites else args.suite)
     if not suites:
@@ -558,8 +708,12 @@ def main(argv: list[str] | None = None) -> int:
         print(f"\ndry-run: would run {len(suites)} suite(s) for '{args.target}':")
         if not suites:
             print("  (none — every enabled suite was skipped above)")
-            print("  nothing runnable here — try the sandboxed demo: python3 -m skill_foundry.workflow.demo")
-            print("  (real runs need ecs/yellow/b10 for cpu-st; a CANN toolkit for npu-sim)")
+            print(
+                "  nothing runnable here — try the sandboxed demo: python3 -m skill_foundry.workflow.demo"
+            )
+            print(
+                "  (real runs need ecs/yellow/b10 for cpu-st; a CANN toolkit for npu-sim)"
+            )
         for s in suites:
             tmo = s.get("timeout_s") or 0
             upto = f"  (up to {tmo // 60}m)" if tmo else ""
@@ -592,12 +746,24 @@ def main(argv: list[str] | None = None) -> int:
     tui = args.tui and not args.json and sys.stdout.isatty()
     parallel = args.parallel and len(suites) > 1 and not tui and not args.json
     if parallel:
-        print(f"  running {len(suites)} suites in parallel (--parallel)", file=sys.stderr)
+        print(
+            f"  running {len(suites)} suites in parallel (--parallel)", file=sys.stderr
+        )
         results: dict[int, dict] = {}
         with concurrent.futures.ThreadPoolExecutor(max_workers=len(suites)) as ex:
             futs = {
-                ex.submit(run_one, repo, suite, arches, target_cfg, run_dir, True, False,
-                          args.testcase, args.filter): i
+                ex.submit(
+                    run_one,
+                    repo,
+                    suite,
+                    arches,
+                    target_cfg,
+                    run_dir,
+                    True,
+                    False,
+                    args.testcase,
+                    args.filter,
+                ): i
                 for i, suite in enumerate(suites)
             }
             for fut in concurrent.futures.as_completed(futs):
@@ -606,15 +772,30 @@ def main(argv: list[str] | None = None) -> int:
     else:
         for suite in suites:
             record["suites"].append(
-                run_one(repo, suite, arches, target_cfg, run_dir, run_quiet, tui, args.testcase, args.filter)
+                run_one(
+                    repo,
+                    suite,
+                    arches,
+                    target_cfg,
+                    run_dir,
+                    run_quiet,
+                    tui,
+                    args.testcase,
+                    args.filter,
+                )
             )
 
     # Attach per-suite analytics: per-case timing + optional CAModel metrics.
     for s in record["suites"]:
         cases = (s.get("results") or {}).get("cases", [])
         s["timing"] = perf_metrics.duration_stats(cases)
-        perf_metrics.copy_perf(repo, run_dir, s.get("name", ""),
-                               s.get("perf_copy"), args.testcase or s.get("testcase"))
+        perf_metrics.copy_perf(
+            repo,
+            run_dir,
+            s.get("name", ""),
+            s.get("perf_copy"),
+            args.testcase or s.get("testcase"),
+        )
         perf = perf_metrics.collect_perf(run_dir, s.get("name", ""))
         if perf:
             s["perf"] = perf
@@ -636,7 +817,9 @@ def main(argv: list[str] | None = None) -> int:
     chaining = args.report or args.open or args.review
     _print_next_steps(record, failed, args.json, chaining)
     if chaining:
-        _chain_after_run(run_json, args.target, args.report or args.open, args.open, args.review)
+        _chain_after_run(
+            run_json, args.target, args.report or args.open, args.open, args.review
+        )
     return 1 if failed else 0
 
 

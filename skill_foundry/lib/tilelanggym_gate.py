@@ -15,6 +15,7 @@ Usage:
     python3 -m skill_foundry.lib.tilelanggym_gate --suite sv567-1xg-clean
   python3 -m skill_foundry.lib.tilelanggym_gate --pack PATH --suite sv567-nx1-outer
 """
+
 from __future__ import annotations
 
 import argparse
@@ -64,7 +65,11 @@ VMI_OUTER_TAGS = (
     "vmi_outer_vand_alternate_builder",
 )
 
-RESULT_REQUIRED_COLS = ("era=", "reduce_axis=", "motif")  # flexible: present as headers or column tokens
+RESULT_REQUIRED_COLS = (
+    "era=",
+    "reduce_axis=",
+    "motif",
+)  # flexible: present as headers or column tokens
 RESULT_COL_ALIASES = {
     "era=": ("era=", "era", "Era"),
     "reduce_axis=": ("reduce_axis=", "reduce_axis", "axis"),
@@ -133,12 +138,12 @@ def _softlib_tag_present(trace_text: str, tag: str) -> bool:
         # T128 is the anchor — must appear in full (or as softlib_simt_T128) somewhere.
         # For non-T tags, exact match only (handled above).
         if tag.startswith("softlib_simt_T"):
-            short = tag[len("softlib_simt_"):]  # T128
+            short = tag[len("softlib_simt_") :]  # T128
             for line in trace_text.splitlines():
                 if "softlib_simt_T" in line and short in line:
                     return True
         return False
-    short = tag[len("softlib_simt_"):]  # T256 / T512
+    short = tag[len("softlib_simt_") :]  # T256 / T512
     for line in trace_text.splitlines():
         if "softlib_simt_T" not in line:
             continue
@@ -166,9 +171,16 @@ def check_motif_outer(trace_text: str, errors: list[str]) -> None:
     for tag in VMI_OUTER_TAGS:
         if tag not in trace_text:
             _fail(f"Outer Motif tag missing from TRACE/Coverage: {tag}", errors)
-    if "reduce_axis=outer" not in trace_text and "reduce_axis = outer" not in trace_text:
+    if (
+        "reduce_axis=outer" not in trace_text
+        and "reduce_axis = outer" not in trace_text
+    ):
         # soft: accept 'outer' + 'Nx1'
-        if "Nx1" not in trace_text and "N×1" not in trace_text and "outer" not in trace_text.lower():
+        if (
+            "Nx1" not in trace_text
+            and "N×1" not in trace_text
+            and "outer" not in trace_text.lower()
+        ):
             _fail("Outer suite TRACE must label reduce_axis=outer / Nx1", errors)
     if "VMAX" not in trace_text and "vmax" not in trace_text:
         _fail("Outer suite must mention pure VMAX (no VC/VCG as reduce)", errors)
@@ -177,7 +189,8 @@ def check_motif_outer(trace_text: str, errors: list[str]) -> None:
 def check_pr9(pack: Path, errors: list[str], require_both_arms: bool) -> None:
     pr9 = list(pack.rglob("*_running_ipc_pr9.png"))
     ipc_only = [
-        p for p in pack.rglob("*_running_ipc.png")
+        p
+        for p in pack.rglob("*_running_ipc.png")
         if not p.name.endswith("_running_ipc_pr9.png") and "_pr9" not in p.name
     ]
     if require_both_arms:
@@ -212,7 +225,10 @@ def check_analysis_prc(pack: Path, errors: list[str]) -> None:
     # At least one ready PRC cite when perf narrative present; always require PRC- pattern for gate suites
     cites = re.findall(r"PRC-[A-Z]+-\d{3}", text)
     if not cites:
-        _fail("ANALYSIS must cite at least one PRC-id (e.g. PRC-IPC-001 / PRC-SCH-001)", errors)
+        _fail(
+            "ANALYSIS must cite at least one PRC-id (e.g. PRC-IPC-001 / PRC-SCH-001)",
+            errors,
+        )
     if "PRC-IPC-001" not in cites and "running_ipc" in text.lower():
         _fail("IPC/overlay narrative without PRC-IPC-001 cite", errors)
 
@@ -241,7 +257,9 @@ def check_result_tsv(pack: Path, errors: list[str], suite: str) -> None:
             pass
     if suite == "sv567-nx1-outer":
         if "outer" not in blob and "nx1" not in blob:
-            _fail("Outer suite RESULT rows should label reduce_axis=outer / Nx1", errors)
+            _fail(
+                "Outer suite RESULT rows should label reduce_axis=outer / Nx1", errors
+            )
 
 
 def check_done_bar(pack: Path, errors: list[str], suite: str) -> None:
@@ -261,7 +279,9 @@ def check_done_bar(pack: Path, errors: list[str], suite: str) -> None:
     # already collecting errors from other checks; add explicit Done-bar note if PR9 weak
     pr9 = list(pack.rglob("*_running_ipc_pr9.png"))
     if suite.startswith("sv567") and len(pr9) < 1:
-        _fail("Done-bar: TRACE claims DONE but no *_running_ipc_pr9.png present", errors)
+        _fail(
+            "Done-bar: TRACE claims DONE but no *_running_ipc_pr9.png present", errors
+        )
 
 
 def check_prc_index(errors: list[str]) -> None:

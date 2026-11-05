@@ -33,7 +33,9 @@ def to_windows(path: Path | str) -> str | None:
     if not wslpath:
         return None
     try:
-        out = subprocess.run([wslpath, "-w", str(path)], capture_output=True, text=True, timeout=10)
+        out = subprocess.run(
+            [wslpath, "-w", str(path)], capture_output=True, text=True, timeout=10
+        )
         win = out.stdout.strip()
         return win or None
     except Exception:
@@ -62,8 +64,12 @@ def open_browser(path: Path | str) -> str | None:
             r = subprocess.run([host_exe, target], check=False)
             if r.returncode == 0:
                 return None
-            return f"couldn't open the URL in the host browser. Open manually:\n  {target}"
-        opener = shutil.which("xdg-open") or shutil.which("open") or shutil.which("start")
+            return (
+                f"couldn't open the URL in the host browser. Open manually:\n  {target}"
+            )
+        opener = (
+            shutil.which("xdg-open") or shutil.which("open") or shutil.which("start")
+        )
         if opener:
             r = subprocess.run([opener, target], check=False)
             if r.returncode == 0:

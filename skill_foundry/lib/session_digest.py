@@ -31,14 +31,16 @@ def draft_entries(record: dict) -> list[dict]:
             if c.get("status") != "FAIL":
                 continue
             name = c.get("name", "")
-            out.append({
-                "category": "error",
-                "context": run_id,
-                "skill": target,
-                "wrong": f"case {name} failed in suite {s.get('name')}",
-                "correct": "triage manually; if reusable, promote to known-failures",
-                "action": f"triage {name}; add to known-failures if reusable",
-            })
+            out.append(
+                {
+                    "category": "error",
+                    "context": run_id,
+                    "skill": target,
+                    "wrong": f"case {name} failed in suite {s.get('name')}",
+                    "correct": "triage manually; if reusable, promote to known-failures",
+                    "action": f"triage {name}; add to known-failures if reusable",
+                }
+            )
     return out
 
 
@@ -46,11 +48,15 @@ def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description="Draft pending learnings from a run.json.")
     ap.add_argument("--run", required=True, help="run.json to scan for failures.")
     ap.add_argument("--file", default=str(HARNESS / "learnings" / "recent.md"))
-    ap.add_argument("--apply", action="store_true", help="Append drafts via log_correction.")
+    ap.add_argument(
+        "--apply", action="store_true", help="Append drafts via log_correction."
+    )
     args = ap.parse_args(argv)
 
     record = json.loads(Path(args.run).read_text(encoding="utf-8"))
-    existing = Path(args.file).read_text(encoding="utf-8") if Path(args.file).exists() else ""
+    existing = (
+        Path(args.file).read_text(encoding="utf-8") if Path(args.file).exists() else ""
+    )
     drafts = draft_entries(record)
     new = [d for d in drafts if d["wrong"] not in existing]
 

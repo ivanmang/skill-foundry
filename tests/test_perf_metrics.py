@@ -20,11 +20,20 @@ class PerfMetricsTest(unittest.TestCase):
     def test_duration_stats_empty(self):
         self.assertEqual(
             duration_stats([]),
-            {"cases": 0, "min": None, "p50": None, "p99": None, "max": None, "mean": None},
+            {
+                "cases": 0,
+                "min": None,
+                "p50": None,
+                "p99": None,
+                "max": None,
+                "mean": None,
+            },
         )
 
     def test_duration_stats(self):
-        d = duration_stats([{"duration_s": 1.0}, {"duration_s": 2.0}, {"duration_s": 3.0}])
+        d = duration_stats(
+            [{"duration_s": 1.0}, {"duration_s": 2.0}, {"duration_s": 3.0}]
+        )
         self.assertEqual(d["cases"], 3)
         self.assertEqual(d["min"], 1.0)
         self.assertEqual(d["mean"], 2.0)

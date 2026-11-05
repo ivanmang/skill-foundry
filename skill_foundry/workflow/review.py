@@ -54,7 +54,11 @@ def stats(cases: list[dict]) -> dict:
     durs_sorted = sorted(durs)
     avg = sum(durs_sorted) / len(durs_sorted)
     idx = max(0, math.ceil(len(durs_sorted) * 0.99) - 1)  # 99th percentile
-    return {"avg": round(avg, 4), "p99": round(durs_sorted[idx], 4), "n": len(durs_sorted)}
+    return {
+        "avg": round(avg, 4),
+        "p99": round(durs_sorted[idx], 4),
+        "n": len(durs_sorted),
+    }
 
 
 def pct(new: float | None, old: float | None) -> float | None:
@@ -79,18 +83,24 @@ def diff(new: dict, base: dict) -> dict:
 
         for name, nc in sorted(new_by_name.items()):
             if name not in base_map:
-                new_only.append({"suite": suite, "name": name, "status": nc.get("status")})
+                new_only.append(
+                    {"suite": suite, "name": name, "status": nc.get("status")}
+                )
                 continue
             bc = base_map[name]
             ns, bs = nc.get("status"), bc.get("status")
             if ns == "FAIL" and bs != "FAIL":
-                regressions.append({"suite": suite, "name": name, "before": bs, "after": ns})
+                regressions.append(
+                    {"suite": suite, "name": name, "before": bs, "after": ns}
+                )
             elif ns != "FAIL" and bs == "FAIL":
                 fixes.append({"suite": suite, "name": name, "before": bs, "after": ns})
 
         for name, bc in sorted(base_map.items()):
             if name not in new_by_name:
-                removed.append({"suite": suite, "name": name, "status": bc.get("status")})
+                removed.append(
+                    {"suite": suite, "name": name, "status": bc.get("status")}
+                )
 
         # per-suite perf: avg + p99
         ns = stats(entries)
@@ -98,33 +108,52 @@ def diff(new: dict, base: dict) -> dict:
         if ns["p99"] is not None and bs["p99"] is not None:
             dp99 = pct(ns["p99"], bs["p99"])
             if dp99 is not None and dp99 > P99_PCT:
-                perf_flags.append({
-                    "suite": suite,
-                    "metric": "p99",
-                    "before_s": bs["p99"],
-                    "after_s": ns["p99"],
-                    "delta_pct": dp99,
-                    "avg_delta_pct": pct(ns["avg"], bs["avg"]),
-                })
+                perf_flags.append(
+                    {
+                        "suite": suite,
+                        "metric": "p99",
+                        "before_s": bs["p99"],
+                        "after_s": ns["p99"],
+                        "delta_pct": dp99,
+                        "avg_delta_pct": pct(ns["avg"], bs["avg"]),
+                    }
+                )
 
         # CA-metric regressions (vmi-dashboard schema): cycles/EX up, IPC down.
         np = suite_perf(new, suite)
         bp = suite_perf(base, suite)
         if np and bp:
-            for metric, label in (("vf_real", "vf_real (cycles)"), ("ex", "EX (instrs)")):
+            for metric, label in (
+                ("vf_real", "vf_real (cycles)"),
+                ("ex", "EX (instrs)"),
+            ):
                 nv, bv = np.get(metric), bp.get(metric)
                 if nv and bv:
                     d = pct(nv, bv)
                     if d is not None and d > PERF_PCT:
-                        perf_flags.append({"suite": suite, "metric": label,
-                                            "before": bv, "after": nv, "delta_pct": d})
+                        perf_flags.append(
+                            {
+                                "suite": suite,
+                                "metric": label,
+                                "before": bv,
+                                "after": nv,
+                                "delta_pct": d,
+                            }
+                        )
             for metric, label in (("ipc", "IPC"), ("ex_ipc", "EX-IPC")):
                 nv, bv = np.get(metric), bp.get(metric)
                 if nv and bv:
                     d = pct(nv, bv)
                     if d is not None and d < -PERF_PCT:
-                        perf_flags.append({"suite": suite, "metric": label,
-                                            "before": bv, "after": nv, "delta_pct": d})
+                        perf_flags.append(
+                            {
+                                "suite": suite,
+                                "metric": label,
+                                "before": bv,
+                                "after": nv,
+                                "delta_pct": d,
+                            }
+                        )
 
     return {
         "regressions": regressions,
@@ -144,8 +173,10 @@ def diff(new: dict, base: dict) -> dict:
 
 def print_human(d: dict) -> None:
     s = d["summary"]
-    print(f"regressions: {s['regressions']}  fixes: {s['fixes']}  "
-          f"new: {s['new']}  removed: {s['removed']}  perf_flags: {s['perf_flags']}")
+    print(
+        f"regressions: {s['regressions']}  fixes: {s['fixes']}  "
+        f"new: {s['new']}  removed: {s['removed']}  perf_flags: {s['perf_flags']}"
+    )
     if d["regressions"]:
         print("\nREGRESSIONS (PASS -> FAIL):")
         for r in d["regressions"]:
@@ -154,16 +185,26 @@ def print_human(d: dict) -> None:
         print(f"\nPERF FLAGS (p99 > +{P99_PCT}% or CA metric shifts):")
         for p in d["perf_flags"]:
             if p.get("metric") == "p99":
-                print(f"  {p['suite']}: p99 {p['before_s']}s -> {p['after_s']}s "
-                      f"({p['delta_pct']:+}%, avg {p['avg_delta_pct']:+}%)")
+                print(
+                    f"  {p['suite']}: p99 {p['before_s']}s -> {p['after_s']}s "
+                    f"({p['delta_pct']:+}%, avg {p['avg_delta_pct']:+}%)"
+                )
             else:
-                print(f"  {p['suite']}: {p['metric']} {p['before']} -> {p['after']} ({p['delta_pct']:+}%)")
+                print(
+                    f"  {p['suite']}: {p['metric']} {p['before']} -> {p['after']} ({p['delta_pct']:+}%)"
+                )
 
 
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description="Diff a run against the pinned baseline.")
-    ap.add_argument("--run", default=None, help="Run record (run.json); default = latest run.")
-    ap.add_argument("--baseline", default=None, help="Baseline run.json; default = reports/baseline/<target>.json for the run's target.")
+    ap.add_argument(
+        "--run", default=None, help="Run record (run.json); default = latest run."
+    )
+    ap.add_argument(
+        "--baseline",
+        default=None,
+        help="Baseline run.json; default = reports/baseline/<target>.json for the run's target.",
+    )
     ap.add_argument("--out", help="Write the machine-readable delta JSON to this path.")
     args = ap.parse_args(argv)
 
@@ -191,14 +232,21 @@ def main(argv: list[str] | None = None) -> int:
     if base is None:
         raise SystemExit(f"baseline not found: {base_path}")
 
-    if new.get("target") and base.get("target") and new.get("target") != base.get("target"):
+    if (
+        new.get("target")
+        and base.get("target")
+        and new.get("target") != base.get("target")
+    ):
         raise SystemExit(
             f"refusing to diff across targets: run target '{new['target']}' vs baseline target '{base['target']}'"
-            " — pass --baseline explicitly if this is intentional.")
+            " — pass --baseline explicitly if this is intentional."
+        )
 
     if base.get("generated") is False:
-        print("NOTE: baseline is a seed (generated=false). First real run should be "
-              "promoted via skill_foundry/workflow/baseline.sh, not diffed.")
+        print(
+            "NOTE: baseline is a seed (generated=false). First real run should be "
+            "promoted via skill_foundry/workflow/baseline.sh, not diffed."
+        )
         if not base.get("suites"):
             return 0
 

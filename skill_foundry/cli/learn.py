@@ -20,8 +20,12 @@ from skill_foundry.cli import promote, teach  # noqa: E402
 
 
 def main(argv: list[str] | None = None) -> int:
-    ap = argparse.ArgumentParser(description="Capture a correction and promote it in one command.")
-    ap.add_argument("note", nargs="?", help="Free text: 'wrong → correct → action' (or '->').")
+    ap = argparse.ArgumentParser(
+        description="Capture a correction and promote it in one command."
+    )
+    ap.add_argument(
+        "note", nargs="?", help="Free text: 'wrong → correct → action' (or '->')."
+    )
     ap.add_argument("--wrong", default=None)
     ap.add_argument("--correct", default=None)
     ap.add_argument("--action", default=None)
@@ -29,14 +33,30 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--context", default=None)
     ap.add_argument("--category", default=None)
     ap.add_argument("--branch", default=None)
-    ap.add_argument("--file", default=None, help="Learnings file (forwards to teach --file / promote --learnings).")
-    ap.add_argument("--propose", action="store_true", help="Stop after printing the proposed diff.")
-    ap.add_argument("--apply", action="store_true", help="Apply locally (no commit/push) — default.")
-    ap.add_argument("--pr", action="store_true", help="Apply + push a branch + open an MR.")
-    ap.add_argument("--json", action="store_true", help="Emit machine-readable JSON where supported.")
+    ap.add_argument(
+        "--file",
+        default=None,
+        help="Learnings file (forwards to teach --file / promote --learnings).",
+    )
+    ap.add_argument(
+        "--propose", action="store_true", help="Stop after printing the proposed diff."
+    )
+    ap.add_argument(
+        "--apply", action="store_true", help="Apply locally (no commit/push) — default."
+    )
+    ap.add_argument(
+        "--pr", action="store_true", help="Apply + push a branch + open an MR."
+    )
+    ap.add_argument(
+        "--json",
+        action="store_true",
+        help="Emit machine-readable JSON where supported.",
+    )
     args = ap.parse_args(argv)
 
-    if args.note is None and all(getattr(args, f) is None for f in ("wrong", "correct", "action")):
+    if args.note is None and all(
+        getattr(args, f) is None for f in ("wrong", "correct", "action")
+    ):
         ap.print_usage(sys.stderr)
         print("learn: provide a note or --wrong/--correct/--action.", file=sys.stderr)
         return 2
@@ -45,8 +65,12 @@ def main(argv: list[str] | None = None) -> int:
     if args.note is not None:
         teach_argv.append(args.note)
     for flag, attr in (
-        ("--wrong", "wrong"), ("--correct", "correct"), ("--action", "action"),
-        ("--skill", "skill"), ("--context", "context"), ("--category", "category"),
+        ("--wrong", "wrong"),
+        ("--correct", "correct"),
+        ("--action", "action"),
+        ("--skill", "skill"),
+        ("--context", "context"),
+        ("--category", "category"),
     ):
         val = getattr(args, attr)
         if val is not None:

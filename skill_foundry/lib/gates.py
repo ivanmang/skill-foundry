@@ -58,18 +58,28 @@ def check_secrets(text: str) -> list[str]:
 
 
 def check_size(old: str, new: str, max_lines: int = MAX_DIFF_LINES) -> list[str]:
-    added = sum(1 for line in unified_diff(old, new) if line.startswith("+") and not line.startswith("+++"))
+    added = sum(
+        1
+        for line in unified_diff(old, new)
+        if line.startswith("+") and not line.startswith("+++")
+    )
     if added > max_lines:
         return [f"diff adds {added} lines (max {max_lines})"]
     return []
 
 
 def check_skill_spec(folder: Path) -> list[str]:
-    return validate_skills.validate_skill(folder) + validate_skills.check_skill_metadata(folder)
+    return validate_skills.validate_skill(
+        folder
+    ) + validate_skills.check_skill_metadata(folder)
 
 
-def gate(old: str, new: str, skill_folder: Path | None = None,
-         max_lines: int = MAX_DIFF_LINES) -> list[str]:
+def gate(
+    old: str,
+    new: str,
+    skill_folder: Path | None = None,
+    max_lines: int = MAX_DIFF_LINES,
+) -> list[str]:
     """Run all gates on an old→new transformation. Returns [] when clean."""
     v = check_add_only(old, new) + check_secrets(new) + check_size(old, new, max_lines)
     if skill_folder is not None:
@@ -86,9 +96,18 @@ def ci_check(base: str = "origin/main") -> list[str]:
     violations: list[str] = []
     diff = ""
     r = subprocess.run(
-        ["git", "-C", str(ROOT), "diff", f"{base}...HEAD",
-         "--", ".claude/skills", "learnings"],
-        capture_output=True, text=True,
+        [
+            "git",
+            "-C",
+            str(ROOT),
+            "diff",
+            f"{base}...HEAD",
+            "--",
+            ".claude/skills",
+            "learnings",
+        ],
+        capture_output=True,
+        text=True,
     )
     if r.returncode == 0:
         diff = r.stdout
@@ -99,7 +118,9 @@ def ci_check(base: str = "origin/main") -> list[str]:
     skills_dir = ROOT / ".claude" / "skills"
     for d in sorted(skills_dir.iterdir()):
         if d.is_dir() and not d.name.startswith("."):
-            violations += validate_skills.validate_skill(d) + validate_skills.check_skill_metadata(d)
+            violations += validate_skills.validate_skill(
+                d
+            ) + validate_skills.check_skill_metadata(d)
     return violations
 
 
@@ -142,8 +163,12 @@ def render(violations: list[str]) -> None:
 
 
 def main(argv: list[str] | None = None) -> int:
-    ap = argparse.ArgumentParser(description="Promotion gates (add-only · secrets · size · spec).")
-    ap.add_argument("--ci", action="store_true", help="Check current branch vs a base ref (for CI).")
+    ap = argparse.ArgumentParser(
+        description="Promotion gates (add-only · secrets · size · spec)."
+    )
+    ap.add_argument(
+        "--ci", action="store_true", help="Check current branch vs a base ref (for CI)."
+    )
     ap.add_argument("--base", default="origin/main", help="Base ref for --ci.")
     ap.add_argument("--json", action="store_true", help="Emit machine-readable JSON.")
     args = ap.parse_args(argv)

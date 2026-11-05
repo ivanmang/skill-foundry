@@ -48,20 +48,28 @@ def collect() -> list[dict]:
             sm = d / "SKILL.md"
             if not d.is_dir() or not sm.exists():
                 continue
-            fm, _err = validate_skills.parse_frontmatter(sm.read_text(encoding="utf-8", errors="replace"))
-            out.append({
-                "name": fm.get("name") or d.name,
-                "description": (fm.get("description") or "").strip(),
-                "category": (fm.get("category") or "").strip(),
-                "license": (fm.get("license") or "").strip(),
-                "entry": _is_true(fm.get("entry") or ""),
-                "stages": [s.strip() for s in (fm.get("stages") or "").split(",") if s.strip()],
-                "origin": (fm.get("origin") or "").strip(),
-                "owner": (fm.get("owner") or "").strip(),
-                "maturity": (fm.get("maturity") or "ready").strip(),
-                "status": status,
-                "path": str(d.relative_to(HARNESS)),
-            })
+            fm, _err = validate_skills.parse_frontmatter(
+                sm.read_text(encoding="utf-8", errors="replace")
+            )
+            out.append(
+                {
+                    "name": fm.get("name") or d.name,
+                    "description": (fm.get("description") or "").strip(),
+                    "category": (fm.get("category") or "").strip(),
+                    "license": (fm.get("license") or "").strip(),
+                    "entry": _is_true(fm.get("entry") or ""),
+                    "stages": [
+                        s.strip()
+                        for s in (fm.get("stages") or "").split(",")
+                        if s.strip()
+                    ],
+                    "origin": (fm.get("origin") or "").strip(),
+                    "owner": (fm.get("owner") or "").strip(),
+                    "maturity": (fm.get("maturity") or "ready").strip(),
+                    "status": status,
+                    "path": str(d.relative_to(HARNESS)),
+                }
+            )
     return out
 
 
@@ -70,7 +78,21 @@ def _catalog_payload(skills: list[dict]) -> dict:
         "version": 1,
         "generated": _dt.datetime.now(_dt.timezone.utc).isoformat(),
         "skills": [
-            {k: s[k] for k in ("name", "description", "category", "license", "entry", "stages", "origin", "owner", "maturity", "status")}
+            {
+                k: s[k]
+                for k in (
+                    "name",
+                    "description",
+                    "category",
+                    "license",
+                    "entry",
+                    "stages",
+                    "origin",
+                    "owner",
+                    "maturity",
+                    "status",
+                )
+            }
             for s in skills
         ],
     }
@@ -115,7 +137,9 @@ def _build_index(skills: list[dict]) -> str:
         for s in entries:
             cat = s["category"] or "<none>"
             owner = s.get("owner") or ""
-            lines.append(f"### {s['name']}  ·  `{cat}`" + (f"  ·  {owner}" if owner else ""))
+            lines.append(
+                f"### {s['name']}  ·  `{cat}`" + (f"  ·  {owner}" if owner else "")
+            )
             lines.append(f"- {_first_sentence(s['description'])}")
             if s["stages"]:
                 lines.append(f"- stages: {', '.join(s['stages'])}")
@@ -130,13 +154,23 @@ def _build_index(skills: list[dict]) -> str:
             tag = f" · {s.get('owner')}" if s.get("owner") else ""
             if s.get("maturity") and s["maturity"] not in ("ready", ""):
                 tag += f" · {s['maturity']}"
-            lines.append(f"{mark}`{s['name']}`{tag} — {_first_sentence(s['description'], 120)}")
+            lines.append(
+                f"{mark}`{s['name']}`{tag} — {_first_sentence(s['description'], 120)}"
+            )
         lines.append("")
 
     return "\n".join(lines).rstrip() + "\n"
 
 
-def _skill_filter(s: dict, q: str, category: str | None, entry_only: bool, origin: str | None = None, maturity: str | None = None, owner: str | None = None) -> bool:
+def _skill_filter(
+    s: dict,
+    q: str,
+    category: str | None,
+    entry_only: bool,
+    origin: str | None = None,
+    maturity: str | None = None,
+    owner: str | None = None,
+) -> bool:
     if category and s["category"] != category:
         return False
     if origin and s.get("origin") != origin:
@@ -148,7 +182,9 @@ def _skill_filter(s: dict, q: str, category: str | None, entry_only: bool, origi
     if entry_only and not s["entry"]:
         return False
     if q:
-        hay = " ".join([s["name"].lower(), s["description"].lower(), (s["category"] or "").lower()])
+        hay = " ".join(
+            [s["name"].lower(), s["description"].lower(), (s["category"] or "").lower()]
+        )
         if q.lower() not in hay:
             return False
     return True
@@ -156,9 +192,13 @@ def _skill_filter(s: dict, q: str, category: str | None, entry_only: bool, origi
 
 def refresh() -> None:
     skills = collect()
-    CATALOG.write_text(json.dumps(_catalog_payload(skills), indent=2) + "\n", encoding="utf-8")
+    CATALOG.write_text(
+        json.dumps(_catalog_payload(skills), indent=2) + "\n", encoding="utf-8"
+    )
     INDEX.write_text(_build_index(skills), encoding="utf-8")
-    print(f"✓ refreshed — {len(skills)} skill(s) → {CATALOG.relative_to(HARNESS)} + {INDEX.relative_to(HARNESS)}")
+    print(
+        f"✓ refreshed — {len(skills)} skill(s) → {CATALOG.relative_to(HARNESS)} + {INDEX.relative_to(HARNESS)}"
+    )
 
 
 def check() -> int:
@@ -176,7 +216,10 @@ def check() -> int:
     if not INDEX.exists() or INDEX.read_text(encoding="utf-8") != index_text:
         stale.append(str(INDEX.relative_to(HARNESS)))
     if stale:
-        print("✗ stale index (run ./harness skills --refresh): " + ", ".join(stale), file=sys.stderr)
+        print(
+            "✗ stale index (run ./harness skills --refresh): " + ", ".join(stale),
+            file=sys.stderr,
+        )
         return 1
     print("✓ catalog + skills index up to date")
     return 0
@@ -185,6 +228,7 @@ def check() -> int:
 def mine() -> int:
     """Show what each detected agent's user dir exposes vs the hub catalog."""
     from skill_foundry.lib import install_skills
+
     all_skills = collect()
     hub = {s["name"]: s for s in all_skills if s["status"] == "published"}
     owned = {n for n, s in hub.items() if (s.get("origin") or "") == "native"}
@@ -209,8 +253,12 @@ def mine() -> int:
     print()
     local_only = sorted(visible - set(hub))
     if local_only:
-        print(f"  local-only skills (visible but not in the hub): {', '.join(local_only)}")
-        print("      these live in an agent's user dir, not in this repo — declare them in")
+        print(
+            f"  local-only skills (visible but not in the hub): {', '.join(local_only)}"
+        )
+        print(
+            "      these live in an agent's user dir, not in this repo — declare them in"
+        )
         print("      config/externals.json if other skills reference them by name.")
         print()
     print("  install the owned skills:   ./harness skills --install --scope core")
@@ -262,10 +310,12 @@ def _skill_detail(s: dict) -> bool:
             _page_skill_md(s)
         elif act == "install":
             from skill_foundry.lib import install_skills
+
             install_skills.main(["--name", s["name"]])
             print()
         elif act == "propose":
             from skill_foundry.cli import promote_skill
+
             promote_skill.main([s["name"], "--propose"])
             print()
 
@@ -292,8 +342,10 @@ def _browse_interactive(skills: list[dict]) -> int:
             cat = s.get("category") or "<none>"
             owner = s.get("owner") or ""
             labels.append(
-                (f"{mark}{s['name']:<28} {cat:<15} {_first_sentence(s['description'], 44)} · {owner}",
-                 s["name"])
+                (
+                    f"{mark}{s['name']:<28} {cat:<15} {_first_sentence(s['description'], 44)} · {owner}",
+                    s["name"],
+                )
             )
         name = ui.select_menu(title, labels)
         if not name:
@@ -307,29 +359,70 @@ def _browse_interactive(skills: list[dict]) -> int:
 
 
 def main(argv: list[str] | None = None) -> int:
-    ap = argparse.ArgumentParser(description="List/search skills, refresh catalog + index.")
-    ap.add_argument("--search", default=None, help="Filter by name/description/category substring.")
+    ap = argparse.ArgumentParser(
+        description="List/search skills, refresh catalog + index."
+    )
+    ap.add_argument(
+        "--search", default=None, help="Filter by name/description/category substring."
+    )
     ap.add_argument("--category", default=None, help="Filter by exact category.")
-    ap.add_argument("--origin", default=None, help="Filter by exact origin (native|cannbot).")
-    ap.add_argument("--owner", default=None, help="Filter by exact owner (skill-foundry|cannbot|…).")
-    ap.add_argument("--maturity", default=None, help="Filter by maturity (ready|draft|deprecated).")
-    ap.add_argument("--scope", choices=["core", "all"], default=None,
-                    help="Preset for --install/--uninstall ('core' = origin: native).")
+    ap.add_argument(
+        "--origin", default=None, help="Filter by exact origin (native|cannbot)."
+    )
+    ap.add_argument(
+        "--owner", default=None, help="Filter by exact owner (skill-foundry|cannbot|…)."
+    )
+    ap.add_argument(
+        "--maturity", default=None, help="Filter by maturity (ready|draft|deprecated)."
+    )
+    ap.add_argument(
+        "--scope",
+        choices=["core", "all"],
+        default=None,
+        help="Preset for --install/--uninstall ('core' = origin: native).",
+    )
     ap.add_argument("--entry", action="store_true", help="Entry points only.")
-    ap.add_argument("--name", action="append", default=None,
-                    help="Only this skill, by folder name (repeatable; --install/--uninstall only).")
+    ap.add_argument(
+        "--name",
+        action="append",
+        default=None,
+        help="Only this skill, by folder name (repeatable; --install/--uninstall only).",
+    )
     ap.add_argument("--inbox", action="store_true", help="Show drafts only.")
-    ap.add_argument("--refresh", action="store_true", help="Rewrite hub/catalog.json + docs/SKILLS_INDEX.md.")
-    ap.add_argument("--check", action="store_true", help="Fail if catalog/index are stale (no writes).")
-    ap.add_argument("--install", action="store_true", help="Symlink skills into each detected agent's user dir.")
-    ap.add_argument("--uninstall", action="store_true", help="Remove the harness skill symlinks.")
-    ap.add_argument("--dry-run", action="store_true", help="With --install/--uninstall: show what would change (no writes).")
-    ap.add_argument("--mine", action="store_true", help="Show what each detected agent can see vs the hub (discoverability check).")
+    ap.add_argument(
+        "--refresh",
+        action="store_true",
+        help="Rewrite hub/catalog.json + docs/SKILLS_INDEX.md.",
+    )
+    ap.add_argument(
+        "--check",
+        action="store_true",
+        help="Fail if catalog/index are stale (no writes).",
+    )
+    ap.add_argument(
+        "--install",
+        action="store_true",
+        help="Symlink skills into each detected agent's user dir.",
+    )
+    ap.add_argument(
+        "--uninstall", action="store_true", help="Remove the harness skill symlinks."
+    )
+    ap.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="With --install/--uninstall: show what would change (no writes).",
+    )
+    ap.add_argument(
+        "--mine",
+        action="store_true",
+        help="Show what each detected agent can see vs the hub (discoverability check).",
+    )
     ap.add_argument("--json", action="store_true")
     args = ap.parse_args(argv)
 
     if args.install or args.uninstall:
         from skill_foundry.lib import install_skills
+
         argv = ["--uninstall"] if args.uninstall else []
         if args.dry_run:
             argv += ["--dry-run"]
@@ -360,7 +453,19 @@ def main(argv: list[str] | None = None) -> int:
         return check()
 
     skills = collect()
-    skills = [s for s in skills if _skill_filter(s, args.search or "", args.category, args.entry, args.origin, args.maturity, args.owner)]
+    skills = [
+        s
+        for s in skills
+        if _skill_filter(
+            s,
+            args.search or "",
+            args.category,
+            args.entry,
+            args.origin,
+            args.maturity,
+            args.owner,
+        )
+    ]
     if args.inbox:
         skills = [s for s in skills if s["status"] == "draft"]
 
@@ -370,8 +475,14 @@ def main(argv: list[str] | None = None) -> int:
 
     published = [s for s in skills if s["status"] == "published"]
     drafts = [s for s in skills if s["status"] == "draft"]
-    filtered = bool(args.search or args.category or args.origin or args.owner
-                    or args.maturity or args.entry)
+    filtered = bool(
+        args.search
+        or args.category
+        or args.origin
+        or args.owner
+        or args.maturity
+        or args.entry
+    )
     if sys.stdin.isatty() and not args.json and not args.inbox and not filtered:
         return _browse_interactive(skills)
     if not filtered and not args.inbox:
@@ -381,7 +492,9 @@ def main(argv: list[str] | None = None) -> int:
             print("\n  Entry points (start here):")
             for s in entries:
                 owner = f"  [{s['owner']}]" if s.get("owner") else ""
-                print(f"    [✓] {s['name']:<28}{s['category']:<15}{_first_sentence(s['description'], 62)}{owner}")
+                print(
+                    f"    [✓] {s['name']:<28}{s['category']:<15}{_first_sentence(s['description'], 62)}{owner}"
+                )
         by_cat = Counter(s["category"] or "<none>" for s in published)
         print("\n  Skills by category:")
         cats = sorted(by_cat.items(), key=lambda kv: (-kv[1], kv[0]))
@@ -400,7 +513,9 @@ def main(argv: list[str] | None = None) -> int:
                 print(f"    [◷] {s['name']:<28}{s['category'] or '<none>'}")
                 print(f"         → ./harness promote-skill {s['name']} --pr")
         print("\n  Navigate:")
-        print("    ./harness skills --category <c>  ·  --search <q>  ·  --owner <o>  ·  --origin <o>")
+        print(
+            "    ./harness skills --category <c>  ·  --search <q>  ·  --owner <o>  ·  --origin <o>"
+        )
         print("    ./harness skills --entry         ·  --mine         ·  --inbox")
         return 0
 

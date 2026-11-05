@@ -21,6 +21,7 @@ import re
 from pathlib import Path
 
 from skill_foundry.paths import ROOT as HARNESS  # noqa: E402
+
 DEFAULT_FILE = HARNESS / "learnings" / "recent.md"
 CATEGORIES = {"correction", "error", "knowledge_gap", "feature"}
 PLACEHOLDER = "(No entries yet.)"
@@ -60,7 +61,11 @@ def format_entry(entry: dict) -> str:
 def append_entry(path: str | Path, entry: dict) -> str:
     p = Path(path)
     p.parent.mkdir(parents=True, exist_ok=True)
-    text = p.read_text(encoding="utf-8") if p.exists() else "# Recent — pending learnings\n\n(No entries yet.)\n"
+    text = (
+        p.read_text(encoding="utf-8")
+        if p.exists()
+        else "# Recent — pending learnings\n\n(No entries yet.)\n"
+    )
 
     date = _dt.datetime.now().strftime("%Y%m%d")
     entry["id"] = entry.get("id") or next_id(text, date)
@@ -81,12 +86,22 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--category", default="correction", choices=sorted(CATEGORIES))
     ap.add_argument("--context", default="manual", help="Run-id or trigger.")
     ap.add_argument("--skill", default="harness", help="Target skill name.")
-    ap.add_argument("--wrong", default="", help="What the flow previously did / symptom.")
+    ap.add_argument(
+        "--wrong", default="", help="What the flow previously did / symptom."
+    )
     ap.add_argument("--correct", default="", help="What it should do instead.")
     ap.add_argument("--action", default="", help="Precise edit or where to add.")
-    ap.add_argument("--id", default=None, help="Optional explicit LRN id (else auto-assigned).")
-    ap.add_argument("--file", default=str(DEFAULT_FILE), help="learnings file (default learnings/recent.md).")
-    ap.add_argument("--dry-run", action="store_true", help="Print the entry without writing.")
+    ap.add_argument(
+        "--id", default=None, help="Optional explicit LRN id (else auto-assigned)."
+    )
+    ap.add_argument(
+        "--file",
+        default=str(DEFAULT_FILE),
+        help="learnings file (default learnings/recent.md).",
+    )
+    ap.add_argument(
+        "--dry-run", action="store_true", help="Print the entry without writing."
+    )
     args = ap.parse_args(argv)
 
     entry = {

@@ -38,8 +38,16 @@ from skill_foundry.lib import gates, metrics, validate_skills  # noqa: E402
 _VERDICT_ORDER = {"reject": 0, "hold": 1, "approve": 2}
 
 _NEGATION_MARKERS = (
-    "never", "do not", "don't", "forbid", "forbidden", "must not", "should not",
-    "禁止", "不得", "严禁",
+    "never",
+    "do not",
+    "don't",
+    "forbid",
+    "forbidden",
+    "must not",
+    "should not",
+    "禁止",
+    "不得",
+    "严禁",
 )
 
 _PLACEHOLDER_MARKERS = ("todo", "fixme", "tbd", "xxx", "placeholder", "lorem ipsum")
@@ -80,7 +88,9 @@ def llm_verdict(diff_text: str) -> str | None:
     if not argv:
         return None
     try:
-        r = subprocess.run(argv, input=diff_text, capture_output=True, text=True, timeout=180)
+        r = subprocess.run(
+            argv, input=diff_text, capture_output=True, text=True, timeout=180
+        )
     except Exception as exc:  # pragma: no cover - environmental
         print(f"reviewer error: {exc}", file=sys.stderr)
         return None
@@ -104,12 +114,15 @@ def builtin_review(
     """Deterministic review. Returns (verdict, reasons); verdict in approve|hold|reject."""
     if added_text is None:
         added_text = "\n".join(
-            ln[1:] for ln in diff_text.splitlines()
+            ln[1:]
+            for ln in diff_text.splitlines()
             if ln.startswith("+") and not ln.startswith("+++")
         )
     if local_skills is None:
         sd = ROOT / ".claude" / "skills"
-        local_skills = {d.name for d in sd.iterdir() if d.is_dir() and not d.name.startswith(".")}
+        local_skills = {
+            d.name for d in sd.iterdir() if d.is_dir() and not d.name.startswith(".")
+        }
     if externals is None:
         externals = validate_skills.load_external_names()
 
@@ -135,7 +148,8 @@ def builtin_review(
 
     # 4. contradiction / near-duplicate vs the target's existing checks
     existing = [
-        ln for ln in target_content.splitlines()
+        ln
+        for ln in target_content.splitlines()
         if ln.strip() and not ln.lstrip().startswith(("#", "<!--"))
     ]
     added_lines = [ln for ln in added_text.splitlines() if ln.strip()]
@@ -165,8 +179,10 @@ def builtin_review(
 def _record_judge(verdict: str) -> None:
     eid = metrics.record("judge", verdict=verdict)
     if eid:
-        print(f"  · judge event {eid} — calibrate: ./harness metrics --calibrate {eid} approve|reject",
-              file=sys.stderr)
+        print(
+            f"  · judge event {eid} — calibrate: ./harness metrics --calibrate {eid} approve|reject",
+            file=sys.stderr,
+        )
 
 
 def approve(
@@ -194,16 +210,23 @@ def approve(
 
     # LLM judge is mandatory — no SKILL_REVIEWER configured.
     if not sys.stdin.isatty():
-        print("✗ SKILL_REVIEWER is required: set it to an LLM judge command "
-              "(reads the diff on stdin, prints APPROVE/HOLD/REJECT), or run "
-              "interactively.", file=sys.stderr)
+        print(
+            "✗ SKILL_REVIEWER is required: set it to an LLM judge command "
+            "(reads the diff on stdin, prints APPROVE/HOLD/REJECT), or run "
+            "interactively.",
+            file=sys.stderr,
+        )
         return False
 
     # interactive fallback — a human is the judge
     print(diff_text)
     print()
     try:
-        ans = input("No SKILL_REVIEWER set — [a]pprove / [h]old / [r]eject: ").strip().lower()
+        ans = (
+            input("No SKILL_REVIEWER set — [a]pprove / [h]old / [r]eject: ")
+            .strip()
+            .lower()
+        )
     except (EOFError, KeyboardInterrupt):
         print("(no input — holding)", file=sys.stderr)
         return False

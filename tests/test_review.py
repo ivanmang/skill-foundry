@@ -15,9 +15,9 @@ def _record(suites: list[dict]) -> dict:
 def _suite(name: str, pairs: list[tuple]) -> dict:
     return {
         "name": name,
-        "results": {"cases": [
-            {"name": n, "status": s, "duration_s": d} for n, s, d in pairs
-        ]},
+        "results": {
+            "cases": [{"name": n, "status": s, "duration_s": d} for n, s, d in pairs]
+        },
     }
 
 
@@ -38,14 +38,19 @@ class ReviewTest(unittest.TestCase):
             _record([_suite("s", [("a", "FAIL", 1.0)])]),
             _record([_suite("s", [("a", "PASS", 1.0)])]),
         )
-        self.assertEqual(d["regressions"], [{"suite": "s", "name": "a", "before": "PASS", "after": "FAIL"}])
+        self.assertEqual(
+            d["regressions"],
+            [{"suite": "s", "name": "a", "before": "PASS", "after": "FAIL"}],
+        )
 
     def test_fail_to_pass_fix(self):
         d = diff(
             _record([_suite("s", [("a", "PASS", 1.0)])]),
             _record([_suite("s", [("a", "FAIL", 1.0)])]),
         )
-        self.assertEqual(d["fixes"], [{"suite": "s", "name": "a", "before": "FAIL", "after": "PASS"}])
+        self.assertEqual(
+            d["fixes"], [{"suite": "s", "name": "a", "before": "FAIL", "after": "PASS"}]
+        )
 
     def test_p99_perf_flag_even_when_avg_stable(self):
         # p99 doubles (+100%) while avg is comparable — must still flag.

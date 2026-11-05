@@ -52,7 +52,9 @@ class PlanEntriesTest(unittest.TestCase):
         self.assertEqual(len(plan), 1)
         target, old, new, entries = plan[0]
         self.assertEqual(target.name, "SKILL.md")
-        self.assertEqual([e["action"] for e in entries], ["add bullet one", "add bullet two"])
+        self.assertEqual(
+            [e["action"] for e in entries], ["add bullet one", "add bullet two"]
+        )
         self.assertIn("add bullet one", new)
         self.assertIn("add bullet two", new)
         self.assertIn("keep me", new)  # original content preserved
@@ -66,7 +68,9 @@ class PlanEntriesTest(unittest.TestCase):
 
     def test_known_failures_target_appends_both(self):
         root = _make_root()
-        kf = root / ".claude" / "skills" / "pto-isa" / "references" / "known-failures.md"
+        kf = (
+            root / ".claude" / "skills" / "pto-isa" / "references" / "known-failures.md"
+        )
         kf.parent.mkdir(parents=True)
         kf.write_text("# Known failures\n\n- old entry\n", encoding="utf-8")
         e1 = _entry("LRN-20990101-001", "pto-isa", "known-failure: symptom 1", "fix 1")
@@ -93,12 +97,19 @@ class ApplyAllTest(unittest.TestCase):
         pending = [e for e in entries if e.get("status") == "pending"]
 
         rc = promote.apply_all(
-            root, lp, entries, pending,
-            branch=None, push=False, review=False,
+            root,
+            lp,
+            entries,
+            pending,
+            branch=None,
+            push=False,
+            review=False,
         )
 
         self.assertEqual(rc, 0)
-        final = (root / ".claude" / "skills" / "foo" / "SKILL.md").read_text(encoding="utf-8")
+        final = (root / ".claude" / "skills" / "foo" / "SKILL.md").read_text(
+            encoding="utf-8"
+        )
         self.assertIn("add bullet one", final)
         self.assertIn("add bullet two", final)
         self.assertIn("keep me", final)
@@ -118,8 +129,14 @@ class DedupeTest(unittest.TestCase):
 
     def _e(self, eid, action, wrong="w"):
         return {
-            "id": eid, "category": "correction", "context": "t", "skill": "foo",
-            "wrong": wrong, "correct": action, "action": action, "status": "pending",
+            "id": eid,
+            "category": "correction",
+            "context": "t",
+            "skill": "foo",
+            "wrong": wrong,
+            "correct": action,
+            "action": action,
+            "status": "pending",
         }
 
     def test_short_value_substring_is_not_treated_as_present(self):
@@ -133,11 +150,17 @@ class DedupeTest(unittest.TestCase):
         root = self._root()
         e = self._e("LRN-1", "dup action", wrong="dup wrong")
         target = root / ".claude" / "skills" / "foo" / "SKILL.md"
-        line = [ln for ln in promote.build_snippet(e, target).splitlines() if ln.strip()][0]
-        target.write_text(target.read_text(encoding="utf-8") + line + "\n", encoding="utf-8")
+        line = [
+            ln for ln in promote.build_snippet(e, target).splitlines() if ln.strip()
+        ][0]
+        target.write_text(
+            target.read_text(encoding="utf-8") + line + "\n", encoding="utf-8"
+        )
         active, skipped = promote.dedupe_pending([e], root)
         self.assertEqual(active, [])
-        self.assertEqual(skipped["LRN-1"], "already present in .claude/skills/foo/SKILL.md")
+        self.assertEqual(
+            skipped["LRN-1"], "already present in .claude/skills/foo/SKILL.md"
+        )
 
 
 class PrTokenWarningTest(unittest.TestCase):
@@ -150,7 +173,9 @@ class PrTokenWarningTest(unittest.TestCase):
             buf = io.StringIO()
             with contextlib.redirect_stderr(buf):
                 rc = promote.main(["--pr", "--root", str(tmp)])
-            self.assertEqual(rc, 0)  # no learnings file -> 0; the token is only a warning
+            self.assertEqual(
+                rc, 0
+            )  # no learnings file -> 0; the token is only a warning
             self.assertIn("GITCODE_TOKEN", buf.getvalue())
         finally:
             if saved[0] is not None:
@@ -165,8 +190,12 @@ class BuildMrBodyTest(unittest.TestCase):
 
     def test_optional_sections(self):
         body = promote.build_mr_body(
-            "did X", why="because Y", impact="affects W", testing="ran Z",
-            rollback="revert R", notes="- note",
+            "did X",
+            why="because Y",
+            impact="affects W",
+            testing="ran Z",
+            rollback="revert R",
+            notes="- note",
         )
         self.assertIn("## What\ndid X", body)
         self.assertIn("\n\n## Why\nbecause Y", body)
@@ -177,21 +206,45 @@ class BuildMrBodyTest(unittest.TestCase):
 
     def test_section_order(self):
         body = promote.build_mr_body(
-            "did X", files=[{"path": "a.py", "detail": "d"}],
-            why="Y", impact="I", testing="T", rollback="R", notes="N",
+            "did X",
+            files=[{"path": "a.py", "detail": "d"}],
+            why="Y",
+            impact="I",
+            testing="T",
+            rollback="R",
+            notes="N",
         )
-        positions = [body.index(h) for h in (
-            "## What", "## Files changed", "## Why", "## Impact",
-            "## Testing", "## Rollback", "## Notes",
-        )]
+        positions = [
+            body.index(h)
+            for h in (
+                "## What",
+                "## Files changed",
+                "## Why",
+                "## Impact",
+                "## Testing",
+                "## Rollback",
+                "## Notes",
+            )
+        ]
         self.assertEqual(positions, sorted(positions))
 
     def test_files_changed_table(self):
         body = promote.build_mr_body(
-            "did X", why="because Y",
+            "did X",
+            why="because Y",
             files=[
-                {"path": "a.py", "change": "modified", "detail": "fixed regex", "stats": "+5/−2"},
-                {"path": "b.md", "change": "added", "detail": "new doc", "stats": "+10/−0"},
+                {
+                    "path": "a.py",
+                    "change": "modified",
+                    "detail": "fixed regex",
+                    "stats": "+5/−2",
+                },
+                {
+                    "path": "b.md",
+                    "change": "added",
+                    "detail": "new doc",
+                    "stats": "+10/−0",
+                },
             ],
         )
         self.assertIn("| File | Change | What changed | Diff |", body)

@@ -17,8 +17,12 @@ from skill_foundry.paths import ROOT as HARNESS  # noqa: E402
 
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description="Clean run directories under reports/.")
-    ap.add_argument("--dry-run", action="store_true", help="List what would be removed, do nothing.")
-    ap.add_argument("--keep", type=int, default=0, help="Keep the N most recent runs (default 0).")
+    ap.add_argument(
+        "--dry-run", action="store_true", help="List what would be removed, do nothing."
+    )
+    ap.add_argument(
+        "--keep", type=int, default=0, help="Keep the N most recent runs (default 0)."
+    )
     args = ap.parse_args(argv)
 
     reports = HARNESS / "reports"
@@ -31,7 +35,7 @@ def main(argv: list[str] | None = None) -> int:
         key=lambda p: p.stat().st_mtime,
         reverse=True,
     )
-    to_remove = dirs[args.keep:] if args.keep and args.keep > 0 else dirs
+    to_remove = dirs[args.keep :] if args.keep and args.keep > 0 else dirs
 
     if not to_remove:
         print("Nothing to clean.")
@@ -43,7 +47,9 @@ def main(argv: list[str] | None = None) -> int:
         else:
             shutil.rmtree(d, ignore_errors=True)
             print(f"  removed {d.name}")
-    print(f"\n{len(to_remove)} run dir(s) {'would be' if args.dry_run else ''} removed (baseline kept).")
+    print(
+        f"\n{len(to_remove)} run dir(s) {'would be' if args.dry_run else ''} removed (baseline kept)."
+    )
     return 0
 
 

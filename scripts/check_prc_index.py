@@ -9,6 +9,7 @@ Usage:
   python3 scripts/check_prc_index.py
   python3 scripts/check_prc_index.py --knowledge hub/tilelanggym/perf-review-knowledge
 """
+
 from __future__ import annotations
 
 import argparse
@@ -21,13 +22,9 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_KNOWLEDGE = ROOT / "hub" / "tilelanggym" / "perf-review-knowledge"
 
-ROW = re.compile(
-    r"\|\s*(PRC-[A-Z]+-\d{3})\s*\|[^|]*\|[^|]*\|([^|]+)\|\s*(\w+)\s*\|"
-)
+ROW = re.compile(r"\|\s*(PRC-[A-Z]+-\d{3})\s*\|[^|]*\|[^|]*\|([^|]+)\|\s*(\w+)\s*\|")
 LINK = re.compile(r"\[[^\]]+\]\(([^)]+)\)")
-SUMMARY = re.compile(
-    r"统计：(\d+)\s*条（ready\s+(\d+)\s*/\s*draft\s+(\d+)）。"
-)
+SUMMARY = re.compile(r"统计：(\d+)\s*条（ready\s+(\d+)\s*/\s*draft\s+(\d+)）。")
 REQUIRED_SECTIONS = (
     "## 知识点",
     "## 错误写法",
@@ -41,7 +38,11 @@ VALID_INDEX_STATUS = ("ready", "pending")
 
 
 def _knowledge() -> Path:
-    return Path(os.environ.get("TILELANGGYM_PRC", str(DEFAULT_KNOWLEDGE))).expanduser().resolve()
+    return (
+        Path(os.environ.get("TILELANGGYM_PRC", str(DEFAULT_KNOWLEDGE)))
+        .expanduser()
+        .resolve()
+    )
 
 
 # deferred import for env override
@@ -55,7 +56,9 @@ def parse_rows(knowledge: Path):
     for cid, cell, status in ROW.findall(text):
         m = LINK.search(cell.strip())
         if not m:
-            raise AssertionError(f"{cid}: knowledge-file cell has no markdown link: {cell!r}")
+            raise AssertionError(
+                f"{cid}: knowledge-file cell has no markdown link: {cell!r}"
+            )
         rel = m.group(1).strip()
         out.append((cid, rel, status))
     return out
@@ -86,7 +89,9 @@ class SoftLibPrcChecklist(unittest.TestCase):
             )
 
     def test_no_orphan_knowledge_files(self):
-        linked = {(self.KNOWLEDGE / rel).resolve() for _, rel, _ in parse_rows(self.KNOWLEDGE)}
+        linked = {
+            (self.KNOWLEDGE / rel).resolve() for _, rel, _ in parse_rows(self.KNOWLEDGE)
+        }
         on_disk = {p.resolve() for p in self.KNOWLEDGE.rglob("PRC-*.md")}
         on_disk = {p for p in on_disk if p.name != "PRC_TEMPLATE.md"}
         orphans = on_disk - linked
@@ -136,12 +141,16 @@ class SoftLibPrcChecklist(unittest.TestCase):
             prc = list(d.glob("PRC-*.md"))
             if not prc:
                 empty.append(d.name)
-        self.assertEqual(empty, [], f"empty category dirs (remove until first card): {empty}")
+        self.assertEqual(
+            empty, [], f"empty category dirs (remove until first card): {empty}"
+        )
 
 
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description="PRC checklist orphan/link gate")
-    ap.add_argument("--knowledge", default=None, help="Override TILELANGGYM_PRC / default hub path")
+    ap.add_argument(
+        "--knowledge", default=None, help="Override TILELANGGYM_PRC / default hub path"
+    )
     args = ap.parse_args(argv)
     if args.knowledge:
         os.environ["TILELANGGYM_PRC"] = args.knowledge

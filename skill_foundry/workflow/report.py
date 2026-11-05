@@ -26,7 +26,6 @@ from skill_foundry.lib import browser as _browser  # noqa: E402
 from skill_foundry.lib.term import fmt_dur  # noqa: E402
 
 
-
 def load(path: str) -> dict:
     return json.loads(Path(path).read_text(encoding="utf-8"))
 
@@ -54,16 +53,18 @@ def suite_rows(record: dict) -> list[list[str]]:
         perf = s.get("perf") or {}
         vf = perf.get("vf_real")
         cycles = "-" if vf is None else str(vf)
-        rows.append([
-            s.get("name", "?"),
-            str(sm.get("passed", 0)),
-            str(sm.get("failed", 0)),
-            str(sm.get("skipped", 0)),
-            str(sm.get("total", 0)),
-            s.get("status", "UNKNOWN"),
-            fmt_dur(s.get("duration_s")),
-            cycles,
-        ])
+        rows.append(
+            [
+                s.get("name", "?"),
+                str(sm.get("passed", 0)),
+                str(sm.get("failed", 0)),
+                str(sm.get("skipped", 0)),
+                str(sm.get("total", 0)),
+                s.get("status", "UNKNOWN"),
+                fmt_dur(s.get("duration_s")),
+                cycles,
+            ]
+        )
     return rows
 
 
@@ -76,12 +77,17 @@ def timing_rows(record: dict) -> list[list[str]]:
         def f(v):
             return "-" if v is None else fmt_dur(v)
 
-        rows.append([
-            s.get("name", "?"),
-            str(t.get("cases", 0)),
-            fmt_dur(s.get("duration_s")),
-            f(t.get("min")), f(t.get("p50")), f(t.get("p99")), f(t.get("max")),
-        ])
+        rows.append(
+            [
+                s.get("name", "?"),
+                str(t.get("cases", 0)),
+                fmt_dur(s.get("duration_s")),
+                f(t.get("min")),
+                f(t.get("p50")),
+                f(t.get("p99")),
+                f(t.get("max")),
+            ]
+        )
     return rows
 
 
@@ -90,12 +96,14 @@ def command_rows(record: dict) -> list[list[str]]:
     rows = []
     for s in record.get("suites", []):
         exit_code = s.get("exit_code")
-        rows.append([
-            s.get("name", "?"),
-            str(exit_code) if exit_code is not None else "-",
-            s.get("log_file", ""),
-            " ".join(str(x) for x in s.get("command", [])),
-        ])
+        rows.append(
+            [
+                s.get("name", "?"),
+                str(exit_code) if exit_code is not None else "-",
+                s.get("log_file", ""),
+                " ".join(str(x) for x in s.get("command", [])),
+            ]
+        )
     return rows
 
 
@@ -108,12 +116,14 @@ def case_rows(record: dict) -> list[dict]:
             dur = c.get("duration_s")
             if dur == 0.0:
                 dur = None  # 0.0 means the runner didn't measure per-case timing
-            rows.append({
-                "suite": s.get("name", "?"),
-                "name": c.get("name", "?"),
-                "status": c.get("status", "?"),
-                "duration_s": dur,
-            })
+            rows.append(
+                {
+                    "suite": s.get("name", "?"),
+                    "name": c.get("name", "?"),
+                    "status": c.get("status", "?"),
+                    "duration_s": dur,
+                }
+            )
     return rows
 
 
@@ -127,15 +137,28 @@ def perf_rows(record: dict) -> list[list[str]]:
 
         def g(k):
             v = p.get(k)
-            return "-" if v is None else (f"{v:.3f}" if isinstance(v, float) else str(v))
+            return (
+                "-" if v is None else (f"{v:.3f}" if isinstance(v, float) else str(v))
+            )
 
-        rows.append([
-            s.get("name", "?"),
-            str(p.get("ex", 0)), str(p.get("su", 0)), str(p.get("ld", 0)),
-            str(p.get("st", 0)), str(p.get("pred", 0)), str(p.get("scalar", 0)),
-            str(p.get("dma", 0)), str(p.get("dual", 0)), str(p.get("stalls", 0)),
-            str(p.get("max_stall", 0)), g("ipc"), g("ex_ipc"), str(p.get("vf_real", "-")),
-        ])
+        rows.append(
+            [
+                s.get("name", "?"),
+                str(p.get("ex", 0)),
+                str(p.get("su", 0)),
+                str(p.get("ld", 0)),
+                str(p.get("st", 0)),
+                str(p.get("pred", 0)),
+                str(p.get("scalar", 0)),
+                str(p.get("dma", 0)),
+                str(p.get("dual", 0)),
+                str(p.get("stalls", 0)),
+                str(p.get("max_stall", 0)),
+                g("ipc"),
+                g("ex_ipc"),
+                str(p.get("vf_real", "-")),
+            ]
+        )
     return rows
 
 
@@ -150,8 +173,13 @@ def perf_detail_lines(record: dict) -> list[tuple[str, list[str]]]:
         subs = p.get("subcategory_counts") or {}
         exs = {k: v for k, v in subs.items() if k.startswith("ex_")}
         if exs:
-            lines.append("EX subcats: " + ", ".join(
-                f"{k[3:]}={v}" for k, v in sorted(exs.items(), key=lambda kv: -kv[1])))
+            lines.append(
+                "EX subcats: "
+                + ", ".join(
+                    f"{k[3:]}={v}"
+                    for k, v in sorted(exs.items(), key=lambda kv: -kv[1])
+                )
+            )
         combos = p.get("dual_combos") or {}
         if combos:
             top = sorted(combos.items(), key=lambda kv: -kv[1])[:4]
@@ -162,13 +190,15 @@ def perf_detail_lines(record: dict) -> list[tuple[str, list[str]]]:
             lines.append("stall targets: " + ", ".join(f"{op}={n}" for op, n in top))
         ls = p.get("long_stalls") or []
         if ls:
-            lines.append("top stalls: " + "; ".join(
-                f"{u}:{a}→{b}={g}c" for u, a, b, g in ls[:3]))
+            lines.append(
+                "top stalls: " + "; ".join(f"{u}:{a}→{b}={g}c" for u, a, b, g in ls[:3])
+            )
         for c in p.get("per_case", []):
             t = c.get("timing", {})
             lines.append(
                 f"{c['dump']}: EX={t.get('ex')} IPC={t.get('ipc')} EX-IPC={t.get('ex_ipc')} "
-                f"vf_span={t.get('vf_compute_span')} mte2_wait={t.get('mte2_wait')} stalls={c.get('stalls')}")
+                f"vf_span={t.get('vf_compute_span')} mte2_wait={t.get('mte2_wait')} stalls={c.get('stalls')}"
+            )
         out.append((s.get("name", "?"), lines))
     return out
 
@@ -227,9 +257,13 @@ def render_md(records: list[dict], known_sigs: list[str]) -> str:
 
         cases = case_rows(rec)
         if cases:
-            lines += ["", "### Cases", "",
-                      "| suite | case | status | duration |",
-                      "|---|---|---|---|"]
+            lines += [
+                "",
+                "### Cases",
+                "",
+                "| suite | case | status | duration |",
+                "|---|---|---|---|",
+            ]
             for c in cases:
                 dur = fmt_dur(c["duration_s"]) if c["duration_s"] is not None else "-"
                 lines.append(f"| {c['suite']} | {c['name']} | {c['status']} | {dur} |")
@@ -239,17 +273,25 @@ def render_md(records: list[dict], known_sigs: list[str]) -> str:
             lines += _failures_md(fl)
 
         trows = timing_rows(rec)
-        lines += ["", "### Timing", "",
-                  "| suite | cases | duration | min | p50 | p99 | max |",
-                  "|---|---|---|---|---|---|---|"]
+        lines += [
+            "",
+            "### Timing",
+            "",
+            "| suite | cases | duration | min | p50 | p99 | max |",
+            "|---|---|---|---|---|---|---|",
+        ]
         for r in trows:
             lines.append("| " + " | ".join(r) + " |")
 
         prows = perf_rows(rec)
         if prows:
-            lines += ["", "### Performance (CA metrics)", "",
-                      "| suite | EX | SU | LD | ST | pred | scalar | dma | dual | stalls | max_stall | IPC | EX-IPC | vf_real |",
-                      "|---|---|---|---|---|---|---|---|---|---|---|---|---|---|"]
+            lines += [
+                "",
+                "### Performance (CA metrics)",
+                "",
+                "| suite | EX | SU | LD | ST | pred | scalar | dma | dual | stalls | max_stall | IPC | EX-IPC | vf_real |",
+                "|---|---|---|---|---|---|---|---|---|---|---|---|---|---|",
+            ]
             for r in prows:
                 lines.append("| " + " | ".join(r) + " |")
         detail = perf_detail_lines(rec)
@@ -260,9 +302,13 @@ def render_md(records: list[dict], known_sigs: list[str]) -> str:
                 lines += [f"- {dl}" for dl in dlines]
 
         crows = command_rows(rec)
-        lines += ["", "### Commands & logs", "",
-                  "| suite | exit | log | command |",
-                  "|---|---|---|---|"]
+        lines += [
+            "",
+            "### Commands & logs",
+            "",
+            "| suite | exit | log | command |",
+            "|---|---|---|---|",
+        ]
         for r in crows:
             name, exit_code, logpath, cmd = r
             logname = Path(logpath).name if logpath else ""
@@ -279,18 +325,24 @@ def render_html(records: list[dict], known_sigs: list[str]) -> str:
         env = rec.get("env_snapshot") or {}
         ascend = env.get("ASCEND_HOME_PATH") or "—"
         rows_html.append(
-            f'<h2>Run: {html.escape(rec.get("run_id", ""))}</h2>'
+            f"<h2>Run: {html.escape(rec.get('run_id', ''))}</h2>"
             f'<p class="meta">target <code>{html.escape(rec.get("target", ""))}</code> · '
-            f'commit <code>{html.escape(rec.get("target_commit", "") or "")}</code> · '
-            f'host <code>{html.escape(rec.get("host", ""))}</code> · '
-            f'ASCEND <code>{html.escape(ascend)}</code></p>'
+            f"commit <code>{html.escape(rec.get('target_commit', '') or '')}</code> · "
+            f"host <code>{html.escape(rec.get('host', ''))}</code> · "
+            f"ASCEND <code>{html.escape(ascend)}</code></p>"
         )
         trs = []
         for row in suite_rows(rec):
             status = row[5]
-            cls = "ok" if status == "PASS" else ("bad" if status in ("FAIL", "TIMEOUT", "ERROR") else "")
+            cls = (
+                "ok"
+                if status == "PASS"
+                else ("bad" if status in ("FAIL", "TIMEOUT", "ERROR") else "")
+            )
             tds = "".join(
-                f'<td class="{cls}">{html.escape(c)}</td>' if i == 5 else f"<td>{html.escape(c)}</td>"
+                f'<td class="{cls}">{html.escape(c)}</td>'
+                if i == 5
+                else f"<td>{html.escape(c)}</td>"
                 for i, c in enumerate(row)
             )
             trs.append(f"<tr>{tds}</tr>")
@@ -304,14 +356,24 @@ def render_html(records: list[dict], known_sigs: list[str]) -> str:
         cases = case_rows(rec)
         if cases:
             n_pass = sum(1 for c in cases if c["status"] == "PASS")
-            n_fail = sum(1 for c in cases if c["status"] in ("FAIL", "TIMEOUT", "ERROR"))
+            n_fail = sum(
+                1 for c in cases if c["status"] in ("FAIL", "TIMEOUT", "ERROR")
+            )
             n_skip = len(cases) - n_pass - n_fail
-            durs = [c["duration_s"] for c in cases if isinstance(c["duration_s"], (int, float)) and c["duration_s"] > 0]
+            durs = [
+                c["duration_s"]
+                for c in cases
+                if isinstance(c["duration_s"], (int, float)) and c["duration_s"] > 0
+            ]
             maxd = max(durs) if durs else 0
             cts = []
             for c in cases:
                 st = c["status"]
-                cls = "ok" if st == "PASS" else ("bad" if st in ("FAIL", "TIMEOUT", "ERROR") else "skip")
+                cls = (
+                    "ok"
+                    if st == "PASS"
+                    else ("bad" if st in ("FAIL", "TIMEOUT", "ERROR") else "skip")
+                )
                 dur = c["duration_s"]
                 dur_s = fmt_dur(dur) if isinstance(dur, (int, float)) else "-"
                 if dur and maxd:
@@ -334,14 +396,19 @@ def render_html(records: list[dict], known_sigs: list[str]) -> str:
                 f"<span class='count bad'>{n_fail} fail</span> · "
                 f"<span class='count skip'>{n_skip} skip</span></h3>"
                 "<table><thead><tr><th>suite</th><th>case</th><th>status</th><th>duration</th><th>relative</th></tr></thead><tbody>"
-                + "".join(cts) + "</tbody></table>"
+                + "".join(cts)
+                + "</tbody></table>"
             )
 
         fl = failures(rec, known_sigs)
         if fl:
             items = "".join(
                 f"<li><code>{html.escape(f['suite'])}/{html.escape(f['case'])}</code>"
-                + (f" — <strong>known</strong>: {html.escape(f['known'])}" if f["known"] else "")
+                + (
+                    f" — <strong>known</strong>: {html.escape(f['known'])}"
+                    if f["known"]
+                    else ""
+                )
                 + "</li>"
                 for f in fl
             )
@@ -349,29 +416,34 @@ def render_html(records: list[dict], known_sigs: list[str]) -> str:
 
         trows = timing_rows(rec)
         timing_trs = "".join(
-            "<tr>" + "".join(f"<td>{html.escape(c)}</td>" for c in r) + "</tr>" for r in trows
+            "<tr>" + "".join(f"<td>{html.escape(c)}</td>" for c in r) + "</tr>"
+            for r in trows
         )
         rows_html.append(
             "<h3>Timing</h3>"
             "<table><thead><tr><th>suite</th><th>cases</th><th>duration</th><th>min</th><th>p50</th><th>p99</th><th>max</th></tr></thead><tbody>"
-            + timing_trs + "</tbody></table>"
+            + timing_trs
+            + "</tbody></table>"
         )
 
         prows = perf_rows(rec)
         if prows:
             ptrs = "".join(
-                "<tr>" + "".join(f"<td>{html.escape(c)}</td>" for c in r) + "</tr>" for r in prows
+                "<tr>" + "".join(f"<td>{html.escape(c)}</td>" for c in r) + "</tr>"
+                for r in prows
             )
             rows_html.append(
                 "<h3>Performance (CA metrics)</h3>"
                 "<table><thead><tr><th>suite</th><th>EX</th><th>SU</th><th>LD</th><th>ST</th><th>pred</th><th>scalar</th><th>dma</th><th>dual</th><th>stalls</th><th>max_stall</th><th>IPC</th><th>EX-IPC</th><th>vf_real</th></tr></thead><tbody>"
-                + ptrs + "</tbody></table>"
+                + ptrs
+                + "</tbody></table>"
             )
         detail = perf_detail_lines(rec)
         if detail:
             lis = "".join(
                 f"<li><b>{html.escape(name)}</b><ul>"
-                + "".join(f"<li>{html.escape(dl)}</li>" for dl in dlines) + "</ul></li>"
+                + "".join(f"<li>{html.escape(dl)}</li>" for dl in dlines)
+                + "</ul></li>"
                 for name, dlines in detail
             )
             rows_html.append("<h3>CA detail</h3><ul>" + lis + "</ul>")
@@ -381,7 +453,11 @@ def render_html(records: list[dict], known_sigs: list[str]) -> str:
         for r in crows:
             name, exit_code, logpath, cmd = r
             logname = Path(logpath).name if logpath else ""
-            logcell = f'<a href="{html.escape(logname)}">{html.escape(logpath)}</a>' if logpath else "-"
+            logcell = (
+                f'<a href="{html.escape(logname)}">{html.escape(logpath)}</a>'
+                if logpath
+                else "-"
+            )
             ctrs.append(
                 f"<tr><td>{html.escape(name)}</td><td>{html.escape(exit_code)}</td>"
                 f"<td>{logcell}</td><td>{html.escape(cmd)}</td></tr>"
@@ -389,7 +465,8 @@ def render_html(records: list[dict], known_sigs: list[str]) -> str:
         rows_html.append(
             "<h3>Commands &amp; logs</h3>"
             "<table><thead><tr><th>suite</th><th>exit</th><th>log</th><th>command</th></tr></thead><tbody>"
-            + "".join(ctrs) + "</tbody></table>"
+            + "".join(ctrs)
+            + "</tbody></table>"
         )
     return f"""<!doctype html>
 <html><head><meta charset="utf-8"><title>Regression Report</title>
@@ -413,16 +490,25 @@ h2 {{ margin-top: 2rem; }}
 h3 {{ margin-top: 1rem; }}
 </style></head><body>
 <h1>Regression Report</h1>
-{''.join(rows_html)}
+{"".join(rows_html)}
 </body></html>"""
 
 
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description="Render run records to Markdown + HTML.")
-    ap.add_argument("--run", action="append", help="run.json (repeatable); default = latest run.")
-    ap.add_argument("--out", help="Output base path (writes <out>.md and <out>.html); default = alongside the run.")
-    ap.add_argument("--known", help="Optional known-failures markdown used to annotate failures.")
-    ap.add_argument("--open", action="store_true", help="Open the HTML in a browser after writing.")
+    ap.add_argument(
+        "--run", action="append", help="run.json (repeatable); default = latest run."
+    )
+    ap.add_argument(
+        "--out",
+        help="Output base path (writes <out>.md and <out>.html); default = alongside the run.",
+    )
+    ap.add_argument(
+        "--known", help="Optional known-failures markdown used to annotate failures."
+    )
+    ap.add_argument(
+        "--open", action="store_true", help="Open the HTML in a browser after writing."
+    )
     args = ap.parse_args(argv)
 
     if args.run:
@@ -442,7 +528,9 @@ def main(argv: list[str] | None = None) -> int:
     records = [load(r) for r in runs]
     known_sigs = load_known_signatures(args.known)
     base.parent.mkdir(parents=True, exist_ok=True)
-    (Path(str(base) + ".md")).write_text(render_md(records, known_sigs), encoding="utf-8")
+    (Path(str(base) + ".md")).write_text(
+        render_md(records, known_sigs), encoding="utf-8"
+    )
     html_path = Path(str(base) + ".html")
     html_path.write_text(render_html(records, known_sigs), encoding="utf-8")
     print(f"Wrote {base}.md and {html_path}")

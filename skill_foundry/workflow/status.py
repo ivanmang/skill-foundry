@@ -32,8 +32,12 @@ def pending_count(path: Path) -> int:
         return 0
     try:
         from skill_foundry.cli import promote as promote_recent
-        return sum(1 for e in promote_recent.parse_entries(path.read_text(encoding="utf-8"))
-                   if e.get("status") == "pending")
+
+        return sum(
+            1
+            for e in promote_recent.parse_entries(path.read_text(encoding="utf-8"))
+            if e.get("status") == "pending"
+        )
     except Exception:
         return 0
 
@@ -41,7 +45,9 @@ def pending_count(path: Path) -> int:
 def promoted_count(path: Path) -> int:
     if not path.exists():
         return 0
-    return len(re.findall(r"^- LRN-\d{8}-\d{3}", path.read_text(encoding="utf-8"), re.M))
+    return len(
+        re.findall(r"^- LRN-\d{8}-\d{3}", path.read_text(encoding="utf-8"), re.M)
+    )
 
 
 def _target_rows(cfg: dict, only: str | None) -> list[dict]:
@@ -55,23 +61,27 @@ def _target_rows(cfg: dict, only: str | None) -> list[dict]:
         suite_rows = []
         for s in t.get("suites", []):
             runnable, reason = capabilities.suite_reason(s, arches)
-            suite_rows.append({
-                "name": s.get("name", ""),
-                "mode": s.get("mode", "-"),
-                "enabled": bool(s.get("enabled")),
-                "runnable": runnable,
-                "reason": reason,
-                "milestone": s.get("milestone", ""),
-            })
-        rows.append({
-            "name": name,
-            "label": t.get("label") or name,
-            "repo_env": t.get("repo_env") or "PTO_ISA_REPO",
-            "repo_ok": repo.exists(),
-            "repo_path": str(repo),
-            "suites": suite_rows,
-            "baseline": _baseline_info(name),
-        })
+            suite_rows.append(
+                {
+                    "name": s.get("name", ""),
+                    "mode": s.get("mode", "-"),
+                    "enabled": bool(s.get("enabled")),
+                    "runnable": runnable,
+                    "reason": reason,
+                    "milestone": s.get("milestone", ""),
+                }
+            )
+        rows.append(
+            {
+                "name": name,
+                "label": t.get("label") or name,
+                "repo_env": t.get("repo_env") or "PTO_ISA_REPO",
+                "repo_ok": repo.exists(),
+                "repo_path": str(repo),
+                "suites": suite_rows,
+                "baseline": _baseline_info(name),
+            }
+        )
     return rows
 
 
@@ -121,14 +131,19 @@ def collect(only: str | None = None) -> dict:
     ascend_version = None
     if ascend:
         try:
-            ascend_version = detect_cann.analyze(Path(ascend), detect_cann.load_config())["version"]
+            ascend_version = detect_cann.analyze(
+                Path(ascend), detect_cann.load_config()
+            )["version"]
         except Exception:
             ascend_version = "?"
     ascend_state, ascend_envsh = capabilities.ascend_state()
     ascend_hint = None
     if not ascend:
-        ascend_hint = (f"not sourced — env.sh sets {ascend_envsh} (run `source ./env.sh`)"
-                       if ascend_state == "envsh" else "not set")
+        ascend_hint = (
+            f"not sourced — env.sh sets {ascend_envsh} (run `source ./env.sh`)"
+            if ascend_state == "envsh"
+            else "not set"
+        )
 
     # baseline now lives per-target (see _target_rows); no shared baseline block.
     last_info = None
@@ -140,7 +155,9 @@ def collect(only: str | None = None) -> dict:
         last_info = {
             "run_id": data.get("run_id", p.parent.name),
             "target": data.get("target", ""),
-            "suites": ", ".join(f"{s.get('name')}:{s.get('status')}" for s in data.get("suites", [])),
+            "suites": ", ".join(
+                f"{s.get('name')}:{s.get('status')}" for s in data.get("suites", [])
+            ),
             "failed": any(s.get("status") != "PASS" for s in data.get("suites", [])),
         }
         break
@@ -174,7 +191,9 @@ def render(data: dict) -> None:
         ascend_ok = False
     print(c(" environment", BOLD))
     print(f"  {mark(env['python3'])} python3    {mark(env['git'])} git")
-    print(f"  {mark(ascend_ok)} ASCEND_HOME_PATH  {c(ascend_desc, GREEN if ascend_ok else YELLOW)}")
+    print(
+        f"  {mark(ascend_ok)} ASCEND_HOME_PATH  {c(ascend_desc, GREEN if ascend_ok else YELLOW)}"
+    )
 
     for t in data["targets"]:
         print(c(f"\n target: {t['label']}  ({t['name']})", BOLD))
@@ -182,36 +201,69 @@ def render(data: dict) -> None:
         b = t["baseline"]
         if b["exists"]:
             age = f"{b['age_days']}d ago" if b["age_days"] is not None else "?"
-            print(f"  {mark(True)} baseline  {b['run_id']}, {age} — refresh only deliberately")
+            print(
+                f"  {mark(True)} baseline  {b['run_id']}, {age} — refresh only deliberately"
+            )
         else:
-            print(f"  {mark(False)} baseline  none — bash skill_foundry/workflow/baseline.sh {t['name']}")
+            print(
+                f"  {mark(False)} baseline  none — bash skill_foundry/workflow/baseline.sh {t['name']}"
+            )
         for s in t["suites"]:
-            sym = "✓" if (s["enabled"] and s["runnable"]) else ("!" if s["enabled"] else "·")
-            color = GREEN if (s["enabled"] and s["runnable"]) else (YELLOW if s["enabled"] else "")
+            sym = (
+                "✓"
+                if (s["enabled"] and s["runnable"])
+                else ("!" if s["enabled"] else "·")
+            )
+            color = (
+                GREEN
+                if (s["enabled"] and s["runnable"])
+                else (YELLOW if s["enabled"] else "")
+            )
             note = "" if (s["runnable"] or not s["enabled"]) else f"  ← {s['reason']}"
-            print(f"    [{c(sym, color)}] {s['name']:<14} {s['mode']:<9} {s['milestone']}{note}")
+            print(
+                f"    [{c(sym, color)}] {s['name']:<14} {s['mode']:<9} {s['milestone']}{note}"
+            )
 
     ln = data["learnings"]
     print(c("\n learnings", BOLD))
-    print(f"  {ln['pending']} pending · {ln['promoted']} promoted"
-          + ("   → ./harness promote --propose" if ln["pending"] else ""))
+    print(
+        f"  {ln['pending']} pending · {ln['promoted']} promoted"
+        + ("   → ./harness promote --propose" if ln["pending"] else "")
+    )
 
     sk = data["skills"]
     print(c("\n skills", BOLD))
-    print(f"  agents see {sk['visible_total']} of {sk['hub_total']} harness skills"
-          + (f" ({sk['owned_total']} owned — missing: {', '.join(sk['missing_owned'])})" if sk['missing_owned'] else ""))
+    print(
+        f"  agents see {sk['visible_total']} of {sk['hub_total']} harness skills"
+        + (
+            f" ({sk['owned_total']} owned — missing: {', '.join(sk['missing_owned'])})"
+            if sk["missing_owned"]
+            else ""
+        )
+    )
     if sk["local_only"]:
         print(f"  local-only (not in hub): {', '.join(sk['local_only'])}")
-    print("  see per-agent: ./harness skills --mine   ·   install owned: ./harness skills --install --scope core")
+    print(
+        "  see per-agent: ./harness skills --mine   ·   install owned: ./harness skills --install --scope core"
+    )
 
     lr = data["last_run"]
     print(c("\n last run", BOLD))
     if lr:
         st = c("FAIL" if lr["failed"] else "PASS", RED if lr["failed"] else GREEN)
         print(f"  {lr['run_id']} [{lr['target']}] · {lr['suites']} · {st}")
-        print("  next: python3 -m skill_foundry.workflow.report --open" + ("" if lr["failed"] else "  (or python3 -m skill_foundry.workflow.review)"))
+        print(
+            "  next: python3 -m skill_foundry.workflow.report --open"
+            + (
+                ""
+                if lr["failed"]
+                else "  (or python3 -m skill_foundry.workflow.review)"
+            )
+        )
     else:
-        print("  none yet — run: python3 -m skill_foundry.workflow.run --all-suites --quiet")
+        print(
+            "  none yet — run: python3 -m skill_foundry.workflow.run --all-suites --quiet"
+        )
 
     print()
 

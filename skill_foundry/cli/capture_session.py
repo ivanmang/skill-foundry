@@ -40,9 +40,7 @@ CAPTURER_PROMPT = (
     "Do not use the pipe character inside any field."
 )
 
-DEFAULT_CAPTURER = (
-    "pi -p --no-tools --no-extensions --no-skills --no-context-files --no-mcp --thinking low"
-)
+DEFAULT_CAPTURER = "pi -p --no-tools --no-extensions --no-skills --no-context-files --no-mcp --thinking low"
 
 
 def _message_text(msg: dict) -> str:
@@ -87,7 +85,9 @@ def extract_transcript(session_path: Path, max_chars: int) -> str:
     transcript = "\n\n".join(turns)
     if len(transcript) > max_chars:
         transcript = transcript[-max_chars:]
-        transcript = f"(transcript truncated to last {max_chars} chars)\n\n" + transcript
+        transcript = (
+            f"(transcript truncated to last {max_chars} chars)\n\n" + transcript
+        )
     return transcript
 
 
@@ -98,8 +98,12 @@ def run_capturer(transcript: str, capturer: str) -> str:
     # The instruction is appended as the prompt; the transcript rides on stdin.
     argv.append(CAPTURER_PROMPT)
     result = subprocess.run(
-        argv, input=transcript + "\n\n---END OF TRANSCRIPT---", capture_output=True, text=True,
-        timeout=300, check=False,
+        argv,
+        input=transcript + "\n\n---END OF TRANSCRIPT---",
+        capture_output=True,
+        text=True,
+        timeout=300,
+        check=False,
     )
     return (result.stdout or "") + "\n" + (result.stderr or "")
 
@@ -114,28 +118,40 @@ def parse_learnings(text: str, skill: str, context: str) -> list[dict]:
         if len(parts) < 7:
             continue
         _, category, ctx, sk, wrong, correct, action = parts[:7]
-        out.append({
-            "category": (category or "correction").lower(),
-            "context": ctx.strip() or context,
-            "skill": sk.strip() or skill,
-            "wrong": wrong.strip(),
-            "correct": correct.strip(),
-            "action": action.strip(),
-        })
+        out.append(
+            {
+                "category": (category or "correction").lower(),
+                "context": ctx.strip() or context,
+                "skill": sk.strip() or skill,
+                "wrong": wrong.strip(),
+                "correct": correct.strip(),
+                "action": action.strip(),
+            }
+        )
     return out
 
 
 def main(argv: list[str] | None = None) -> int:
-    ap = argparse.ArgumentParser(description="Draft learnings from a pi session transcript.")
-    ap.add_argument("--session", default=os.environ.get("PI_SESSION_FILE"),
-                    help="Session .jsonl (default $PI_SESSION_FILE).")
+    ap = argparse.ArgumentParser(
+        description="Draft learnings from a pi session transcript."
+    )
+    ap.add_argument(
+        "--session",
+        default=os.environ.get("PI_SESSION_FILE"),
+        help="Session .jsonl (default $PI_SESSION_FILE).",
+    )
     ap.add_argument("--skill", default="pto-isa")
     ap.add_argument("--context", default=None)
-    ap.add_argument("--apply", action="store_true", help="Append pending drafts (default: print).")
+    ap.add_argument(
+        "--apply", action="store_true", help="Append pending drafts (default: print)."
+    )
     ap.add_argument("--file", default=str(DEFAULT_FILE))
     ap.add_argument("--max-chars", type=int, default=40000)
-    ap.add_argument("--capturer", default=os.environ.get("SKILL_CAPTURER", DEFAULT_CAPTURER),
-                    help="LLM command to judge the transcript (reads stdin).")
+    ap.add_argument(
+        "--capturer",
+        default=os.environ.get("SKILL_CAPTURER", DEFAULT_CAPTURER),
+        help="LLM command to judge the transcript (reads stdin).",
+    )
     args = ap.parse_args(argv)
 
     if not args.session:
@@ -165,10 +181,16 @@ def main(argv: list[str] | None = None) -> int:
     if args.apply:
         for entry in entries:
             log_correction.append_entry(args.file, entry)
-        print(f"capture-session: appended {len(entries)} pending draft(s) → {args.file}")
+        print(
+            f"capture-session: appended {len(entries)} pending draft(s) → {args.file}"
+        )
     else:
         for i, entry in enumerate(entries):
-            print(log_correction.format_entry({**entry, "id": f"LRN-DRAFT-{i + 1:03d}", "status": "pending"}))
+            print(
+                log_correction.format_entry(
+                    {**entry, "id": f"LRN-DRAFT-{i + 1:03d}", "status": "pending"}
+                )
+            )
     return 0
 
 

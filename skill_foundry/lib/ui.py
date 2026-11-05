@@ -66,8 +66,14 @@ def _read_key() -> str:
                     break
                 seq += os.read(fd, 1)
             mapping = {
-                "[A": "UP", "[B": "DOWN", "[C": "RIGHT", "[D": "LEFT",
-                "OA": "UP", "OB": "DOWN", "OC": "RIGHT", "OD": "LEFT",
+                "[A": "UP",
+                "[B": "DOWN",
+                "[C": "RIGHT",
+                "[D": "LEFT",
+                "OA": "UP",
+                "OB": "DOWN",
+                "OC": "RIGHT",
+                "OD": "LEFT",
             }
             return mapping.get(seq.decode("latin-1"), "ESC")
         if first in (b"\r", b"\n"):
@@ -163,7 +169,10 @@ def choose_cann() -> str | None:
         sim = " ".join(info["simulators"]) if info["simulators"] else "-"
         label = f"{info['path']}  ·  v{info['version']}  ·  headers {hdr}  ·  sim {sim}"
         options.append((label, info["path"]))
-    title = c("  No ASCEND_HOME_PATH set. Choose a CANN package (↑/↓ + Enter, q = skip):", YELLOW)
+    title = c(
+        "  No ASCEND_HOME_PATH set. Choose a CANN package (↑/↓ + Enter, q = skip):",
+        YELLOW,
+    )
     return select_menu(title, options)
 
 
@@ -207,5 +216,7 @@ def choose_filter(suite: str, testcase: str, tdirs: dict, repo: Path) -> str:
     if not cases:
         return ask("gtest filter (blank = none)").strip()
     options = [("all cases (no filter)", "")] + [(c, c) for c in cases]
-    sel = select_menu(f"Choose a filter for {testcase} (↑/↓ + Enter, q = all):", options)
+    sel = select_menu(
+        f"Choose a filter for {testcase} (↑/↓ + Enter, q = all):", options
+    )
     return sel if sel is not None else ""

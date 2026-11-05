@@ -54,8 +54,14 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--log", default="-", help="Log file path, or '-' to read stdin.")
     ap.add_argument("--skill", default="pto-isa", help="Target skill name.")
     ap.add_argument("--context", default=None, help="Run-id or trigger label.")
-    ap.add_argument("--apply", action="store_true", help="Append the draft (default: print only).")
-    ap.add_argument("--file", default=str(DEFAULT_FILE), help="learnings file (default learnings/recent.md).")
+    ap.add_argument(
+        "--apply", action="store_true", help="Append the draft (default: print only)."
+    )
+    ap.add_argument(
+        "--file",
+        default=str(DEFAULT_FILE),
+        help="learnings file (default learnings/recent.md).",
+    )
     args = ap.parse_args(argv)
 
     if args.log == "-":
@@ -69,7 +75,9 @@ def main(argv: list[str] | None = None) -> int:
         print("ingest_error: no error line found.", file=sys.stderr)
         return 0
 
-    existing = Path(args.file).read_text(encoding="utf-8") if Path(args.file).exists() else ""
+    existing = (
+        Path(args.file).read_text(encoding="utf-8") if Path(args.file).exists() else ""
+    )
     if error in existing:
         print(f"ingest_error: already logged ({error[:80]}).", file=sys.stderr)
         return 0
@@ -87,7 +95,11 @@ def main(argv: list[str] | None = None) -> int:
         eid = log_correction.append_entry(args.file, entry)
         print(f"ingest_error: logged {eid}", file=sys.stderr)
     else:
-        print(log_correction.format_entry({**entry, "id": "LRN-YYYYMMDD-NNN", "status": "pending"}))
+        print(
+            log_correction.format_entry(
+                {**entry, "id": "LRN-YYYYMMDD-NNN", "status": "pending"}
+            )
+        )
     return 0
 
 

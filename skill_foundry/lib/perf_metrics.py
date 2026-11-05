@@ -39,11 +39,27 @@ RVEC_UNITS = {"RVECEX", "RVECSU", "RVECLD", "RVECST"}
 LONG_STALL_THRESH = {"RVECEX": 4, "RVECLD": 8, "RVECST": 8, "RVECSU": 8}
 
 EX_SUBCAT_KEYS = [
-    "ex_arith", "ex_cast", "ex_broadcast", "ex_select_cmp",
-    "ex_reduce", "ex_interleave", "ex_pred_setup",
+    "ex_arith",
+    "ex_cast",
+    "ex_broadcast",
+    "ex_select_cmp",
+    "ex_reduce",
+    "ex_interleave",
+    "ex_pred_setup",
 ]
 
-CATEGORIES = ("ex", "su", "ld", "st", "pred", "scalar", "dma", "flowctrl", "membar", "control")
+CATEGORIES = (
+    "ex",
+    "su",
+    "ld",
+    "st",
+    "pred",
+    "scalar",
+    "dma",
+    "flowctrl",
+    "membar",
+    "control",
+)
 
 
 def _classify(unit: str, op: str) -> tuple[str | None, str]:
@@ -108,10 +124,24 @@ def duration_stats(cases: list[dict]) -> dict:
             durs.append(float(d))
     durs.sort()
     if not durs:
-        return {"cases": 0, "min": None, "p50": None, "p99": None, "max": None, "mean": None}
+        return {
+            "cases": 0,
+            "min": None,
+            "p50": None,
+            "p99": None,
+            "max": None,
+            "mean": None,
+        }
     n = len(durs)
     if all(d == 0.0 for d in durs):
-        return {"cases": n, "min": None, "p50": None, "p99": None, "max": None, "mean": None}
+        return {
+            "cases": n,
+            "min": None,
+            "p50": None,
+            "p99": None,
+            "max": None,
+            "mean": None,
+        }
     return {
         "cases": n,
         "min": round(durs[0], 4),
@@ -136,7 +166,9 @@ def parse_ca_dump(path: Path) -> dict | None:
     raw_unit_counts: Counter = Counter()
     instr_counts: dict[str, Counter] = defaultdict(Counter)
 
-    vec_records: list[tuple[int, str, str, str | None, str]] = []  # tick,unit,op,cat,sub
+    vec_records: list[
+        tuple[int, str, str, str | None, str]
+    ] = []  # tick,unit,op,cat,sub
     ex_ticks: list[int] = []
     rvec_ticks: list[int] = []
     wait_ticks: list[int] = []
@@ -221,7 +253,9 @@ def parse_ca_dump(path: Path) -> dict | None:
             "span": (seq[-1][0] - seq[0][0]) if len(seq) > 1 else 0,
         }
     long_stalls.sort(key=lambda s: -s[3])
-    stall_targets = dict(sorted(Counter(s[2] for s in long_stalls).items(), key=lambda kv: -kv[1])[:12])
+    stall_targets = dict(
+        sorted(Counter(s[2] for s in long_stalls).items(), key=lambda kv: -kv[1])[:12]
+    )
 
     # cycle fields
     vf_compute_span = (max(rvec_ticks) - min(rvec_ticks)) if rvec_ticks else 0
@@ -231,11 +265,19 @@ def parse_ca_dump(path: Path) -> dict | None:
     for w in wait_ticks:
         if first_rvec is not None and w < first_rvec:
             last_wait_before = w
-    mte2_wait = (first_rvec - last_wait_before) if (first_rvec is not None and last_wait_before is not None) else None
+    mte2_wait = (
+        (first_rvec - last_wait_before)
+        if (first_rvec is not None and last_wait_before is not None)
+        else None
+    )
 
     ex_count = category_counts.get("ex", 0)
-    total_rvec = (category_counts.get("ex", 0) + category_counts.get("su", 0)
-                  + category_counts.get("ld", 0) + category_counts.get("st", 0))
+    total_rvec = (
+        category_counts.get("ex", 0)
+        + category_counts.get("su", 0)
+        + category_counts.get("ld", 0)
+        + category_counts.get("st", 0)
+    )
     if vf_compute_span:
         overall_ipc = round(total_rvec / vf_compute_span, 3)
     elif vf_real:
@@ -250,9 +292,13 @@ def parse_ca_dump(path: Path) -> dict | None:
         "total_records": total_records,
         "vf_records": len(vec_records),
         "category_counts": dict(sorted(category_counts.items(), key=lambda kv: -kv[1])),
-        "subcategory_counts": dict(sorted(subcategory_counts.items(), key=lambda kv: -kv[1])),
-        "instr_counts": {u: dict(sorted(d.items(), key=lambda kv: -kv[1]))
-                         for u, d in sorted(instr_counts.items())},
+        "subcategory_counts": dict(
+            sorted(subcategory_counts.items(), key=lambda kv: -kv[1])
+        ),
+        "instr_counts": {
+            u: dict(sorted(d.items(), key=lambda kv: -kv[1]))
+            for u, d in sorted(instr_counts.items())
+        },
         "dual_issue": {
             "dual_ticks": dual_issue_count,
             "dual_instr_count": dual_instr_count,
@@ -283,7 +329,11 @@ def parse_ca_dump(path: Path) -> dict | None:
 
 def _find_dumps(run_dir: Path, suite_name: str) -> list[Path]:
     found: list[Path] = []
-    for pattern in ("**/core0.veccore0.instr_log.dump", "**/*instr_log.dump", "**/instr.bin"):
+    for pattern in (
+        "**/core0.veccore0.instr_log.dump",
+        "**/*instr_log.dump",
+        "**/instr.bin",
+    ):
         found.extend(run_dir.glob(pattern))
     return sorted(set(found))
 
@@ -343,8 +393,14 @@ def collect_perf(run_dir: Path, suite_name: str) -> dict | None:
         if tm.get("mte2_wait") is not None:
             mte2_wait += tm["mte2_wait"]
     top_long_stalls.sort(key=lambda s: -s[3])
-    top_stall = (f"{top_long_stalls[0][0]}:{top_long_stalls[0][1]}→"
-                 f"{top_long_stalls[0][0]}:{top_long_stalls[0][2]}={top_long_stalls[0][3]}c") if top_long_stalls else None
+    top_stall = (
+        (
+            f"{top_long_stalls[0][0]}:{top_long_stalls[0][1]}→"
+            f"{top_long_stalls[0][0]}:{top_long_stalls[0][2]}={top_long_stalls[0][3]}c"
+        )
+        if top_long_stalls
+        else None
+    )
     max_stall = top_long_stalls[0][3] if top_long_stalls else 0
 
     total_rvec = ex + su + ld + st
@@ -361,17 +417,35 @@ def collect_perf(run_dir: Path, suite_name: str) -> dict | None:
 
     return {
         # flat (report table)
-        "ex": ex, "su": su, "ld": ld, "st": st, "pred": pred, "scalar": scalar,
-        "dma": dma, "dual": dual, "stalls": stalls, "max_issue": max_issue,
-        "max_stall": max_stall, "top_stall": top_stall,
-        "ipc": ipc, "ex_ipc": ex_ipc, "ex_issue_eff": ex_issue_eff,
-        "vf_real": vf_real or None, "vf_execute": vf_execute or None,
-        "instr_num": instr_num or None, "vf_compute_span": span or None,
-        "ex_span": ex_span or None, "mte2_wait": mte2_wait or None,
-        "flowctrl": flowctrl, "membar": membar, "control": control,
+        "ex": ex,
+        "su": su,
+        "ld": ld,
+        "st": st,
+        "pred": pred,
+        "scalar": scalar,
+        "dma": dma,
+        "dual": dual,
+        "stalls": stalls,
+        "max_issue": max_issue,
+        "max_stall": max_stall,
+        "top_stall": top_stall,
+        "ipc": ipc,
+        "ex_ipc": ex_ipc,
+        "ex_issue_eff": ex_issue_eff,
+        "vf_real": vf_real or None,
+        "vf_execute": vf_execute or None,
+        "instr_num": instr_num or None,
+        "vf_compute_span": span or None,
+        "ex_span": ex_span or None,
+        "mte2_wait": mte2_wait or None,
+        "flowctrl": flowctrl,
+        "membar": membar,
+        "control": control,
         # holistic / LLM-analysis
         "cases": len(per_case),
-        "stall_targets": dict(sorted(stall_targets.items(), key=lambda kv: -kv[1])[:12]),
+        "stall_targets": dict(
+            sorted(stall_targets.items(), key=lambda kv: -kv[1])[:12]
+        ),
         "dual_combos": dict(sorted(combo_counts.items(), key=lambda kv: -kv[1])),
         "subcategory_counts": dict(sorted(subcounts.items(), key=lambda kv: -kv[1])),
         "long_stalls": top_long_stalls[:20],
@@ -379,8 +453,13 @@ def collect_perf(run_dir: Path, suite_name: str) -> dict | None:
     }
 
 
-def copy_perf(repo: Path, run_dir: Path, suite_name: str,
-              patterns: list[str] | None, testcase: str | None) -> None:
+def copy_perf(
+    repo: Path,
+    run_dir: Path,
+    suite_name: str,
+    patterns: list[str] | None,
+    testcase: str | None,
+) -> None:
     if not patterns:
         return
     dest = run_dir / suite_name / "perf"
@@ -395,7 +474,7 @@ def copy_perf(repo: Path, run_dir: Path, suite_name: str,
         if not matches:
             continue
         if Path(matches[0]).is_dir():
-            for f in (Path(matches[0]).iterdir() if Path(matches[0]).is_dir() else []):
+            for f in Path(matches[0]).iterdir() if Path(matches[0]).is_dir() else []:
                 if f.is_file() and f.name.startswith("core0.veccore0"):
                     shutil.copy2(f, dest / f.name)
         else:
@@ -407,7 +486,10 @@ def copy_perf(repo: Path, run_dir: Path, suite_name: str,
 if __name__ == "__main__":
     import argparse
     import json
-    ap = argparse.ArgumentParser(description="Extract holistic CA metrics from a run dir.")
+
+    ap = argparse.ArgumentParser(
+        description="Extract holistic CA metrics from a run dir."
+    )
     ap.add_argument("run_dir", help="reports/<run-id>")
     ap.add_argument("--suite", default=None)
     ap.add_argument("--json", action="store_true")

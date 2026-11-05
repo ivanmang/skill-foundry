@@ -19,6 +19,7 @@ import tempfile
 from pathlib import Path
 
 from skill_foundry.paths import ROOT as HARNESS  # noqa: E402
+
 INBOX = HARNESS / "hub" / "inbox"
 LIVE = HARNESS / ".claude" / "skills"
 NAME_RE = re.compile(r"^[a-z0-9-]+$")
@@ -57,7 +58,9 @@ def editor_for_body(name: str) -> str:
         "## Steps\n"
         "1. …\n"
     )
-    with tempfile.NamedTemporaryFile("w", suffix=".md", delete=False, encoding="utf-8") as f:
+    with tempfile.NamedTemporaryFile(
+        "w", suffix=".md", delete=False, encoding="utf-8"
+    ) as f:
         f.write(tmpl)
         path = f.name
     editor = os.environ.get("EDITOR") or os.environ.get("VISUAL") or "vi"
@@ -89,11 +92,19 @@ def render_skill(name: str, description: str, body: str) -> str:
 
 
 def main(argv: list[str] | None = None) -> int:
-    ap = argparse.ArgumentParser(description="Capture a new skill draft into hub/inbox/.")
+    ap = argparse.ArgumentParser(
+        description="Capture a new skill draft into hub/inbox/."
+    )
     ap.add_argument("name", nargs="?", help="Skill name (lowercase-hyphen).")
-    ap.add_argument("--description", default=None, help="Description (what + when to use).")
-    ap.add_argument("--body", default=None, help="Instructions body (Markdown); skips the editor.")
-    ap.add_argument("--dry-run", action="store_true", help="Print the SKILL.md without writing.")
+    ap.add_argument(
+        "--description", default=None, help="Description (what + when to use)."
+    )
+    ap.add_argument(
+        "--body", default=None, help="Instructions body (Markdown); skips the editor."
+    )
+    ap.add_argument(
+        "--dry-run", action="store_true", help="Print the SKILL.md without writing."
+    )
     ap.add_argument("--json", action="store_true", help="Emit machine-readable JSON.")
     args = ap.parse_args(argv)
 
@@ -136,18 +147,28 @@ def main(argv: list[str] | None = None) -> int:
     dest.mkdir(parents=True, exist_ok=True)
     (dest / "SKILL.md").write_text(text, encoding="utf-8")
     if args.json:
-        print(json.dumps({
-            "status": "captured",
-            "name": name,
-            "path": str((dest / "SKILL.md").relative_to(HARNESS)),
-            "next": f"promote-skill {name} --pr",
-            "hint": "add category/origin/owner/maturity to the frontmatter before promoting",
-        }))
+        print(
+            json.dumps(
+                {
+                    "status": "captured",
+                    "name": name,
+                    "path": str((dest / "SKILL.md").relative_to(HARNESS)),
+                    "next": f"promote-skill {name} --pr",
+                    "hint": "add category/origin/owner/maturity to the frontmatter before promoting",
+                }
+            )
+        )
     else:
         print(f"✓ captured draft → {dest / 'SKILL.md'}")
-        print("  ⚠ add the discovery frontmatter before promoting — category, origin, owner (and maturity)")
-        print("    (the promote gate requires them; capture writes only name/description/license)")
-        print(f"  next: ./harness promote-skill {name} --pr   (review the diff, then a human merges)")
+        print(
+            "  ⚠ add the discovery frontmatter before promoting — category, origin, owner (and maturity)"
+        )
+        print(
+            "    (the promote gate requires them; capture writes only name/description/license)"
+        )
+        print(
+            f"  next: ./harness promote-skill {name} --pr   (review the diff, then a human merges)"
+        )
     return 0
 
 

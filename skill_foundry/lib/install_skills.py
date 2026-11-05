@@ -50,7 +50,8 @@ def agent_skill_names(parent: Path) -> list[str]:
     if not d.exists():
         return []
     return sorted(
-        p.name for p in d.iterdir()
+        p.name
+        for p in d.iterdir()
         if (p.is_dir() or p.is_symlink()) and not p.name.startswith(".")
     )
 
@@ -58,13 +59,17 @@ def agent_skill_names(parent: Path) -> list[str]:
 def select_dirs(args) -> list[Path]:
     """Return the skill dirs matching the selection flags (all when none)."""
     dirs: list[Path] = []
-    need_fm = bool(args.origin or args.category or args.entry or args.maturity or args.owner)
+    need_fm = bool(
+        args.origin or args.category or args.entry or args.maturity or args.owner
+    )
     for sd in sorted(SKILLS.iterdir()):
         sm = sd / "SKILL.md"
         if not sd.is_dir() or not sm.exists():
             continue
         if need_fm:
-            fm, _err = validate_skills.parse_frontmatter(sm.read_text(encoding="utf-8", errors="replace"))
+            fm, _err = validate_skills.parse_frontmatter(
+                sm.read_text(encoding="utf-8", errors="replace")
+            )
         else:
             fm = {}
         if args.name and sd.name not in args.name:
@@ -83,7 +88,9 @@ def select_dirs(args) -> list[Path]:
     return dirs
 
 
-def install(agent_label: str, dest_parent: Path, hint: str, args, dirs: list[Path]) -> int:
+def install(
+    agent_label: str, dest_parent: Path, hint: str, args, dirs: list[Path]
+) -> int:
     dest = dest_parent / "skills"
     count = 0
     for sd in dirs:
@@ -113,17 +120,37 @@ def install(agent_label: str, dest_parent: Path, hint: str, args, dirs: list[Pat
 
 
 def main(argv: list[str] | None = None) -> int:
-    ap = argparse.ArgumentParser(description="Install harness skills into each detected agent's skills dir.")
+    ap = argparse.ArgumentParser(
+        description="Install harness skills into each detected agent's skills dir."
+    )
     ap.add_argument("--dry-run", action="store_true", help="Show what would be linked.")
-    ap.add_argument("--uninstall", action="store_true", help="Remove harness skill symlinks.")
-    ap.add_argument("--scope", choices=["core", "all"], default=None,
-                    help="Preset: 'core' = the owned (origin: native) skills; 'all' = everything.")
-    ap.add_argument("--origin", default=None, help="Only skills with this origin (native|cannbot).")
-    ap.add_argument("--owner", default=None, help="Only skills with this owner (skill-foundry|cannbot|…).")
-    ap.add_argument("--maturity", default=None, help="Only skills with this maturity (ready|draft|deprecated).")
+    ap.add_argument(
+        "--uninstall", action="store_true", help="Remove harness skill symlinks."
+    )
+    ap.add_argument(
+        "--scope",
+        choices=["core", "all"],
+        default=None,
+        help="Preset: 'core' = the owned (origin: native) skills; 'all' = everything.",
+    )
+    ap.add_argument(
+        "--origin", default=None, help="Only skills with this origin (native|cannbot)."
+    )
+    ap.add_argument(
+        "--owner",
+        default=None,
+        help="Only skills with this owner (skill-foundry|cannbot|…).",
+    )
+    ap.add_argument(
+        "--maturity",
+        default=None,
+        help="Only skills with this maturity (ready|draft|deprecated).",
+    )
     ap.add_argument("--category", default=None, help="Only skills in this category.")
     ap.add_argument("--entry", action="store_true", help="Only entry-point skills.")
-    ap.add_argument("--name", action="append", default=None, help="Only this skill (repeatable).")
+    ap.add_argument(
+        "--name", action="append", default=None, help="Only this skill (repeatable)."
+    )
     args = ap.parse_args(argv)
 
     if args.scope == "core":
@@ -131,11 +158,18 @@ def main(argv: list[str] | None = None) -> int:
 
     dirs = select_dirs(args)
     if not dirs:
-        print("no skills match the selection (check --origin/--category/--entry/--name)", file=sys.stderr)
+        print(
+            "no skills match the selection (check --origin/--category/--entry/--name)",
+            file=sys.stderr,
+        )
         return 1
 
     total = 0
-    verb = "removed" if args.uninstall else ("linked" if not args.dry_run else "would link")
+    verb = (
+        "removed"
+        if args.uninstall
+        else ("linked" if not args.dry_run else "would link")
+    )
     print(f"Skills ({len(dirs)}) from {SKILLS}\n")
     for label, parent, hint in AGENTS:
         if parent.exists() or label == "open-standard":

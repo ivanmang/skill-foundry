@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Print tab-completion candidates (internal — used by completions/harness.bash)."""
+
 from __future__ import annotations
 
 import json
@@ -22,7 +23,9 @@ TESTCASE_DIRS = {
 
 def suites() -> None:
     try:
-        cfg = json.loads((HARNESS / "config" / "suites.json").read_text(encoding="utf-8"))
+        cfg = json.loads(
+            (HARNESS / "config" / "suites.json").read_text(encoding="utf-8")
+        )
     except Exception:
         return
     for t in cfg.get("targets", {}).values():
@@ -32,7 +35,9 @@ def suites() -> None:
 
 def arches() -> None:
     try:
-        cfg = json.loads((HARNESS / "config" / "arches.json").read_text(encoding="utf-8"))
+        cfg = json.loads(
+            (HARNESS / "config" / "arches.json").read_text(encoding="utf-8")
+        )
     except Exception:
         return
     for name in cfg:

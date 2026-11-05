@@ -91,5 +91,7 @@ def summarize() -> dict[str, Any]:
         "events": counts,
         "judge_verdicts": judge,
         "calibrated": len(outcomes),
-        "judge_agreement_pct": round(agree / len(outcomes) * 100.0, 1) if outcomes else None,
+        "judge_agreement_pct": round(agree / len(outcomes) * 100.0, 1)
+        if outcomes
+        else None,
     }

@@ -25,7 +25,6 @@ VERB_MODULES: dict[str, tuple[str, list[str] | None]] = {
     "promote": ("skill_foundry.cli.promote", None),
     "skills": ("skill_foundry.cli.skills", None),
     "metrics": ("skill_foundry.cli.metrics", None),
-
     # shell
     "menu": ("skill_foundry.cli.menu", None),
     "complete": ("skill_foundry.cli.complete", None),
@@ -38,8 +37,15 @@ SHELL_VERBS: dict[str, str] = {
 }
 
 NON_WRAP = {
-    "menu", "help", "-h", "--help",
-    "version", "--version", "-V", "__complete", "selfcheck",
+    "menu",
+    "help",
+    "-h",
+    "--help",
+    "version",
+    "--version",
+    "-V",
+    "__complete",
+    "selfcheck",
 }
 
 
@@ -62,7 +68,8 @@ def version(short: bool = False) -> str:
     try:
         out = subprocess.run(
             ["git", "-C", str(ROOT), "describe", "--tags", "--always"],
-            capture_output=True, text=True,
+            capture_output=True,
+            text=True,
         )
         sha = out.stdout.strip() or "dev"
     except FileNotFoundError:

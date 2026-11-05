@@ -10,7 +10,9 @@ from skill_foundry.lib.parse_gtest import parse_text
 
 class ParseGtestTest(unittest.TestCase):
     def test_gtest_summary_counts(self):
-        r = parse_text("[  PASSED  ] 5 tests.\n[  FAILED  ] 2 tests, listed below:\n", "s")
+        r = parse_text(
+            "[  PASSED  ] 5 tests.\n[  FAILED  ] 2 tests, listed below:\n", "s"
+        )
         self.assertEqual(r["summary"]["passed"], 5)
         self.assertEqual(r["summary"]["failed"], 2)
         self.assertEqual(r["summary"]["status"], "FAIL")
@@ -42,7 +44,9 @@ class ParseGtestTest(unittest.TestCase):
         self.assertAlmostEqual(r["cases"][0]["duration_s"], 72.536)
 
     def test_binary_crash_counts_failure(self):
-        r = parse_text("run binary failed: ./tadd died with <Signals.SIGSEGV>\n", "cpu-st")
+        r = parse_text(
+            "run binary failed: ./tadd died with <Signals.SIGSEGV>\n", "cpu-st"
+        )
         self.assertEqual(r["summary"]["failed"], 1)
         self.assertEqual(r["cases"][0]["name"], "tadd")
         self.assertEqual(r["cases"][0]["status"], "FAIL")

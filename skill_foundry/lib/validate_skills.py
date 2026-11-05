@@ -30,6 +30,7 @@ import re
 from pathlib import Path
 
 from skill_foundry.paths import ROOT as HARNESS  # noqa: E402
+
 DEFAULT_ROOT = HARNESS / ".claude" / "skills"
 EXTERNALS_FILE = HARNESS / "config" / "externals.json"
 
@@ -106,11 +107,19 @@ def validate_skill(folder: Path) -> list[str]:
     else:
         if len(name) > 64:
             errors.append(f"{folder.name}: name '{name}' exceeds 64 chars")
-        if not NAME_RE.match(name) or name.startswith("-") or name.endswith("-") or "--" in name:
+        if (
+            not NAME_RE.match(name)
+            or name.startswith("-")
+            or name.endswith("-")
+            or "--" in name
+        ):
             errors.append(
-                f"{folder.name}: name '{name}' invalid — must be [a-z0-9-], no leading/trailing/consecutive hyphens")
+                f"{folder.name}: name '{name}' invalid — must be [a-z0-9-], no leading/trailing/consecutive hyphens"
+            )
         if name != folder.name:
-            errors.append(f"{folder.name}: name '{name}' does not match parent directory")
+            errors.append(
+                f"{folder.name}: name '{name}' does not match parent directory"
+            )
 
     # description
     if not desc:
@@ -148,10 +157,14 @@ def check_skill_metadata(folder: Path) -> list[str]:
             errors.append(f"{folder.name}: frontmatter '{field}' is required")
     origin = (fm.get("origin") or "").strip()
     if origin and origin not in KNOWN_ORIGINS:
-        errors.append(f"{folder.name}: origin '{origin}' invalid — one of {sorted(KNOWN_ORIGINS)}")
+        errors.append(
+            f"{folder.name}: origin '{origin}' invalid — one of {sorted(KNOWN_ORIGINS)}"
+        )
     maturity = (fm.get("maturity") or "").strip()
     if maturity and maturity not in KNOWN_MATURITY:
-        errors.append(f"{folder.name}: maturity '{maturity}' invalid — one of {sorted(KNOWN_MATURITY)}")
+        errors.append(
+            f"{folder.name}: maturity '{maturity}' invalid — one of {sorted(KNOWN_MATURITY)}"
+        )
     return errors
 
 
@@ -174,9 +187,13 @@ def check_references(root: Path, externals: set[str] | None = None) -> list[str]
     """
     if externals is None:
         externals = load_external_names()
-    local = {d.name for d in root.iterdir() if d.is_dir() and not d.name.startswith(".")}
+    local = {
+        d.name for d in root.iterdir() if d.is_dir() and not d.name.startswith(".")
+    }
     errors: list[str] = []
-    for sk in sorted(p for p in root.iterdir() if p.is_dir() and not p.name.startswith(".")):
+    for sk in sorted(
+        p for p in root.iterdir() if p.is_dir() and not p.name.startswith(".")
+    ):
         files = [sk / "SKILL.md"]
         refdir = sk / "references"
         if refdir.is_dir():
@@ -190,15 +207,25 @@ def check_references(root: Path, externals: set[str] | None = None) -> list[str]
                         continue
                     errors.append(
                         f"{sk.name}: reference to unknown skill '{name}' in {f.name} "
-                        "(declare it in config/externals.json if external)")
+                        "(declare it in config/externals.json if external)"
+                    )
     return errors
 
 
 def main(argv: list[str] | None = None) -> int:
-    ap = argparse.ArgumentParser(description="Validate SKILL.md files against the Agent Skills spec.")
-    ap.add_argument("--root", default=str(DEFAULT_ROOT), help="Path to the skills dir (default .claude/skills).")
-    ap.add_argument("--strict", action="store_true",
-                    help="Also require repo metadata (category/origin/owner) as errors, not warnings.")
+    ap = argparse.ArgumentParser(
+        description="Validate SKILL.md files against the Agent Skills spec."
+    )
+    ap.add_argument(
+        "--root",
+        default=str(DEFAULT_ROOT),
+        help="Path to the skills dir (default .claude/skills).",
+    )
+    ap.add_argument(
+        "--strict",
+        action="store_true",
+        help="Also require repo metadata (category/origin/owner) as errors, not warnings.",
+    )
     ap.add_argument("--quiet", action="store_true", help="Only print errors.")
     args = ap.parse_args(argv)
 
@@ -207,7 +234,9 @@ def main(argv: list[str] | None = None) -> int:
         print(f"skills dir not found: {root}")
         return 2
 
-    skill_dirs = sorted(p for p in root.iterdir() if p.is_dir() and not p.name.startswith("."))
+    skill_dirs = sorted(
+        p for p in root.iterdir() if p.is_dir() and not p.name.startswith(".")
+    )
     if not skill_dirs:
         print("no skill folders found")
         return 1
@@ -223,11 +252,14 @@ def main(argv: list[str] | None = None) -> int:
         if not args.strict:
             sm = d / "SKILL.md"
             if sm.exists():
-                fm, _err = parse_frontmatter(sm.read_text(encoding="utf-8", errors="replace"))
+                fm, _err = parse_frontmatter(
+                    sm.read_text(encoding="utf-8", errors="replace")
+                )
                 if not (fm.get("category") or "").strip():
                     all_warnings.append(
                         f"{d.name}: frontmatter 'category' is missing "
-                        "(optional per spec, but required by hub discovery)")
+                        "(optional per spec, but required by hub discovery)"
+                    )
 
     ref_errors = check_references(root)
 
@@ -237,7 +269,9 @@ def main(argv: list[str] | None = None) -> int:
 
     total_issues = len(all_errors) + len(ref_errors)
     if total_issues:
-        print(f"skill validation: {total_issues} issue(s) across {len(skill_dirs)} skill(s)")
+        print(
+            f"skill validation: {total_issues} issue(s) across {len(skill_dirs)} skill(s)"
+        )
         for e in all_errors:
             print(f"  ✗ {e}")
         for e in ref_errors:
@@ -245,8 +279,10 @@ def main(argv: list[str] | None = None) -> int:
         return 1
 
     if not args.quiet:
-        print(f"skill validation: OK — {len(skill_dirs)} skill(s) valid "
-              "(spec + reference integrity)")
+        print(
+            f"skill validation: OK — {len(skill_dirs)} skill(s) valid "
+            "(spec + reference integrity)"
+        )
     return 0
 
 

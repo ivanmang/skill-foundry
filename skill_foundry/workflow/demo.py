@@ -43,8 +43,12 @@ SEP = "═" * 68
 
 
 def _git(repo: Path, args: list[str]) -> None:
-    subprocess.run(["git", "-C", str(repo), *args], check=True,
-                   stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    subprocess.run(
+        ["git", "-C", str(repo), *args],
+        check=True,
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
+    )
 
 
 def _run(cmd: list[str | Path], check: bool = True) -> int:
@@ -68,15 +72,33 @@ def setup() -> None:
         shutil.rmtree(d, ignore_errors=True)
     shutil.copytree(HARNESS / "demo" / "mockrepo", TARGET_REPO)
     _git(TARGET_REPO, ["init", "-q"])
-    _git(TARGET_REPO, ["-c", "user.name=demo", "-c", "user.email=demo@example.com", "add", "-A"])
-    _git(TARGET_REPO, ["-c", "user.name=demo", "-c", "user.email=demo@example.com",
-                       "commit", "-qm", "chore: mock regression target"])
+    _git(
+        TARGET_REPO,
+        ["-c", "user.name=demo", "-c", "user.email=demo@example.com", "add", "-A"],
+    )
+    _git(
+        TARGET_REPO,
+        [
+            "-c",
+            "user.name=demo",
+            "-c",
+            "user.email=demo@example.com",
+            "commit",
+            "-qm",
+            "chore: mock regression target",
+        ],
+    )
     os.environ["DEMO_REPO"] = str(TARGET_REPO)
 
     (SB2 / ".claude" / "skills").mkdir(parents=True, exist_ok=True)
-    shutil.copytree(HARNESS / ".claude" / "skills" / "pto-isa", SB2 / ".claude" / "skills" / "pto-isa")
+    shutil.copytree(
+        HARNESS / ".claude" / "skills" / "pto-isa",
+        SB2 / ".claude" / "skills" / "pto-isa",
+    )
     for ref in ("known-failures.md", "known-failures.before.md"):
-        shutil.copy(KNOWN_BEFORE, SB2 / ".claude" / "skills" / "pto-isa" / "references" / ref)
+        shutil.copy(
+            KNOWN_BEFORE, SB2 / ".claude" / "skills" / "pto-isa" / "references" / ref
+        )
     (SB2 / "learnings").mkdir(parents=True, exist_ok=True)
     for f in ("recent.md", "promoted.md", "corrections.md"):
         shutil.copy(HARNESS / "learnings" / f, SB2 / "learnings" / f)
@@ -84,38 +106,104 @@ def setup() -> None:
 
 # ── steps ───────────────────────────────────────────────────────────────────
 
+
 def step_run() -> None:
-    print("  Running (exit 1 is expected — the mock suite fails one case on purpose):\n")
-    print("    python3 -m skill_foundry.workflow.run --config demo/config/demo-suites.json \\")
-    print("        --arches demo/config/demo-arches.json --target demo --all-suites --run-id", RUN_ID, "\n")
-    _run([sys.executable, "-m", "skill_foundry.workflow.run", "--config", DEMO_CONFIG,
-          "--arches", DEMO_ARCHES, "--target", "demo", "--all-suites",
-          "--run-id", RUN_ID], check=False)
+    print(
+        "  Running (exit 1 is expected — the mock suite fails one case on purpose):\n"
+    )
+    print(
+        "    python3 -m skill_foundry.workflow.run --config demo/config/demo-suites.json \\"
+    )
+    print(
+        "        --arches demo/config/demo-arches.json --target demo --all-suites --run-id",
+        RUN_ID,
+        "\n",
+    )
+    _run(
+        [
+            sys.executable,
+            "-m",
+            "skill_foundry.workflow.run",
+            "--config",
+            DEMO_CONFIG,
+            "--arches",
+            DEMO_ARCHES,
+            "--target",
+            "demo",
+            "--all-suites",
+            "--run-id",
+            RUN_ID,
+        ],
+        check=False,
+    )
     print()
-    print(f"  ✔ produced {RUN_DIR}/run.json  +  {RUN_DIR}/demo-suite.log (normalized by extract-logs)")
+    print(
+        f"  ✔ produced {RUN_DIR}/run.json  +  {RUN_DIR}/demo-suite.log (normalized by extract-logs)"
+    )
 
 
 def step_report() -> None:
-    _run([sys.executable, "-m", "skill_foundry.workflow.report", "--run", RUN_DIR / "run.json",
-          "--out", RUN_DIR / "report"])
+    _run(
+        [
+            sys.executable,
+            "-m",
+            "skill_foundry.workflow.report",
+            "--run",
+            RUN_DIR / "run.json",
+            "--out",
+            RUN_DIR / "report",
+        ]
+    )
     print("\n  Failure as the harness sees it today (no triage knowledge):")
     _grep(RUN_DIR / "report.md", FAIL_CASE)
 
 
 def step_review() -> None:
-    _run([sys.executable, "-m", "skill_foundry.workflow.review", "--run", RUN_DIR / "run.json",
-          "--baseline", BASELINE])
+    _run(
+        [
+            sys.executable,
+            "-m",
+            "skill_foundry.workflow.review",
+            "--run",
+            RUN_DIR / "run.json",
+            "--baseline",
+            BASELINE,
+        ]
+    )
 
 
 def step_teach() -> None:
-    print("  (auto-capture) ./harness teach records the correction in strict LRN-… format")
-    print("      (run here as python3 -m skill_foundry.cli.teach --file … to target the sandbox):\n")
-    _run([sys.executable, "-m", "skill_foundry.cli.teach",
-          f"device vcvt round-field mismatch in {FAIL_CASE} -> known vcvt round-field pattern; annotate instead of re-triage -> promote vcvt round-field swap into known-failures",
-          "--file", SB2 / "learnings" / "recent.md"])
-    print("\n  (auto-draft alternative) session_digest.py drafts the same entry straight from run.json:")
-    _run([sys.executable, "-m", "skill_foundry.lib.session_digest", "--run", RUN_DIR / "run.json",
-          "--file", SB2 / "learnings" / "recent.md"], check=False)
+    print(
+        "  (auto-capture) ./harness teach records the correction in strict LRN-… format"
+    )
+    print(
+        "      (run here as python3 -m skill_foundry.cli.teach --file … to target the sandbox):\n"
+    )
+    _run(
+        [
+            sys.executable,
+            "-m",
+            "skill_foundry.cli.teach",
+            f"device vcvt round-field mismatch in {FAIL_CASE} -> known vcvt round-field pattern; annotate instead of re-triage -> promote vcvt round-field swap into known-failures",
+            "--file",
+            SB2 / "learnings" / "recent.md",
+        ]
+    )
+    print(
+        "\n  (auto-draft alternative) session_digest.py drafts the same entry straight from run.json:"
+    )
+    _run(
+        [
+            sys.executable,
+            "-m",
+            "skill_foundry.lib.session_digest",
+            "--run",
+            RUN_DIR / "run.json",
+            "--file",
+            SB2 / "learnings" / "recent.md",
+        ],
+        check=False,
+    )
     print("\n  Latest pending entry in the sandbox recent.md:")
     text = (SB2 / "learnings" / "recent.md").read_text(encoding="utf-8")
     blocks = text.split("\n## ")
@@ -123,39 +211,78 @@ def step_teach() -> None:
 
 
 def step_propose() -> None:
-    print("  (auto-propose) ./harness promote --propose turns the pending entry into a reviewable diff")
-    print("      (run here as python3 -m skill_foundry.cli.promote --root … to target the sandbox):\n")
-    _run([sys.executable, "-m", "skill_foundry.cli.promote", "--root", SB2, "--propose"])
+    print(
+        "  (auto-propose) ./harness promote --propose turns the pending entry into a reviewable diff"
+    )
+    print(
+        "      (run here as python3 -m skill_foundry.cli.promote --root … to target the sandbox):\n"
+    )
+    _run(
+        [sys.executable, "-m", "skill_foundry.cli.promote", "--root", SB2, "--propose"]
+    )
 
 
 def step_apply() -> None:
-    print("  (apply) ./harness promote --apply writes the edit into the skill (gates + LLM judge)")
-    print("      (run here as python3 -m skill_foundry.cli.promote --root … to target the sandbox):\n")
+    print(
+        "  (apply) ./harness promote --apply writes the edit into the skill (gates + LLM judge)"
+    )
+    print(
+        "      (run here as python3 -m skill_foundry.cli.promote --root … to target the sandbox):\n"
+    )
     os.environ.setdefault("SKILL_REVIEWER", "echo APPROVE")  # scripted demo: stub judge
     _run([sys.executable, "-m", "skill_foundry.cli.promote", "--root", SB2, "--apply"])
-    before_txt = (SB2 / ".claude" / "skills" / "pto-isa" / "references" / "known-failures.before.md").read_text(encoding="utf-8")
+    before_txt = (
+        SB2
+        / ".claude"
+        / "skills"
+        / "pto-isa"
+        / "references"
+        / "known-failures.before.md"
+    ).read_text(encoding="utf-8")
     after_txt = SB2_KNOWN.read_text(encoding="utf-8")
-    n_before = sum(1 for line in before_txt.splitlines() if line.startswith("### ") and "vcvt" in line)
-    n_after = sum(1 for line in after_txt.splitlines() if line.startswith("### ") and "vcvt" in line)
+    n_before = sum(
+        1
+        for line in before_txt.splitlines()
+        if line.startswith("### ") and "vcvt" in line
+    )
+    n_after = sum(
+        1
+        for line in after_txt.splitlines()
+        if line.startswith("### ") and "vcvt" in line
+    )
     print(f"  Mechanical effect — known-failure signatures go {n_before} → {n_after}:")
     print(f"    before: {n_before} known-failure signatures")
     print(f"    after:  {n_after} known-failure signatures")
     print("\n  learnings/ bookkeeping after apply (promoted + corrections):")
-    for line in (SB2 / "learnings" / "promoted.md").read_text(encoding="utf-8").splitlines():
+    for line in (
+        (SB2 / "learnings" / "promoted.md").read_text(encoding="utf-8").splitlines()
+    ):
         if "vcvt" in line:
             print(f"    {line.strip()}")
 
 
 def step_rerun() -> None:
     print("  Re-render the SAME run.json against the improved corpus:\n")
-    _run([sys.executable, "-m", "skill_foundry.workflow.report", "--run", RUN_DIR / "run.json",
-          "--known", SB2_KNOWN, "--out", RUN_DIR / "report-known"])
+    _run(
+        [
+            sys.executable,
+            "-m",
+            "skill_foundry.workflow.report",
+            "--run",
+            RUN_DIR / "run.json",
+            "--known",
+            SB2_KNOWN,
+            "--out",
+            RUN_DIR / "report-known",
+        ]
+    )
     print("\n  Failure line AFTER learning (now annotated as known):")
     _grep(RUN_DIR / "report-known.md", FAIL_CASE)
 
 
 def step_takeaway() -> None:
-    print("""
+    print(
+        """
   Run artifacts:  {run}/run.json, report.md, report-known.md, demo-suite.log
   Sandbox (loop): {sb}
 
@@ -166,93 +293,151 @@ def step_takeaway() -> None:
 
   Capture is automated; promotion is always a reviewed diff. The agent didn't get
   smarter — the *harness* did.
-""".format(run=RUN_DIR, sb=SANDBOX))
+""".format(run=RUN_DIR, sb=SANDBOX)
+    )
 
 
 STEPS: list[dict] = [
-    dict(key="run", short="run", needs=(), title="Use — run the suite",
-         what="One command runs the demo suite through the REAL run.py → run.json + raw log.",
-         more="The mock gtest runner is fake, but the driver is the real run.py. "
-              "It records the target repo's git ref, dirty flag, host, and env snapshot, "
-              "so every result is reproducible — the same metadata the pto-isa runs carry. "
-              "In the real flow, --all-suites auto-skips suites whose prereqs are missing "
-              "(compiler / CANN headers+simulator / device / MPI); an explicit --suite force-runs.",
-         run=step_run),
-    dict(key="report", short="report", needs=("run",), title="Use — report (before learning)",
-         what="report.py renders the run into report.md/.html — one failing case shows up as a raw FAIL.",
-         more="Right now the harness has no triage knowledge: VecOpTest.case_vcvt_bf16fp16_128x128 "
-              "is just 'FAIL'. The whole point of the improve loop is to make this line smarter.",
-         run=step_report),
-    dict(key="review", short="review", needs=("run",), title="Use — review vs the pinned baseline",
-         what="review.py diffs the run against demo/baseline/demo-baseline.json — the failing case is flagged as a PASS→FAIL regression.",
-         more="Regression = diff vs the PINNED baseline — refresh the baseline only deliberately. "
-              "Avg and p99 are both tracked; p99 rising >15% trips a perf flag even when avg is flat — "
-              "never report average alone.",
-         run=step_review),
-    dict(key="teach", short="teach", needs=("review",), title="Improve — auto-capture the correction",
-         what="A person says 'that's a known vcvt round-field issue'. The AI logs it automatically (./harness teach) as a strict, parseable LRN-… entry.",
-         more="Capture is automatic and append-only: when you correct the agent ('no / actually / remember …'), "
-              "it runs ./harness teach by itself and replies with the LRN-… id — one command, strict format, no freeform editing. "
-              "session_digest.py can even draft the same entry straight from the run's failures.",
-         run=step_teach),
-    dict(key="propose", short="propose", needs=("teach",), title="Improve — auto-propose a diff",
-         what="./harness promote --propose turns the pending entry into a reviewable git-style diff — no write yet.",
-         more="This is the automation boundary: propose is automatic (optional review); apply is also automatic "
-              "(gates + LLM judge, writes locally). Nothing changes in the shared skills until a --pr is "
-              "MERGED on the remote — branch protection is the gate.",
-         run=step_propose),
-    dict(key="apply", short="apply", needs=("propose",), title="Improve — apply + bookkeeping  🟢 AUTO",
-         what="./harness promote --apply writes the edit into the skill (gates + LLM judge first). The demo stops at a local write; a real publish uses --pr, and you merge the PR.",
-         more="Capture is automatic — recent.md is the harness's own memory, append-only, cheap, revertible. "
-              "Apply runs the gates + the judge and writes the edit locally. A real publish is --pr: "
-              "branch + push + auto-open a PR (gitcode v5 API with GITCODE_TOKEN), then you merge it — "
-              "same principle as Claude Code auto-writing memory, with branch protection as the gate. "
-              "RED line: the harness never auto-REMOVES or auto-CHANGES an existing check — it only ADDS.",
-         run=step_apply),
-    dict(key="rerun", short="rerun", needs=("apply",), title="Improve — re-render with the new knowledge",
-         what="Re-render the SAME run.json with the improved corpus → the failure is now annotated as known.",
-         more="The agent didn't get smarter — the harness did. Every teammate gets the same improvement via git.",
-         run=step_rerun),
-    dict(key="takeaway", short="takeaway", needs=(), title="Takeaway",
-         what="Summary + where the artifacts landed.",
-         more="",
-         run=step_takeaway),
+    dict(
+        key="run",
+        short="run",
+        needs=(),
+        title="Use — run the suite",
+        what="One command runs the demo suite through the REAL run.py → run.json + raw log.",
+        more="The mock gtest runner is fake, but the driver is the real run.py. "
+        "It records the target repo's git ref, dirty flag, host, and env snapshot, "
+        "so every result is reproducible — the same metadata the pto-isa runs carry. "
+        "In the real flow, --all-suites auto-skips suites whose prereqs are missing "
+        "(compiler / CANN headers+simulator / device / MPI); an explicit --suite force-runs.",
+        run=step_run,
+    ),
+    dict(
+        key="report",
+        short="report",
+        needs=("run",),
+        title="Use — report (before learning)",
+        what="report.py renders the run into report.md/.html — one failing case shows up as a raw FAIL.",
+        more="Right now the harness has no triage knowledge: VecOpTest.case_vcvt_bf16fp16_128x128 "
+        "is just 'FAIL'. The whole point of the improve loop is to make this line smarter.",
+        run=step_report,
+    ),
+    dict(
+        key="review",
+        short="review",
+        needs=("run",),
+        title="Use — review vs the pinned baseline",
+        what="review.py diffs the run against demo/baseline/demo-baseline.json — the failing case is flagged as a PASS→FAIL regression.",
+        more="Regression = diff vs the PINNED baseline — refresh the baseline only deliberately. "
+        "Avg and p99 are both tracked; p99 rising >15% trips a perf flag even when avg is flat — "
+        "never report average alone.",
+        run=step_review,
+    ),
+    dict(
+        key="teach",
+        short="teach",
+        needs=("review",),
+        title="Improve — auto-capture the correction",
+        what="A person says 'that's a known vcvt round-field issue'. The AI logs it automatically (./harness teach) as a strict, parseable LRN-… entry.",
+        more="Capture is automatic and append-only: when you correct the agent ('no / actually / remember …'), "
+        "it runs ./harness teach by itself and replies with the LRN-… id — one command, strict format, no freeform editing. "
+        "session_digest.py can even draft the same entry straight from the run's failures.",
+        run=step_teach,
+    ),
+    dict(
+        key="propose",
+        short="propose",
+        needs=("teach",),
+        title="Improve — auto-propose a diff",
+        what="./harness promote --propose turns the pending entry into a reviewable git-style diff — no write yet.",
+        more="This is the automation boundary: propose is automatic (optional review); apply is also automatic "
+        "(gates + LLM judge, writes locally). Nothing changes in the shared skills until a --pr is "
+        "MERGED on the remote — branch protection is the gate.",
+        run=step_propose,
+    ),
+    dict(
+        key="apply",
+        short="apply",
+        needs=("propose",),
+        title="Improve — apply + bookkeeping  🟢 AUTO",
+        what="./harness promote --apply writes the edit into the skill (gates + LLM judge first). The demo stops at a local write; a real publish uses --pr, and you merge the PR.",
+        more="Capture is automatic — recent.md is the harness's own memory, append-only, cheap, revertible. "
+        "Apply runs the gates + the judge and writes the edit locally. A real publish is --pr: "
+        "branch + push + auto-open a PR (gitcode v5 API with GITCODE_TOKEN), then you merge it — "
+        "same principle as Claude Code auto-writing memory, with branch protection as the gate. "
+        "RED line: the harness never auto-REMOVES or auto-CHANGES an existing check — it only ADDS.",
+        run=step_apply,
+    ),
+    dict(
+        key="rerun",
+        short="rerun",
+        needs=("apply",),
+        title="Improve — re-render with the new knowledge",
+        what="Re-render the SAME run.json with the improved corpus → the failure is now annotated as known.",
+        more="The agent didn't get smarter — the harness did. Every teammate gets the same improvement via git.",
+        run=step_rerun,
+    ),
+    dict(
+        key="takeaway",
+        short="takeaway",
+        needs=(),
+        title="Takeaway",
+        what="Summary + where the artifacts landed.",
+        more="",
+        run=step_takeaway,
+    ),
 ]
 BY_KEY = {s["key"]: s for s in STEPS}
 
 # What the scripts run for you vs. what needs a human, per step.
 ROLES: dict[str, tuple[str, str, str]] = {
-    "run": ("python3 -m skill_foundry.workflow.run --target demo --all-suites",
-            "runs the suite and normalizes the log into run.json",
-            "nothing — press Enter to run"),
-    "report": ("python3 -m skill_foundry.workflow.report --run <run.json>",
-               "renders report.md + report.html from run.json",
-               "nothing — just read the FAIL line"),
-    "review": ("python3 -m skill_foundry.workflow.review --run <run.json> --baseline …",
-               "diffs vs baseline → regressions / fixes / perf flags",
-               "nothing — read which cases regressed"),
-    "teach": ("./harness teach \"wrong → correct → action\"",
-              "logs a strict LRN-… entry (or the AI auto-runs it when you correct it)",
-              "YOUR judgment — decide the correct triage"),
-    "propose": ("./harness promote --propose",
-                "drafts a git-style diff (writes nothing yet)",
-                "nothing — just review the proposed diff"),
-    "apply": ("./harness promote --apply",
-              "writes the edit into the skill (gates + LLM judge run first; the demo uses a stub judge)",
-              "nothing in the demo — a real publish uses --pr, and you merge the PR"),
-    "rerun": ("python3 -m skill_foundry.workflow.report --run <run.json> --known …",
-              "re-renders with the new corpus → failure annotated 'known'",
-              "nothing — watch the line flip to 'known'"),
-    "takeaway": ("—",
-                 "—",
-                 "decide what to run next (the real suites)"),
+    "run": (
+        "python3 -m skill_foundry.workflow.run --target demo --all-suites",
+        "runs the suite and normalizes the log into run.json",
+        "nothing — press Enter to run",
+    ),
+    "report": (
+        "python3 -m skill_foundry.workflow.report --run <run.json>",
+        "renders report.md + report.html from run.json",
+        "nothing — just read the FAIL line",
+    ),
+    "review": (
+        "python3 -m skill_foundry.workflow.review --run <run.json> --baseline …",
+        "diffs vs baseline → regressions / fixes / perf flags",
+        "nothing — read which cases regressed",
+    ),
+    "teach": (
+        './harness teach "wrong → correct → action"',
+        "logs a strict LRN-… entry (or the AI auto-runs it when you correct it)",
+        "YOUR judgment — decide the correct triage",
+    ),
+    "propose": (
+        "./harness promote --propose",
+        "drafts a git-style diff (writes nothing yet)",
+        "nothing — just review the proposed diff",
+    ),
+    "apply": (
+        "./harness promote --apply",
+        "writes the edit into the skill (gates + LLM judge run first; the demo uses a stub judge)",
+        "nothing in the demo — a real publish uses --pr, and you merge the PR",
+    ),
+    "rerun": (
+        "python3 -m skill_foundry.workflow.report --run <run.json> --known …",
+        "re-renders with the new corpus → failure annotated 'known'",
+        "nothing — watch the line flip to 'known'",
+    ),
+    "takeaway": ("—", "—", "decide what to run next (the real suites)"),
 }
 
 
 def run_step(s: dict, done: set[str]) -> None:
     for need in s["needs"]:
         if need not in done:
-            print(ui.c(f"  ⚠ prerequisite '{need}' not run yet — running it first.\n", ui.YELLOW))
+            print(
+                ui.c(
+                    f"  ⚠ prerequisite '{need}' not run yet — running it first.\n",
+                    ui.YELLOW,
+                )
+            )
             run_step(BY_KEY[need], done)
     sys.stdout.flush()
     s["run"]()
@@ -374,7 +559,10 @@ def tour_loop() -> int:
         s = STEPS[idx]
         _header(idx, done)
         choice = ui.select_menu(
-            ui.c("Your move  ·  ↑/↓ choose  ·  Enter confirm  ·  1–6 jump  ·  q quit", ui.BOLD),
+            ui.c(
+                "Your move  ·  ↑/↓ choose  ·  Enter confirm  ·  1–6 jump  ·  q quit",
+                ui.BOLD,
+            ),
             [
                 ("▶  run this step & continue", "run"),
                 ("⏭  skip to the next step   ", "next"),
@@ -398,9 +586,9 @@ def tour_loop() -> int:
         elif choice == "prev":
             idx = max(idx - 1, 0)
         elif choice == "jump":
-            sel = ui.select_menu("Jump to:", [
-                (f"{i + 1}. {t['title']}", i) for i, t in enumerate(STEPS)
-            ])
+            sel = ui.select_menu(
+                "Jump to:", [(f"{i + 1}. {t['title']}", i) for i, t in enumerate(STEPS)]
+            )
             if sel is not None:
                 idx = sel
         elif choice == "more":

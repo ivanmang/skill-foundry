@@ -19,6 +19,7 @@ Expected:
   - PNG dual-pane (lanes top, IPC bottom), plot_style=opcode_lanes_ipc
   - JSON sidecar with mid_med_ipc + lane_opcodes
 """
+
 from __future__ import annotations
 
 import argparse
@@ -27,7 +28,9 @@ from pathlib import Path
 
 
 def main() -> int:
-    ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    ap = argparse.ArgumentParser(
+        description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
+    )
     ap.add_argument("--dump", required=True, help="instr_log.dump / popped_dump")
     ap.add_argument("--out-png", required=True)
     ap.add_argument("--title", required=True)
@@ -62,7 +65,10 @@ def main() -> int:
     )
     print(f"json={result.get('json')}")
     if style != "opcode_lanes_ipc":
-        print("FAIL: need plot_style=opcode_lanes_ipc (IPC-only is not PR9 overlay)", file=sys.stderr)
+        print(
+            "FAIL: need plot_style=opcode_lanes_ipc (IPC-only is not PR9 overlay)",
+            file=sys.stderr,
+        )
         return 1
     return 0
 

@@ -77,7 +77,10 @@ def main(argv: list[str] | None = None) -> int:
         options = suggestions + [(TYPE, "TYPE"), (FULL, "FULL"), (SHELL, None)]
         status = ui.c("ok", ui.GREEN) if rc == 0 else ui.c(f"exit {rc}", ui.YELLOW)
         choice = ui.select_menu(
-            ui.c(f"What next?  (last: {verb} · {status})   ↑/↓ choose · Enter run · q = shell", ui.BOLD),
+            ui.c(
+                f"What next?  (last: {verb} · {status})   ↑/↓ choose · Enter run · q = shell",
+                ui.BOLD,
+            ),
             options,
         )
 
