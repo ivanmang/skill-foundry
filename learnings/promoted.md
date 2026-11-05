@@ -20,3 +20,11 @@ deliberately rejected with a reason).
 - LRN-20261105-012 — pto-isa — ScheTop root cause: esl_top_thread_cnt 32→64 via sudo sed on both sim-dir copies.
 - LRN-20261105-016 — pto-isa — must source setenv.bash on ecs non-login SSH before run_st.py.
 - LRN-20261105-017 — pto-isa — TMOVTest.case_nz2nd_3 flaky: numeric/nondeterminism; triage backlog, not camodel.
+- LRN-20261105-001 — pto-isa — parse_gtest must accumulate per-binary gtest summaries and count `run binary failed … died with` as a FAIL (already in code + tested).
+- LRN-20261105-004 — pto-isa — ca clock is 5 GHz (core_period 200 ps); GB/s = B/cyc × 5.
+- LRN-20261105-005 — pto-isa — SIMT [type:] codes are bytes/lane (1=B8,2=B16,4=B32,5=B64); type:2 = 64 B/instr.
+- LRN-20261105-006 — pto-isa — MTE3 write bytes unlogged; estimate mte3_busy × 128 / 5.5.
+- LRN-20261105-010 — pto-isa — parse_gtest overwrite/crash bug (dup of -001); covered by added tests + docs.
+- LRN-20261105-013 — pto-isa — MTE3 ×128 calibration factor 5.3–6.4 (use /5.5); MTE2 read bytes from XT descriptor low 16 bits.
+- LRN-20261105-014 — pto-isa — SIMT type width = bytes/lane; type:2 is exact 64 B/instr.
+- LRN-20261105-015 — pto-isa — ca clock 5 GHz constant (dup of -004).

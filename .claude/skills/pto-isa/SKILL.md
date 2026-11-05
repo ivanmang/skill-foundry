@@ -87,6 +87,7 @@ Full table: `references/env.md`.
 - `references/known-failures.md` — triage corpus
 - `references/env.md` — arch/soc/env/version pins
 - `references/cann-matrix.md` — which CANN supports which arch (compile + simulate)
+- `references/ca-metrics.md` — CA-analysis constants (clock, SIMT widths, MTE3 write estimate)
 
 ## Gotchas
 

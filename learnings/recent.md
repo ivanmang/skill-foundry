@@ -74,7 +74,7 @@ write entries; `skill_foundry/cli/promote.py` parses and promotes them.
 - wrong: Gtest counts were overwritten by the last binary in multi-binary runs and binary crashes were never counted
 - correct: Accumulate passed/failed per per-binary gtest summary and add one failure for each `run binary failed: ... died with <Signals...>` match
 - action: update skill_foundry/lib/parse_gtest.py and extract-logs skill copy
-- status: pending
+- status: promoted
 
 
 ## LRN-20261105-002
@@ -107,7 +107,7 @@ write entries; `skill_foundry/cli/promote.py` parses and promotes them.
 - wrong: UB bandwidth needed camodel frequency
 - correct: Core period is 200 ps in Ascend950pr_9599_model.toml so clock is 5 GHz; GB/s = B/cyc times 5
 - action: record in ca_instr_analysis.py docs
-- status: pending
+- status: promoted
 
 
 ## LRN-20261105-005
@@ -118,7 +118,7 @@ write entries; `skill_foundry/cli/promote.py` parses and promotes them.
 - wrong: type:2 width was previously estimated near 48 B uncertain
 - correct: `[type:]` codes encode bytes/lane: 1=B8 2=B16 4=B32 5=B64; with 32-lane execMask type:2 is exact 64 B per instruction
 - action: document in ca_instr_analysis.py
-- status: pending
+- status: promoted
 
 
 ## LRN-20261105-006
@@ -129,7 +129,7 @@ write entries; `skill_foundry/cli/promote.py` parses and promotes them.
 - wrong: UB-to-GM output store missing from core0.veccore0.instr_log.dump caused bandwidth undercount
 - correct: MTE3 MOV_SRC_TO_DST is issued at teardown by host and unlogged; estimate as mte3_busy times 128 divided by calibrated 5.5 factor
 - action: document fallback in ca_instr_analysis.py and build_tilelang_report.py
-- status: pending
+- status: promoted
 
 
 ## LRN-20261105-007
@@ -173,7 +173,7 @@ write entries; `skill_foundry/cli/promote.py` parses and promotes them.
 - wrong: run.json recorded npu-sim-a5 fail=1 and cpu-st total=2 because parse_gtest overwrote per-binary gtest summaries and ignored binary crashes
 - correct: parse_gtest must accumulate passed and failed across all per-binary gtest summaries and match BINARY_CRASH_RE to count SIGABRT/SIGSEGV binaries as FAIL
 - action: update skill-foundry parse_gtest tests and docs
-- status: pending
+- status: promoted
 
 
 ## LRN-20261105-011
@@ -206,7 +206,7 @@ write entries; `skill_foundry/cli/promote.py` parses and promotes them.
 - wrong: vector instr_log.dump does not log teardown MTE3 transfer bytes; earlier calibration factor assumed 1.8
 - correct: measured cast kernels give mte3_busy x 128 overcount factor 5.3-6.4; use mte3_busy x 128 / 5.5 estimate; MTE2 read bytes come exactly from XT descriptor low 16 bits
 - action: update ca_instr_analysis.py comments and pto-isa analysis docs
-- status: pending
+- status: promoted
 
 
 ## LRN-20261105-014
@@ -217,7 +217,7 @@ write entries; `skill_foundry/cli/promote.py` parses and promotes them.
 - wrong: forced SIMT byte count equal to SIMD width causing uncertainty for type:2
 - correct: type codes encode bytes per lane: 1=B8, 2=B16, 4=B32, 5=B64; type:2 is 2 B/lane x 32 lanes = 64B/instr
 - action: update ca_instr_analysis.py decoder documentation
-- status: pending
+- status: promoted
 
 
 ## LRN-20261105-015
@@ -228,7 +228,7 @@ write entries; `skill_foundry/cli/promote.py` parses and promotes them.
 - wrong: no clock frequency available for converting B/cyc to GB/s
 - correct: Ascend950pr_9599_model.toml core_period is 200 ps so camodel clock is 5 GHz
 - action: update ca_instr_analysis.py clock constant and report docs
-- status: pending
+- status: promoted
 
 
 ## LRN-20261105-016
