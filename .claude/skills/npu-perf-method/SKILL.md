@@ -38,6 +38,10 @@ auto-advancing-pointer variant. Arithmetic closes ⇒ causal, not correlational.
 Static findings are hypothesis-level: measure E2E after every change; ticks are
 data-independent but verdicts are only as real as the golden underneath.
 
+## See also
+
+- [code-performance-advisor](skill:code-performance-advisor) — profiling-driven diagnosis (msprof); the measurement counterpart to this estimate-first method.
+
 ## Gotchas
 
 - Drafted hub/inbox/npu-perf-method/SKILL.md: resource budget (A5+A6 EXU formulas), store cliff, LNEXP framing, i-cache proof pattern, discipline. Sources: npu_skills R6/R9, performance/prediction, pto-vmi measured campaigns. (was: Performance work jumps to micro-tuning without a roofline (fixing EXU instructions on an LSU-bound kernel), uses a flat per_iter=max(EXU,LSU) model that misses the store-queue cliff, reads LNEXP per-slot throughput as core capacity, and accepts correlational icache stories without arithmetic closure.) — `dissection of npu_skills + pto-vmi campaigns (2026-11-04)`

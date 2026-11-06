@@ -149,6 +149,10 @@ python3 scripts/analysis_engine/session_manager.py cleanup
 
 ---
 
+## See also
+
+- [npu-perf-method](skill:npu-perf-method) — estimate-first roofline/cycle model; run before measuring.
+
 ## 子技能参考
 
 | 子技能 | 文件 | 触发时机 |

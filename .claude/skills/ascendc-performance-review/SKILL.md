@@ -24,3 +24,7 @@ owner: cannbot
 ## 交付
 
 findings 列表：每条含检查点 ID、位置（文件/行）、证据、预期影响、修复方向。静态检视结论是**假设级证据**——预期影响需经实测确认，不作为性能结论。
+
+## See also
+
+- [npu-loop-patterns](skill:npu-loop-patterns) — the measured anti-pattern catalog (A5/A6) behind this checklist.

@@ -86,6 +86,10 @@ owner: skill-foundry
 | A21 | Porting unrolled bodies without re-checking the 8 KB / 2-way i-cache | Body growth cliff measured **456→926 (+103%)** = 441 `c_cycle_icache_miss` | Count hot-loop instrs (~60 ≈ 2 KB budget); auto-advancing pointers |
 | A22 | A5 cross-core sync (`TSync_Custom` flag+16) left in a port | **Deadlocks on A6** | `set_intra_block` / `wait_intra_block` |
 
+## See also
+
+- [ascendc-performance-review](skill:ascendc-performance-review) — the static review checklist that should surface these anti-patterns.
+
 ## Gotchas
 
 - Drafted hub/inbox/npu-loop-patterns/SKILL.md: 7 rules with measured anchors. Source: npu_skills vloop-steady-state-patterns, predicate-patterns, post-update-and-fusion-tradeoffs. (was: Hot loops written with loop-carried accumulators, runtime-if tails, parallel scalar counters beside plt predicates, chained POST_UPDATE pointers, and unroll x4+ — each a measured stall source with no scoped skill warning about them or the __VEC_SCOPE__ early-return backend fatal.) — `dissection of npu_skills case-writing (2026-11-04)`
