@@ -46,7 +46,7 @@ def promoted_count(path: Path) -> int:
     if not path.exists():
         return 0
     return len(
-        re.findall(r"^- LRN-\d{8}-\d{3}", path.read_text(encoding="utf-8"), re.M)
+        re.findall(r"^- LRN-\d{8}-\S+", path.read_text(encoding="utf-8"), re.M)
     )
 
 

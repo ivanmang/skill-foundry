@@ -12,7 +12,6 @@ Usage:
 from __future__ import annotations
 
 import argparse
-import datetime as _dt
 import json
 from pathlib import Path
 
@@ -64,12 +63,8 @@ def main(argv: list[str] | None = None) -> int:
         print("No new FAIL cases to draft (all already logged).")
         return 0
 
-    date = _dt.datetime.now().strftime("%Y%m%d")
-    base_num = int(log_correction.next_id(existing, date).rsplit("-", 1)[1])
-
-    for i, d in enumerate(new):
-        eid = f"LRN-{date}-{base_num + i:03d}"
-        entry = {**d, "id": eid, "status": "pending"}
+    for d in new:
+        entry = {**d, "id": log_correction.new_id(), "status": "pending"}
         if args.apply:
             log_correction.append_entry(args.file, dict(entry))
         else:

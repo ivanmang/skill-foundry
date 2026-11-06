@@ -17,7 +17,7 @@ from __future__ import annotations
 
 import argparse
 import datetime as _dt
-import re
+import uuid
 from pathlib import Path
 
 from skill_foundry.paths import ROOT as HARNESS  # noqa: E402
@@ -27,17 +27,11 @@ CATEGORIES = {"correction", "error", "knowledge_gap", "feature"}
 PLACEHOLDER = "(No entries yet.)"
 
 
-def next_id(text: str, date: str) -> str:
-    prefix = f"LRN-{date}-"
-    nums = []
-    for line in text.splitlines():
-        m = re.match(r"^##\s+(LRN-\d{8}-\d{3})", line)
-        if m and m.group(1).startswith(prefix):
-            try:
-                nums.append(int(m.group(1).rsplit("-", 1)[1]))
-            except ValueError:
-                pass
-    return f"{prefix}{max(nums) + 1:03d}" if nums else f"{prefix}001"
+def new_id() -> str:
+    """Globally-unique LRN id: wall-clock + random, collision-proof across
+    concurrent teammates (the old per-file counter could collide)."""
+    now = _dt.datetime.now()
+    return f"LRN-{now:%Y%m%d}-{now:%H%M%S}-{uuid.uuid4().hex[:8]}"
 
 
 def flatten(value: str | None) -> str:
@@ -67,8 +61,7 @@ def append_entry(path: str | Path, entry: dict) -> str:
         else "# Recent — pending learnings\n\n(No entries yet.)\n"
     )
 
-    date = _dt.datetime.now().strftime("%Y%m%d")
-    entry["id"] = entry.get("id") or next_id(text, date)
+    entry["id"] = entry.get("id") or new_id()
     entry.setdefault("status", "pending")
     entry["category"] = (entry.get("category") or "correction").lower()
 

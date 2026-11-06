@@ -25,6 +25,7 @@ import re
 import shutil
 import subprocess
 import sys
+import uuid
 import urllib.parse
 import urllib.request
 from pathlib import Path
@@ -44,7 +45,7 @@ FIELD_ORDER = [
     "action",
     "status",
 ]
-ENTRY_RE = re.compile(r"^##\s+(LRN-\d{8}-\d{3})")
+ENTRY_RE = re.compile(r"^##\s+(LRN-\d{8}-\S+)")
 
 
 def one(s: str | None) -> str:
@@ -788,6 +789,12 @@ def apply_all(
             # Create the MR directly over the existing SSH transport using
             # GitLab push options — no token/glab needed. If the host rejects
             # them, fall back to a plain push + token/glab (or a manual URL).
+            # Refresh before push so a concurrently-created branch isn't clobbered.
+            subprocess.run(
+                ["git", "-C", str(root), "fetch", "origin"],
+                capture_output=True,
+                text=True,
+            )
             push_opts = [
                 "-o",
                 "merge_request.create",
@@ -797,7 +804,8 @@ def apply_all(
                 f"merge_request.title={title}",
             ]
             pushed = subprocess.run(
-                ["git", "-C", str(root), "push", "-u", "origin", branch] + push_opts,
+                ["git", "-C", str(root), "push", "--force-with-lease", "-u", "origin", branch]
+                + push_opts,
                 capture_output=True,
                 text=True,
             )
@@ -817,7 +825,7 @@ def apply_all(
                 # else hand the human the manual URL.
                 if pushed.returncode != 0:
                     pushed = subprocess.run(
-                        ["git", "-C", str(root), "push", "-u", "origin", branch],
+                        ["git", "-C", str(root), "push", "--force-with-lease", "-u", "origin", branch],
                         capture_output=True,
                         text=True,
                     )
@@ -899,7 +907,7 @@ def main(argv: list[str] | None = None) -> int:
     if args.pr:
         args.apply = True
         if not args.branch:
-            args.branch = f"feat/learnings-{_dt.datetime.now():%Y%m%d}"
+            args.branch = f"feat/learnings-{_dt.datetime.now():%Y%m%d}-{uuid.uuid4().hex[:6]}"
         if not any(
             os.environ.get(k)
             for k in ("GITCODE_TOKEN", "GITLAB_TOKEN", "GH_TOKEN", "GITHUB_TOKEN")
