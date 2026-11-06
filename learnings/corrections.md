@@ -35,3 +35,7 @@ what changed, and why.
 ## 2026-11-05 — pto-isa
 - Promoted: LRN-20261105-019, -020 (merged into one env.md note); Rejected: LRN-20261105-018 (duplicate of existing rules + cann-matrix).
 - Action: added ecs temp-file inode-exhaustion note (TMPDIR=~/tmp + df -i) to references/env.md; --all-suites/A6 skip already documented — no change.
+
+## 2026-11-06 — pto-isa
+- Promoted: LRN-20261106-001..005 (merged into one "Long runs & monitoring" section of suite-matrix.md).
+- Action: documented completion detection (run.json + EXITCODE), 16h+ runtime expectation, log-growth liveness, and a6-skip-as-expected in references/suite-matrix.md.

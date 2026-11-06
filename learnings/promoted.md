@@ -31,3 +31,8 @@ deliberately rejected with a reason).
 - LRN-20261105-019 — pto-isa — ecs temp-file failures: /tmp on root FS; set TMPDIR=~/tmp so temp files land on /home (merged with -020).
 - LRN-20261105-020 — pto-isa — root cause is `/` inode exhaustion (df -i 6553600/6553600), not block-full; diagnose with df -i.
 - LRN-20261105-018 — pto-isa — REJECTED (duplicate): --all-suites auto-skip is already the documented rule; A6=dav_9201 headers-first already in cann-matrix.md.
+- LRN-20261106-001 — pto-isa — run.json is written only at completion; don't trust the newest run.json until pgrep DONE + EXITCODE line present.
+- LRN-20261106-002 — pto-isa — a full --all-suites regression can exceed 16h; plan a long window or re-poll.
+- LRN-20261106-003 — pto-isa — npu-sim-a6 auto-skip is an expected env limitation, not a regression.
+- LRN-20261106-004 — pto-isa — the nohup wrapper appends EXITCODE only on process exit; check it together with pgrep DONE.
+- LRN-20261106-005 — pto-isa — log line-growth over ~60s confirms liveness on long sim runs.

@@ -36,6 +36,13 @@ python3 tests/run_cpu.py --testcase tadd --gtest_filter 'TADDTest.case_float_64x
 python3 tests/script/run_st.py -r sim -v a5 -t tadd -g TADDTest.case_float_64x64_64x64
 ```
 
+## Long runs & monitoring
+
+- **Full `--all-suites` can run 16h+** on the A5 simulator (many cases, each minutes). Plan a long window, use `--parallel`, or poll progress and re-poll rather than waiting synchronously.
+- **`run.json` is written only at completion.** The newest `reports/*/run.json` is NOT the current run's result until `pgrep -f workflow.run` is empty AND the `nohup` wrapper has appended `EXITCODE:` to the log; confirm the report dir is newer than the run start.
+- **Log line-growth over ~60s confirms liveness** — `wc -l <log>` twice; growth means the simulator is progressing even when no new suite markers appear.
+- **`npu-sim-a6` auto-skip is expected** on a machine missing either A6 compile headers or the `dav_9201` simulator — treat it as an environment limitation, not a regression (see cann-matrix.md).
+
 ## Lint / format (part of the regression gate, M2+)
 
 - C++: `clang-format -i -style=file <file>` — pinned v18.1.8

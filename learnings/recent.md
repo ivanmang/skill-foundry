@@ -285,3 +285,58 @@ write entries; `skill_foundry/cli/promote.py` parses and promotes them.
 - action: update ecs triage docs to diagnose inode exhaustion when temp files fail
 - status: promoted
 
+
+## LRN-20261106-001
+- id: LRN-20261106-001
+- category: knowledge_gap
+- context: pto-isa regression monitoring on ecs
+- skill: pto-isa
+- wrong: Newest reports/*/run.json was a stale earlier attempt with all suites FAIL and exit 1 while the current run was still RUNNING
+- correct: run.json is only written at workflow completion; do not use newest run.json unless pgrep reports DONE and the nohup wrapper has appended EXITCODE, and confirm the report dir is newer than the current run start
+- action: pto-isa workflow docs
+- status: promoted
+
+
+## LRN-20261106-002
+- id: LRN-20261106-002
+- category: knowledge_gap
+- context: pto-isa full regression duration
+- skill: pto-isa
+- wrong: Monitoring was stopped after about 16h42m with the process still RUNNING, exceeding the 2.5h budget
+- correct: A full pto-isa regression can exceed 16 hours; plan for a much longer timeout or report progress and re-poll later instead of waiting indefinitely
+- action: pto-isa task-planning docs
+- status: promoted
+
+
+## LRN-20261106-003
+- id: LRN-20261106-003
+- category: feature
+- context: pto-isa ecs suite status
+- skill: pto-isa
+- wrong: The npu-sim-a6 suite was skipped due to missing compile headers and the dav_9201 simulator and could be mistaken for failure
+- correct: Treat npu-sim-a6 skip as an expected environment limitation on this machine rather than a regression failure
+- action: pto-isa known-failures
+- status: promoted
+
+
+## LRN-20261106-004
+- id: LRN-20261106-004
+- category: feature
+- context: nohup wrapper completion signal
+- skill: pto-isa
+- wrong: Checking only pgrep was insufficient to know whether the wrapper had finished
+- correct: The nohup wrapper appends an EXITCODE line to ~/ecs-regression.log only when the process exits; check for that line together with pgrep DONE before collecting results
+- action: pto-isa workflow docs
+- status: promoted
+
+
+## LRN-20261106-005
+- id: LRN-20261106-005
+- category: feature
+- context: workflow.run liveness check
+- skill: pto-isa
+- wrong: A long-running run appeared possibly hung without recent suite markers
+- correct: Compare the line count of ~/ecs-regression.log over about 60 seconds; line growth confirms active progress even when no new suite markers appear
+- action: pto-isa monitoring docs
+- status: promoted
+
