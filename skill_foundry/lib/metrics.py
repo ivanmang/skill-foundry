@@ -67,6 +67,19 @@ def events() -> list[dict[str, Any]]:
     return out
 
 
+def uncalibrated() -> list[dict[str, Any]]:
+    """Judge events with no human `calibrate` outcome yet."""
+    evs = events()
+    calib = {str(e.get("ref")) for e in evs if e["event"] == "calibrate"}
+    return [
+        e
+        for e in evs
+        if e["event"] == "judge"
+        and isinstance(e.get("verdict"), str)
+        and str(e.get("event_id")) not in calib
+    ]
+
+
 def summarize() -> dict[str, Any]:
     """Counts per event + judge verdict distribution + calibration agreement."""
     evs = events()
@@ -91,6 +104,11 @@ def summarize() -> dict[str, Any]:
         "events": counts,
         "judge_verdicts": judge,
         "calibrated": len(outcomes),
+        "uncalibrated": sum(
+            1 for e in evs if e["event"] == "judge" and str(e.get("event_id")) not in {
+                str(c.get("ref")) for c in evs if c["event"] == "calibrate"
+            }
+        ),
         "judge_agreement_pct": round(agree / len(outcomes) * 100.0, 1)
         if outcomes
         else None,

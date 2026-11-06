@@ -176,8 +176,8 @@ def builtin_review(
     return "approve", []
 
 
-def _record_judge(verdict: str) -> None:
-    eid = metrics.record("judge", verdict=verdict)
+def _record_judge(verdict: str, context: dict | None = None) -> None:
+    eid = metrics.record("judge", verdict=verdict, **(context or {}))
     if eid:
         print(
             f"  · judge event {eid} — calibrate: ./harness metrics --calibrate {eid} approve|reject",
@@ -189,6 +189,7 @@ def approve(
     diff_text: str,
     target_content: str = "",
     added_text: str | None = None,
+    context: dict | None = None,
 ) -> bool:
     """Return True if the promotion is approved (builtin judge + optional LLM)."""
     verdict, reasons = builtin_review(diff_text, target_content, added_text)
@@ -197,14 +198,14 @@ def approve(
         for r in reasons:
             print(f"  ⚠ {r}", file=sys.stderr)
     if verdict == "reject":
-        _record_judge("reject")
+        _record_judge("reject", context)
         print("review verdict: REJECT (builtin)")
         return False
 
     llm = llm_verdict(diff_text)
     if llm is not None:
         final = _worst(verdict, llm)
-        _record_judge(final)
+        _record_judge(final, context)
         print(f"review verdict: {final.upper()}")
         return final == "approve"
 
@@ -230,7 +231,7 @@ def approve(
     except (EOFError, KeyboardInterrupt):
         print("(no input — holding)", file=sys.stderr)
         return False
-    _record_judge("approve" if ans in ("a", "approve", "y", "yes") else "reject")
+    _record_judge("approve" if ans in ("a", "approve", "y", "yes") else "reject", context)
     return ans in ("a", "approve", "y", "yes")
 
 

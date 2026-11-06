@@ -652,7 +652,9 @@ def apply_all(
                 print("nothing to review — no pending changes.")
             return 0
         if not reviewer.approve(
-            "\n\n".join(diffs), target_content="\n\n".join(old_texts)
+            "\n\n".join(diffs),
+            target_content="\n\n".join(old_texts),
+            context={"entries": [e.get("id") for e in pending]},
         ):
             if json_out:
                 print(

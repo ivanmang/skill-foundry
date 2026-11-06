@@ -152,7 +152,9 @@ def main(argv: list[str] | None = None) -> int:
         return 2
 
     # ── review (mandatory): builtin judge + optional LLM + interactive fallback ──
-    if not reviewer.approve(f"# promote skill: {name}\n\n{body}", added_text=body):
+    if not reviewer.approve(
+        f"# promote skill: {name}\n\n{body}", added_text=body, context={"name": name}
+    ):
         if args.json:
             print(
                 json.dumps(

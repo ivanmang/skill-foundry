@@ -26,6 +26,11 @@ def _render(s: dict) -> str:
         )
     else:
         lines.append("judge agreement: n/a (no calibrated verdicts yet)")
+    if s.get("uncalibrated"):
+        lines.append(
+            f"uncalibrated verdicts: {s['uncalibrated']} "
+            f"— list: ./harness metrics --pending"
+        )
     return "\n".join(lines)
 
 
@@ -43,6 +48,11 @@ def main(argv: list[str] | None = None) -> int:
         choices=["approve", "reject"],
         help="Human outcome (requires --calibrate).",
     )
+    ap.add_argument(
+        "--pending",
+        action="store_true",
+        help="List uncalibrated judge events, then exit.",
+    )
     args = ap.parse_args(argv)
 
     if args.calibrate:
@@ -51,6 +61,20 @@ def main(argv: list[str] | None = None) -> int:
             return 2
         metrics.record("calibrate", ref=args.calibrate, outcome=args.outcome)
         print(f"recorded {args.outcome} for judge event {args.calibrate}")
+        return 0
+
+    if args.pending:
+        unc = metrics.uncalibrated()
+        if not unc:
+            print("no uncalibrated judge events.")
+            return 0
+        for j in unc:
+            ctx = j.get("entries") or j.get("name") or ""
+            print(f"  {j['event_id']}  {j.get('verdict', '?'):<8}  {j.get('ts', '')}  {ctx}")
+        print(
+            "\ncalibrate: ./harness metrics --calibrate <event_id> "
+            "--outcome approve|reject"
+        )
         return 0
 
     print(_render(metrics.summarize()))
