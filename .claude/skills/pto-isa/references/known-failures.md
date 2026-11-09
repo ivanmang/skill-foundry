@@ -85,16 +85,16 @@ Classify a failure against these before treating it as new. Format:
 - Fix: triage backlog — treat as a pto-isa numeric issue; re-run to confirm stability before attributing to camodel.
 - Seen in: 2026-11-05 npu-sim-a5
 
-### `TREMSTest.case1` gtest failure (npu-sim-a5) — true regression
-- Symptoms: `trems` host assertion fails at `tests/npu/a5/src/st/testcase/trems/main.cpp:119` (`[ FAILED ] TREMSTest.case1`, ~17.8s); numeric/assertion mismatch, not a crash.
-- Cause: unknown — the only PASS→FAIL diff vs the pinned baseline.
-- Fix: triage the comparison at `main.cpp:119` (expected vs actual); check the device `rem`/reduce path for a numeric change.
+### `TREMSTest.case1` numeric flake (npu-sim-a5) — unreproduced in isolation
+- Symptoms: `trems` host assertion at `main.cpp:119` (`[ FAILED ] TREMSTest.case1`) in the full 2026-11-06 run; PASSES in isolation (10/10: 4 unseeded + 6 fixed-seed sweeps).
+- Cause: not a code regression — most likely a run-order/environment interaction (camodel/device state leak after ~2700 prior a5 cases). `gen_data.py` is unseeded and uses near-float32-max operands for a 0.001-absolute-tol remainder, so the test is weakly non-deterministic.
+- Fix: re-run the full a5 suite to reproduce the run-order interaction; separately seed `gen_data.py` and constrain the value range (pto-isa change).
 - Seen in: 2026-11-06 npu-sim-a5 full (20261105-172537)
 
 ### `tgather` SIGABRT (a5) / SIGSEGV (a3)
-- Symptoms: `tgather` dies with SIGABRT on npu-sim-a5 and SIGSEGV on npu-sim-a3 (gather/index testcase; NOT the ScheTop `thrId` crash).
-- Cause: unknown — likely index/UB out-of-bounds in the gather kernel on the simulator.
-- Fix: triage the gather kernel index bounds; compare against the `index/gather` tiling reference.
+- Symptoms: `tgather` dies with SIGABRT on a5 at `TGATHERTest.case16_float_gt_neg_typedk`, and SIGSEGV on a3 at `TGATHERTest.case_1D_float_32x1024_16x64` (both float gathers; NOT the ScheTop `thrId` crash).
+- Cause: unknown — likely an index-edge/out-of-bounds in the float gather path (the `case16_*_gt_neg_*` name hints at negative/out-of-range index testing).
+- Fix: re-run each case in isolation to confirm deterministic; triage the TGATHER tile config for those shapes/dtypes.
 - Seen in: 2026-11-06 npu-sim-a5 + npu-sim-a3 full (20261105-172537)
 
 ## Adding an entry
