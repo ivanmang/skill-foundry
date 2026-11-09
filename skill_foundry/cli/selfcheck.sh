@@ -14,6 +14,14 @@ echo "== bash syntax =="
 bash -n harness skill_foundry/workflow/baseline.sh skill_foundry/cli/selfcheck.sh \
   demo/run_demo.sh completions/harness.bash mcp/*.sh
 
+echo "== ruff (check + format) =="
+if ! command -v ruff >/dev/null; then
+  echo "  ✗ ruff not found — install with: pip install 'ruff==0.15.0'" >&2
+  exit 1
+fi
+ruff check .
+ruff format --check .
+
 echo "== skill spec conformance (strict: repo metadata required) =="
 python3 -m skill_foundry.lib.validate_skills --strict
 

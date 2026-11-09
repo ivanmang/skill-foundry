@@ -27,6 +27,7 @@ jobs:
         with:
           python-version: "3.11"
           cache: pip
+      - run: pip install "ruff==0.15.0"
       - name: Run canonical self-check
         run: ./skill_foundry/cli/selfcheck.sh
 
