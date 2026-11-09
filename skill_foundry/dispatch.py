@@ -24,6 +24,7 @@ VERB_MODULES: dict[str, tuple[str, list[str] | None]] = {
     "capture-session": ("skill_foundry.cli.capture_session", None),
     "promote": ("skill_foundry.cli.promote", None),
     "skills": ("skill_foundry.cli.skills", None),
+    "learnings": ("skill_foundry.cli.learnings", None),
     "metrics": ("skill_foundry.cli.metrics", None),
     # shell
     "menu": ("skill_foundry.cli.menu", None),
