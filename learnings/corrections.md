@@ -39,3 +39,7 @@ what changed, and why.
 ## 2026-11-06 — pto-isa
 - Promoted: LRN-20261106-001..005 (merged into one "Long runs & monitoring" section of suite-matrix.md).
 - Action: documented completion detection (run.json + EXITCODE), 16h+ runtime expectation, log-growth liveness, and a6-skip-as-expected in references/suite-matrix.md.
+
+## 2026-11-09 — pto-isa
+- Promoted: 20 entries (merged) → new references/porting-and-compliance.md + cpu-st /tmp entry in known-failures.md.
+- Rejected: 16 entries (duplicates of already-promoted trems/tgather/long-runs/ruff/multi-user/a6-skip knowledge).

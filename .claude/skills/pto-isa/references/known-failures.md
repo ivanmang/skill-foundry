@@ -97,6 +97,12 @@ Classify a failure against these before treating it as new. Format:
 - Fix: re-run each case in isolation to confirm deterministic; triage the TGATHER tile config for those shapes/dtypes.
 - Seen in: 2026-11-06 npu-sim-a5 + npu-sim-a3 full (20261105-172537)
 
+### `cpu_target` gtest SIGABRT on `/tmp` (cpu-st, root fs full)
+- Symptoms: cpu-st suite marked FAIL; the `cpu_target` gtest binary SIGABRTs creating `/tmp/gtest_captured_stream.*` (root fs 100% full).
+- Cause: environment — root filesystem full; not a test regression.
+- Fix: free `/tmp`/root fs (clean deleted-but-open files) before cpu-st runs.
+- Seen in: 2026-11-06 cpu-st full (20261105-172537)
+
 ## Adding an entry
 
 Append, don't overwrite. Keep the signature greppable (first error line) so the

@@ -36,3 +36,4 @@ deliberately rejected with a reason).
 - LRN-20261106-003 — pto-isa — npu-sim-a6 auto-skip is an expected env limitation, not a regression.
 - LRN-20261106-004 — pto-isa — the nohup wrapper appends EXITCODE only on process exit; check it together with pgrep DONE.
 - LRN-20261106-005 — pto-isa — log line-growth over ~60s confirms liveness on long sim runs.
+- 2026-11-09 batch (20) — pto-isa — OAT/license wording + year, trailing newline, oat-check, CMakeLists.txt plural, header-filename match, squash+force-push, A6 TLOAD/TSTORE->pto_copy_align_v2, TCvt.hpp wrapper, cpu-st /tmp env, baseline drift, disk cleanup, extract-filters-from-log, capture dedupe limitation. → references/porting-and-compliance.md.

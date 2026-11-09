@@ -340,3 +340,399 @@ write entries; `skill_foundry/cli/promote.py` parses and promotes them.
 - action: pto-isa monitoring docs
 - status: promoted
 
+
+## LRN-20261106-161702-f2423987
+- id: LRN-20261106-161702-f2423987
+- category: knowledge_gap
+- context: pto-isa ecs run 20261105-172537
+- skill: pto-isa
+- wrong: npu-sim-a5 suite summary reports 10 failures but run.json case list has only 9 FAIL entries
+- correct: extract failing filters from the per-suite log not run.json case list to avoid missing failures
+- action: update known-failures
+- status: promoted
+
+
+## LRN-20261106-161702-d20743a1
+- id: LRN-20261106-161702-d20743a1
+- category: knowledge_gap
+- context: cpu-st suite on ecs
+- skill: pto-isa
+- wrong: gtest binary SIGABRT on /tmp because root fs full makes cpu-st FAIL despite 3/3 passing
+- correct: attribute cpu-st failure to environment when root fs is full; not a test regression
+- action: update known-failures
+- status: promoted
+
+
+## LRN-20261106-161702-338b6066
+- id: LRN-20261106-161702-338b6066
+- category: feature
+- context: npu-sim-a6 on ecs
+- skill: pto-isa
+- wrong: suite auto-skipped because CANN lacks compile headers and simulator dav_9201 is missing
+- correct: treat npu-sim-a6 skip as expected
+- action: update known-failures
+- status: rejected
+
+
+## LRN-20261106-161702-50a5aee5
+- id: LRN-20261106-161702-50a5aee5
+- category: knowledge_gap
+- context: pto-isa review baseline
+- skill: pto-isa
+- wrong: review diff shows 1844 removed and 41 new indicating reports/baseline/pto-isa.json is stale
+- correct: refresh baseline before trusting review diff; single flagged regression trems may be due baseline drift
+- action: update known-failures
+- status: promoted
+
+
+## LRN-20261109-115844-e9d2afd4
+- id: LRN-20261109-115844-e9d2afd4
+- category: correction
+- context: new testcase files
+- skill: pto-isa
+- wrong: cases.h filename mismatch: test had case.h (singular) but main.cpp and kernel included cases.h (plural)
+- correct: match the header filename to what sources include (cases.h) and mirror sibling testcases
+- action: update pto-isa known-failures
+- status: promoted
+
+
+## LRN-20261109-115844-629f0bc6
+- id: LRN-20261109-115844-629f0bc6
+- category: error
+- context: adding subdirectory in CMake
+- skill: pto-isa
+- wrong: CMakeList.txt (singular) silently ignored by add_subdirectory
+- correct: must be named CMakeLists.txt (plural) to be discovered
+- action: update pto-isa known-failures
+- status: promoted
+
+
+## LRN-20261109-115844-192947c0
+- id: LRN-20261109-115844-192947c0
+- category: feature
+- context: license headers in new files
+- skill: pto-isa
+- wrong: OAT hook rejected headers using "You should not use this file" and missing comma in "MERCHANTABILITY OR FITNESS"
+- correct: use canonical wording "You may not use this file" and "MERCHANTABILITY, OR FITNESS" on one line
+- action: update pto-isa known-failures
+- status: promoted
+
+
+## LRN-20261109-115844-7dd5f4a7
+- id: LRN-20261109-115844-7dd5f4a7
+- category: knowledge_gap
+- context: pre-commit OAT scan scope
+- skill: pto-isa
+- wrong: OAT check missed license issues in #-comment files (gen_data.py, CMakeLists.txt) yet still requires them compliant
+- correct: run oat-check manually and fix license wording even in files OAT didn't flag in the log
+- action: update pto-isa known-failures
+- status: promoted
+
+
+## LRN-20261109-115844-b983190f
+- id: LRN-20261109-115844-b983190f
+- category: correction
+- context: A6 vec-core kernel DMA
+- skill: pto-isa
+- wrong: kernel used PTO TLOAD/TSTORE wrappers, which CMakeLists says do not lower correctly for dav-920r1-vec
+- correct: use raw pto_copy_gm_to_ubuf_align_v2 / pto_copy_ubuf_to_gm_align_v2 intrinsics directly, length in bytes
+- action: update pto-isa known-failures
+- status: promoted
+
+
+## LRN-20261109-115844-b9fc550b
+- id: LRN-20261109-115844-b9fc550b
+- category: error
+- context: pre-commit end-of-file-fixer
+- skill: pto-isa
+- wrong: main.cpp missing trailing newline at EOF failed the hook
+- correct: ensure every file ends with exactly one newline before pushing
+- action: update pto-isa known-failures
+- status: promoted
+
+
+## LRN-20261109-115844-f895e8a1
+- id: LRN-20261109-115844-f895e8a1
+- category: feature
+- context: PR squashing before merge
+- skill: pto-isa
+- wrong: reviewer required the whole PR squashed into one single commit on master
+- correct: cherry-pick or squash all PR changes into one commit and force-push
+- action: update pto-isa known-failures
+- status: promoted
+
+
+## LRN-20261109-115916-4bb42856
+- id: LRN-20261109-115916-4bb42856
+- category: knowledge_gap
+- context: pto-isa full regression 22h run
+- skill: pto-isa
+- wrong: run.json is written only at completion so the newest run.json can be stale
+- correct: trust results only when workflow.run pgrep empty and the nohup wrapper has appended EXITCODE
+- action: pto-isa/references/suite-matrix.md Long runs and monitoring section
+- status: rejected
+
+
+## LRN-20261109-115916-053889fe
+- id: LRN-20261109-115916-053889fe
+- category: knowledge_gap
+- context: pto-isa full regression
+- skill: pto-isa
+- wrong: full --all-suites run can exceed 16h and look stuck
+- correct: plan a long window or use --parallel and re-poll
+- action: pto-isa/references/suite-matrix.md
+- status: rejected
+
+
+## LRN-20261109-115916-e357cb36
+- id: LRN-20261109-115916-e357cb36
+- category: knowledge_gap
+- context: pto-isa full regression
+- skill: pto-isa
+- wrong: npu-sim-a6 auto-skip was mistaken for a regression
+- correct: npu-sim-a6 skip is an expected environment limitation not a regression
+- action: pto-isa/references/suite-matrix.md cross-ref cann-matrix
+- status: rejected
+
+
+## LRN-20261109-115916-dedd6cfa
+- id: LRN-20261109-115916-dedd6cfa
+- category: knowledge_gap
+- context: pto-isa full regression
+- skill: pto-isa
+- wrong: absence of suite markers makes a long run look stuck
+- correct: confirm liveness by log line growth over about 60 seconds
+- action: pto-isa/references/suite-matrix.md
+- status: rejected
+
+
+## LRN-20261109-115916-409029e7
+- id: LRN-20261109-115916-409029e7
+- category: knowledge_gap
+- context: pto-isa full regression
+- skill: pto-isa
+- wrong: nohup wrapper appends EXITCODE only on process exit
+- correct: combine EXITCODE presence with empty pgrep as the reliable completion signal
+- action: pto-isa/references/suite-matrix.md
+- status: rejected
+
+
+## LRN-20261109-115916-5f603e40
+- id: LRN-20261109-115916-5f603e40
+- category: correction
+- context: ecs a5 full regression TREMSTest
+- skill: pto-isa
+- wrong: trems case1 was reported as a true PASS to FAIL regression
+- correct: 10 isolated passes and 6 seed-sweep passes all succeeded so reclassify as unreproduced suspect run-order or env state plus separate minor defect of unseeded gen_data and ill-conditioned float32 rem
+- action: known-failures.md TREMSTest.case1 entry
+- status: rejected
+
+
+## LRN-20261109-115916-b7bb757b
+- id: LRN-20261109-115916-b7bb757b
+- category: correction
+- context: ecs a5 a3 regression tgather
+- skill: pto-isa
+- wrong: tgather crash was blamed on the int64 guard kernel
+- correct: actual crashing cases are float gathers a5 TGATHERTest.case16_float_gt_neg_typedk and a3 TGATHERTest.case_1D_float_32x1024_16x64
+- action: known-failures.md tgather entry
+- status: rejected
+
+
+## LRN-20261109-115916-305dfb43
+- id: LRN-20261109-115916-305dfb43
+- category: correction
+- context: CI lint gate
+- skill: skill-foundry
+- wrong: editing py files without running ruff format left 5 unformatted files and failed CI
+- correct: always run ruff format . or make check before pushing because CI enforces both ruff check and ruff format --check
+- action: selfcheck.sh and development workflow docs
+- status: rejected
+
+
+## LRN-20261109-115916-da91b998
+- id: LRN-20261109-115916-da91b998
+- category: feature
+- context: multi-user learnings concurrency
+- skill: skill-foundry
+- wrong: LRN ids from per-file counter could collide for teammates and same-day promote branches could clash
+- correct: use LRN-YYYYMMDD-HHMMSS-random-hex ids and unique date-rand branch names plus force-with-lease push
+- action: log_correction.py session_digest.py promote.py status.py
+- status: rejected
+
+
+## LRN-20261109-115916-8025e492
+- id: LRN-20261109-115916-8025e492
+- category: knowledge_gap
+- context: background ecs worker auto-capture
+- skill: skill-foundry
+- wrong: worker re-captured knowledge already promoted creating a duplicate 16-entry batch
+- correct: auto-capture should check promoted.md or the target doc before capture because dedupe only happens at promote time
+- action: teach auto-capture path
+- status: promoted
+
+
+## LRN-20261109-120216-3890b3f5
+- id: LRN-20261109-120216-3890b3f5
+- category: error
+- context: OAT pre-commit check
+- skill: pto-isa
+- wrong: new files used "You should not use this file" and "MERCHANTABILITY OR FITNESS" without comma
+- correct: use canonical header "You may not use this file except in compliance with the License" and "MERCHANTABILITY, OR FITNESS"
+- action: known-failures for OAT compliance
+- status: promoted
+
+
+## LRN-20261109-120216-a7ed0ddf
+- id: LRN-20261109-120216-a7ed0ddf
+- category: error
+- context: pre-commit end-of-file-fixer
+- skill: pto-isa
+- wrong: main.cpp failed CI for missing trailing newline at EOF
+- correct: every source file needs a trailing newline before commit run pre-commit end-of-file-fixer
+- action: known-failures
+- status: promoted
+
+
+## LRN-20261109-120216-6ebfcabd
+- id: LRN-20261109-120216-6ebfcabd
+- category: feature
+- context: A6 vec-core kernel on dav-920r1-vec
+- skill: pto-isa
+- wrong: kernel used TLOAD/TSTORE wrappers for GM-UB transfer
+- correct: TLOAD/TSTORE do not lower correctly for A6 use pto_copy_gm_to_ubuf_align_v2 and pto_copy_ubuf_to_gm_align_v2 with lenBurst in bytes per tload_common.hpp
+- action: A6 kernel dev guidance or known-failures
+- status: promoted
+
+
+## LRN-20261109-120216-72aafa3f
+- id: LRN-20261109-120216-72aafa3f
+- category: error
+- context: CMake add_subdirectory
+- skill: pto-isa
+- wrong: testcase dir had CMakeList.txt singular and was silently skipped
+- correct: file must be CMakeLists.txt plural for add_subdirectory to resolve
+- action: known-failures
+- status: promoted
+
+
+## LRN-20261109-120216-f0beacf4
+- id: LRN-20261109-120216-f0beacf4
+- category: error
+- context: header include mismatch
+- skill: pto-isa
+- wrong: new file named case.h singular but sources included cases.h plural
+- correct: match header filename to include name sibling dirs use cases.h
+- action: known-failures
+- status: promoted
+
+
+## LRN-20261109-120216-0714a751
+- id: LRN-20261109-120216-0714a751
+- category: correction
+- context: OAT license header year
+- skill: pto-isa
+- wrong: new file kept old year 2025 in license
+- correct: new files get current year 2026 in header
+- action: known-failures
+- status: promoted
+
+
+## LRN-20261109-120216-3c262bd3
+- id: LRN-20261109-120216-3c262bd3
+- category: knowledge_gap
+- context: adding A6 header include
+- skill: pto-isa
+- wrong: needed A6 TCvt support
+- correct: mirror a5/TCvt.hpp as thin wrapper since tcvt_common.hpp is shared update header.hpp include from a5/TCvt.hpp to a6/TCvt.hpp
+- action: A6 porting notes
+- status: promoted
+
+
+## LRN-20261109-120238-ac375085
+- id: LRN-20261109-120238-ac375085
+- category: correction
+- context: GitHub CI lint failed ruff format --check
+- skill: pto-isa
+- wrong: After editing .py files without running ruff format, CI reported 5 files would be reformatted
+- correct: Always run make check or ruff format . after any .py edit before pushing; CI enforces ruff check and ruff format --check
+- action: Update developer workflow docs; selfcheck.sh must run ruff format --check
+- status: rejected
+
+
+## LRN-20261109-120238-19f896e0
+- id: LRN-20261109-120238-19f896e0
+- category: feature
+- context: concurrent learnings capture in multi-user hub
+- skill: pto-isa
+- wrong: Per-file LRN-YYYYMMDD-NNN counter caused id collisions; same-day branch names clashed; plain push could clobber
+- correct: Use LRN-YYYYMMDD-HHMMSS-8hex ids, unique feat/learnings-date-6hex branches, and git fetch plus push --force-with-lease before promote
+- action: Update promote and teach code docs
+- status: rejected
+
+
+## LRN-20261109-120238-1014b7bc
+- id: LRN-20261109-120238-1014b7bc
+- category: knowledge_gap
+- context: long full pto-isa regression run
+- skill: pto-isa
+- wrong: run.json is written only at completion, so newest run.json misleads until process exits; full all-suites can run over 16h
+- correct: Wait for pgrep empty and EXITCODE appended; confirm liveness by log line-growth over 60s; plan long window or parallel
+- action: pto-isa/references/suite-matrix.md Long runs and monitoring
+- status: rejected
+
+
+## LRN-20261109-120238-890cb0d7
+- id: LRN-20261109-120238-890cb0d7
+- category: knowledge_gap
+- context: ecs full regression environment
+- skill: pto-isa
+- wrong: cpu-st FAIL was SIGABRT caused by root fs 100 percent full with deleted open files holding about 30G
+- correct: Clean deleted open files and ensure tmp space before regression; treat as environmental not suite failure
+- action: pto-isa env doc or known-failures.md
+- status: promoted
+
+
+## LRN-20261109-120238-00f0ec94
+- id: LRN-20261109-120238-00f0ec94
+- category: correction
+- context: trems TREMSTest.case1 regression triage
+- skill: pto-isa
+- wrong: PASS to FAIL looked like true regression but isolated runs passed 10 of 10; gen_data.py lacks seed and uses near-float32-max operands with 0.001 absolute tolerance
+- correct: Reclassify as run-order or environment interaction not code regression; seed gen_data and constrain value range in pto-isa test
+- action: known-failures.md trems entry
+- status: rejected
+
+
+## LRN-20261109-120238-983ddc98
+- id: LRN-20261109-120238-983ddc98
+- category: knowledge_gap
+- context: tgather crash triage
+- skill: pto-isa
+- wrong: tgather crashed SIGABRT on a5 and SIGSEGV on a3 but case names were unknown
+- correct: Record confirmed cases TGATHERTest.case16_float_gt_neg_typedk and TGATHERTest.case_1D_float_32x1024_16x64; crash is float gather path not int64 guard
+- action: known-failures.md tgather entry
+- status: rejected
+
+
+## LRN-20261109-120238-56c75437
+- id: LRN-20261109-120238-56c75437
+- category: knowledge_gap
+- context: npu-sim-a6 regression run
+- skill: pto-isa
+- wrong: npu-sim-a6 skipped during full regression
+- correct: Expected environment limitation, not regression; see cann-matrix
+- action: known-failures.md or env doc
+- status: rejected
+
+
+## LRN-20261109-120238-ac5dec29
+- id: LRN-20261109-120238-ac5dec29
+- category: knowledge_gap
+- context: capture and promote loop
+- skill: pto-isa
+- wrong: teach appends recent.md but does not commit or promote; background worker captured redundant already-promoted knowledge
+- correct: Require explicit promote steps and check promoted.md before capture to avoid duplicate pending entries
+- action: harness docs and capture code
+- status: promoted
+
