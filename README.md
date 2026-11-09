@@ -4,7 +4,7 @@
 
 A **skill-ops platform** built on open Agent Skills (`SKILL.md`): agents and
 humans capture reusable knowledge as Skills during work, and it flows — through
-a reviewed promote step (`--pr` MR) — into a shared hub every
+a reviewed promote step (`--pr` PR) — into a shared hub every
 teammate's agent can discover and use.
 
 The first bundled workflow is **regression** (`run → report → review` on the
@@ -27,15 +27,15 @@ The first bundled workflow is **regression** (`run → report → review` on the
 
 ```text
 USE      run → report → review     (thin scripts · diff vs pinned baseline)
-IMPROVE  teach → promote --pr                 (corrections → skills via a reviewed MR)
+IMPROVE  teach → promote --pr                 (corrections → skills via a reviewed PR)
 ```
 
 - **USE** — the bundled regression workflow: run suites, extract logs, render
   reports, and diff against the pinned baseline. Run directly:
   `python3 -m skill_foundry.workflow.run --all-suites --report --open --review`.
 - **IMPROVE** — the product loop: capture a correction (append-only), propose a
-  diff (no write), then publish via a reviewed MR. Capture is automatic; the
-  only publish path is `--pr`, and a human merges the MR.
+  diff (no write), then publish via a reviewed PR. Capture is automatic; the
+  only publish path is `--pr`, and a human merges the PR.
 
 See both loops in ~2 minutes: `python3 -m skill_foundry.workflow.demo`.
 
@@ -72,7 +72,7 @@ cd skill-foundry
 ./harness capture-skill code-review                # draft a new skill (then add category/origin/owner)
 ./harness promote-skill code-review --pr           # publish the draft (see docs/CREATING_SKILLS.md)
 ./harness teach "symptom -> correct -> action"     # log a correction
-./harness promote --pr                             # publish learnings (open an MR; human merges)
+./harness promote --pr                             # publish learnings (open a PR; human merges)
 
 # the bundled regression workflow (thin scripts; see .claude/skills/):
 python3 -m skill_foundry.workflow.onboarding            # env.sh, CANN, pto-isa (one-time)
@@ -210,15 +210,15 @@ BUNDLED WORKFLOW — regression, run directly (the skills reference these):
 | Role | What it does |
 |---|---|
 | 🟢 **scripts (automatic, agent-driven)** | run, extract logs, report, review, dry-run previews |
-| 🟢 **harness (automatic, gated + LLM-reviewed)** | capture a correction, propose a diff, then apply + commit + push on a branch (add-only · no-secrets · size; LLM judge APPROVEs first); `--pr` opens an MR a human merges |
+| 🟢 **harness (automatic, gated + LLM-reviewed)** | capture a correction, propose a diff, then apply + commit + push on a branch (add-only · no-secrets · size; LLM judge APPROVEs first); `--pr` opens a PR a human merges |
 | 🤖 **AI / agent (on trigger)** | auto-captures when you correct it (`"no / actually / remember …"`); triages per the skill |
-| 🟡 **you (gate)** | the triage *content* (`wrong → correct → action`) and merging the MR (`--pr` only) |
+| 🟡 **you (gate)** | the triage *content* (`wrong → correct → action`) and merging the PR (`--pr` only) |
 | 🔴 **never automatic** | remove or change an existing check |
 
 **Why the line is there:** auto-*append* is safe (scratch memory, cheap to
 discard); auto-*edit* is not (`SKILL.md` + `known-failures.md` are the shared
 source of truth every run reads). So promotion only *adds* — after the mandatory
-gates and an LLM judge APPROVE, `--pr` opens an MR that a human merges.
+gates and an LLM judge APPROVE, `--pr` opens a PR that a human merges.
 
 ---
 
@@ -265,7 +265,7 @@ env.example.sh            copy to env.sh for machine-local CANN / pto-isa paths
 - Perf regression flag: **p99 +15%** even if average is stable.
 - The 11 existing `pto-isa/agents/skills` are kept as-is (referenced, not migrated).
 - M1 scope = **CPU-ST + NPU-sim** (A5 / A3 / A6, matching the A6/v200 workflow).
-- **Automation boundary**: capture auto; promotion `--pr` MR-gated only (no
+- **Automation boundary**: capture auto; promotion `--pr` PR-gated only (no
   `--direct`, no auto-merge); never auto-remove/change an existing check.
 
 ---
@@ -311,7 +311,7 @@ Capture is automated; publication is **gated, LLM-reviewed, and human-merged** �
 every promote runs the mandatory gates (add-only · no-secrets · size · spec)
 *and* an LLM judge (`SKILL_REVIEWER`) before applying. There is no escape hatch:
 review cannot be skipped and the gates cannot be bypassed. `--pr` then opens an
-MR that a human merges after CI is green.
+PR that a human merges after CI is green.
 
 ```bash
 # 1. capture (strict LRN-… entry in learnings/recent.md)
@@ -325,16 +325,17 @@ MR that a human merges after CI is green.
 
 # 3. publish — gated + LLM-reviewed, human-merged (judge APPROVEs first)
 ./harness promote --pr
-#    (opens an MR; a human merges after CI + review pass)
+#    (opens a PR; a human merges after CI + review pass)
 #    (review is mandatory: set SKILL_REVIEWER or run interactively)
 ```
 
-> **⚠️ Strongly recommended — GH_TOKEN (GitHub) / GITCODE_TOKEN (GitCode):** set
-> `export GH_TOKEN=…` (a GitHub personal access token) in `env.sh`, or run `gh auth login`,
-> so `--pr` creates the PR itself. On GitCode set `GITCODE_TOKEN=…` instead. It's optional
-> — if unset the agent pushes the branch and prints a manual PR-new URL — but every `--pr`
-> run will print a loud reminder to add it.
-> Details: `.claude/skills/skill-maintainer/references/mr-automation.md`.
+> **⚠️ Strongly recommended — `GH_TOKEN` (GitHub):** set `export GH_TOKEN=…`
+> (a GitHub personal access token) in `env.sh`, or run `gh auth login`, so `--pr`
+> creates the PR itself. It's optional — if unset the agent pushes the branch and
+> prints a manual PR-new URL — but every `--pr` run prints a reminder to add it.
+> (For an *external gitcode-origin* repo, set `GITCODE_TOKEN` instead — the agent
+> auto-detects the remote host. See the footnote in
+> `.claude/skills/skill-maintainer/references/pr-automation.md`.)
 
 See `.claude/skills/skill-maintainer/SKILL.md` and the live walkthrough:
 `python3 -m skill_foundry.workflow.demo` (narration in `demo/NARRATION.md`).
@@ -353,4 +354,4 @@ See `.claude/skills/skill-maintainer/SKILL.md` and the live walkthrough:
 | `baseline` refuses to pin | a suite didn't PASS — fix it, or `--force` |
 | `report --open` → xdg-open errors / no browser | handled: WSL opens via `explorer.exe`; else prints the path |
 | skills not showing up in the agent | run `./harness skills --install`, then restart/reload the agent |
-| `--pr` printed a PR-new URL instead of creating it | set `export GH_TOKEN=<github token>` (or `gh auth login`) in `env.sh` — for GitCode set `GITCODE_TOKEN` — see `skill-maintainer/references/mr-automation.md` |
+| `--pr` printed a PR-new URL instead of creating it | set `export GH_TOKEN=<github token>` (or `gh auth login`) in `env.sh` — see `.claude/skills/skill-maintainer/references/pr-automation.md` |

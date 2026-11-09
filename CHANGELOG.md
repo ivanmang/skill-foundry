@@ -36,7 +36,7 @@ All notable changes to skill-foundry are documented here, following
 
 ## [0.6.0] - 2026-11-05
 
-- Skill-ops platform: capture → promote → hub → discover loop with MR-gated,
+- Skill-ops platform: capture → promote → hub → discover loop with PR-gated,
   LLM-judged promotion.
 - Bundled regression workflow (run → extract → report → review) for `pto-isa`,
   `pto-vmi`, and `tilelangGym` targets.

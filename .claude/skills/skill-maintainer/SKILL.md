@@ -58,8 +58,8 @@ Show the exact diff (add-only — never modify/remove an existing line).
 
 Mark the entry `status: promoted`, append a line to `learnings/promoted.md`,
 commit on a `feat/learnings-<date>` branch and `git push`. The agent
-auto-creates the MR (gitcode v5 API, needs `GITCODE_TOKEN`); a human merges it —
-see `references/mr-automation.md`.
+auto-creates the PR on GitHub (via `gh`/`GH_TOKEN`); a human merges it —
+see `references/pr-automation.md`.
 
 ## Accelerator (optional — if skill-foundry is checked out)
 
@@ -67,11 +67,11 @@ The same loop as one command each (gates + LLM judge are built in):
 
 ```bash
 ./harness teach "wrong -> correct -> action"   # capture (wizard / shorthand / --edit)
-./harness learn "wrong -> correct -> action"   # capture + promote (--pr opens the MR)
+./harness learn "wrong -> correct -> action"   # capture + promote (--pr opens the PR)
 ./harness capture-session [--session X.jsonl]   # draft learnings from a pi session transcript
 ./harness promote --propose                    # diff, no write
 ./harness promote --apply                      # write locally (no commit)
-./harness promote --pr                         # branch + push + auto-open an MR (human merges)
+./harness promote --pr                         # branch + push + auto-open a PR (human merges)
 python3 -m skill_foundry.lib.session_digest --run reports/<id>/run.json --apply   # draft from a run
 ```
 
@@ -85,10 +85,10 @@ export SKILL_REVIEWER="pi -p --no-tools --no-extensions --no-skills --no-context
 ```
 
 Publishing is strict: review is mandatory, the gates cannot be bypassed, and the
-only publish path is `--pr` (a human merges). The agent auto-creates the MR via
-the gitcode v5 API using `GITCODE_TOKEN` — see
-[references/mr-automation.md](references/mr-automation.md) for the options and
-the exact endpoint.
+only publish path is `--pr` (a human merges). The agent auto-creates the PR on
+GitHub via `gh`/`GH_TOKEN` — see
+[references/pr-automation.md](references/pr-automation.md) for the options and
+the exact endpoint (and the GitCode footnote for external repos).
 
 ## Session-end auto-capture (pi)
 

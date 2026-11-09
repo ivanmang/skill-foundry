@@ -10,7 +10,7 @@ docs/USER_JOURNEY.md is the narrative walkthrough.)
 
 A shared, self-improving skill-foundry built on open **Agent Skills**
 (`SKILL.md`). One entry point — `./harness help` — points at the two loops:
-**run → report → review** (the USE loop, thin scripts) and **teach → promote → MR**
+**run → report → review** (the USE loop, thin scripts) and **teach → promote → PR**
 (the IMPROVE loop, the harness).
 
 ```text
@@ -48,9 +48,9 @@ regression thresholds.
 | Role | What it does |
 |---|---|
 | 🟢 **thin scripts (automatic, agent-driven)** | run suites, extract logs, report, review, dry-run previews |
-| 🟢 **harness (automatic, gated + LLM-reviewed)** | capture a correction, propose a diff, apply + commit + push on a branch, open an MR |
+| 🟢 **harness (automatic, gated + LLM-reviewed)** | capture a correction, propose a diff, apply + commit + push on a branch, open a PR |
 | 🤖 **AI / agent (automatic, on trigger)** | auto-captures a correction when you correct it (`"no / actually / remember …"`) and replies with the `LRN-…` id; triages per the skill |
-| 🟡 **you (remote gate)** | the triage *content* (`wrong → correct → action`) and **merging the MR on the remote** (branch protection) |
+| 🟡 **you (remote gate)** | the triage *content* (`wrong → correct → action`) and **merging the PR on the remote** (branch protection) |
 | 🔴 **never automatic** | remove or change an existing check |
 
 **Why the line is drawn there:** auto-*append* is safe — `learnings/recent.md`
@@ -254,7 +254,7 @@ corpus that changes only through the gates + review (a green-CI `--pr`).
 ## Glossary
 
 - **Baseline** — the pinned `reports/baseline/<target>.json`; the reference a run is diffed against (per target; cross-target diffs are refused).
-- **MR (merge request)** — the gated step for `--pr`: the gates + an LLM judge run, then a human merges it after CI is green.
+- **PR (pull request)** — the gated step for `--pr`: the gates + an LLM judge run, then a human merges it after CI is green.
 - **LRN-…** — a learning entry id (`LRN-YYYYMMDD-NNN`) in `learnings/recent.md`.
 - **Known failure** — a failure already triaged and recorded in `known-failures.md`; the report annotates it instead of re-triaging.
 - **soc / march** — the hardware's SoC name (`Ascend910B1`, `dav_9201`, `v926`) and the compile arch (`dav-920r1-vec`).

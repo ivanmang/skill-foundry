@@ -35,23 +35,23 @@ python3 -m venv "$VENV"
 echo "  ✓ installed fastmcp into $VENV"
 
 say "4/6 · environment"
-TOKEN="${GITCODE_TOKEN:-}"
+TOKEN="${GH_TOKEN:-${GITHUB_TOKEN:-}}"
 if [[ -z "$TOKEN" && -t 0 ]]; then
-  read -rsp "GITCODE_TOKEN (glpat-…; Enter to skip — auto-MR disabled): " TOKEN || true; echo
+  read -rsp "GH_TOKEN (GitHub PAT, e.g. ghp-…; Enter to skip — auto-PR disabled): " TOKEN || true; echo
 fi
 CHOST=""
 CPATH=""
 umask 077
 {
-  [[ -n "$TOKEN" ]] && echo "export GITCODE_TOKEN=\"$TOKEN\""
+  [[ -n "$TOKEN" ]] && echo "export GH_TOKEN=\"$TOKEN\""
 
 
 } > "$INSTALL_DIR/env.sh"
 chmod 600 "$INSTALL_DIR/env.sh"
 if [[ -z "$TOKEN" ]]; then
-  echo "  ⚠ no GITCODE_TOKEN — discovery/capture/teach/promote work; promote --pr (auto-MR) is disabled until you add it to $INSTALL_DIR/env.sh"
+  echo "  ⚠ no GH_TOKEN — discovery/capture/teach/promote work; promote --pr (auto-PR) is disabled until you add GH_TOKEN to $INSTALL_DIR/env.sh (or run gh auth login)"
 else
-  echo "  ✓ wrote $INSTALL_DIR/env.sh (600, with GITCODE_TOKEN)"
+  echo "  ✓ wrote $INSTALL_DIR/env.sh (600, with GH_TOKEN)"
 fi
 
 say "5/6 · launch"

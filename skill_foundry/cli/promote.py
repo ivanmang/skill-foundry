@@ -4,14 +4,14 @@
 Proposal (default, no writes):
   python3 -m skill_foundry.cli.promote --propose
 
-Apply (gated + LLM-reviewed — review is mandatory, publish is MR-only):
+Apply (gated + LLM-reviewed — review is mandatory, publish is PR-only):
   python3 -m skill_foundry.cli.promote --apply          # write locally (no commit)
-  python3 -m skill_foundry.cli.promote --pr             # branch + push + open an MR
+  python3 -m skill_foundry.cli.promote --pr             # branch + push + open a PR
 
 Every apply runs the gates (add-only · no-secrets · size) AND an LLM judge
 (SKILL_REVIEWER) or an interactive prompt; only APPROVE proceeds. There is no
 escape hatch: the gates cannot be bypassed, review cannot be skipped, and the
-only publish path is an MR that a human merges (no auto-merge, no --direct).
+only publish path is a PR that a human merges (no auto-merge, no --direct).
 """
 
 from __future__ import annotations
@@ -297,7 +297,7 @@ def build_mr_body(
     rollback: str = "",
     notes: str = "",
 ) -> str:
-    """Assemble the standard MR description.
+    """Assemble the standard PR description.
 
     Sections, in order: What · Files changed (table) · Why · Impact · Testing ·
     Rollback · Notes. ``files`` is a list of dicts:
@@ -363,7 +363,7 @@ def _glab_create_mr(branch: str, base: str, title: str, body: str = "") -> str |
 def _api_create_mr(
     web: str, branch: str, base: str, title: str, body: str = ""
 ) -> str | None:
-    """Create a GitLab/GitCode MR via the REST API (human merges; no auto-merge)."""
+    """Create a GitLab/GitCode PR via the REST API (human merges; no auto-merge)."""
     token = os.environ.get("GITCODE_TOKEN") or os.environ.get("GITLAB_TOKEN")
     if not token:
         return None
@@ -468,7 +468,7 @@ def _github_create_pr(
 def create_mr(
     web: str, branch: str, base: str, title: str, body: str = ""
 ) -> tuple[str, bool]:
-    """Create an MR/PR on the platform. Returns (url, created).
+    """Create a PR/PR on the platform. Returns (url, created).
 
     gitcode (uses its own v5 API with ``access_token`` query auth), GitHub
     (``gh`` CLI, else REST with ``GH_TOKEN``/``GITHUB_TOKEN``) are handled
@@ -512,10 +512,10 @@ def create_mr(
 
 
 def _mr_url_from_push(stdout: str, stderr: str) -> str | None:
-    """Return a *created* MR URL from push output (merge_requests/<number>).
+    """Return a *created* PR URL from push output (merge_requests/<number>).
 
     Deliberately excludes the manual ``merge_requests/new?...`` link gitcode
-    prints for a plain push — that means no MR was actually created.
+    prints for a plain push — that means no PR was actually created.
     """
     text = f"{stdout or ''}\n{stderr or ''}"
     for m in re.finditer(r"https?://[^\s]+", text):
@@ -788,7 +788,7 @@ def apply_all(
                     for e in pending
                 ),
             )
-            # Create the MR directly over the existing SSH transport using
+            # Create the PR directly over the existing SSH transport using
             # GitLab push options — no token/glab needed. If the host rejects
             # them, fall back to a plain push + token/glab (or a manual URL).
             # Refresh before push so a concurrently-created branch isn't clobbered.
@@ -828,10 +828,10 @@ def apply_all(
             if mr_url:
                 mr_url_out = mr_url
                 if not json_out:
-                    print(f"\n✓ Created merge request:\n  {mr_url}")
+                    print(f"\n✓ Created pull request:\n  {mr_url}")
                 _open(mr_url)
             else:
-                # The remote didn't create an MR (push options unsupported or
+                # The remote didn't create a PR (push options unsupported or
                 # ignored). Make sure the branch is pushed, then try token/glab,
                 # else hand the human the manual URL.
                 if pushed.returncode != 0:
@@ -856,11 +856,11 @@ def apply_all(
                     mr_url_out = url
                     if not json_out:
                         if created:
-                            print(f"\n✓ Opened merge request (human merges):\n  {url}")
+                            print(f"\n✓ Opened pull request (human merges):\n  {url}")
                         else:
                             print(
-                                f"\nPushed branch '{branch}'. Create the merge request manually "
-                                f"(set GITCODE_TOKEN or install glab to auto-open):\n  {url}"
+                                f"\nPushed branch '{branch}'. Create the pull request manually "
+                                f"(set GH_TOKEN or run gh auth login to auto-open):\n  {url}"
                             )
                     _open(url)
                 else:
@@ -919,7 +919,7 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument(
         "--pr",
         action="store_true",
-        help="With --apply: push the branch and open an MR (human merges).",
+        help="With --apply: push the branch and open a PR (human merges).",
     )
     ap.add_argument("--json", action="store_true", help="Emit machine-readable JSON.")
     args = ap.parse_args(argv)
@@ -940,7 +940,7 @@ def main(argv: list[str] | None = None) -> int:
                 "    `--pr` will push the branch and print a manual PR-new URL instead.\n"
                 "    To enable auto PR creation, add to env.sh (gitignored) and re-source:\n"
                 "      GitHub:  export GH_TOKEN=<github token>          # (or run `gh auth login`)\n"
-                "      GitCode: export GITCODE_TOKEN=<gitcode token>\n",
+                "      External gitcode-origin repos: export GITCODE_TOKEN=<gitcode token>\n",
                 file=sys.stderr,
             )
 

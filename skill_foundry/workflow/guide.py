@@ -275,7 +275,7 @@ def run_real_tour(name: str, target: dict) -> int:
     print("    🟢 '--propose' DRAFTS a diff (no write) — read it first.")
     print("    🟢 '--apply' writes locally (no commit).")
     print(
-        "    🟢 '--pr' applies + branch + push + auto-creates the PR (GITCODE_TOKEN); you merge it."
+        "    🟢 '--pr' applies + branch + push + auto-creates the PR (via gh/GH_TOKEN); you merge it."
     )
     print(
         ui.c(

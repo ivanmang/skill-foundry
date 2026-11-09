@@ -23,7 +23,8 @@ You'll get an acknowledgement, and a fix + disclosure once confirmed.
 
 ## Credential hygiene
 
-- Tokens (`GH_TOKEN`, `GITCODE_TOKEN`, `GITLAB_TOKEN`) and the mirror deploy key
+- Tokens (`GH_TOKEN` for this repo; `GITCODE_TOKEN`/`GITLAB_TOKEN` only for
+  external non-GitHub-origin repos) and the mirror deploy key
   belong in the gitignored `env.sh` / GitHub Actions secrets — **never committed**.
 - The `promote`/`promote-skill` no-secrets gate rejects committed credentials.
 - The CI mirror uses a dedicated SSH deploy key (`GITCODE_DEPLOY_KEY`), never a

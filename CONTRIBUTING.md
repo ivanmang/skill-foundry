@@ -8,7 +8,7 @@ through a reviewed promote step into a shared hub every teammate's agent can use
 
 ```text
 USE      run → report → review     (thin scripts · diff vs pinned baseline)
-IMPROVE  teach → promote --pr      (corrections → skills via a reviewed MR)
+IMPROVE  teach → promote --pr      (corrections → skills via a reviewed PR)
 ```
 
 ## Development setup
@@ -30,7 +30,7 @@ every PR. `ruff` is a blocking gate over the product code (`skill_foundry/`,
 1. **Open an issue first** for new skills, new targets, or behavior changes.
    Trivial doc fixes and bug fixes can go straight to a PR.
 2. Branch from `main`, make your change, and open a **pull request on GitHub**
-   (GitCode is a read-only mirror — never open an MR there).
+   (GitCode is a read-only mirror — never open a PR there).
 3. CI must be green (`selfcheck` + `lint` + `package`).
 4. A human merges; **never self-merge**.
 
@@ -60,7 +60,7 @@ PRs include a description in the
 |---|---|
 | 🟢 scripts (automatic) | run, extract, report, review, dry-run previews |
 | 🟢 harness (gated + LLM-reviewed) | capture a correction, propose a diff, apply + push (add-only · no-secrets · size · spec, then LLM judge APPROVE) |
-| 🟡 you (gate) | triage content (`wrong → correct → action`) + merging the MR |
+| 🟡 you (gate) | triage content (`wrong → correct → action`) + merging the PR |
 | 🔴 never automatic | remove/change an existing check |
 
 ## Git reconciliation

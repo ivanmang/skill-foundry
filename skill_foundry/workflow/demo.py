@@ -362,7 +362,7 @@ STEPS: list[dict] = [
         what="./harness promote --apply writes the edit into the skill (gates + LLM judge first). The demo stops at a local write; a real publish uses --pr, and you merge the PR.",
         more="Capture is automatic — recent.md is the harness's own memory, append-only, cheap, revertible. "
         "Apply runs the gates + the judge and writes the edit locally. A real publish is --pr: "
-        "branch + push + auto-open a PR (gitcode v5 API with GITCODE_TOKEN), then you merge it — "
+        "branch + push + auto-open a PR (via gh/GH_TOKEN on GitHub), then you merge it — "
         "same principle as Claude Code auto-writing memory, with branch protection as the gate. "
         "RED line: the harness never auto-REMOVES or auto-CHANGES an existing check — it only ADDS.",
         run=step_apply,
@@ -516,7 +516,7 @@ def intro() -> None:
     🤖 AI      — auto-captures a correction when you correct it ("no / actually /
                  remember …") and replies with the LRN-… id; triages per the skill.
     🟡 you     — your judgment (the wrong → correct → action content) and merging
-                 the MR on the remote (promote --pr auto-creates it).
+                 the PR on the remote (promote --pr auto-creates it).
     🔴 never   — remove or change an existing check (the harness only ADDS).
 
   The one rule to remember:

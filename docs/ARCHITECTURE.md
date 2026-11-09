@@ -101,8 +101,8 @@ diff vs baseline (arithmetic)                                                   
 read logs + explain                       ●
 triage (judgment)                         ●
 capture a lesson (teach)                  ●              ●              ●
-promote → push / MR                       ●              ●              ●
-merge MR (--pr only)        ● gate
+promote → push / PR                       ●              ●              ●
+merge PR (--pr only)        ● gate
 re-pin baseline             ● deliberate                                 ●
 remove/change a check                   (never)        (never)        (never)
 ```
@@ -186,7 +186,7 @@ and promotes the knowledge that measurement produces.
 🟢 automatic                            🟡 human (rare)               🔴 never
 ─────────────────────────────────────────┼─────────────────────────────┼─────────────────────────
 agent: run regression scripts             USER: triage judgment         ANYONE:
-       capture (teach)                     review + merge the MR (--pr)   remove/change
+       capture (teach)                     review + merge the PR (--pr)   remove/change
 harness: gates + LLM review + promote      re-pin the baseline           an existing check
 ```
 

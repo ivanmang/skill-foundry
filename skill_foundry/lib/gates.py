@@ -7,7 +7,7 @@ Enforced invariants (make every promotion safe):
   - **size cap**: diffs stay small and reviewable.
   - **Agent Skills spec**: promote-skill validates the new SKILL.md.
 
-`--ci` runs the same checks against `git diff <base>...HEAD` for the CI/MR
+`--ci` runs the same checks against `git diff <base>...HEAD` for the CI/PR
 gate, restricted to the shared-source-of-truth paths (.claude/skills + learnings).
 """
 
@@ -88,7 +88,7 @@ def gate(
 
 
 def ci_check(base: str = "origin/main") -> list[str]:
-    """Gate the current branch's diff vs <base> (for the CI/MR gate).
+    """Gate the current branch's diff vs <base> (for the CI/PR gate).
 
     If <base> can't be resolved (no fetch), the add-only diff is skipped — the
     spec and secret checks still run on the working tree.

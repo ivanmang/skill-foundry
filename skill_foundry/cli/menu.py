@@ -20,7 +20,7 @@ from skill_foundry.lib import ui
 ITEMS = [
     ("🛠  capture a new skill         · draft into hub/inbox/", ["capture-skill"]),
     ("🧠  log a correction           · learnings/recent.md", ["teach"]),
-    ("⬆  promote pending learnings  · gated + reviewed → MR", ["promote", "--pr"]),
+    ("⬆  promote pending learnings  · gated + reviewed → PR", ["promote", "--pr"]),
     (
         "📚  browse skills              · list / search / grouped by category",
         ["skills"],

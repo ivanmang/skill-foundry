@@ -144,7 +144,7 @@ See .claude/skills/ for the full, self-contained workflow knowledge.
 Examples:
   ./harness capture-skill code-review
   ./harness teach "vcvt mismatch -> annotate as known -> add to known-failures"
-  ./harness promote --pr            # publish learnings (open an MR, human merges)
+  ./harness promote --pr            # publish learnings (open a PR, human merges)
   ./harness skills --search review  # discover skills
 """
 
@@ -157,7 +157,7 @@ Example: ./harness capture-skill code-review --description "Review PRs against h
 """,
     "promote-skill": """\
 ./harness promote-skill [<name>] [--propose | --apply | --pr]
-Publish a draft from hub/inbox/ into .claude/skills/ (gated + LLM-reviewed; a human merges the MR).
+Publish a draft from hub/inbox/ into .claude/skills/ (gated + LLM-reviewed; a human merges the PR).
 Example: ./harness promote-skill code-review --pr
 """,
     "teach": """\
@@ -172,14 +172,14 @@ Example: ./harness teach "vcvt mismatch -> known pattern, annotate -> promote to
 ./harness promote — publish pending learnings into skills (gated + LLM-reviewed)
   --propose  print a reviewable diff (no write)
   --apply    write the edits locally (no commit)
-  --pr       branch + push + open an MR (a human merges)
+  --pr       branch + push + open a PR (a human merges)
 
 Review and the mechanical gates are MANDATORY: there is no --no-review,
-no --force, and no --direct. Publish only via --pr, which opens an MR.
+no --force, and no --direct. Publish only via --pr, which opens a PR.
 
 Examples:
   ./harness promote --propose   # review the diff first
-  ./harness promote --pr        # apply + push a branch + open an MR
+  ./harness promote --pr        # apply + push a branch + open a PR
 """,
     "skills": """\
 ./harness skills [--search <q>] [--category <c>] [--origin <o>] [--scope core|all] [--entry] [--inbox] [--install | --uninstall] [--dry-run] [--mine] [--refresh] [--check] [--json]

@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
-"""Promote a skill draft from hub/inbox/ into .claude/skills/ (+ MR).
+"""Promote a skill draft from hub/inbox/ into .claude/skills/ (+ PR).
 
 Usage:
   ./harness promote-skill                 # list drafts and pick one (TTY)
   ./harness promote-skill <name> --propose   # show what would be copied
   ./harness promote-skill <name> --apply     # copy + remove draft (no commit)
-  ./harness promote-skill <name> --pr        # copy + commit + push + create MR
+  ./harness promote-skill <name> --pr        # copy + commit + push + create PR
 """
 
 from __future__ import annotations
@@ -52,7 +52,7 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument(
         "--pr",
         action="store_true",
-        help="--apply + commit + push + open an MR (human merges).",
+        help="--apply + commit + push + open a PR (human merges).",
     )
     ap.add_argument("--json", action="store_true", help="Emit machine-readable JSON.")
     args = ap.parse_args(argv)
@@ -126,7 +126,7 @@ def main(argv: list[str] | None = None) -> int:
             "    `--pr` will push the branch and print a manual PR-new URL instead.\n"
             "    To enable auto PR creation, add to env.sh (gitignored) and re-source:\n"
             "      GitHub:  export GH_TOKEN=<github token>          # (or run `gh auth login`)\n"
-            "      GitCode: export GITCODE_TOKEN=<gitcode token>\n",
+            "      External gitcode-origin repos: export GITCODE_TOKEN=<gitcode token>\n",
             file=sys.stderr,
         )
 
@@ -235,7 +235,7 @@ def main(argv: list[str] | None = None) -> int:
                 mr_url = url
                 if not args.json:
                     print(
-                        f"\n{'✓ Opened merge request (human merges)' if created else 'Pushed branch. Open the MR'}:\n  {url}"
+                        f"\n{'✓ Opened pull request (human merges)' if created else 'Pushed branch. Open the PR'}:\n  {url}"
                     )
                 try:
                     _browser.open_browser(url)
@@ -249,7 +249,7 @@ def main(argv: list[str] | None = None) -> int:
                 )
     elif not args.json:
         print(
-            "  (--apply: copied locally, not committed. Use --pr to commit + open the MR.)"
+            "  (--apply: copied locally, not committed. Use --pr to commit + open the PR.)"
         )
 
     if args.json:

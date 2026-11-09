@@ -6,7 +6,7 @@ not, read [USER_JOURNEY.md](USER_JOURNEY.md) first.
 
 **The one-sentence version:** every new skill goes
 **author → propose → gate → `--pr` → refresh → selfcheck**, and the only
-write to the shared corpus is a human-merged MR.
+write to the shared corpus is a human-merged PR.
 
 ---
 
@@ -14,7 +14,7 @@ write to the shared corpus is a human-merged MR.
 
 Most users never type a `SKILL.md` by hand: they describe the skill in plain
 language, and their LLM agent authors it, fills the frontmatter, runs the
-checks, and opens the MR. It's the same pipeline — the only difference is who
+checks, and opens the PR. It's the same pipeline — the only difference is who
 drafts the file. Your job reduces to **reviewing the diff and merging**.
 
 ```text
@@ -28,11 +28,11 @@ Agent (deterministic steps, then you verify):
   2. write hub/inbox/opt-verify/SKILL.md            # full file, ALL frontmatter fields
       (name = folder · description = what+when · category · origin · owner · maturity)
   3. ./harness promote-skill --propose opt-verify   # optional: preview the copy
-  4. ./harness promote-skill --pr opt-verify        # gates + LLM judge + MR
+  4. ./harness promote-skill --pr opt-verify        # gates + LLM judge + PR
   5. ./harness skills --refresh && ./harness selfcheck
 
 You:
-  - review the MR diff
+  - review the PR diff
   - merge
 ```
 
@@ -182,7 +182,7 @@ but not the full diff — open `hub/inbox/my-skill/SKILL.md` to review the conte
 You don't need a separate validation step for the draft: **`promote-skill`
 re-runs the spec + no-secrets + review gates on the draft** (§5) before it
 writes anything. Choose `--apply` for a local-only promote, or `--pr` to commit
-+ open the MR.
++ open the PR.
 
 After the skill is promoted (now in `.claude/skills/`), validate the *published*
 corpus — this also checks cross-skill reference integrity, which needs the full
@@ -207,7 +207,7 @@ declared external (`config/externals.json`).
 ```
 
 `--pr` = copy into `.claude/skills/` + remove the draft + commit on a
-`feat/skill-<name>-<date>` branch + push + **open an MR**. Before anything is
+`feat/skill-<name>-<date>` branch + push + **open a PR**. Before anything is
 written, the harness runs the gates and the review:
 
 | Gate | What it checks |
@@ -220,12 +220,13 @@ written, the harness runs the gates and the review:
 (The add-only / size-cap gates belong to the *learning* loop, which edits an
 existing skill line-by-line; copying a brand-new skill is already add-only.)
 
-A **human merges the MR** after CI is green — that is the final, deliberate step.
+A **human merges the PR** after CI is green — that is the final, deliberate step.
 For local-only iteration (no push), use `./harness promote-skill --apply`.
 
-> **Recommended:** set `export GH_TOKEN=<token>` (GitHub) or `GITCODE_TOKEN`
-> (GitCode) in `env.sh` so `--pr` can auto-create the PR. Without it, the agent
-> pushes the branch and prints a manual PR-new URL.
+> **Recommended:** set `export GH_TOKEN=<token>` (GitHub), or run `gh auth login`,
+> so `--pr` can auto-create the PR. Without it, the agent pushes the branch and
+> prints a manual PR-new URL. (External gitcode-origin repos use `GITCODE_TOKEN`
+> instead — see `.claude/skills/skill-maintainer/references/pr-automation.md`.)
 
 ---
 
@@ -269,7 +270,7 @@ python3 -m skill_foundry.lib.validate_skills
 ./harness skills --install --name my-skill
 ```
 
-## Checklist (all boxes before you open the MR)
+## Checklist (all boxes before you open the PR)
 
 - [ ] `name` matches the folder, lowercase-hyphen, ≤64 chars
 - [ ] `description` says **what + when** (≤1024 chars)
@@ -289,4 +290,4 @@ python3 -m skill_foundry.lib.validate_skills
 | Warning: `category is missing` | add `category:` to frontmatter and re-`refresh` |
 | `reference to unknown skill 'x'` | fix the link or declare `x` in `config/externals.json` |
 | skill not showing up in the agent | `./harness skills --install --name my-skill`, then restart / `/reload` |
-| `--pr` printed a PR-new URL instead of creating one | set `GH_TOKEN` (or `gh auth login`) — see `skill-maintainer/references/mr-automation.md` |
+| `--pr` printed a PR-new URL instead of creating one | set `GH_TOKEN` (or `gh auth login`) — see `.claude/skills/skill-maintainer/references/pr-automation.md` |

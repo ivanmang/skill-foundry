@@ -52,7 +52,7 @@ And six rules that keep the regression signal honest:
 | Role | Typical activity |
 |---|---|
 | **Developer** | Runs regressions, reads reports, triages failures |
-| **Reviewer** | Approves proposed skill changes (MR merge) |
+| **Reviewer** | Approves proposed skill changes (PR merge) |
 | **Maintainer** | Curates `learnings/`, refreshes the baseline |
 
 You'll usually wear the first hat, sometimes the last two.

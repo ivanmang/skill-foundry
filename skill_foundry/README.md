@@ -97,5 +97,5 @@ call.
 
 - `python3 -m skill_foundry.workflow.run --all-suites --report --open --review` — the whole USE loop, one command.
 - `python3 -m skill_foundry.workflow.run --suite X --testcase T [--filter G]` — single testcase / gtest filter.
-- `./harness promote --pr` — branch + push + auto-create the PR (GITCODE_TOKEN); a human merges.
+- `./harness promote --pr` — branch + push + auto-create the PR (via `gh`/`GH_TOKEN`); a human merges.
 - `make check` — run the self-check locally.

@@ -37,7 +37,7 @@ for the full roles & interaction model.
    then an LLM judge (`SKILL_REVIEWER`) must APPROVE before anything is written —
    in a non-interactive session you need `SKILL_REVIEWER` set, or it fails
    closed. Review cannot be skipped and the gates cannot be bypassed. The only
-   publish path is `--pr`, which opens an MR a human merges; **never
+   publish path is `--pr`, which opens a PR a human merges; **never
    self-merge**.
 5. **Never remove or change an existing check** — the harness only adds.
 
@@ -46,7 +46,7 @@ for the full roles & interaction model.
 - Capture is **automatic and continuous** — log lessons as they surface;
   nothing changes until promoted.
 - Publication is **gated + LLM-reviewed, then human-merged** — `--pr` opens an
-  MR; a human merges it after CI is green (no auto-merge, no direct push).
+  PR; a human merges it after CI is green (no auto-merge, no direct push).
 - Draft from a run's failures with
   `python3 -m skill_foundry.lib.session_digest --run <run.json> --apply`.
 
@@ -56,8 +56,8 @@ for the full roles & interaction model.
 # THE PRODUCT — the skill-ops loop (the only harness verbs)
 ./harness capture-skill <name>           # draft a NEW skill
 ./harness teach "wrong -> correct -> action"
-./harness promote --pr                   # publish learnings (open an MR)
-./harness promote-skill <name> --pr      # publish a draft (open an MR)
+./harness promote --pr                   # publish learnings (open a PR)
+./harness promote-skill <name> --pr      # publish a draft (open a PR)
 ./harness skills [--search q] [--category c] [--origin o] [--entry] [--check]  # discover skills (map: docs/SKILLS_INDEX.md)
 
 # BUNDLED WORKFLOW — run these thin scripts directly (per the skills)

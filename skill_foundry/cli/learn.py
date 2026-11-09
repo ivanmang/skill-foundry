@@ -3,11 +3,11 @@
 
 The missing UX for the skill-ops loop: a single verb that logs a correction,
 then runs the gated promotion (mechanical gates + SKILL_REVIEWER) and, with
-`--pr`, pushes a branch and opens the MR.
+`--pr`, pushes a branch and opens the PR.
 
 Usage:
   ./harness learn "symptom -> fix -> where"          # teach + promote --apply (local)
-  ./harness learn "symptom -> fix -> where" --pr     # teach + promote --apply + push + MR
+  ./harness learn "symptom -> fix -> where" --pr     # teach + promote --apply + push + PR
   ./harness learn --wrong "…" --correct "…" --action "…" --propose
 """
 
@@ -45,7 +45,7 @@ def main(argv: list[str] | None = None) -> int:
         "--apply", action="store_true", help="Apply locally (no commit/push) — default."
     )
     ap.add_argument(
-        "--pr", action="store_true", help="Apply + push a branch + open an MR."
+        "--pr", action="store_true", help="Apply + push a branch + open a PR."
     )
     ap.add_argument(
         "--json",

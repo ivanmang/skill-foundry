@@ -2,7 +2,7 @@
 
 skill-foundry is a **skill-ops platform**: agents and humans capture reusable
 knowledge as **Skills** during work, and it flows — through a promote step
-(a reviewed `--pr` MR) — into a shared hub every teammate's agent can
+(a reviewed `--pr` PR) — into a shared hub every teammate's agent can
 discover and use.
 
 Regression testing is the **first bundled workflow**, not the product. The
@@ -18,9 +18,9 @@ CONSUME  (every teammate's agent)      discover via skills / MCP, load SKILL.md 
 ## What stays
 
 - **Agent Skills** (`SKILL.md`) as the unit — open standard, interoperable.
-- The **learning loop** (`teach → promote → MR`) — already proven by regression.
+- The **learning loop** (`teach → promote → PR`) — already proven by regression.
 - The **automation boundary** — capture is automatic; promotion is automatic
-  (`--pr` MR); the **merge is human-gated** (a human merges the PR).
+  (`--pr` PR); the **merge is human-gated** (a human merges the PR).
 - The **CLI** (`./harness`) and capability detection.
 
 ## What changes
@@ -42,5 +42,5 @@ CONSUME  (every teammate's agent)      discover via skills / MCP, load SKILL.md 
 | `./harness teach "wrong → correct → action"` | a `LRN-…` entry in `learnings/recent.md` | `known-failures.md` or a skill's `## Gotchas` |
 | `./harness capture-skill <name>` | a draft in `hub/inbox/<name>/SKILL.md` | `.claude/skills/<name>/` |
 
-Both promote through the same `--pr` MR-gated path —
+Both promote through the same `--pr` PR-gated path —
 and only ever *add*; shared knowledge is never auto-removed or auto-changed.

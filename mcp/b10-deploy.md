@@ -4,8 +4,8 @@ b10 (`pto-b10.ddns.net`) is the public gateway. The MCP server lives on b10 and
 exposes **only the skill-ops loop** (skills list/load, capture, teach, promote).
 The bundled regression workflow is *not* in the harness — teammates run it on
 their own machines via the thin scripts (see `.claude/skills/`). Skills /
-learnings / git live in the b10 checkout; the MR-gate (`GITCODE_TOKEN`) is
-centralized on b10.
+learnings / git live in the b10 checkout; the PR-gate (`GH_TOKEN` or `gh auth`)
+is centralized on b10.
 
 ## Topology
 
@@ -13,7 +13,7 @@ centralized on b10.
 agent (any machine) ── https://pto-b10.ddns.net/mcp ──▶ b10 (gateway)
                                                         │  mcp/server.py (FastMCP)
                                                         │  skill-foundry clone
-                                                        │  GITCODE_TOKEN (auto-MR, --pr)
+                                                        │  GH_TOKEN (auto-PR, --pr)
 ```
 
 ## Quick start (on b10)
@@ -30,10 +30,11 @@ Or if you already have the checkout on b10:
 ssh b10 'bash ~/skill-foundry/mcp/deploy.sh'
 ```
 
-The script prompts for `GITCODE_TOKEN`. It writes `env.sh` (mode 600),
-launches the server in the background via `nohup` (pid in `mcp.pid`, log in
-`mcp.log`), and self-verifies. If b10 has passwordless sudo, it installs a
-systemd unit instead (see [Persistence](#persistence)).
+The script prompts for `GH_TOKEN` (a GitHub PAT, or run `gh auth login` before
+deploying). It writes `env.sh` (mode 600), launches the server in the background
+via `nohup` (pid in `mcp.pid`, log in `mcp.log`), and self-verifies. If b10 has
+passwordless sudo, it installs a systemd unit instead (see
+[Persistence](#persistence)).
 
 ## Manual steps (what deploy.sh does)
 
@@ -43,8 +44,9 @@ cd ~/skill-foundry
 python3 -m venv .venv-mcp && source .venv-mcp/bin/activate
 pip install -r mcp/requirements.txt
 
+# GitHub PAT (for `promote --pr` auto-PR); or skip this and run `gh auth login`
 cat > env.sh <<'EOF'
-export GITCODE_TOKEN="glpat-…"
+export GH_TOKEN="ghp-…"
 EOF
 chmod 600 env.sh
 
@@ -87,8 +89,8 @@ pto-b10.ddns.net {
 
 Requires ports 80/443 forwarded to b10 and the DDNS record resolving. For a
 bearer-token auth instead of basic auth, swap the `basicauth` block for a header
-check. `GITCODE_TOKEN` stays in b10's `env.sh` (mode 600), never in laptops or
-the repo.
+check. `GH_TOKEN` stays in b10's `env.sh` (mode 600), never in laptops or the
+repo.
 
 ## Persistence
 
@@ -123,7 +125,7 @@ steps section; or run `sudo bash mcp/deploy.sh` (it auto-detects sudo).
 | Tool | Where it runs | Notes |
 |---|---|---|
 | `skills_list` / `skills_load` | b10 local | discovery is live |
-| `capture_skill` / `teach` / `promote` | b10 local | writes the b10 clone; `promote` defaults to `mode=direct` (SSH push to `main`, no token); `mode=pr` uses `GITCODE_TOKEN` → auto-MR |
+| `capture_skill` / `teach` / `promote` | b10 local | writes the b10 clone; `promote` defaults to `mode=direct` (SSH push to `main`, no token); `mode=pr` uses `GH_TOKEN`/`gh` → auto-PR |
 
 ## Ops
 
