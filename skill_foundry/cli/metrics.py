@@ -70,7 +70,9 @@ def main(argv: list[str] | None = None) -> int:
             return 0
         for j in unc:
             ctx = j.get("entries") or j.get("name") or ""
-            print(f"  {j['event_id']}  {j.get('verdict', '?'):<8}  {j.get('ts', '')}  {ctx}")
+            print(
+                f"  {j['event_id']}  {j.get('verdict', '?'):<8}  {j.get('ts', '')}  {ctx}"
+            )
         print(
             "\ncalibrate: ./harness metrics --calibrate <event_id> "
             "--outcome approve|reject"

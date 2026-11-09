@@ -105,9 +105,11 @@ def summarize() -> dict[str, Any]:
         "judge_verdicts": judge,
         "calibrated": len(outcomes),
         "uncalibrated": sum(
-            1 for e in evs if e["event"] == "judge" and str(e.get("event_id")) not in {
-                str(c.get("ref")) for c in evs if c["event"] == "calibrate"
-            }
+            1
+            for e in evs
+            if e["event"] == "judge"
+            and str(e.get("event_id"))
+            not in {str(c.get("ref")) for c in evs if c["event"] == "calibrate"}
         ),
         "judge_agreement_pct": round(agree / len(outcomes) * 100.0, 1)
         if outcomes

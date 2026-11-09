@@ -231,7 +231,9 @@ def approve(
     except (EOFError, KeyboardInterrupt):
         print("(no input — holding)", file=sys.stderr)
         return False
-    _record_judge("approve" if ans in ("a", "approve", "y", "yes") else "reject", context)
+    _record_judge(
+        "approve" if ans in ("a", "approve", "y", "yes") else "reject", context
+    )
     return ans in ("a", "approve", "y", "yes")
 
 

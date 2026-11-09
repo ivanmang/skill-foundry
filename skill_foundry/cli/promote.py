@@ -806,7 +806,16 @@ def apply_all(
                 f"merge_request.title={title}",
             ]
             pushed = subprocess.run(
-                ["git", "-C", str(root), "push", "--force-with-lease", "-u", "origin", branch]
+                [
+                    "git",
+                    "-C",
+                    str(root),
+                    "push",
+                    "--force-with-lease",
+                    "-u",
+                    "origin",
+                    branch,
+                ]
                 + push_opts,
                 capture_output=True,
                 text=True,
@@ -827,7 +836,16 @@ def apply_all(
                 # else hand the human the manual URL.
                 if pushed.returncode != 0:
                     pushed = subprocess.run(
-                        ["git", "-C", str(root), "push", "--force-with-lease", "-u", "origin", branch],
+                        [
+                            "git",
+                            "-C",
+                            str(root),
+                            "push",
+                            "--force-with-lease",
+                            "-u",
+                            "origin",
+                            branch,
+                        ],
                         capture_output=True,
                         text=True,
                     )
@@ -909,7 +927,9 @@ def main(argv: list[str] | None = None) -> int:
     if args.pr:
         args.apply = True
         if not args.branch:
-            args.branch = f"feat/learnings-{_dt.datetime.now():%Y%m%d}-{uuid.uuid4().hex[:6]}"
+            args.branch = (
+                f"feat/learnings-{_dt.datetime.now():%Y%m%d}-{uuid.uuid4().hex[:6]}"
+            )
         if not any(
             os.environ.get(k)
             for k in ("GITCODE_TOKEN", "GITLAB_TOKEN", "GH_TOKEN", "GITHUB_TOKEN")

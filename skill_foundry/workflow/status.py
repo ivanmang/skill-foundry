@@ -45,9 +45,7 @@ def pending_count(path: Path) -> int:
 def promoted_count(path: Path) -> int:
     if not path.exists():
         return 0
-    return len(
-        re.findall(r"^- LRN-\d{8}-\S+", path.read_text(encoding="utf-8"), re.M)
-    )
+    return len(re.findall(r"^- LRN-\d{8}-\S+", path.read_text(encoding="utf-8"), re.M))
 
 
 def _target_rows(cfg: dict, only: str | None) -> list[dict]:
