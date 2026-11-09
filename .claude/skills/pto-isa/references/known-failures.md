@@ -68,10 +68,10 @@ Classify a failure against these before treating it as new. Format:
 - Seen in: 2026-11-03 A6 `tcvt_fp4_lut` port
 
 ### `ScheTop.cpp:126 thrId < s_thrCnt` SIGABRT (npu-sim-a5)
-- Symptoms: 8 layout-conversion kernels SIGABRT with `ScheTop.cpp:126` assertion; deterministic per data-movement testcase (e.g. `tload_mix` case #65 NCHW2FZ4D_int8_t), reproduced in a **serial** run — not a concurrency/load artifact.
+- Symptoms: data-movement kernels SIGABRT with `ScheTop.cpp:126` assertion; deterministic per testcase, reproduced in a **serial** run — not a concurrency/load artifact. Confirmed cases (2026-11-06): `tload_mix`, `tquant`, `tinsert`, `tinsert_acc2vec`, `trowmax`, `trowmin`, `trowsum`, `tstore_acc2gm`.
 - Cause: camodel `esl_top_thread_cnt` is 32 while the cases need 64. Config lives at `/usr/local/CANN/cann-9.1.0/x86_64-linux/simulator/dav_3510/camodel/camodel_v100.json` and is root-owned read-only.
 - Fix: `sudo sed -i` the in-place file (`"esl_top_thread_cnt"` 32 → 64) on both sim-dir copies. Repro requires a full no-timeout binary run — `tload_mix` looks green under a 120/180 s manual timeout only because it stops before case 65.
-- Seen in: 2026-11-05 npu-sim-a5 full + serial rerun
+- Seen in: 2026-11-05 full + serial rerun; 2026-11-06 full (20261105-172537)
 
 ### `camodel_v100.json` overrides ignored
 - Symptoms: a CWD copy of `camodel_v100.json` (or env override) has no effect; the in-place file is root-owned read-only.
@@ -84,6 +84,18 @@ Classify a failure against these before treating it as new. Format:
 - Cause: pto-isa numeric/nondeterminism, not a camodel failure.
 - Fix: triage backlog — treat as a pto-isa numeric issue; re-run to confirm stability before attributing to camodel.
 - Seen in: 2026-11-05 npu-sim-a5
+
+### `TREMSTest.case1` gtest failure (npu-sim-a5) — true regression
+- Symptoms: `trems` host assertion fails at `tests/npu/a5/src/st/testcase/trems/main.cpp:119` (`[ FAILED ] TREMSTest.case1`, ~17.8s); numeric/assertion mismatch, not a crash.
+- Cause: unknown — the only PASS→FAIL diff vs the pinned baseline.
+- Fix: triage the comparison at `main.cpp:119` (expected vs actual); check the device `rem`/reduce path for a numeric change.
+- Seen in: 2026-11-06 npu-sim-a5 full (20261105-172537)
+
+### `tgather` SIGABRT (a5) / SIGSEGV (a3)
+- Symptoms: `tgather` dies with SIGABRT on npu-sim-a5 and SIGSEGV on npu-sim-a3 (gather/index testcase; NOT the ScheTop `thrId` crash).
+- Cause: unknown — likely index/UB out-of-bounds in the gather kernel on the simulator.
+- Fix: triage the gather kernel index bounds; compare against the `index/gather` tiling reference.
+- Seen in: 2026-11-06 npu-sim-a5 + npu-sim-a3 full (20261105-172537)
 
 ## Adding an entry
 
