@@ -12,20 +12,40 @@ Usage:
 
 from __future__ import annotations
 
+import subprocess
 import sys
 
 from skill_foundry import dispatch
 from skill_foundry.lib import ui
 
 ITEMS = [
-    ("🛠  capture a new skill         · draft into hub/inbox/", ["capture-skill"]),
-    ("🧠  log a correction           · learnings/recent.md", ["teach"]),
-    ("⬆  promote pending learnings  · gated + reviewed → PR", ["promote", "--pr"]),
     (
-        "📚  browse skills              · list / search / grouped by category",
-        ["skills"],
+        "🚀 USE — demo (2-min tour, no hardware)",
+        ["__module__", "skill_foundry.workflow.demo"],
     ),
-    ("❓  help", ["help"]),
+    (
+        "📊 USE — status (is this machine ready?)",
+        ["__module__", "skill_foundry.workflow.status"],
+    ),
+    (
+        "▶  USE — run the regression (all suites → report → review)",
+        [
+            "__module__",
+            "skill_foundry.workflow.run",
+            "--all-suites",
+            "--report",
+            "--open",
+            "--review",
+        ],
+    ),
+    ("🛠 IMPROVE — capture a new skill · draft into hub/inbox/", ["capture-skill"]),
+    ("🧠 IMPROVE — log a correction · learnings/recent.md", ["teach"]),
+    (
+        "⬆  IMPROVE — promote pending learnings · gated + reviewed → PR",
+        ["promote", "--pr"],
+    ),
+    ("📚 browse skills · list / search / grouped by category", ["skills"]),
+    ("❓ help", ["help"]),
 ]
 
 
@@ -53,7 +73,7 @@ def main(argv: list[str] | None = None) -> int:
 
     ui.banner("skill-foundry")
     published, drafts, pending = _counts()
-    print("  capture → promote → hub → discover.")
+    print("  USE: run → report → review   ·   IMPROVE: teach → promote → PR")
     print(f"  {published} skills · {drafts} draft(s) · {pending} pending learning(s)\n")
     choice = ui.select_menu(
         ui.c(
@@ -63,6 +83,8 @@ def main(argv: list[str] | None = None) -> int:
     )
     if not choice:
         return 0
+    if choice[0] == "__module__":
+        return subprocess.call([sys.executable, "-m", *choice[1:]])
     return dispatch.dispatch(choice[0], choice[1:])
 
 

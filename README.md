@@ -67,14 +67,20 @@ review against live TRACE/PR9/ANALYSIS. Full opencode launch hours remain custom
 git clone git@github.com:ivanmang/skill-foundry.git
 cd skill-foundry
 
-# the product — the skill-ops loop (all ./harness does):
+# 0. two-minute tour — the whole journey (run→report→review→teach→promote), no hardware
+python3 -m skill_foundry.workflow.demo
+
+# 1. one-glance readiness
+python3 -m skill_foundry.workflow.status
+
+# 2. the product — the skill-ops loop (all ./harness does):
 ./harness skills                                   # what skills exist?
 ./harness capture-skill code-review                # draft a new skill (then add category/origin/owner)
 ./harness promote-skill code-review --pr           # publish the draft (see docs/CREATING_SKILLS.md)
 ./harness teach "symptom -> correct -> action"     # log a correction
 ./harness promote --pr                             # publish learnings (open a PR; human merges)
 
-# the bundled regression workflow (thin scripts; see .claude/skills/):
+# 3. the bundled regression workflow (thin scripts; see .claude/skills/):
 python3 -m skill_foundry.workflow.onboarding            # env.sh, CANN, pto-isa (one-time)
 python3 -m skill_foundry.workflow.run --all-suites --report --open --review
 ```
@@ -111,13 +117,13 @@ Nothing to run.
 
 ### 2. Skills — always-on (any directory)
 
-Make every skill available in every project (110 skills — indexed in `docs/SKILLS_INDEX.md`):
+Make every skill available in every project (<!-- SKILL_COUNT -->119<!-- /SKILL_COUNT --> skills — indexed in `docs/SKILLS_INDEX.md`):
 
 ```bash
 ./harness skills --install --scope core     # only the owned skills (origin: native)
 ./harness skills --install --origin native  # same, explicit
 ./harness skills --install --category regression
-./harness skills --install                  # everything (all 110)
+./harness skills --install                  # everything (all <!-- SKILL_COUNT -->119<!-- /SKILL_COUNT -->)
 ```
 
 It symlinks each selected skill into `~/.claude/skills/`, `~/.pi/skills/` and
@@ -163,62 +169,25 @@ To run the server locally instead (stdio): `python3 mcp/server.py`
 ## The rules that keep the signal honest
 
 Six rules that matter more than they look — get these wrong and the regression
-signal itself is corrupted:
+signal itself is corrupted. The canonical text lives in
+[docs/RULES.md](docs/RULES.md); the one-line version:
 
-1. **The pinned baseline is the ground truth.** "Regression" means *diff vs
-   `reports/baseline/<target>.json`*. Refresh it deliberately (new suites /
-   arch changes), never casually — a bad re-pin poisons every future run.
-2. **Never auto-remove or auto-change an existing check.** The harness adds
-   entries; it never silently deletes or weakens one.
-3. **p99 > +15% flags a perf regression even if average is stable.** Never trust
-   average alone — averages hide tail latency.
-4. **An npu-sim suite needs BOTH the CANN compile headers AND the simulator.**
-   `python3 -m skill_foundry.workflow.run --list` marks it `!` if either is
-   missing; `python3 -m skill_foundry.lib.cann` shows why.
-5. **`--all-suites` auto-skips missing prereqs; an explicit `--suite` force-runs.**
-6. **Every run records context** (git ref, dirty flag, host, env) in `run.json`,
-   so any result is reproducible on another machine.
+1. The pinned baseline is the ground truth — refresh it only deliberately.
+2. Never auto-remove or auto-change an existing check.
+3. p99 > +15% flags a perf regression even if average is stable.
+4. An npu-sim suite needs BOTH the CANN compile headers AND the simulator.
+5. `--all-suites` auto-skips missing prereqs; an explicit `--suite` force-runs.
+6. Every run records context (git ref, dirty flag, host, env) in `run.json`.
 
 ---
 
 ## Reference
 
-`./harness` does **only the skill-ops loop**. The bundled regression workflow
-runs directly as thin scripts the skills reference.
-
-```text
-./harness — THE PRODUCT (capture → promote → hub → discover):
-  capture-skill  Draft a NEW skill into hub/inbox/      [--description, --dry-run]
-  promote-skill  Publish a draft into .claude/skills/   [--propose | --apply | --pr]
-  teach          Log a correction                       ["wrong -> correct -> action" | wizard | --edit]
-  promote        Publish learnings into skills          [--propose | --apply | --pr]
-  skills         List/search · install · refresh        [--search, --category, --origin, --owner, --maturity, --scope, --entry, --inbox, --install, --uninstall, --dry-run, --mine, --refresh, --check, --json]
-  metrics        Show product-loop telemetry            [--calibrate EVENT_ID --outcome approve|reject]
-  menu           Curated menu (bare ./harness default)
-  selfcheck      Compile + skill-spec + reference integrity + index freshness + demo smoke
-
-BUNDLED WORKFLOW — regression, run directly (the skills reference these):
-  python3 -m skill_foundry.workflow.run    [--suite X | --all-suites] [--report|--open|--review] …
-  python3 -m skill_foundry.workflow.report · .review · .status · .diagnose · .history · .clean · .validate
-  bash skill_foundry/workflow/baseline.sh  [--force] <target>
-  python3 -m skill_foundry.lib.cann        (which CANN → which arch)
-  python3 -m skill_foundry.workflow.guide · .demo · .onboarding   (interactive tours)
-```
-
-### What's automatic vs human
-
-| Role | What it does |
-|---|---|
-| 🟢 **scripts (automatic, agent-driven)** | run, extract logs, report, review, dry-run previews |
-| 🟢 **harness (automatic, gated + LLM-reviewed)** | capture a correction, propose a diff, then apply + commit + push on a branch (add-only · no-secrets · size; LLM judge APPROVEs first); `--pr` opens a PR a human merges |
-| 🤖 **AI / agent (on trigger)** | auto-captures when you correct it (`"no / actually / remember …"`); triages per the skill |
-| 🟡 **you (gate)** | the triage *content* (`wrong → correct → action`) and merging the PR (`--pr` only) |
-| 🔴 **never automatic** | remove or change an existing check |
-
-**Why the line is there:** auto-*append* is safe (scratch memory, cheap to
-discard); auto-*edit* is not (`SKILL.md` + `known-failures.md` are the shared
-source of truth every run reads). So promotion only *adds* — after the mandatory
-gates and an LLM judge APPROVE, `--pr` opens a PR that a human merges.
+`./harness` does **only the skill-ops loop**; the bundled regression workflow
+runs directly as thin scripts the skills reference. The full CLI surface is
+generated from a single verb registry (`skill_foundry/verbs.py`) — see
+[docs/CLI.md](docs/CLI.md) for the canonical command reference (never
+hand-edited) and [docs/RULES.md](docs/RULES.md) for the automation boundary.
 
 ---
 
@@ -238,6 +207,8 @@ skills/                   → .claude/skills/ (plugin-standard skills dir)
 .agents/skills/           → .claude/skills/ (Pi + open-standard agents)
 hub/                      inbox/ (skill drafts) + catalog.json (generated index)
 docs/SKILLS_INDEX.md      auto-generated skill map (entry points + category + owner + maturity)
+docs/CLI.md               auto-generated CLI reference (from skill_foundry/verbs.py)
+docs/RULES.md             single source for the six rules + automation boundary + troubleshooting
 .githooks/                pre-push gate (enable with `make hooks`; run with `make push-check`)
 .claude-plugin/           plugin.json + marketplace.json (Claude Code plugin + marketplace)
 .mcp.json                 MCP server config (bundled into the plugin)
@@ -344,14 +315,5 @@ See `.claude/skills/skill-maintainer/SKILL.md` and the live walkthrough:
 
 ## Troubleshooting
 
-| Symptom | Fix |
-|---|---|
-| `ASCEND_HOME_PATH not set` on npu/costmodel/comm suites | `cp env.example.sh env.sh && source ./env.sh` |
-| cpu-st: `Could not find a suitable compiler` | run on ecs / yellow / b10 (clang++>=15 or g++>=13) |
-| npu-sim suite shows `!` in `python3 -m skill_foundry.workflow.run --list` | `python3 -m skill_foundry.lib.cann` — need BOTH headers and simulator |
-| `target repo not found` | `export PTO_ISA_REPO=~/pto-isa` |
-| bare `python3 -m skill_foundry.workflow.run` exits 2 | pass `--suite <name>` or `--all-suites` |
-| `baseline` refuses to pin | a suite didn't PASS — fix it, or `--force` |
-| `report --open` → xdg-open errors / no browser | handled: WSL opens via `explorer.exe`; else prints the path |
-| skills not showing up in the agent | run `./harness skills --install`, then restart/reload the agent |
-| `--pr` printed a PR-new URL instead of creating it | set `export GH_TOKEN=<github token>` (or `gh auth login`) in `env.sh` — see `.claude/skills/skill-maintainer/references/pr-automation.md` |
+See [docs/RULES.md](docs/RULES.md#troubleshooting) for the canonical table.
+

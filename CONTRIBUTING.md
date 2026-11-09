@@ -48,20 +48,16 @@ PRs include a description in the
 
 ## Rules
 
-- **The pinned baseline is ground truth.** Refresh it deliberately, never casually.
-- **Never auto-remove or auto-change an existing check** — promotion is add-only.
-- **p99 > +15% flags a perf regression even if average is stable.**
+See [docs/RULES.md](docs/RULES.md) for the canonical six rules and the automation
+boundary. Contribution specifics:
+
 - **Exit codes:** `0` clean · `1` ran-with-failures · `2` usage.
 - **Secrets never touch git** — tokens go in the gitignored `env.sh`.
 
 ## Automation boundary
 
-| Role | What it does |
-|---|---|
-| 🟢 scripts (automatic) | run, extract, report, review, dry-run previews |
-| 🟢 harness (gated + LLM-reviewed) | capture a correction, propose a diff, apply + push (add-only · no-secrets · size · spec, then LLM judge APPROVE) |
-| 🟡 you (gate) | triage content (`wrong → correct → action`) + merging the PR |
-| 🔴 never automatic | remove/change an existing check |
+See [docs/RULES.md](docs/RULES.md#automation-boundary-who-does-what) for the
+canonical who-does-what table.
 
 ## Git reconciliation
 

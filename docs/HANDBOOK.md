@@ -22,20 +22,11 @@ IMPROVE  ./harness teach → promote --pr                 (corrections → skill
 
 ## The rules that keep the signal honest
 
-Six rules that matter more than they look:
-
-1. **The pinned baseline is the ground truth.** "Regression" = *diff vs
-   `reports/baseline/<target>.json`*. Refresh it only deliberately (new suites /
-   arch changes), never casually.
-2. **Never auto-remove or auto-change an existing check.** The harness adds; it
-   never silently deletes or weakens a check.
-3. **p99 > +15% flags a perf regression even if average is stable.** Never trust
-   average alone.
-4. **An npu-sim suite needs BOTH the CANN compile headers AND the simulator.**
-   `python3 -m skill_foundry.workflow.run --list` marks it `!` if either is missing; `python3 -m skill_foundry.lib.cann` shows why.
-5. **`--all-suites` auto-skips missing prereqs; an explicit `--suite` force-runs.**
-6. **Every run records context** (git ref, dirty flag, host, env) in `run.json`,
-   so any result is reproducible on another machine.
+Six rules that matter more than they look. Canonical text: [RULES.md](RULES.md);
+the one-line version: baseline is ground truth · never auto-remove/change a check
+· p99 +15% flags a perf regression even if avg is stable · npu-sim needs BOTH
+headers AND simulator · `--all-suites` auto-skips missing prereqs · every run
+records context in `run.json`.
 
 See [metrics.md](metrics.md) for the performance-metric schema
 (modeled on the vmi-dashboard: EX/IPC/vf_real/dual/stalls) and the exact
@@ -45,22 +36,10 @@ regression thresholds.
 
 ## Automation boundary (who does what)
 
-| Role | What it does |
-|---|---|
-| 🟢 **thin scripts (automatic, agent-driven)** | run suites, extract logs, report, review, dry-run previews |
-| 🟢 **harness (automatic, gated + LLM-reviewed)** | capture a correction, propose a diff, apply + commit + push on a branch, open a PR |
-| 🤖 **AI / agent (automatic, on trigger)** | auto-captures a correction when you correct it (`"no / actually / remember …"`) and replies with the `LRN-…` id; triages per the skill |
-| 🟡 **you (remote gate)** | the triage *content* (`wrong → correct → action`) and **merging the PR on the remote** (branch protection) |
-| 🔴 **never automatic** | remove or change an existing check |
-
-**Why the line is drawn there:** auto-*append* is safe — `learnings/recent.md`
-is the harness's own scratch memory. Auto-*edit* is not — `SKILL.md` +
-`known-failures.md` are the team's shared source of truth. So promotion runs the
-gates and an LLM judge first, then `--pr` applies + pushes + opens a PR
-that a human merges after the CI gates pass. Same line Claude Code draws: it
-auto-writes its memory but never auto-edits your `CLAUDE.md`. A wrong auto-edit
-(e.g. a bad "known
-failure") would hide real regressions.
+See [RULES.md](RULES.md#automation-boundary-who-does-what) for the canonical
+table + rationale. Summary: scripts + harness are automatic and gated; you own
+the triage content and the PR merge; removing/changing an existing check is
+never automatic.
 
 On the report side: gtest-style case timing (p50/p99/max) is always captured;
 per-suite CA metrics (EX/IPC/vf_real/dual/stalls, modeled on the vmi-dashboard)
@@ -103,28 +82,9 @@ Agent-Skills-compatible agent:
 
 ## Command reference
 
-| Command | Purpose |
-|---|---|
-| `python3 -m skill_foundry.workflow.status` | one-glance dashboard (env, suites, baseline, learnings, skills visibility, last run) |
-| `python3 -m skill_foundry.workflow.diagnose` | check this machine + print the exact fix for each issue |
-| `python3 -m skill_foundry.workflow.onboarding` | guided first-run setup |
-| `./harness menu` | curated interactive menu (also the bare `./harness` default) |
-| `python3 -m skill_foundry.workflow.run` | run suites (`--all-suites`, `--suite X`, `--testcase`, `--filter`, `--quiet`, `--tui`, `--json`, `--dry-run`, `--parallel`) |
-| `python3 -m skill_foundry.workflow.report` | run.json → `report.md`/`.html` (`--open`, `--known`) |
-| `python3 -m skill_foundry.workflow.review` | diff a run vs the pinned baseline (p99 + CA metrics) |
-| `./harness capture-skill` | draft a NEW skill into `hub/inbox/` |
-| `./harness promote-skill` | promote a draft into `.claude/skills/` (`--propose`/`--apply`/`--pr`) |
-| `./harness skills` | list/search skills (entry points first) · `--install` / `--uninstall` / `--dry-run` into agents · `--mine` visibility check · `--refresh` the catalog |
-| `./harness teach` | log a correction (append-only) |
-| `./harness promote` | pending learnings → skills (`--propose` / `--apply` / `--pr`) |
-| `bash skill_foundry/workflow/baseline.sh` | re-pin `reports/baseline/<target>.json` (per target) |
-| `python3 -m skill_foundry.workflow.run --list` | suites + arches with auto-detected availability |
-| `python3 -m skill_foundry.lib.cann` | which CANN supports which arch (headers vs simulator) |
-| `python3 -m skill_foundry.workflow.guide` | interactive tour of the real flow |
-| `python3 -m skill_foundry.workflow.demo` | interactive sandboxed walkthrough |
-| `python3 -m skill_foundry.workflow.history` / `clean` / `validate` | housekeeping |
-| `./harness selfcheck` | compile + skill-spec + reference integrity + index freshness + unit tests + demo smoke |
-| `./harness help [verb]` · `./harness version` | this help / per-verb examples / version |
+The full CLI surface is generated from `skill_foundry/verbs.py` — see
+[CLI.md](CLI.md) for the canonical table (harness verbs + bundled workflow
+commands; never hand-edited).
 
 Run `./harness help <verb>` for any verb's detailed examples.
 
@@ -266,16 +226,7 @@ corpus that changes only through the gates + review (a green-CI `--pr`).
 
 ## Troubleshooting
 
-| Symptom | Fix |
-|---|---|
-| `ASCEND_HOME_PATH not set` on npu/costmodel/comm | `cp env.example.sh env.sh && source ./env.sh` |
-| cpu-st `Could not find a suitable compiler` | clang++>=15 or g++>=13 (ecs / yellow / b10) |
-| npu-sim suite shows `!` in `python3 -m skill_foundry.workflow.run --list` | `python3 -m skill_foundry.lib.cann` — need BOTH headers and simulator |
-| `target repo not found` | `export PTO_ISA_REPO=~/pto-isa` |
-| bare `python3 -m skill_foundry.workflow.run` exits 2 | pass `--suite <name>` or `--all-suites` |
-| `baseline` refuses to pin | a suite didn't PASS — fix it, or `--force` |
-| Not sure what's wrong | `python3 -m skill_foundry.workflow.diagnose` |
-| `report --open` prints xdg-open errors / no browser | handle automatically: on WSL it opens via `explorer.exe` (host browser), else prints the file path (+ Windows path on WSL) |
+See [RULES.md](RULES.md#troubleshooting) for the canonical table.
 
 
 ## tilelangGym SoftLib/ST gates

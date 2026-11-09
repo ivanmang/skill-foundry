@@ -84,6 +84,8 @@ python3 -m skill_foundry.lib.cann          # CANN/arch detection
 - npu-sim needs BOTH compile headers AND the simulator; p99 +15% flags a perf
   regression even if average is stable.
 - The baseline is the ground truth — refresh it only deliberately.
+
+(Canonical text of the six rules + automation boundary: [docs/RULES.md](docs/RULES.md).)
 ## tilelangGym target (SoftLib/ST)
 
 - Skills: `tilelanggym-st-explore`, `tilelanggym-softlib-simt`, `tilelanggym-st-report`,

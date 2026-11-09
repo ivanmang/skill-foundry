@@ -13,6 +13,7 @@ import importlib
 import subprocess
 import sys
 
+from skill_foundry import verbs as verb_registry
 from skill_foundry.paths import ROOT, version as _version
 
 # ── THE PRODUCT — the skill-ops loop (this is all ./harness does) ──
@@ -79,11 +80,15 @@ def version(short: bool = False) -> str:
 
 
 def usage(file=None) -> None:
-    print(TEXT_USAGE, file=file or sys.stdout, end="")
+    print(verb_registry.usage_text(), file=file or sys.stdout, end="")
 
 
 def verb_help(verb: str) -> None:
-    print(VERB_HELP.get(verb, "no detailed help for '%s' — run ./harness help" % verb))
+    print(
+        verb_registry.VERB_HELP.get(
+            verb, "no detailed help for '%s' — run ./harness help" % verb
+        )
+    )
 
 
 def dispatch(cmd: str, args: list[str]) -> int:
@@ -110,95 +115,3 @@ def dispatch(cmd: str, args: list[str]) -> int:
     print(f"unknown command: {cmd}", file=sys.stderr)
     usage(sys.stderr)
     return 2
-
-
-TEXT_USAGE = """\
-usage: ./harness <command> [args]
-
-THE PRODUCT — the skill-ops loop (capture → promote → hub → discover):
-  capture-skill  Draft a NEW skill into hub/inbox/       [--description, --dry-run]
-  promote-skill  Publish a draft into .claude/skills/    [--propose | --apply | --pr]
-  teach          Log a correction (a lesson)             ["wrong -> correct -> action" | wizard | --edit]
-  learn          Log + promote (and --pr) in one step    ["wrong -> correct -> action" | --pr]
-  capture-session Draft learnings from a pi session     [--session X.jsonl | --apply]
-  promote        Publish learnings into skills           [--propose | --apply | --pr]
-  skills         List/search skills · install · refresh  [--search, --category, --origin, --scope, --entry, --inbox, --install, --uninstall, --dry-run, --mine, --refresh, --check, --json]
-
-SHELL:
-  menu           Curated menu (bare ./harness default)
-  selfcheck      Compile + spec + reference integrity + index freshness + demo smoke
-
-  help           Show this help — or: ./harness help <verb>
-  version        Show the harness version                [--short]
-
-The bundled regression workflow (run → report → review, capability detection,
-baseline, readiness) is NOT part of the harness. It lives as directly-runnable
-thin scripts that the skills reference as knowledge:
-
-  python3 -m skill_foundry.workflow.run [--all-suites | --suite X …]
-  python3 -m skill_foundry.workflow.report · .workflow.review · .workflow.status
-  python3 -m skill_foundry.lib.cann   (CANN/arch detection)
-
-See .claude/skills/ for the full, self-contained workflow knowledge.
-
-Examples:
-  ./harness capture-skill code-review
-  ./harness teach "vcvt mismatch -> annotate as known -> add to known-failures"
-  ./harness promote --pr            # publish learnings (open a PR, human merges)
-  ./harness skills --search review  # discover skills
-"""
-
-
-VERB_HELP: dict[str, str] = {
-    "capture-skill": """\
-./harness capture-skill <name> [--description "…"] [--dry-run]
-Draft a NEW skill into hub/inbox/<name>/SKILL.md (wizard / editor for the body).
-Example: ./harness capture-skill code-review --description "Review PRs against house style"
-""",
-    "promote-skill": """\
-./harness promote-skill [<name>] [--propose | --apply | --pr]
-Publish a draft from hub/inbox/ into .claude/skills/ (gated + LLM-reviewed; a human merges the PR).
-Example: ./harness promote-skill code-review --pr
-""",
-    "teach": """\
-./harness teach — log a correction (append-only)
-  "wrong -> correct -> action"  one-line shorthand
-  (no args)                     interactive wizard
-  --edit                        open $EDITOR with a template
-
-Example: ./harness teach "vcvt mismatch -> known pattern, annotate -> promote to known-failures"
-""",
-    "promote": """\
-./harness promote — publish pending learnings into skills (gated + LLM-reviewed)
-  --propose  print a reviewable diff (no write)
-  --apply    write the edits locally (no commit)
-  --pr       branch + push + open a PR (a human merges)
-
-Review and the mechanical gates are MANDATORY: there is no --no-review,
-no --force, and no --direct. Publish only via --pr, which opens a PR.
-
-Examples:
-  ./harness promote --propose   # review the diff first
-  ./harness promote --pr        # apply + push a branch + open a PR
-""",
-    "skills": """\
-./harness skills [--search <q>] [--category <c>] [--origin <o>] [--scope core|all] [--entry] [--inbox] [--install | --uninstall] [--dry-run] [--mine] [--refresh] [--check] [--json]
-List/search skills (published .claude/skills/ + drafts hub/inbox/).
-  --search    filter by name/description/category substring
-  --category  filter by exact category
-  --origin    filter by exact origin (native | cannbot)
-  --scope     preset: 'core' = the owned (origin: native) skills
-  --entry     entry points only
-  --refresh   rewrite hub/catalog.json + docs/SKILLS_INDEX.md
-  --check     fail if catalog/index are stale (no writes)
-  --install   symlink skills into each detected agent's user dir (respects filters)
-  --uninstall remove the harness skill symlinks (respects filters)
-  --dry-run   with --install/--uninstall: show what would change (no writes)
-  --mine      show what each detected agent can see vs the hub
-Examples: ./harness skills --search review      ./harness skills --install --scope core      ./harness skills --mine
-""",
-    "selfcheck": """\
-./harness selfcheck — compile + skill-spec + reference integrity + index freshness + demo smoke.
-Example: ./harness selfcheck
-""",
-}

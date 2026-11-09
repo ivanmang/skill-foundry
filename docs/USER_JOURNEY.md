@@ -35,15 +35,11 @@ And a simple rule of thumb for who does what:
 - 🟡 **you / a reviewer do** — the triage judgment (`teach`); and with `--pr`,
   you merge each PR after CI is green.
 
-And six rules that keep the regression signal honest:
-
-1. The pinned baseline is the **ground truth** — "regression" = diff vs it;
-   refresh only deliberately (new suites / arch changes), never casually.
-2. Never auto-remove or auto-change an existing check — the harness only adds.
-3. p99 > +15% flags a perf regression even if the average is stable.
-4. npu-sim needs BOTH compile headers AND the simulator (see `python3 -m skill_foundry.workflow.run --list` / `cann`).
-5. `--all-suites` auto-skips missing prereqs; an explicit `--suite` force-runs.
-6. Every run records context (git ref, dirty flag, host, env) → reproducible.
+And six rules that keep the regression signal honest — canonical text in
+[RULES.md](RULES.md): baseline is ground truth · never auto-remove/change a check
+· p99 +15% flags a perf regression even if avg is stable · npu-sim needs BOTH
+headers and simulator · `--all-suites` auto-skips missing prereqs · every run
+records context (reproducible).
 
 ---
 
@@ -420,32 +416,10 @@ loop, and every teammate gets it via git.
 
 ## Automation boundaries
 
-| Step | Automation | Who |
-|---|---|---|
-| Run / extract / report / review / dry-run | 🟢 automatic | scripts (agent-driven) |
-| Capture a correction (`recent.md`, append-only) | 🟢 automatic | harness **or** the AI (when you correct it) |
-| Draft promotion (diff, no write) | 🟢 automatic | harness |
-| Mechanical gates (add-only · no-secrets · size · spec) | 🟢 automatic | harness |
-| **LLM review** (judge must APPROVE) | 🟢 automatic | `SKILL_REVIEWER` (or you, interactively) |
-| Apply + branch + push + open the PR (`--pr`) | 🟢 automatic | harness |
-| **Merge the PR** (`--pr`) | 🟡 a human merges after CI is green | you |
-| Remove / change an existing check | 🔴 never automatic | — |
-
-Capture is triggered by `./harness teach` or by the agent reacting to your
-corrections (`"no / actually / remember …"`) and replying with the `LRN-…` id;
-until a note is promoted it changes nothing in the skills.
-
-This mirrors the industry norm: like Claude Code auto-writing memory but not
-auto-editing your `CLAUDE.md`, the harness auto-logs but only *proposes* edits.
-
-**Why the line is drawn there:** auto-append is cheap and safe — `recent.md` is
-the harness's own scratch memory, append-only and trivially revertible.
-Auto-edit is expensive and risky — `SKILL.md` + `known-failures.md` are the
-team's shared source of truth that every future run reads. The worst failure
-mode isn't a bad memory entry; it's a wrong "known failure" that silently
-annotates a real regression as known and hides it. So the machine may grow its
-memory freely, but shared knowledge changes only after the gates and an LLM
-judge APPROVE — then `--pr` opens a PR a human merges after CI is green.
+See [RULES.md](RULES.md#automation-boundary-who-does-what) for the canonical
+table + rationale. Capture is automatic (`./harness teach` or the agent reacting
+to your corrections); promotion is gated + LLM-reviewed, then a human merges the
+PR; removing/changing an existing check is never automatic.
 
 ---
 
@@ -461,12 +435,5 @@ judge APPROVE — then `--pr` opens a PR a human merges after CI is green.
 
 ## Troubleshooting
 
-| Symptom | Fix |
-|---|---|
-| `ASCEND_HOME_PATH not set` on npu/costmodel/comm | `cp env.example.sh env.sh && source ./env.sh` |
-| cpu-st `Could not find a suitable compiler` | run on ecs / yellow / b10 (clang++>=15 or g++>=13) |
-| npu-sim suite shows `!` in `python3 -m skill_foundry.workflow.run --list` | `python3 -m skill_foundry.lib.cann` — the chosen CANN must have both headers and the simulator |
-| `target repo not found` | `export PTO_ISA_REPO=~/pto-isa` |
-| bare `python3 -m skill_foundry.workflow.run` exits 2 | pass `--suite <name>` or `--all-suites` |
-| `bash skill_foundry/workflow/baseline.sh` refuses to pin | a suite didn't PASS — fix it, or `--force` |
-| `python3 -m skill_foundry.workflow.run --list demo` says unknown target | demo uses its own config: `python3 -m skill_foundry.workflow.run --list --target demo --config demo/config/demo-suites.json --arches demo/config/demo-arches.json` |
+See [RULES.md](RULES.md#troubleshooting) for the canonical table.
+

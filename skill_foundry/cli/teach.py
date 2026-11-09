@@ -42,6 +42,9 @@ def latest_run() -> tuple[str | None, str | None]:
             continue
         if not isinstance(data, dict):
             continue
+        if (data.get("run_id") or "").startswith("demo-live"):
+            # demo runs are sandboxed — don't let them become the default context
+            continue
         key = data.get("generated_at") or str(p.stat().st_mtime)
         if best is None or key > best[0]:
             best = (key, data.get("run_id"), data.get("target"))
@@ -182,6 +185,14 @@ def main(argv: list[str] | None = None) -> int:
             "action": args.action or "",
         }
     else:
+        if not sys.stdin.isatty():
+            print(
+                "teach needs input when run non-interactively. Pass a note:\n"
+                '  ./harness teach "wrong -> correct -> action"\n'
+                "  (or use --wrong/--correct/--action flags)",
+                file=sys.stderr,
+            )
+            return 2
         entry = wizard(ctx_default, sk_default)
 
     # explicit flags override anything derived or entered

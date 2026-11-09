@@ -21,9 +21,11 @@ from __future__ import annotations
 import argparse
 import datetime as _dt
 import json
+import re
 import sys
 from collections import Counter
 
+from skill_foundry import verbs as verb_registry  # noqa: E402
 from skill_foundry.paths import ROOT as HARNESS  # noqa: E402
 from skill_foundry.lib import validate_skills  # noqa: E402 — reuse its frontmatter parser
 
@@ -31,6 +33,10 @@ LIVE = HARNESS / ".claude" / "skills"
 INBOX = HARNESS / "hub" / "inbox"
 CATALOG = HARNESS / "hub" / "catalog.json"
 INDEX = HARNESS / "docs" / "SKILLS_INDEX.md"
+README = HARNESS / "README.md"
+CLI_DOC = HARNESS / "docs" / "CLI.md"
+
+_SKILL_COUNT_RE = re.compile(r"<!-- SKILL_COUNT -->\d+<!-- /SKILL_COUNT -->")
 
 _TRUTHY = {"true", "yes", "1", "on"}
 
@@ -190,14 +196,56 @@ def _skill_filter(
     return True
 
 
+def _published_count(skills: list[dict]) -> int:
+    return sum(1 for s in skills if s["status"] == "published")
+
+
+def _sync_readme_count(skills: list[dict]) -> None:
+    """Rewrite the generated skill count in README.md (drift-proof)."""
+    if not README.exists():
+        return
+    text = README.read_text(encoding="utf-8", errors="replace")
+    new = f"<!-- SKILL_COUNT -->{_published_count(skills)}<!-- /SKILL_COUNT -->"
+    text, _n = _SKILL_COUNT_RE.subn(new, text)
+    README.write_text(text, encoding="utf-8")
+
+
+def _readme_count_stale(skills: list[dict]) -> bool:
+    if not README.exists():
+        return False
+    text = README.read_text(encoding="utf-8", errors="replace")
+    expected = f"<!-- SKILL_COUNT -->{_published_count(skills)}<!-- /SKILL_COUNT -->"
+    matches = list(_SKILL_COUNT_RE.finditer(text))
+    if not matches:
+        # markers gone → the count is no longer maintained (silent drift)
+        return True
+    return any(m.group(0) != expected for m in matches)
+
+
+def _sync_cli_doc() -> None:
+    CLI_DOC.write_text(verb_registry.cli_markdown(), encoding="utf-8")
+
+
+def _cli_doc_stale() -> bool:
+    if not CLI_DOC.exists():
+        return True
+    return (
+        CLI_DOC.read_text(encoding="utf-8", errors="replace")
+        != verb_registry.cli_markdown()
+    )
+
+
 def refresh() -> None:
     skills = collect()
     CATALOG.write_text(
         json.dumps(_catalog_payload(skills), indent=2) + "\n", encoding="utf-8"
     )
     INDEX.write_text(_build_index(skills), encoding="utf-8")
+    _sync_readme_count(skills)
+    _sync_cli_doc()
     print(
-        f"✓ refreshed — {len(skills)} skill(s) → {CATALOG.relative_to(HARNESS)} + {INDEX.relative_to(HARNESS)}"
+        f"✓ refreshed — {len(skills)} skill(s) → {CATALOG.relative_to(HARNESS)} + "
+        f"{INDEX.relative_to(HARNESS)} (+ README count + CLI reference)"
     )
 
 
@@ -215,13 +263,17 @@ def check() -> int:
         stale.append(str(CATALOG.relative_to(HARNESS)))
     if not INDEX.exists() or INDEX.read_text(encoding="utf-8") != index_text:
         stale.append(str(INDEX.relative_to(HARNESS)))
+    if _readme_count_stale(skills):
+        stale.append(str(README.relative_to(HARNESS)))
+    if _cli_doc_stale():
+        stale.append(str(CLI_DOC.relative_to(HARNESS)))
     if stale:
         print(
             "✗ stale index (run ./harness skills --refresh): " + ", ".join(stale),
             file=sys.stderr,
         )
         return 1
-    print("✓ catalog + skills index up to date")
+    print("✓ catalog + skills index + README count + CLI reference up to date")
     return 0
 
 

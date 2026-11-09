@@ -189,9 +189,13 @@ def render(data: dict) -> None:
         ascend_ok = False
     print(c(" environment", BOLD))
     print(f"  {mark(env['python3'])} python3    {mark(env['git'])} git")
-    print(
-        f"  {mark(ascend_ok)} ASCEND_HOME_PATH  {c(ascend_desc, GREEN if ascend_ok else YELLOW)}"
-    )
+    if ascend_ok:
+        print(f"  {mark(True)} ASCEND_HOME_PATH  {c(ascend_desc, GREEN)}")
+    else:
+        print(
+            f"  {c('·', YELLOW)} ASCEND_HOME_PATH  {c(ascend_desc, YELLOW)}"
+            "  (optional — only npu-sim/costmodel/comm suites need it)"
+        )
 
     for t in data["targets"]:
         print(c(f"\n target: {t['label']}  ({t['name']})", BOLD))
@@ -231,18 +235,21 @@ def render(data: dict) -> None:
 
     sk = data["skills"]
     print(c("\n skills", BOLD))
+    owned_visible = sk["owned_total"] - len(sk["missing_owned"])
     print(
-        f"  agents see {sk['visible_total']} of {sk['hub_total']} harness skills"
+        f"  owned skills: {owned_visible}/{sk['owned_total']} visible to an agent"
         + (
-            f" ({sk['owned_total']} owned — missing: {', '.join(sk['missing_owned'])})"
+            f" — missing: {', '.join(sk['missing_owned'])}"
             if sk["missing_owned"]
             else ""
         )
     )
+    print(f"  (union across all agents: {sk['visible_total']}/{sk['hub_total']} total)")
     if sk["local_only"]:
         print(f"  local-only (not in hub): {', '.join(sk['local_only'])}")
     print(
-        "  see per-agent: ./harness skills --mine   ·   install owned: ./harness skills --install --scope core"
+        "  per-agent: ./harness skills --mine   ·   "
+        "install owned: ./harness skills --install --scope core"
     )
 
     lr = data["last_run"]

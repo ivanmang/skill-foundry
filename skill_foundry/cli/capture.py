@@ -115,6 +115,18 @@ def main(argv: list[str] | None = None) -> int:
             print(f"error: {msg}", file=sys.stderr)
         return code
 
+    if not args.name and not sys.stdin.isatty():
+        return fail(
+            "capture-skill needs a <name> when run non-interactively "
+            '(e.g. ./harness capture-skill my-skill --description "…")'
+        )
+    if not args.description and not sys.stdin.isatty():
+        return fail(
+            "capture-skill needs --description when run non-interactively "
+            '(e.g. ./harness capture-skill my-skill --description "…")',
+            code=2,
+        )
+
     name = args.name or prompt("Skill name (lowercase-hyphen)")
     err = valid_name(name)
     if err:
