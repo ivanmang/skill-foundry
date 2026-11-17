@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated": "2026-11-05T08:33:36.187995+00:00",
+  "generated": "2026-11-17T06:03:16.879894+00:00",
   "skills": [
     {
       "name": "aclnn-doc-gen",
@@ -585,6 +585,18 @@
       "status": "published"
     },
     {
+      "name": "npu-cce-run",
+      "description": "Compile, launch, record, and decode a hand-written CCE body (`.asc`) on the Ascend simulator. Use when you have a __simt_vf__ / __vector__ body \u2014 a single-op Schedule from skill:npu-op-burst, a hand-written kernel draft, or a formula's CCE spelling \u2014 and need the bisheng compile + npusim record + counter-decode recipe. Documents the launch/decode harness contract and the buffer-staging sync the staged bodies depend on.",
+      "category": "ascendc-dev",
+      "license": "CANN Open Software License Agreement Version 2.0",
+      "entry": false,
+      "stages": [],
+      "origin": "native",
+      "owner": "skill-foundry",
+      "maturity": "ready",
+      "status": "published"
+    },
+    {
       "name": "npu-dist-modes",
       "description": "Use when choosing vlds/vsts distribution modes (NORM/DINTLV/E2B/BRC/UNPK/BLK loads, NORM/PK/PK4/INTLV stores) or deciding whether a data rearrangement should be an EXU instruction or a load/store mode. LSU-path semantics with a per-mode validation matrix; A5-validated, carries to A6 unless noted.",
       "category": "ascendc-dev",
@@ -597,9 +609,33 @@
       "status": "published"
     },
     {
+      "name": "npu-i-cache-stall",
+      "description": "Diagnose a long empty strip in a SIMT VF window where every warp issues nothing \u2014 an I-cache / I-stream (or cold first-launch) stall, not warp stagger. Use when a single-op Schedule or case kernel chart shows a long all-warp 0-IPC blank, or when a multi-launch case needs a warm VF[1] for rates and charts. Prefer the \"same body twice, use VF[1]\" fix before publishing a line.",
+      "category": "perf-analysis",
+      "license": "CANN Open Software License Agreement Version 2.0",
+      "entry": false,
+      "stages": [],
+      "origin": "native",
+      "owner": "skill-foundry",
+      "maturity": "ready",
+      "status": "published"
+    },
+    {
       "name": "npu-loop-patterns",
       "description": "Use when structuring hot vector loops on A5/A6 \u2014 unroll width, loop-carried dependencies, tail handling, predicates (plt/POST_UPDATE), pointer addressing, scalar/ASU pressure \u2014 AND when reviewing kernels for known anti-patterns (chained POST_UPDATE, vcmax-per-VL, PK4-store floods, mid-loop predicate construction, plt-counter duplication, VSQZ store-hint deadlocks). Rules R1/R4/R7/R11-13 plus the case-writing anti-pattern catalog with measured costs.",
       "category": "ascendc-dev",
+      "license": "CANN Open Software License Agreement Version 2.0",
+      "entry": false,
+      "stages": [],
+      "origin": "native",
+      "owner": "skill-foundry",
+      "maturity": "ready",
+      "status": "published"
+    },
+    {
+      "name": "npu-op-burst",
+      "description": "Drive a hand-written CCE single opcode (SIMT_LDS / SIMT_F2F / SIMT_FFMA / SIMT_STS) to its best measured rate. Use when a roof or stage model needs a real per-opcode line, when a kernel beats a recorded line and that line must be re-pushed, or when preparing single-op Schedule bodies for an ST study. Bundles the burst ladder (purity, coalescing, packing, barrier, window purity) plus per-op playbooks with measured constants and runnable .asc bodies.",
+      "category": "perf-analysis",
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
       "stages": [],
@@ -624,6 +660,30 @@
       "name": "npu-reduce-recipes",
       "description": "Use when writing or optimizing vector reductions (per-group absmax, row reduce, cascade/pack) on A5 or A6: choosing vcmax/vcgmax/vmax-tree recipes, deferring packs, or porting A5 reduce intrinsics to A6 v2 instructions.",
       "category": "ascendc-dev",
+      "license": "CANN Open Software License Agreement Version 2.0",
+      "entry": false,
+      "stages": [],
+      "origin": "native",
+      "owner": "skill-foundry",
+      "maturity": "ready",
+      "status": "published"
+    },
+    {
+      "name": "npu-single-opcode-rate",
+      "description": "Measure one instruction (opcode) in isolation on the Ascend NPU simulator to learn its rate, then use that rate to reason about a whole kernel. Use when building a roof or stage model, attributing kernel cost to opcodes, or microbenchmarking SIMT_LDS / F2F / FFMA / STS / RV_* before an ST or SoftLib study. Implements the two-dump trace pairing, busy-union (not span) accounting, and the instruction/IPC figures.",
+      "category": "perf-analysis",
+      "license": "CANN Open Software License Agreement Version 2.0",
+      "entry": false,
+      "stages": [],
+      "origin": "native",
+      "owner": "skill-foundry",
+      "maturity": "ready",
+      "status": "published"
+    },
+    {
+      "name": "npu-stage-model",
+      "description": "Build a staged theoretical bound for a kernel and compare the schedules a body can actually run against that budget. Use when an ST study asks for the theoretical model (a separate <case>-theoretical.md), or when a kernel's measured VF should be checked against a serial sum of per-opcode lines. Pairs with the schedule write/refuse patterns in references/schedule-patterns.md.",
+      "category": "perf-analysis",
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
       "stages": [],
@@ -1068,6 +1128,18 @@
     {
       "name": "tilelanggym-column-scale",
       "description": "Use when a TileLang or SIMT kernel has one scale per column: scale[col] = max over rows of |X[row, col]|, then Out[row, col] = X[row, col] * (1 / scale[col]). Keep the max in the lane, take the inverse once, and multiply the held rows. This kernel has no reducer and no barrier. One scale for the whole tile is skill:tilelanggym-block-scale. A per-group Case-3 reduce is skill:tilelanggym-softlib-simt.",
+      "category": "perf-analysis",
+      "license": "CANN Open Software License Agreement Version 2.0",
+      "entry": false,
+      "stages": [],
+      "origin": "native",
+      "owner": "skill-foundry",
+      "maturity": "ready",
+      "status": "published"
+    },
+    {
+      "name": "tilelanggym-dot-product",
+      "description": "Use when the user's math is a dot product \u2014 one sum per output row over the inner K axis, multiply-accumulate, no scale and no eps floor. Write the TileLang SIMT warp-per-output body, or the hand-written CCE __simt_vf__ body staged through the buffer, and read their measured grids. A per-group reduce-then-map is skill:tilelanggym-softlib-simt; a max-scale is skill:tilelanggym-block-scale or skill:tilelanggym-column-scale.",
       "category": "perf-analysis",
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
