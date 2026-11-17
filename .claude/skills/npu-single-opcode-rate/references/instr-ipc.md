@@ -22,7 +22,7 @@ line.
 By default the trace must hold **exactly one** VF launch. When a record has
 several (multi-slab, or a redundant warm launch), pick one with `--vf N`
 (0-based). For rates and charts after a cold first-launch / 0-IPC gap, use
-**`--vf 1`** — see the warm-VF / I-stream method (separate skill, drafted next).
+**`--vf 1`** — see `skill:npu-i-cache-stall`.
 Do not publish VF[0] as the result when VF[1] is the warm window.
 
 ## Drawn span (to last issue)

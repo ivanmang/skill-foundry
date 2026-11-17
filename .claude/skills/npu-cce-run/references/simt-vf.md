@@ -1,7 +1,7 @@
 # A `__simt_vf__` body
 
 A reference for the language. Not a formula. The measured dot-product spelling
-is a separate formula skill (drafted next).
+is `skill:tilelanggym-dot-product`.
 
 Lane `t` is `tid & 31`. The warp is `tid >> 5`. Lane `t` reads element `t`. The
 warp reduction finishes the group. Lane 0 writes.
@@ -26,4 +26,4 @@ refuse, lanes far apart:
 ```
 
 Compile with `skill:npu-cce-run`. For a measured full-kernel cell see the
-dot-product formula skill (drafted next).
+`skill:tilelanggym-dot-product`.

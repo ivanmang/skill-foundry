@@ -47,7 +47,7 @@ union.
    `N = 32 × threads`). A fixed-`N` launch that shrinks work/thread as threads
    grow can make the rate fall for that reason alone — that fall is not the
    hardware limit. (To push an opcode to its best line, use the CCE burst ladder
-   — separate skill `npu-op-burst`.)
+   — `skill:npu-op-burst`.)
 2. Record it once. From veccore0, pair each instruction by PC and ID: start tick
    from the popped log, completion tick from the instruction log.
 3. **Active cycles** for one instruction are `completion − issue + 1` (both
@@ -164,5 +164,5 @@ Read the opcode encoding in the trace when the source is not clear.
 
 Busy-union pairing: `../scripts/op-busy-cycles.py`. Runnable single-opcode CCE
 Schedules and the ladder that pushes them to their best line: the op-burst skill
-(`npu-op-burst`, drafted next). Inside an ST study, write the study to
+(`skill:npu-op-burst`). Inside an ST study, write the study to
 `<note-dir>/simt-uarch/simt-uarch.md` (`skill:tilelanggym-st-explore`).

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # Instruction rows plus the IPC line, from one instr.bin.
 #
-# Implements the figure rules in visualization/instr-ipc.md:
+# Implements the figure rules in ../references/instr-ipc.md:
 #   - veccore0 only (core == 0, sub == 1)
 #   - the window is one VF launch, inclusive of both end ticks: start of VF
 #     (SIMD) or VF_SIMT (SIMT) from the popped events (is_popped == 1) to its
@@ -32,12 +32,12 @@
 # --bin is the bin width in ticks, default 20 (the width the ST spine uses).
 # --warps draws the warp-row variant; it needs simt and refuses simd.
 # --vf N selects the N-th VF launch (0-based). Default: require exactly one VF.
-#   Use --vf 1 for a warm second launch (tilelang/techniques/i-cache-stall.md).
+#   Use --vf 1 for a warm second launch (skill:npu-i-cache-stall).
 # Output: one line per row label with its issue count, then
 #   VF <ticks>  span <span>  issues <n>  IPC <scalar>  -> <out.png>
 #
 # matplotlib and the simulator's decoder must be importable; see
-# tilelang/run/ascend.md or cce/run/ascend.md for the environment.
+# skill:npu-cce-run for the environment.
 import argparse
 import os
 import re
@@ -63,7 +63,7 @@ except ImportError:
         sys.exit(
             "cannot import the trace decoder (cannsim...). Load the simulator "
             "environment, or point CANN_PYTHON_PACKAGES at the CANN python "
-            "site-packages; see tilelang/run/ascend.md, 'Pieces'."
+            "site-packages; see skill:npu-cce-run, 'Environment'."
         )
 
 ROW = re.compile(r"\(ID:\s*(\d+)\)\s+([A-Z0-9_]+)")
@@ -120,7 +120,7 @@ def window(path: str, kind: str, vf_index: int = 0):
     VF ticks = completion - start + 1: both ticks included. The start comes
     from the popped log (is_popped == 1), the completion from the
     instruction log (is_popped == 0) — the general rule in
-    visualization/instr-ipc.md and tilelang/techniques/single-opcode-rate.md.
+    ../references/instr-ipc.md and ../references/reading-trace.md.
     """
     vf_name = "VF_SIMT" if kind == "simt" else "VF"
     rows = [
@@ -133,7 +133,7 @@ def window(path: str, kind: str, vf_index: int = 0):
     if not dones:
         sys.exit(
             f"{vf_name} issues without a completion in {path}: the trace is "
-            f"truncated. Pairing and the unre count: tools/op-busy-cycles.py."
+            f"truncated. Pairing and the unre count: op-busy-cycles.py."
         )
     if len(issues) != len(dones):
         sys.exit(
@@ -371,7 +371,7 @@ def main(argv):
     if args.vf is None and n_vf > 1:
         sys.exit(
             f"{n_vf} {vf_name} launches in {args.instr}; pass --vf N to pick one "
-            f"(warm rates/charts: --vf 1). See tilelang/techniques/i-cache-stall.md."
+            f"(warm rates/charts: --vf 1). See skill:npu-i-cache-stall."
         )
     ops = collect_ops(rows, vf_name, issue, done)
     vf_tag = f"VF[{vf_index}]" if n_vf > 1 else "VF"

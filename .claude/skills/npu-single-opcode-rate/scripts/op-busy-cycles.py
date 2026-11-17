@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # Busy cycles for one opcode, from a paired instruction trace.
 #
-# Implements the reading rules in tilelang/techniques/single-opcode-rate.md:
+# Implements the reading rules in ../references/reading-trace.md:
 #   - veccore0 only (core == 0, sub == 1)
 #   - pair each instruction by PC and ID across the two dumps:
 #     *.instr_popped_log.dump holds the START (issue) of each instruction
@@ -34,7 +34,7 @@
 #
 # Requires the simulator's decoder module on the import path. Under the
 # simulator environment, import the camodel runtime first (see
-# tilelang/run/ascend.md, "Launch"); the decoder reads the same install.
+# skill:npu-cce-run, "Environment"); the decoder reads the same install.
 import re
 import sys
 
@@ -43,7 +43,7 @@ try:
 except ImportError:
     sys.exit(
         "cannot import the trace decoder (cannsim...). Load the simulator "
-        "environment first; see tilelang/run/ascend.md, 'Launch'."
+        "environment first; see skill:npu-cce-run, 'Environment'."
     )
 
 ROW = re.compile(r"\(ID:\s*(\d+)\)\s+([A-Z0-9_]+)")

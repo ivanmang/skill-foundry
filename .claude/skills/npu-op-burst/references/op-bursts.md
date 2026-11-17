@@ -23,7 +23,7 @@ per thread cell.
 **Microbench vs case VF.** Single-launch pure Schedules chart **VF[0]**; a
 first-launch post-`END` blank sits outside the target-op busy union, so the rate
 is unaffected. Multi-slab / multi-VF **case** kernels use warm **VF[1]** for
-rates and charts (the warm-VF method, separate skill).
+rates and charts (`skill:npu-i-cache-stall`).
 
 ## LDS — load from unified buffer
 
@@ -115,7 +115,7 @@ source as float2  →  still 2 × scalar FFMA emitted  (no vector FFMA ISA)
   schedule density only). Bodies: `../scripts/ffma/schedule-{1,2}.asc`.
 - **Limit** — issue-bound; window may leak preload → microbench lines are lower
   bounds below serial 32.38. Cold first-launch / all-warp 0-IPC holes: the
-  warm-VF method (separate skill).
+  `skill:npu-i-cache-stall`.
 
 ## STS — fp32 store to unified buffer
 

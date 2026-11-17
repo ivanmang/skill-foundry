@@ -23,8 +23,7 @@ owner: skill-foundry
 Measure one **instruction** (opcode) alone, get its rate, then use that rate to
 reason about a whole kernel. This is the measurement half of the perf method;
 `skill:npu-perf-method` is the estimate-first roofline half. The CCE ladder that
-*pushes* an opcode to its best line is a separate skill (`npu-op-burst`, drafted
-next).
+*pushes* an opcode to its best line is a separate skill (`skill:npu-op-burst`).
 
 ## Two terms that are not the same
 
@@ -107,7 +106,7 @@ harness verb for this; run the scripts directly.
   fall for that reason alone — prefer fixed work/thread when sweeping thread
   counts.
 - A long all-warp 0-issue hole is an I-cache/I-stream stall, not a rate fact —
-  diagnose separately (the warm-VF[1] method, separate skill, drafted next).
+  diagnose separately (`skill:npu-i-cache-stall`).
 - The figure x-axis ends at the last issue; empty VF drain is not drawn, or the
   busy part hides behind a long blank right edge.
 - The decoder import needs the camodel runtime loaded first (see step 1) — a

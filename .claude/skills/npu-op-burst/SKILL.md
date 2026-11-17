@@ -76,7 +76,7 @@ changes. Measure, then move to the next only if the step moved the rate.
    real burst from a mixed stream. Barriers that align warp entry belong here
    when stagger is the limiter. A long blank where **every** warp issues nothing
    is an I-stream stall — not stagger; prefer rates/charts from a **warm 2nd
-   VF** before publishing the line (separate skill, drafted next).
+   VF** before publishing the line (`skill:npu-i-cache-stall`).
 6. **Size scale (loads/stores).** When hunting an absolute bandwidth peak, push
    `N` / work-per-thread at fixed threads until the rate plateaus without
    spills. Past the plateau, denser WPT can drop; more warps may be required.
