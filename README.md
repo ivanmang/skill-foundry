@@ -117,13 +117,13 @@ Nothing to run.
 
 ### 2. Skills — always-on (any directory)
 
-Make every skill available in every project (<!-- SKILL_COUNT -->119<!-- /SKILL_COUNT --> skills — indexed in `docs/SKILLS_INDEX.md`):
+Make every skill available in every project (<!-- SKILL_COUNT -->125<!-- /SKILL_COUNT --> skills — indexed in `docs/SKILLS_INDEX.md`):
 
 ```bash
 ./harness skills --install --scope core     # only the owned skills (origin: native)
 ./harness skills --install --origin native  # same, explicit
 ./harness skills --install --category regression
-./harness skills --install                  # everything (all <!-- SKILL_COUNT -->119<!-- /SKILL_COUNT -->)
+./harness skills --install                  # everything (all <!-- SKILL_COUNT -->125<!-- /SKILL_COUNT -->)
 ```
 
 It symlinks each selected skill into `~/.claude/skills/`, `~/.pi/skills/` and
