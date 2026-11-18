@@ -31,9 +31,13 @@ The repo ships a **self-contained intro website** at [`index.html`](index.html)
 toggle, dark mode, present mode, ⌘K search, glossary). No build step, no external
 dependencies — it works from any static host or by opening it directly.
 
-- **GitHub Pages**: https://ivanmang.github.io/skill-foundry/ (enable *Settings →
-  Pages → Deploy from branch → `main` / `(root)`*; the `pages.yml` workflow also
-  publishes it on push).
+- **GitHub Pages**: https://ivanmang.github.io/skill-foundry/ — served by the
+  `pages.yml` workflow (`.github/workflows/pages.yml`), which stages only
+  `index.html` and deploys via GitHub Actions. Set *Settings → Pages → Build and
+  deployment → Source = **GitHub Actions*** (not "Deploy from a branch": the
+  legacy Jekyll build scans the whole repo and fails on `{{ … }}` in the skills
+  corpus). The workflow runs on **push to `main` when `index.html` changes** plus
+  manual `workflow_dispatch`; edits on other branches don't deploy.
 - **Local preview**: `python3 -m http.server 8000` then open
   http://localhost:8000/index.html (full functionality needs `http://`, not
   `file://`).
@@ -326,6 +330,25 @@ PR that a human merges after CI is green.
 > (For an *external gitcode-origin* repo, set `GITCODE_TOKEN` instead — the agent
 > auto-detects the remote host. See the footnote in
 > `.claude/skills/skill-maintainer/references/pr-automation.md`.)
+
+### Ledger lifecycle
+
+`learnings/recent.md` (inbox + audit trail), `promoted.md` (digest), and
+`corrections.md` (changelog) are a **ledger, not an editor** — the only thing
+that writes into a skill is `./harness promote`. Entries sit in `recent.md` as
+`pending` (awaiting promote), `promoted` (already applied), or `rejected`
+(dropped). Reset the ledger with:
+
+```bash
+./harness learnings clear     # blank when 0 pending; refuses (exit 2) if pending remain
+./harness learnings rotate    # archive to learnings/archive/ first, then reset
+```
+
+The shared `.githooks/pre-push` hook runs `learnings clear` on **every push**, so
+pushing with un-promoted `pending` entries is blocked (promote or reject first).
+Each teammate must run `make hooks` once (`git config core.hooksPath .githooks`)
+to activate it locally. To reject an entry there's no first-class command yet —
+edit its `status:` line to `rejected`.
 
 See `.claude/skills/skill-maintainer/SKILL.md` and the live walkthrough:
 `python3 -m skill_foundry.workflow.demo` (narration in `demo/NARRATION.md`).

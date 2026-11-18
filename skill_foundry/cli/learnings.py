@@ -2,9 +2,11 @@
 """`./harness learnings` — manage the learnings ledger (`learnings/recent.md`).
 
 Subcommands:
+  status   Print pending/promoted/rejected counts (default when no subcommand).
+  clear    Reset `recent.md` to a blank ledger (discards resolved history, no
+           archive). Refuses if any entry is still `pending`.
   rotate   Archive the current `recent.md` (full history) and start a fresh one.
            Refuses if any entry is still `pending` — promote/reject first.
-  status   Print pending/promoted/rejected counts (default when no subcommand).
 
 Rotation is **append-only and versioned**: `recent.md` is moved, never deleted,
 to `learnings/archive/recent-<YYYYMMDD-HHMMSS>.md`, so the audit trail (including
@@ -76,13 +78,34 @@ def _rotate() -> int:
     return 0
 
 
+def _clear() -> int:
+    if not RECENT.exists():
+        print("recent.md does not exist — nothing to clear.")
+        return 0
+    pending = _counts()["pending"]
+    if pending:
+        print(
+            f"refusing to clear: {pending} pending entr"
+            f"{'y' if pending == 1 else 'ies'} remain — "
+            f"promote or reject them first (./harness promote).",
+            file=sys.stderr,
+        )
+        return 2
+    RECENT.write_text(FRESH_STUB, encoding="utf-8")
+    print("recent.md reset to a blank ledger (0 entries)")
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description="Manage the learnings ledger (recent.md).")
     sub = ap.add_subparsers(dest="cmd")
+    sub.add_parser("clear", help="Reset recent.md to a blank ledger (no archive).")
     sub.add_parser("rotate", help="Archive recent.md (history) and start a fresh one.")
     sub.add_parser("status", help="Show pending/promoted/rejected counts.")
     args = ap.parse_args(argv)
 
+    if args.cmd == "clear":
+        return _clear()
     if args.cmd == "rotate":
         return _rotate()
     return _status()

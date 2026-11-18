@@ -49,6 +49,12 @@ for the full roles & interaction model.
   PR; a human merges it after CI is green (no auto-merge, no direct push).
 - Draft from a run's failures with
   `python3 -m skill_foundry.lib.session_digest --run <run.json> --apply`.
+- `learnings/recent.md` (plus `promoted.md` / `corrections.md`) is a **ledger,
+  not an editor** — only `./harness promote` writes into skills. Reset it with
+  `./harness learnings clear` (blank when 0 pending; refuses if pending remain).
+  The shared pre-push hook (`make hooks`) blocks any push with `pending` entries;
+  to reject an entry there's no first-class command yet — edit its `status:` to
+  `rejected`.
 
 ## Key commands
 
@@ -58,6 +64,7 @@ for the full roles & interaction model.
 ./harness teach "wrong -> correct -> action"
 ./harness promote --pr                   # publish learnings (open a PR)
 ./harness promote-skill <name> --pr      # publish a draft (open a PR)
+./harness learnings [status | clear | rotate]  # ledger: counts / reset / archive
 ./harness skills [--search q] [--category c] [--origin o] [--entry] [--check]  # discover skills (map: docs/SKILLS_INDEX.md)
 
 # BUNDLED WORKFLOW — run these thin scripts directly (per the skills)
