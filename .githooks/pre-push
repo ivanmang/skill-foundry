@@ -1,7 +1,16 @@
 #!/usr/bin/env bash
-# Pre-push hook — runs the lightweight gate before anything reaches the remote.
+# Pre-push hook — learnings hygiene + lightweight gate before anything reaches the remote.
 # Enable with:  git config core.hooksPath .githooks
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+
+# Enforce learnings hygiene: reset the ledger (wipes only already-promoted/
+# rejected history). If any `pending` entry remains, `clear` refuses and the
+# push is blocked until those entries are promoted or rejected (./harness promote).
+if ! "$ROOT/harness" learnings clear; then
+    echo "pre-push: blocked — promote or reject pending learnings first (./harness promote)." >&2
+    exit 1
+fi
+
 exec bash "$ROOT/scripts/check.sh"

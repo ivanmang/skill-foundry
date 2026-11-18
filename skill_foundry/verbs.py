@@ -130,9 +130,10 @@ List/search skills (published .claude/skills/ + drafts hub/inbox/).
 Examples: ./harness skills --search review      ./harness skills --install --scope core      ./harness skills --mine
 """,
     "learnings": """\
-./harness learnings [status | rotate]
+./harness learnings [status | clear | rotate]
 Manage the learnings ledger (learnings/recent.md).
   status  print pending/promoted/rejected counts (default)
+  clear   reset recent.md to a blank ledger, no archive (refuses if pending remain)
   rotate  archive recent.md and start a fresh one (refuses if pending remain)
 
 Example: ./harness learnings status
