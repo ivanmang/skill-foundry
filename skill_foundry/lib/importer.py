@@ -854,55 +854,10 @@ def _scope_overlap(c: Candidate, src: SourceConfig) -> set[str] | None:
     return scope_tokens & _word_tokens(_candidate_text(c, src))
 
 
-def _scope_llm_verdict(c: Candidate, src: SourceConfig) -> str | None:
-    """Binary semantic scope judgment via IMPORT_REVIEWER.
-
-    Returns 'in_scope' | 'out_of_scope' | None (no judge configured / error).
-    """
-    cmd = os.environ.get("IMPORT_REVIEWER")
-    if not cmd:
-        return None
-    payload = (
-        "Judge whether this candidate is in scope for the skill corpus.\n\n"
-        f"Scope: {src.scope_hint}\n\n"
-        f"Candidate: {c.name}\n"
-        f"  category: {c.category}\n"
-        f"  description: {c.description}\n\n"
-        "Reply exactly one word: IN_SCOPE or OUT_OF_SCOPE.\n"
-    )
-    try:
-        argv = shlex.split(cmd)
-    except ValueError:
-        argv = [cmd]
-    if not argv:
-        return None
-    try:
-        r = subprocess.run(
-            argv, input=payload, capture_output=True, text=True, timeout=180
-        )
-    except Exception as exc:  # pragma: no cover - environmental
-        print(f"scope reviewer error: {exc}", file=sys.stderr)
-        return None
-    out = ((r.stdout or "") + " " + (r.stderr or "")).upper()
-    m = re.search(r"\b(IN_SCOPE|OUT_OF_SCOPE)\b", out)
-    return m.group(1).lower() if m else None
-
-
-def scope_check(
-    c: Candidate, src: SourceConfig, use_llm: bool = True
-) -> tuple[str, str]:
-    """Semantic scope judgment (LLM) with a lexical fallback.
-
-    Returns ("in_scope" | "out_of_scope" | "uncertain", reason).
-    """
+def scope_check(c: Candidate, src: SourceConfig) -> tuple[str, str]:
+    """Lexical scope fallback (no LLM). Returns ("in_scope" | "uncertain", reason)."""
     if not src.scope_hint:
         return "in_scope", ""
-    if use_llm:
-        sem = _scope_llm_verdict(c, src)
-        if sem is not None:
-            if sem == "out_of_scope":
-                return "out_of_scope", "scope: IMPORT_REVIEWER judged it out of scope"
-            return "in_scope", ""
     overlap = _scope_overlap(c, src)
     if overlap is not None and not overlap:
         return (
@@ -972,33 +927,72 @@ def llm_payload(c: Candidate, src: SourceConfig, existing: list[dict]) -> str:
         lines.append(f"  closest existing skill: {best} (score {score:.2f})")
     lines += [
         "",
-        "Reply exactly one word: RELEVANT, IRRELEVANT, DUPLICATE, EXTEND, or HOLD.",
-        "(Reply IRRELEVANT if the candidate does not match the declared scope.)",
+        "Reply exactly two words on one line:",
+        "  word 1: IN_SCOPE or OUT_OF_SCOPE",
+        "  word 2: RELEVANT, IRRELEVANT, DUPLICATE, EXTEND, or HOLD",
     ]
     return "\n".join(lines)
 
 
-def llm_relevance(payload: str) -> str | None:
-    """Run IMPORT_REVIEWER on a candidate payload. None when not configured."""
+def llm_verdicts(
+    c: Candidate, src: SourceConfig, existing: list[dict]
+) -> tuple[str | None, str | None, bool]:
+    """One IMPORT_REVIEWER call → (scope_verdict, relevance_verdict, used)."""
     cmd = os.environ.get("IMPORT_REVIEWER")
     if not cmd:
-        return None
+        return None, None, False
     try:
         argv = shlex.split(cmd)
     except ValueError:
         argv = [cmd]
     if not argv:
-        return None
+        return None, None, False
     try:
         r = subprocess.run(
-            argv, input=payload, capture_output=True, text=True, timeout=180
+            argv,
+            input=llm_payload(c, src, existing),
+            capture_output=True,
+            text=True,
+            timeout=180,
         )
     except Exception as exc:  # pragma: no cover - environmental
         print(f"import reviewer error: {exc}", file=sys.stderr)
-        return None
+        return None, None, True
     out = ((r.stdout or "") + " " + (r.stderr or "")).upper()
+    scope = None
+    m = re.search(r"\b(IN_SCOPE|OUT_OF_SCOPE)\b", out)
+    if m:
+        scope = m.group(1).lower()
+    rel = None
     m = re.search(r"\b(RELEVANT|IRRELEVANT|DUPLICATE|EXTEND|HOLD)\b", out)
-    return m.group(1).lower() if m else None
+    if m:
+        rel = m.group(1).lower()
+    return scope, rel, True
+
+
+def assess(
+    c: Candidate, src: SourceConfig, existing: list[dict]
+) -> tuple[str, list[str], str | None, bool]:
+    """Full per-candidate assessment with at most one LLM call.
+
+    Returns (verdict, reasons, relevance_verdict, used_llm).
+    """
+    verdict, reasons = relevance(c, src, existing)
+    scope_llm, rel_llm, used_llm = llm_verdicts(c, src, existing)
+
+    if scope_llm == "out_of_scope":
+        verdict = IRRELEVANT
+        reasons.append("scope: IMPORT_REVIEWER judged it out of scope")
+    elif scope_llm is None:
+        status, reason = scope_check(c, src)
+        if status == "uncertain":
+            verdict = combine_verdicts(verdict, HOLD)
+            reasons.append(reason)
+
+    if rel_llm is not None:
+        verdict = combine_verdicts(verdict, rel_llm)
+
+    return verdict, reasons, rel_llm, used_llm
 
 
 # ── manifest ────────────────────────────────────────────────────────────────
