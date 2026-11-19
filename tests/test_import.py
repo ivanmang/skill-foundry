@@ -10,6 +10,7 @@ CLI surface.
 from __future__ import annotations
 
 import json
+import os
 import subprocess
 import tempfile
 import unittest
@@ -223,6 +224,84 @@ class RelevanceTest(unittest.TestCase):
         )
         self.assertEqual(name, "npu-cce-run")
         self.assertLess(score, 1.0)
+
+    def test_scope_check_lexical_uncertain_without_overlap(self):
+        src = importer.SourceConfig(
+            name="lib",
+            type="knowledge-library",
+            location=str(self.tmp / "src"),
+            scope_hint="ascend tilelang simt performance",
+        )
+        _write(self.tmp / "src" / "x.md", "cooking recipes for dinner\n")
+        c = _candidate(name="recipe", files=["x.md"])
+        status, reason = importer.scope_check(c, src)
+        self.assertEqual(status, "uncertain")
+        self.assertIn("scope", reason)
+
+    def test_scope_check_lexical_in_scope_with_overlap(self):
+        src = importer.SourceConfig(
+            name="lib",
+            type="knowledge-library",
+            location=str(self.tmp / "src"),
+            scope_hint="ascend tilelang simt performance",
+        )
+        _write(self.tmp / "src" / "x.md", "a tilelang simt kernel on ascend\n")
+        c = _candidate(name="kernel", files=["x.md"])
+        self.assertEqual(importer.scope_check(c, src)[0], "in_scope")
+
+    def test_scope_check_skips_without_hint(self):
+        _write(self.tmp / "src" / "x.md", "anything\n")
+        c = _candidate(files=["x.md"])
+        self.assertEqual(importer.scope_check(c, self.src), ("in_scope", ""))
+
+    def test_llm_verdicts_one_call_out_of_scope(self):
+        src = importer.SourceConfig(
+            name="lib",
+            type="knowledge-library",
+            location=str(self.tmp / "src"),
+            scope_hint="ascend tilelang simt performance",
+        )
+        _write(self.tmp / "src" / "x.md", "anything\n")
+        c = _candidate(files=["x.md"])
+        with mock.patch.dict(
+            os.environ, {"IMPORT_REVIEWER": "echo OUT_OF_SCOPE IRRELEVANT"}
+        ):
+            scope, rel, used = importer.llm_verdicts(c, src, [])
+        self.assertEqual(scope, "out_of_scope")
+        self.assertEqual(rel, "irrelevant")
+        self.assertTrue(used)
+
+    def test_llm_verdicts_one_call_in_scope(self):
+        src = importer.SourceConfig(
+            name="lib",
+            type="knowledge-library",
+            location=str(self.tmp / "src"),
+            scope_hint="ascend tilelang simt performance",
+        )
+        _write(self.tmp / "src" / "x.md", "anything\n")
+        c = _candidate(files=["x.md"])
+        with mock.patch.dict(os.environ, {"IMPORT_REVIEWER": "echo IN_SCOPE RELEVANT"}):
+            scope, rel, used = importer.llm_verdicts(c, src, [])
+        self.assertEqual(scope, "in_scope")
+        self.assertEqual(rel, "relevant")
+        self.assertTrue(used)
+
+    def test_assess_semantic_out_of_scope_rejects(self):
+        src = importer.SourceConfig(
+            name="lib",
+            type="knowledge-library",
+            location=str(self.tmp / "src"),
+            scope_hint="ascend tilelang simt performance",
+        )
+        _write(self.tmp / "src" / "x.md", "anything\n")
+        c = _candidate(files=["x.md"])
+        with mock.patch.dict(
+            os.environ, {"IMPORT_REVIEWER": "echo OUT_OF_SCOPE RELEVANT"}
+        ):
+            verdict, reasons, rel, used = importer.assess(c, src, [])
+        self.assertEqual(verdict, importer.IRRELEVANT)
+        self.assertTrue(any("out of scope" in r for r in reasons))
+        self.assertTrue(used)
 
 
 class FrontmatterTest(unittest.TestCase):

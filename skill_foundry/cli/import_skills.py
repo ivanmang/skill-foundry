@@ -103,11 +103,9 @@ def _assess(src, adapter):
     results: list[dict] = []
     any_llm = False
     for c in candidates:
-        verdict, reasons = importer.relevance(c, src, existing)
-        llm = importer.llm_relevance(importer.llm_payload(c, src, existing))
-        if llm is not None:
+        verdict, reasons, rel_llm, used = importer.assess(c, src, existing)
+        if used:
             any_llm = True
-            verdict = importer.combine_verdicts(verdict, llm)
         results.append(
             {
                 "name": c.name,
@@ -115,7 +113,7 @@ def _assess(src, adapter):
                 "entry": c.entry,
                 "verdict": verdict,
                 "reasons": reasons,
-                "llm_verdict": llm,
+                "llm_verdict": rel_llm,
                 "fingerprint": c.fingerprint,
                 "files": c.files,
             }
@@ -534,6 +532,10 @@ def _sync(args) -> int:
     results: list[dict] = []
     for c in candidates:
         verdict, reasons = importer.relevance(c, src, existing)
+        status, reason = importer.scope_check(c, src)
+        if status == "uncertain":
+            verdict = importer.combine_verdicts(verdict, importer.HOLD)
+            reasons.append(reason)
         prev = old.get(c.name, {})
         action = None
         if (inbox / c.name / "SKILL.md").exists() and verdict == importer.RELEVANT:
