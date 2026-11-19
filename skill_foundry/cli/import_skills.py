@@ -104,6 +104,13 @@ def _assess(src, adapter):
     any_llm = False
     for c in candidates:
         verdict, reasons = importer.relevance(c, src, existing)
+        scope, scope_reason = importer.scope_check(c, src)
+        if scope == "out_of_scope":
+            verdict = importer.IRRELEVANT
+            reasons.append(scope_reason)
+        elif scope == "uncertain":
+            verdict = importer.combine_verdicts(verdict, importer.HOLD)
+            reasons.append(scope_reason)
         llm = importer.llm_relevance(importer.llm_payload(c, src, existing))
         if llm is not None:
             any_llm = True
@@ -534,6 +541,13 @@ def _sync(args) -> int:
     results: list[dict] = []
     for c in candidates:
         verdict, reasons = importer.relevance(c, src, existing)
+        scope, scope_reason = importer.scope_check(c, src, use_llm=False)
+        if scope == "out_of_scope":
+            verdict = importer.IRRELEVANT
+            reasons.append(scope_reason)
+        elif scope == "uncertain":
+            verdict = importer.combine_verdicts(verdict, importer.HOLD)
+            reasons.append(scope_reason)
         prev = old.get(c.name, {})
         action = None
         if (inbox / c.name / "SKILL.md").exists() and verdict == importer.RELEVANT:
