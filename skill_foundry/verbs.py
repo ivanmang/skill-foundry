@@ -46,6 +46,11 @@ PRODUCT_VERBS: list[tuple[str, str, str]] = [
         "--name, --inbox, --install, --uninstall, --dry-run, --mine, --refresh, "
         "--check, --json]",
     ),
+    (
+        "import",
+        "Integrate external skills/libraries",
+        "[--add, --list, --remove, --scan, --draft, --validate, --apply, --pr, --sync, --json]",
+    ),
     ("learnings", "List captured learnings", "[status (default) | rotate]"),
     (
         "metrics",
@@ -128,6 +133,26 @@ List/search skills (published .claude/skills/ + drafts hub/inbox/).
   --dry-run   with --install/--uninstall: show what would change (no writes)
   --mine      show what each detected agent can see vs the hub
 Examples: ./harness skills --search review      ./harness skills --install --scope core      ./harness skills --mine
+""",
+    "import": """\
+./harness import [<source>] [--add | --list | --remove | --scan | --draft | --validate | --pr | --sync] [--json]
+Integrate external skills/libraries into the harness (discover → relevance → draft → promote).
+
+  --add <name> --type <t> --path <loc> | --git <url> [--origin <o>] [--owner <o>] [--mode vendor|reference|passthrough]
+                      register an external source (writes config/imports.json)
+  --list              list registered sources
+  --remove <name>     deregister a source (registry entry only; never removes skills)
+  <source> --scan     relevance check per candidate (deterministic + IMPORT_REVIEWER)
+  <source> --draft    convert RELEVANT candidates into hub/inbox/<name>/ (+ references/)
+  <source> --validate run the spec gate (validate_skills --strict) over the drafts
+  <source> --apply    promote drafts locally (gates + SKILL_REVIEWER; no commit/PR)
+  <source> --pr       promote drafts + commit + push + open a PR (a human merges)
+  <source> --sync     re-fingerprint the source and refresh drifted snapshots, then re-scan
+
+Examples:
+  ./harness import --list
+  ./harness import --add skills-library --type knowledge-library --path ~/skills-library
+  ./harness import skills-library --scan
 """,
     "learnings": """\
 ./harness learnings [status | clear | rotate]

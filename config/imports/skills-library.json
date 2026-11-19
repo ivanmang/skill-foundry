@@ -1,0 +1,148 @@
+{
+  "version": 1,
+  "source": "skills-library",
+  "skills": [
+    {
+      "name": "skills-library-router",
+      "category": "routing",
+      "entry": true,
+      "description": "Route a task to the right skills-library entry: match a formula by signature, run an ST study, write or run TileLang/CCE bodies, measure an opcode, or draw a trace. Use first, before opening any specific skills-library skill.",
+      "entry_file": "AGENTS.md",
+      "include": [
+        "AGENTS.md",
+        "HOW-TO-READ.md",
+        "README.md",
+        "CONTRIBUTING.md",
+        "ADDING-A-SKILL.md"
+      ]
+    },
+    {
+      "name": "st-analysis",
+      "category": "analysis",
+      "entry": true,
+      "description": "Run a full ST study on a TileLang (or sibling) program: promote a working-best cell through schedule and thread stages, measure single-opcode rates, and write the note up to the head-to-head table. Use when analyzing a kernel's SIMT vs SIMD performance and writing the ANALYSIS report.",
+      "entry_file": "analyze/st-analysis/procedure.md",
+      "include": [
+        "analyze/st-analysis/"
+      ]
+    },
+    {
+      "name": "formula-block-scale",
+      "category": "formula",
+      "entry": false,
+      "description": "Write and check the block-scale formula (one scale for the whole input, then divide): the signature, the SIMT spelling to write vs refuse, measured rows, and the run/read recipe. Use when the code reduces a whole tensor to a single scale factor.",
+      "entry_file": "tilelang/formulas/block-scale/formula.md",
+      "include": [
+        "tilelang/formulas/block-scale/"
+      ]
+    },
+    {
+      "name": "formula-column-scale",
+      "category": "formula",
+      "entry": false,
+      "description": "Write and check the column-scale formula (one scale per column, multiply by the inverse): signature, SIMT spelling to write vs refuse, measured rows, and the run/read recipe. Use when a scale is computed per column and applied by multiplication.",
+      "entry_file": "tilelang/formulas/column-scale/formula.md",
+      "include": [
+        "tilelang/formulas/column-scale/"
+      ]
+    },
+    {
+      "name": "formula-group-scale-broadcast",
+      "category": "formula",
+      "entry": false,
+      "description": "Write and check the group-scale-broadcast formula (one scale per group, then broadcast-multiply): signature, SIMT spelling to write vs refuse, measured rows, and the run/read recipe. Use when a per-group scale is broadcast back to the group.",
+      "entry_file": "tilelang/formulas/group-scale-broadcast/formula.md",
+      "include": [
+        "tilelang/formulas/group-scale-broadcast/"
+      ]
+    },
+    {
+      "name": "formula-dot-product",
+      "category": "formula",
+      "entry": false,
+      "description": "Write and check the dot-product formula (one sum per output row) in TileLang and hand-written CCE: signatures, SIMT spellings to write vs refuse, measured rows, and run/read recipes for both shelves. Use when the kernel sums a row or vector down to one scalar per output row.",
+      "entry_file": "tilelang/formulas/dot-product/formula.md",
+      "include": [
+        "tilelang/formulas/dot-product/",
+        "cce/formulas/dot-product/"
+      ]
+    },
+    {
+      "name": "tilelang-run",
+      "category": "run",
+      "entry": false,
+      "description": "Compile, launch, and read the counters of a TileLang body on Ascend, plus the contiguous-load SIMT reference body. Use when you have a TileLang kernel to run and read its dump, or need the load-pattern reference.",
+      "entry_file": "tilelang/run/ascend.md",
+      "include": [
+        "tilelang/run/ascend.md",
+        "tilelang/examples/"
+      ]
+    },
+    {
+      "name": "cce-run",
+      "category": "run",
+      "entry": false,
+      "description": "Compile, launch, and read a hand-written CCE body on Ascend, with the __simt_vf__ language reference. Use after writing a CCE body and before measuring it.",
+      "entry_file": "cce/run/ascend.md",
+      "include": [
+        "cce/run/ascend.md",
+        "cce/examples/simt-vf.md"
+      ]
+    },
+    {
+      "name": "single-opcode-rate",
+      "category": "technique",
+      "entry": false,
+      "description": "Measure one opcode's busy cycles, IPC, and warps across a thread sweep (128/256/512/1024), and draw the single-opcode/uarch chart. Use to build the uarch reference table for an ST study.",
+      "entry_file": "tilelang/techniques/single-opcode-rate.md",
+      "include": [
+        "tilelang/techniques/single-opcode-rate.md"
+      ]
+    },
+    {
+      "name": "cce-opcode-burst",
+      "category": "technique",
+      "entry": false,
+      "description": "Drive a hand-written CCE opcode (LDS, F2F, FFMA, STS) to its best line via the burst ladder, using the reference single-op schedules. Use when tuning a single-opcode CCE schedule against the measured floor.",
+      "entry_file": "cce/techniques/single-opcode-burst.md",
+      "include": [
+        "cce/techniques/",
+        "cce/examples/README.md",
+        "cce/examples/f2f/",
+        "cce/examples/ffma/",
+        "cce/examples/lds/",
+        "cce/examples/sts/"
+      ]
+    },
+    {
+      "name": "stage-model",
+      "category": "technique",
+      "entry": false,
+      "description": "Build the staged theoretical model (Base → Op-matched → Serial → optional stages) for a case, write the TileLang stage schedules, build a roof, and diagnose a long all-warp 0-IPC hole. Use when the study asks for the theoretical model or a next lever.",
+      "entry_file": "tilelang/techniques/stage-model.md",
+      "include": [
+        "tilelang/techniques/stage-model.md",
+        "tilelang/techniques/schedule-patterns.md",
+        "tilelang/techniques/roof-model.md",
+        "tilelang/techniques/i-cache-stall.md"
+      ]
+    },
+    {
+      "name": "trace-analysis",
+      "category": "tooling",
+      "entry": false,
+      "description": "Pair a recorded trace with its numbers: get one opcode's busy cycles, draw instruction/IPC/warp figures, and lay out result tables. Use when you have a trace dump and need figures or per-opcode numbers.",
+      "entry_file": "visualization/instr-ipc.md",
+      "include": [
+        "tools/op-busy-cycles.py",
+        "tools/instr-ipc-plot.py",
+        "tools/README.md",
+        "tools/instr-ipc/export_data.py",
+        "tools/instr-ipc/trace.py",
+        "tools/instr-ipc/render.js",
+        "tools/instr-ipc/package.json",
+        "visualization/"
+      ]
+    }
+  ]
+}

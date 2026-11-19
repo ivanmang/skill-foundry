@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "sources": {
+    "skills-library": {
+      "type": "knowledge-library",
+      "location": "~/skills-library",
+      "origin": "library",
+      "owner": "skills-library",
+      "mode": "vendor",
+      "scope_hint": "Ascend kernel SIMT/SIMD performance: TileLang and hand-written CCE bodies, formulas, run recipes, measurement techniques, and trace tooling.",
+      "mapping": "config/imports/skills-library.json"
+    }
+  }
+}
