@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated": "2026-11-17T06:03:16.879894+00:00",
+  "generated": "2026-11-19T06:30:46.282171+00:00",
   "skills": [
     {
       "name": "aclnn-doc-gen",
@@ -1057,6 +1057,18 @@
       "name": "run-testcase",
       "description": "Run one or more pto-isa benchmark/regression suites (CPU simulator ST and NPU simulator ST) and capture a reproducible run record. Use when asked to run a regression, run the suite matrix, execute a single suite/testcase, or re-run a suite for a target such as pto-isa.",
       "category": "regression",
+      "license": "CANN Open Software License Agreement Version 2.0",
+      "entry": false,
+      "stages": [],
+      "origin": "native",
+      "owner": "skill-foundry",
+      "maturity": "ready",
+      "status": "published"
+    },
+    {
+      "name": "skill-import",
+      "description": "Integrate external skills and knowledge libraries into the skill-foundry corpus: register a source, scan it for relevance, convert relevant units into drafts, then validate and promote them through the gated, LLM-reviewed publish loop, with fingerprint-based drift sync. Use when bringing in skills from another repo, an agent skills directory, or a self-contained knowledge library.",
+      "category": "repo-ops",
       "license": "CANN Open Software License Agreement Version 2.0",
       "entry": false,
       "stages": [],

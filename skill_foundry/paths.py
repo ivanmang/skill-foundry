@@ -25,6 +25,9 @@ VERSION_FILE = ROOT / "VERSION"
 CANN_CONFIG = CONFIG / "cann.json"
 SUITES_CONFIG = CONFIG / "suites.json"
 ARCHES_CONFIG = CONFIG / "arches.json"
+IMPORTS_CONFIG = CONFIG / "imports.json"
+IMPORTS_DIR = CONFIG / "imports"
+IMPORTS_HUB = HUB / "imports"
 
 
 def version() -> str:

@@ -140,7 +140,7 @@ def validate_skill(folder: Path) -> list[str]:
 # discovery (catalog, index, and --category/--origin/--owner filters), so the
 # promotion gate and `--strict` hard-fail without them.
 REQUIRED_METADATA = ("category", "origin", "owner")
-KNOWN_ORIGINS = {"native", "cannbot", "local"}
+KNOWN_ORIGINS = {"native", "cannbot", "local", "library"}
 KNOWN_MATURITY = {"ready", "draft", "deprecated"}
 
 

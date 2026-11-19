@@ -69,6 +69,25 @@ import path — it only declares external names so cross-skill references resolv
 > `./harness skills --search <topic>`. Extend an existing skill instead of
 > forking one.
 
+### Importing from an external source
+
+To bring in many skills at once — from another repo, a knowledge library, or an
+agent skills directory — use the harness's `import` verb instead of hand-vendoring
+each folder. It discovers candidates, checks relevance, and produces drafts; the
+publish gate is the same `promote-skill` path, unchanged:
+
+```bash
+./harness import --add <name> --type knowledge-library|agent-skills|local-dir --path <loc>
+./harness import <name> --scan        # relevance (deterministic + IMPORT_REVIEWER)
+./harness import <name> --draft       # → hub/inbox/<name>/
+./harness import <name> --validate    # spec + repo metadata
+./harness import <name> --pr          # gates + SKILL_REVIEWER → PR (human merges)
+./harness import <name> --sync        # drift refresh
+```
+
+The full procedure, source taxonomy, and verdict triage live in
+`.claude/skills/skill-import/SKILL.md` (route to it with `skill:skill-import`).
+
 ---
 
 ## 1. What a skill actually is

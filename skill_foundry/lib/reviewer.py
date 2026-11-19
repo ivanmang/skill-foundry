@@ -190,9 +190,17 @@ def approve(
     target_content: str = "",
     added_text: str | None = None,
     context: dict | None = None,
+    local_skills: set[str] | None = None,
+    externals: set[str] | None = None,
 ) -> bool:
-    """Return True if the promotion is approved (builtin judge + optional LLM)."""
-    verdict, reasons = builtin_review(diff_text, target_content, added_text)
+    """Return True if the promotion is approved (builtin judge + optional LLM).
+
+    local_skills/externals override the reference-resolution corpus used by the
+    builtin judge (e.g. to include skills being added in the same batch).
+    """
+    verdict, reasons = builtin_review(
+        diff_text, target_content, added_text, local_skills, externals
+    )
     if reasons:
         print("builtin review:", file=sys.stderr)
         for r in reasons:

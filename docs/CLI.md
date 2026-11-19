@@ -13,6 +13,7 @@ _Auto-generated from `skill_foundry/verbs.py` — edit that file, then run `./ha
 | `capture-session` | Draft learnings from a pi session | [--session X.jsonl \| --apply] |
 | `promote` | Publish learnings into skills | [--propose \| --apply \| --pr] |
 | `skills` | List/search skills · install · refresh | [--search, --category, --origin, --owner, --maturity, --scope, --entry, --name, --inbox, --install, --uninstall, --dry-run, --mine, --refresh, --check, --json] |
+| `import` | Integrate external skills/libraries | [--add, --list, --remove, --scan, --draft, --validate, --apply, --pr, --sync, --json] |
 | `learnings` | List captured learnings | [status (default) \| rotate] |
 | `metrics` | Show product-loop telemetry | [--calibrate EVENT_ID --outcome approve\|reject \| --pending] |
 | `menu` | Curated menu (bare ./harness default) | |

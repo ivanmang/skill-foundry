@@ -100,6 +100,7 @@ python3 -m skill_foundry.workflow.status
 ./harness skills                                   # what skills exist?
 ./harness capture-skill code-review                # draft a new skill (then add category/origin/owner)
 ./harness promote-skill code-review --pr           # publish the draft (see docs/CREATING_SKILLS.md)
+./harness import <src> --scan --draft --pr         # integrate external skills/libraries
 ./harness teach "symptom -> correct -> action"     # log a correction
 ./harness promote --pr                             # publish learnings (open a PR; human merges)
 
@@ -140,13 +141,13 @@ Nothing to run.
 
 ### 2. Skills — always-on (any directory)
 
-Make every skill available in every project (<!-- SKILL_COUNT -->125<!-- /SKILL_COUNT --> skills — indexed in `docs/SKILLS_INDEX.md`):
+Make every skill available in every project (<!-- SKILL_COUNT -->126<!-- /SKILL_COUNT --> skills — indexed in `docs/SKILLS_INDEX.md`):
 
 ```bash
 ./harness skills --install --scope core     # only the owned skills (origin: native)
 ./harness skills --install --origin native  # same, explicit
 ./harness skills --install --category regression
-./harness skills --install                  # everything (all <!-- SKILL_COUNT -->125<!-- /SKILL_COUNT -->)
+./harness skills --install                  # everything (all <!-- SKILL_COUNT -->126<!-- /SKILL_COUNT -->)
 ```
 
 It symlinks each selected skill into `~/.claude/skills/`, `~/.pi/skills/` and
