@@ -28,6 +28,7 @@ ARCHES_CONFIG = CONFIG / "arches.json"
 IMPORTS_CONFIG = CONFIG / "imports.json"
 IMPORTS_DIR = CONFIG / "imports"
 IMPORTS_HUB = HUB / "imports"
+IMPORTS_CACHE = ROOT / ".cache" / "imports"
 
 
 def version() -> str:

@@ -24,7 +24,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Protocol
 
-from skill_foundry.paths import IMPORTS_HUB, INBOX, ROOT, SKILLS
+from skill_foundry.paths import IMPORTS_CACHE, IMPORTS_HUB, INBOX, ROOT, SKILLS
 from skill_foundry.lib import validate_skills
 
 # ── verdicts ────────────────────────────────────────────────────────────────
@@ -57,6 +57,48 @@ SKIP_SUFFIXES = (".pyc",)
 _ABS_PATH_RE = re.compile(r"(?:/home/|/root/|/Users/)")
 
 
+# ── git location helpers ──────────────────────────────────────────────────────
+def _is_git_url(location: str) -> bool:
+    return location.startswith(("http://", "https://", "git@", "ssh://"))
+
+
+def _clone_to_cache(location: str, name: str) -> Path:
+    """Clone a git source into .cache/imports/<name> (once); return the path."""
+    dest = IMPORTS_CACHE / name
+    if not (dest / ".git").exists():
+        dest.parent.mkdir(parents=True, exist_ok=True)
+        try:
+            subprocess.run(
+                ["git", "clone", "--", location, str(dest)],
+                check=True,
+                capture_output=True,
+                text=True,
+            )
+        except subprocess.CalledProcessError as exc:
+            raise ValueError(
+                f"git clone failed for '{location}': {(exc.stderr or '').strip()}"
+            ) from exc
+    return dest
+
+
+def refresh_source(src: SourceConfig) -> Path:
+    """Clone (if needed) and refresh a source; return its root path."""
+    root = src.root
+    if _is_git_url(src.location):
+        r = subprocess.run(
+            ["git", "-C", str(root), "pull", "--ff-only"],
+            capture_output=True,
+            text=True,
+        )
+        if r.returncode != 0:
+            print(
+                f"warning: git pull failed for '{src.name}': "
+                f"{(r.stderr or '').strip()}",
+                file=sys.stderr,
+            )
+    return root
+
+
 # ── source + candidate model ────────────────────────────────────────────────
 @dataclass
 class SourceConfig:
@@ -71,9 +113,9 @@ class SourceConfig:
 
     @property
     def root(self) -> Path:
-        """Resolved local path for this source (tilde / env var expanded)."""
-        if self.location.startswith(("http://", "https://", "git@", "ssh://")):
-            raise ValueError(f"source '{self.name}' is a remote URL — clone it first")
+        """Resolved local path: git URLs are cloned into the cache."""
+        if _is_git_url(self.location):
+            return _clone_to_cache(self.location, self.name)
         return Path(os.path.expanduser(os.path.expandvars(self.location))).resolve()
 
 
@@ -169,12 +211,7 @@ def add_source(
     if mode not in KNOWN_MODES:
         raise ValueError(f"unknown mode '{mode}' — one of {sorted(KNOWN_MODES)}")
     if not location:
-        raise ValueError("need --path <loc>")
-    if location.startswith(("http://", "https://", "git@", "ssh://")):
-        raise ValueError(
-            "remote git URLs are not supported yet — clone the repo and pass "
-            "--path <local checkout>"
-        )
+        raise ValueError("need --path <loc> or --git <url>")
     if origin and origin not in validate_skills.KNOWN_ORIGINS:
         raise ValueError(
             f"unknown origin '{origin}' — one of {sorted(validate_skills.KNOWN_ORIGINS)}"

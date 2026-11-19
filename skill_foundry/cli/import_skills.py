@@ -500,6 +500,7 @@ def _sync(args) -> int:
     if src is None:
         return 2
     try:
+        importer.refresh_source(src)
         candidates = adapter.discover(src)
     except (FileNotFoundError, ValueError) as exc:
         print(f"error: {exc}", file=sys.stderr)
@@ -596,10 +597,7 @@ def _parser() -> argparse.ArgumentParser:
         "--type", choices=KNOWN_TYPES, help="Source adapter type (with --add)."
     )
     ap.add_argument("--path", help="Filesystem path to the source (with --add).")
-    ap.add_argument(
-        "--git",
-        help="Git URL (with --add; not yet supported — clone and use --path).",
-    )
+    ap.add_argument("--git", help="Git URL to clone (with --add).")
     ap.add_argument(
         "--mode",
         choices=KNOWN_MODES,

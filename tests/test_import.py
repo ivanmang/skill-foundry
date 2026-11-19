@@ -87,11 +87,16 @@ class RegistryTest(unittest.TestCase):
         with self.assertRaises(ValueError):
             importer.add_source("b", "agent-skills", "/tmp/x", origin="nope")
 
-    def test_add_rejects_git_url(self):
-        with self.assertRaises(ValueError):
-            importer.add_source("r", "agent-skills", "https://example.com/x.git")
-        with self.assertRaises(ValueError):
-            importer.add_source("r", "agent-skills", "git@example.com:x.git")
+    def test_add_accepts_git_url(self):
+        src = importer.add_source("r", "agent-skills", "https://example.com/x.git")
+        self.assertEqual(src.location, "https://example.com/x.git")
+        self.assertEqual(src.type, "agent-skills")
+
+    def test_is_git_url(self):
+        self.assertTrue(importer._is_git_url("https://example.com/x.git"))
+        self.assertTrue(importer._is_git_url("git@github.com:a/b.git"))
+        self.assertFalse(importer._is_git_url("/tmp/x"))
+        self.assertFalse(importer._is_git_url("~/x"))
 
 
 class ResolveIncludeTest(unittest.TestCase):
