@@ -753,6 +753,107 @@ def _self_containment_issues(c: Candidate, src: SourceConfig) -> list[str]:
     return issues
 
 
+_SCOPE_STOPWORDS = {
+    "and",
+    "for",
+    "with",
+    "use",
+    "when",
+    "how",
+    "what",
+    "that",
+    "this",
+    "these",
+    "those",
+    "the",
+    "a",
+    "an",
+    "of",
+    "to",
+    "in",
+    "on",
+    "at",
+    "as",
+    "is",
+    "are",
+    "was",
+    "were",
+    "be",
+    "been",
+    "by",
+    "or",
+    "it",
+    "its",
+    "into",
+    "from",
+    "over",
+    "under",
+    "not",
+    "no",
+    "can",
+    "may",
+    "will",
+    "should",
+    "could",
+    "would",
+    "also",
+    "your",
+    "you",
+    "all",
+    "any",
+    "each",
+    "one",
+    "per",
+    "via",
+    "then",
+    "than",
+    "do",
+    "does",
+    "did",
+    "have",
+    "has",
+    "had",
+    "get",
+}
+
+
+def _word_tokens(text: str) -> set[str]:
+    return {
+        w
+        for w in re.findall(r"[a-z0-9]+", text.lower())
+        if len(w) >= 3 and w not in _SCOPE_STOPWORDS
+    }
+
+
+def _candidate_text(c: Candidate, src: SourceConfig, limit: int = 200_000) -> str:
+    """The candidate's description + file contents (scope-check input)."""
+    parts = [c.description]
+    total = len(c.description)
+    for rel in c.files:
+        if total >= limit:
+            break
+        try:
+            text = (src.root / rel).read_text(encoding="utf-8", errors="replace")
+        except OSError:
+            continue
+        parts.append(text)
+        total += len(text)
+    return "\n".join(parts)
+
+
+def _scope_overlap(c: Candidate, src: SourceConfig) -> set[str] | None:
+    """Scope tokens shared between scope_hint and the candidate.
+
+    None when scope can't be checked (no hint / no usable tokens).
+    """
+    if not src.scope_hint:
+        return None
+    scope_tokens = _word_tokens(src.scope_hint)
+    if not scope_tokens:
+        return None
+    return scope_tokens & _word_tokens(_candidate_text(c, src))
+
+
 def relevance(
     c: Candidate, src: SourceConfig, existing: list[dict]
 ) -> tuple[str, list[str]]:
@@ -787,6 +888,12 @@ def relevance(
 
     if sc_issues:
         verdict = combine_verdicts(verdict, HOLD)
+
+    overlap = _scope_overlap(c, src)
+    if overlap is not None and not overlap:
+        reasons.append("scope: no lexical overlap with the declared scope_hint")
+        verdict = combine_verdicts(verdict, HOLD)
+
     return verdict, reasons
 
 
@@ -805,6 +912,7 @@ def llm_payload(c: Candidate, src: SourceConfig, existing: list[dict]) -> str:
         f"  category: {c.category}",
         f"  source: {src.name} ({src.type})",
         f"  description: {c.description}",
+        f"  scope: {src.scope_hint or '(not declared)'}",
         f"  files: {len(c.files)}",
     ]
     if best:
@@ -812,6 +920,7 @@ def llm_payload(c: Candidate, src: SourceConfig, existing: list[dict]) -> str:
     lines += [
         "",
         "Reply exactly one word: RELEVANT, IRRELEVANT, DUPLICATE, EXTEND, or HOLD.",
+        "(Reply IRRELEVANT if the candidate does not match the declared scope.)",
     ]
     return "\n".join(lines)
 

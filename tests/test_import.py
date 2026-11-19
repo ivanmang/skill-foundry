@@ -224,6 +224,37 @@ class RelevanceTest(unittest.TestCase):
         self.assertEqual(name, "npu-cce-run")
         self.assertLess(score, 1.0)
 
+    def test_scope_no_overlap_is_hold(self):
+        src = importer.SourceConfig(
+            name="lib",
+            type="knowledge-library",
+            location=str(self.tmp / "src"),
+            scope_hint="ascend tilelang simt performance",
+        )
+        _write(self.tmp / "src" / "x.md", "cooking recipes for dinner\n")
+        c = _candidate(name="recipe", files=["x.md"])
+        verdict, reasons = importer.relevance(c, src, [])
+        self.assertEqual(verdict, importer.HOLD)
+        self.assertTrue(any("scope" in r for r in reasons))
+
+    def test_scope_overlap_is_not_hold(self):
+        src = importer.SourceConfig(
+            name="lib",
+            type="knowledge-library",
+            location=str(self.tmp / "src"),
+            scope_hint="ascend tilelang simt performance",
+        )
+        _write(self.tmp / "src" / "x.md", "a tilelang simt kernel on ascend\n")
+        c = _candidate(name="kernel", files=["x.md"])
+        self.assertEqual(importer.relevance(c, src, [])[0], importer.RELEVANT)
+
+    def test_no_scope_hint_skips_check(self):
+        _write(self.tmp / "src" / "x.md", "anything\n")
+        c = _candidate(files=["x.md"])
+        verdict, reasons = importer.relevance(c, self.src, [])
+        self.assertEqual(verdict, importer.RELEVANT)
+        self.assertFalse(any("scope" in r for r in reasons))
+
 
 class FrontmatterTest(unittest.TestCase):
     def test_split(self):
