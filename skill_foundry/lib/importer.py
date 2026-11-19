@@ -198,7 +198,10 @@ def add_source(
         entry["mapping"] = mapping
     sources[name] = entry
     save_registry(registry)
-    return source_from_registry(name)
+    src = source_from_registry(name)
+    if src is None:  # pragma: no cover - we just wrote it
+        raise RuntimeError(f"source '{name}' was written but could not be read back")
+    return src
 
 
 def remove_source(name: str) -> None:
