@@ -975,6 +975,10 @@ def assess(
 ) -> tuple[str, list[str], str | None, bool]:
     """Full per-candidate assessment with at most one LLM call.
 
+    Scope is authoritative (OUT_OF_SCOPE → irrelevant); the LLM relevance
+    verdict is advisory — it can escalate a deterministic `relevant` to `hold`
+    for human review but never overrides the deterministic dedupe.
+
     Returns (verdict, reasons, relevance_verdict, used_llm).
     """
     verdict, reasons = relevance(c, src, existing)
@@ -990,7 +994,16 @@ def assess(
             reasons.append(reason)
 
     if rel_llm is not None:
-        verdict = combine_verdicts(verdict, rel_llm)
+        if verdict == RELEVANT and rel_llm in ("duplicate", "extend", "irrelevant"):
+            verdict = HOLD
+            reasons.append(
+                f"LLM judge: {rel_llm} (deterministic: relevant) — human review"
+            )
+        elif rel_llm == "hold":
+            verdict = combine_verdicts(verdict, HOLD)
+            reasons.append("LLM judge: hold")
+        elif rel_llm == RELEVANT and verdict in ("duplicate", "extend"):
+            reasons.append(f"LLM judge: relevant (deterministic: {verdict})")
 
     return verdict, reasons, rel_llm, used_llm
 
