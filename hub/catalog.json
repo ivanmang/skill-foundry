@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated": "2026-11-19T06:30:46.282171+00:00",
+  "generated": "2026-11-20T10:06:05.871753+00:00",
   "skills": [
     {
       "name": "aclnn-doc-gen",
@@ -455,6 +455,54 @@
       "stages": [],
       "origin": "native",
       "owner": "skill-foundry",
+      "maturity": "ready",
+      "status": "published"
+    },
+    {
+      "name": "formula-block-scale",
+      "description": "Write and check the block-scale formula (one scale for the whole input, then divide): the signature, the SIMT spelling to write vs refuse, measured rows, and the run/read recipe. Use when the code reduces a whole tensor to a single scale factor.",
+      "category": "formula",
+      "license": "Apache-2.0",
+      "entry": false,
+      "stages": [],
+      "origin": "library",
+      "owner": "skills-library",
+      "maturity": "ready",
+      "status": "published"
+    },
+    {
+      "name": "formula-column-scale",
+      "description": "Write and check the column-scale formula (one scale per column, multiply by the inverse): signature, SIMT spelling to write vs refuse, measured rows, and the run/read recipe. Use when a scale is computed per column and applied by multiplication.",
+      "category": "formula",
+      "license": "Apache-2.0",
+      "entry": false,
+      "stages": [],
+      "origin": "library",
+      "owner": "skills-library",
+      "maturity": "ready",
+      "status": "published"
+    },
+    {
+      "name": "formula-dot-product",
+      "description": "Write and check the dot-product formula (one sum per output row) in TileLang and hand-written CCE: signatures, SIMT spellings to write vs refuse, measured rows, and run/read recipes for both shelves. Use when the kernel sums a row or vector down to one scalar per output row.",
+      "category": "formula",
+      "license": "Apache-2.0",
+      "entry": false,
+      "stages": [],
+      "origin": "library",
+      "owner": "skills-library",
+      "maturity": "ready",
+      "status": "published"
+    },
+    {
+      "name": "formula-group-scale-broadcast",
+      "description": "Write and check the group-scale-broadcast formula (one scale per group, then broadcast-multiply): signature, SIMT spelling to write vs refuse, measured rows, and the run/read recipe. Use when a per-group scale is broadcast back to the group.",
+      "category": "formula",
+      "license": "Apache-2.0",
+      "entry": false,
+      "stages": [],
+      "origin": "library",
+      "owner": "skills-library",
       "maturity": "ready",
       "status": "published"
     },
@@ -1122,6 +1170,18 @@
       "stages": [],
       "origin": "cannbot",
       "owner": "cannbot",
+      "maturity": "ready",
+      "status": "published"
+    },
+    {
+      "name": "tilelang-run",
+      "description": "Compile, launch, and read the counters of a TileLang body on Ascend, plus the contiguous-load SIMT reference body. Use when you have a TileLang kernel to run and read its dump, or need the load-pattern reference.",
+      "category": "run",
+      "license": "Apache-2.0",
+      "entry": false,
+      "stages": [],
+      "origin": "library",
+      "owner": "skills-library",
       "maturity": "ready",
       "status": "published"
     },

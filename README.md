@@ -14,6 +14,7 @@ The first bundled workflow is **regression** (`run → report → review` on the
 - [Vision](docs/VISION.md) — the product framing
 - [Architecture](docs/ARCHITECTURE.md) — user / agent / harness / MCP roles & interaction
 - [Creating Skills](docs/CREATING_SKILLS.md) — guide for adding a new skill
+- [Importing Skills](docs/IMPORTING_SKILLS.md) — bring external skills/libraries into the corpus
 - [AGENTS.md](AGENTS.md) — the agent-facing contract
 - [**Website**](#website) — `index.html`, a self-contained presentation/intro site
 
@@ -141,13 +142,13 @@ Nothing to run.
 
 ### 2. Skills — always-on (any directory)
 
-Make every skill available in every project (<!-- SKILL_COUNT -->126<!-- /SKILL_COUNT --> skills — indexed in `docs/SKILLS_INDEX.md`):
+Make every skill available in every project (<!-- SKILL_COUNT -->131<!-- /SKILL_COUNT --> skills — indexed in `docs/SKILLS_INDEX.md`):
 
 ```bash
 ./harness skills --install --scope core     # only the owned skills (origin: native)
 ./harness skills --install --origin native  # same, explicit
 ./harness skills --install --category regression
-./harness skills --install                  # everything (all <!-- SKILL_COUNT -->126<!-- /SKILL_COUNT -->)
+./harness skills --install                  # everything (all <!-- SKILL_COUNT -->131<!-- /SKILL_COUNT -->)
 ```
 
 It symlinks each selected skill into `~/.claude/skills/`, `~/.pi/skills/` and

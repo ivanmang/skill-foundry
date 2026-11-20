@@ -1,0 +1,241 @@
+{
+  "version": 1,
+  "source": "skills-library",
+  "scanned_at": "2026-11-20T10:05:56.470293+00:00",
+  "candidates": [
+    {
+      "name": "skills-library-router",
+      "category": "routing",
+      "entry": true,
+      "verdict": "hold",
+      "reasons": [
+        "LLM judge: duplicate (deterministic: relevant) \u2014 human review"
+      ],
+      "llm_verdict": "duplicate",
+      "fingerprint": "4cd07791a8bbf1e4b030694519867cc0eeb9914c105ca2a313b7f62b64877968",
+      "files": [
+        "AGENTS.md",
+        "HOW-TO-READ.md",
+        "README.md",
+        "CONTRIBUTING.md",
+        "ADDING-A-SKILL.md"
+      ],
+      "action": "skipped"
+    },
+    {
+      "name": "st-analysis",
+      "category": "analysis",
+      "entry": true,
+      "verdict": "hold",
+      "reasons": [
+        "LLM judge: duplicate (deterministic: relevant) \u2014 human review"
+      ],
+      "llm_verdict": "duplicate",
+      "fingerprint": "495c627b7ec8ab7e2b090a6876c33a150553cf3dd050b1ae9ec5451bd8cf8c7c",
+      "files": [
+        "analyze/st-analysis/README.md",
+        "analyze/st-analysis/claims.md",
+        "analyze/st-analysis/comparison.md",
+        "analyze/st-analysis/other-arm.md",
+        "analyze/st-analysis/procedure.md",
+        "analyze/st-analysis/spine.md"
+      ],
+      "action": "skipped"
+    },
+    {
+      "name": "formula-block-scale",
+      "category": "formula",
+      "entry": false,
+      "verdict": "relevant",
+      "reasons": [
+        "closest existing: 'tilelanggym-block-scale' (score 0.50)"
+      ],
+      "llm_verdict": null,
+      "fingerprint": "2974dec11c8959147428235a1acc5036ac133d1789394f2b1888a1285b40ad83",
+      "files": [
+        "tilelang/formulas/block-scale/analyze.md",
+        "tilelang/formulas/block-scale/formula.md",
+        "tilelang/formulas/block-scale/measure.md",
+        "tilelang/formulas/block-scale/simt.md"
+      ],
+      "action": "promoted"
+    },
+    {
+      "name": "formula-column-scale",
+      "category": "formula",
+      "entry": false,
+      "verdict": "relevant",
+      "reasons": [
+        "closest existing: 'tilelanggym-column-scale' (score 0.50)"
+      ],
+      "llm_verdict": null,
+      "fingerprint": "39eb8e6db90b7ee7d1cd6064e74935b38b3210764a01f7ac5f75b2fbb5e64b62",
+      "files": [
+        "tilelang/formulas/column-scale/analyze.md",
+        "tilelang/formulas/column-scale/formula.md",
+        "tilelang/formulas/column-scale/measure.md",
+        "tilelang/formulas/column-scale/simt.md"
+      ],
+      "action": "promoted"
+    },
+    {
+      "name": "formula-group-scale-broadcast",
+      "category": "formula",
+      "entry": false,
+      "verdict": "relevant",
+      "reasons": [],
+      "llm_verdict": null,
+      "fingerprint": "2f964f6a2121efec13647dd464f1abf9863f8429d042d7b0c8002cd969c0d4c6",
+      "files": [
+        "tilelang/formulas/group-scale-broadcast/analyze.md",
+        "tilelang/formulas/group-scale-broadcast/formula.md",
+        "tilelang/formulas/group-scale-broadcast/measure.md",
+        "tilelang/formulas/group-scale-broadcast/simt.md"
+      ],
+      "action": "promoted"
+    },
+    {
+      "name": "formula-dot-product",
+      "category": "formula",
+      "entry": false,
+      "verdict": "relevant",
+      "reasons": [
+        "closest existing: 'tilelanggym-dot-product' (score 0.50)"
+      ],
+      "llm_verdict": null,
+      "fingerprint": "b28a2ca605406c2db20b92105fea88465dd3cc1136a1862b2264b31ab14517ab",
+      "files": [
+        "tilelang/formulas/dot-product/analyze.md",
+        "tilelang/formulas/dot-product/formula.md",
+        "tilelang/formulas/dot-product/measure.md",
+        "tilelang/formulas/dot-product/simt.md",
+        "cce/formulas/dot-product/analyze.md",
+        "cce/formulas/dot-product/formula.md",
+        "cce/formulas/dot-product/measure.md",
+        "cce/formulas/dot-product/simt.md"
+      ],
+      "action": "promoted"
+    },
+    {
+      "name": "tilelang-run",
+      "category": "run",
+      "entry": false,
+      "verdict": "relevant",
+      "reasons": [],
+      "llm_verdict": null,
+      "fingerprint": "5df4f5b5c994e1e0073a80e4434292d610b6753c84d98143e6b351e67b527f66",
+      "files": [
+        "tilelang/run/ascend.md",
+        "tilelang/examples/README.md",
+        "tilelang/examples/contiguous-load.md"
+      ],
+      "action": "promoted"
+    },
+    {
+      "name": "cce-run",
+      "category": "run",
+      "entry": false,
+      "verdict": "extend",
+      "reasons": [
+        "overlaps existing skill 'npu-cce-run' (score 0.67) \u2014 extend, don't fork"
+      ],
+      "llm_verdict": null,
+      "fingerprint": "7211ab8b78d1a755fe5db5548299f559665ffbf70ef9e95172343eed4a612b0a",
+      "files": [
+        "cce/run/ascend.md",
+        "cce/examples/simt-vf.md"
+      ],
+      "action": "skipped"
+    },
+    {
+      "name": "single-opcode-rate",
+      "category": "technique",
+      "entry": false,
+      "verdict": "extend",
+      "reasons": [
+        "overlaps existing skill 'npu-single-opcode-rate' (score 0.75) \u2014 extend, don't fork"
+      ],
+      "llm_verdict": null,
+      "fingerprint": "9f4ca3d6a2465045d651264ec239922b09330050270ee1aff10eb9c9621807e8",
+      "files": [
+        "tilelang/techniques/single-opcode-rate.md"
+      ],
+      "action": "skipped"
+    },
+    {
+      "name": "cce-opcode-burst",
+      "category": "technique",
+      "entry": false,
+      "verdict": "hold",
+      "reasons": [
+        "LLM judge: duplicate (deterministic: relevant) \u2014 human review"
+      ],
+      "llm_verdict": "duplicate",
+      "fingerprint": "f461d5d89a936c7b04e0728e18879d31e80d655f216cd355776278d9cabe6a4a",
+      "files": [
+        "cce/techniques/README.md",
+        "cce/techniques/op-bursts.md",
+        "cce/techniques/single-opcode-burst.md",
+        "cce/examples/README.md",
+        "cce/examples/f2f/README.md",
+        "cce/examples/f2f/schedule-1.asc",
+        "cce/examples/f2f/schedule-2.asc",
+        "cce/examples/f2f/schedule-3.asc",
+        "cce/examples/f2f/schedule-4.asc",
+        "cce/examples/ffma/README.md",
+        "cce/examples/ffma/schedule-1.asc",
+        "cce/examples/ffma/schedule-2.asc",
+        "cce/examples/ffma/schedule-3.asc",
+        "cce/examples/lds/README.md",
+        "cce/examples/lds/schedule-1.asc",
+        "cce/examples/lds/schedule-2.asc",
+        "cce/examples/lds/schedule-3.asc",
+        "cce/examples/lds/schedule-4.asc",
+        "cce/examples/lds/schedule-fp32-size.asc",
+        "cce/examples/sts/README.md",
+        "cce/examples/sts/schedule-1.asc"
+      ],
+      "action": "skipped"
+    },
+    {
+      "name": "stage-model",
+      "category": "technique",
+      "entry": false,
+      "verdict": "extend",
+      "reasons": [
+        "overlaps existing skill 'npu-stage-model' (score 0.67) \u2014 extend, don't fork"
+      ],
+      "llm_verdict": "duplicate",
+      "fingerprint": "f2e20a2766034428a1b7dbe8dc8a8019fa5ebd135c55478d943df49eddef91ee",
+      "files": [
+        "tilelang/techniques/stage-model.md",
+        "tilelang/techniques/schedule-patterns.md",
+        "tilelang/techniques/roof-model.md",
+        "tilelang/techniques/i-cache-stall.md"
+      ],
+      "action": "skipped"
+    },
+    {
+      "name": "trace-analysis",
+      "category": "tooling",
+      "entry": false,
+      "verdict": "relevant",
+      "reasons": [],
+      "llm_verdict": null,
+      "fingerprint": "b6c1f9156cda57f306a729fcd0e8e901dbc037ede77b514be39cc50e618cb11c",
+      "files": [
+        "tools/op-busy-cycles.py",
+        "tools/instr-ipc-plot.py",
+        "tools/README.md",
+        "tools/instr-ipc/export_data.py",
+        "tools/instr-ipc/trace.py",
+        "tools/instr-ipc/render.js",
+        "tools/instr-ipc/package.json",
+        "visualization/README.md",
+        "visualization/instr-ipc.md",
+        "visualization/tables.md"
+      ],
+      "action": "promoted"
+    }
+  ]
+}
