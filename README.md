@@ -14,6 +14,7 @@ The first bundled workflow is **regression** (`run → report → review` on the
 - [Vision](docs/VISION.md) — the product framing
 - [Architecture](docs/ARCHITECTURE.md) — user / agent / harness / MCP roles & interaction
 - [Creating Skills](docs/CREATING_SKILLS.md) — guide for adding a new skill
+- [Importing Skills](docs/IMPORTING_SKILLS.md) — bring external skills/libraries into the corpus
 - [AGENTS.md](AGENTS.md) — the agent-facing contract
 - [**Website**](#website) — `index.html`, a self-contained presentation/intro site
 
