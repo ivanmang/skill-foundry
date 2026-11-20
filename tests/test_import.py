@@ -303,6 +303,40 @@ class RelevanceTest(unittest.TestCase):
         self.assertTrue(any("out of scope" in r for r in reasons))
         self.assertTrue(used)
 
+    def test_assess_advisory_duplicate_on_relevant_is_hold(self):
+        src = importer.SourceConfig(
+            name="lib",
+            type="knowledge-library",
+            location=str(self.tmp / "src"),
+            scope_hint="ascend tilelang simt performance",
+        )
+        _write(self.tmp / "src" / "x.md", "a tilelang kernel\n")
+        c = _candidate(files=["x.md"])
+        with mock.patch.object(
+            importer, "llm_verdicts", return_value=("in_scope", "duplicate", True)
+        ):
+            verdict, reasons, rel, used = importer.assess(c, src, [])
+        self.assertEqual(verdict, importer.HOLD)
+        self.assertEqual(rel, "duplicate")
+        self.assertTrue(any("human review" in r for r in reasons))
+
+    def test_assess_advisory_relevant_does_not_override_extend(self):
+        src = importer.SourceConfig(
+            name="lib",
+            type="knowledge-library",
+            location=str(self.tmp / "src"),
+            scope_hint="ascend tilelang simt performance",
+        )
+        _write(self.tmp / "src" / "x.md", "cce run body\n")
+        c = _candidate(name="cce-run", files=["x.md"])
+        with mock.patch.object(
+            importer, "llm_verdicts", return_value=("in_scope", "relevant", True)
+        ):
+            verdict, _, _, _ = importer.assess(
+                c, src, [{"name": "npu-cce-run", "description": "run cce bodies"}]
+            )
+        self.assertEqual(verdict, importer.EXTEND)
+
 
 class FrontmatterTest(unittest.TestCase):
     def test_split(self):
