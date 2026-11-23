@@ -149,6 +149,7 @@ def _print_scan(args, results, any_llm, manifest) -> None:
             print(f"      · LLM judge: {r['llm_verdict']}")
     print()
     print(f"manifest → {manifest.relative_to(ROOT)}")
+    print(f"next: ./harness import {args.source} --draft")
 
 
 def _scan(args) -> int:
@@ -199,13 +200,48 @@ def _draft(args) -> int:
     src, adapter = _load_source(args)
     if src is None:
         return 2
-    candidates, results, any_llm = _assess(src, adapter)
-    if candidates is None:
-        return 1
+
+    manifest = importer.read_manifest(args.source)
+    any_llm = False
+
+    if args.rescan or manifest is None:
+        candidates, results, any_llm = _assess(src, adapter)
+        if candidates is None:
+            return 1
+    else:
+        # Reuse the last scan's verdicts — a non-deterministic judge must not
+        # change what a preview said. Re-discover for current files, don't re-judge.
+        try:
+            candidates = adapter.discover(src)
+        except (FileNotFoundError, ValueError) as exc:
+            print(f"error: {exc}", file=sys.stderr)
+            return 1
+        prev_by_name = {c["name"]: c for c in manifest.get("candidates", [])}
+        results = []
+        for c in candidates:
+            prev = prev_by_name.get(c.name, {})
+            results.append(
+                {
+                    "name": c.name,
+                    "category": c.category,
+                    "entry": c.entry,
+                    "verdict": prev.get("verdict", importer.RELEVANT),
+                    "reasons": prev.get("reasons", []),
+                    "llm_verdict": prev.get("llm_verdict"),
+                    "fingerprint": c.fingerprint,
+                    "files": c.files,
+                }
+            )
+        any_llm = any(r.get("llm_verdict") for r in results)
 
     drafted: list[tuple[str, str]] = []
     skipped: list[tuple[str, str]] = []
+    live = ROOT / ".claude" / "skills"
     for c, r in zip(candidates, results):
+        if (live / c.name).exists():
+            skipped.append((c.name, "already-published"))
+            r["action"] = "skipped:published"
+            continue
         if r["verdict"] != importer.RELEVANT:
             skipped.append((c.name, r["verdict"]))
             r["action"] = "skipped"
@@ -224,6 +260,8 @@ def _draft(args) -> int:
             r["reasons"].append(str(exc))
 
     importer.write_manifest(args.source, results)
+    if not (args.rescan or manifest is None):
+        print("  (reusing the last scan's verdicts — add --rescan to re-judge)")
     _print_draft(args, drafted, skipped, any_llm)
     return 0
 
@@ -344,11 +382,12 @@ def _validate(args) -> int:
         print(f"  {'✓' if not bad else '✗'} {name}")
         for e in bad:
             print(f"      · {e}")
-    print()
     print(
         f"validate: {args.source} — {len(errors)} issue(s) "
         f"across {len(drafted)} draft(s)"
     )
+    if not errors:
+        print(f"next: ./harness import {args.source} --pr  (or --apply for local)")
     return 0 if not errors else 1
 
 
@@ -630,6 +669,11 @@ def _parser() -> argparse.ArgumentParser:
         "--draft", action="store_true", help="Convert RELEVANT candidates to drafts."
     )
     ap.add_argument(
+        "--rescan",
+        action="store_true",
+        help="With --draft: re-judge instead of reusing the last scan's verdicts.",
+    )
+    ap.add_argument(
         "--validate", action="store_true", help="Run the spec gate over the drafts."
     )
     ap.add_argument(
@@ -691,8 +735,13 @@ def main(argv: list[str] | None = None) -> int:
         )
         return 2
 
-    _parser().print_help()
-    return 2
+    # bare `./harness import` → show status + the flow (not an error)
+    _list(args)
+    if not args.json:
+        print()
+        print("flow: --add → --scan → --draft → --validate → --apply/--pr → --sync")
+        print("guide: docs/IMPORTING_SKILLS.md  (./harness help import for flags)")
+    return 0
 
 
 if __name__ == "__main__":
