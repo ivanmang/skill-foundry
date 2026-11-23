@@ -121,6 +121,17 @@ class ResolveIncludeTest(unittest.TestCase):
         rels = importer.resolve_includes(self.root, ["a/"])
         self.assertEqual(sorted(rels), ["a/a.md", "a/b.md"])
 
+    def test_include_escaping_root_is_skipped(self):
+        _write(self.root.parent / "outside.txt", "secret\n")
+        rels = importer.resolve_includes(self.root, ["../outside.txt"])
+        self.assertEqual(rels, [])
+
+    def test_symlink_to_outside_is_skipped(self):
+        outside = _write(self.root.parent / "secret.txt", "secret\n")
+        (self.root / "link.txt").symlink_to(outside)
+        rels = importer.resolve_includes(self.root, ["link.txt"])
+        self.assertEqual(rels, [])
+
 
 class FingerprintTest(unittest.TestCase):
     def setUp(self):

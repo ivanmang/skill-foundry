@@ -73,16 +73,24 @@ A source is declared in `config/imports.json` with a `type` (adapter) and a
 
 ### 2. Scan (relevance)
 
-Deterministic checks (completeness → self-containment → dedupe) plus an optional
-LLM judge (`IMPORT_REVIEWER`, same stdin contract as `SKILL_REVIEWER`). Verdicts:
+Per candidate, in order: **completeness** (metadata/files present),
+**self-containment** (no machine paths), **dedupe** against the published
+corpus (Jaccard + description similarity — the authoritative owner of
+`duplicate` / `extend`), and **scope** — judged semantically by
+`IMPORT_REVIEWER` (`IN_SCOPE` / `OUT_OF_SCOPE`; one call also returns the
+overall relevance word), with a lexical word-overlap fallback when no judge is
+configured.
 
 | verdict | meaning | action |
 |---|---|---|
 | `relevant` | in-scope, no meaningful overlap | draft it |
-| `extend` | overlaps an existing skill | merge into it (`./harness teach`), don't fork |
-| `duplicate` | already covered | skip |
-| `irrelevant` | out of scope | skip |
-| `hold` | self-containment / ambiguity | a human decides |
+| `extend` | overlaps an existing skill (dedupe) | merge into it (`./harness teach`), don't fork |
+| `duplicate` | already covered (dedupe) | skip |
+| `irrelevant` | out of scope (`OUT_OF_SCOPE`) | skip |
+| `hold` | self-containment, or the LLM disagreed with a deterministic `relevant` | a human decides |
+
+The LLM relevance verdict is **advisory** — it escalates a deterministic
+`relevant` to `hold` for human review, never silently overrides the dedupe.
 
 ### 3. Draft
 

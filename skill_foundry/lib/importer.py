@@ -281,6 +281,8 @@ def load_mapping(src: SourceConfig) -> dict:
 
 # ── file resolution + fingerprint ───────────────────────────────────────────
 def _keep(path: Path) -> bool:
+    if path.is_symlink():
+        return False
     if not path.is_file():
         return False
     if path.name in SKIP_NAMES or "__pycache__" in path.parts:
@@ -300,12 +302,23 @@ def resolve_include(root: Path, entry: str) -> list[Path]:
 
 
 def resolve_includes(root: Path, include: list[str]) -> list[str]:
-    """Resolve a list of include entries to deduped source-relative file paths."""
+    """Resolve include entries to deduped source-relative file paths.
+
+    Only files that stay inside `root` are kept — `..` escapes and symlinks out
+    of the source are skipped rather than read/copied.
+    """
+    root_res = root.resolve()
     rels: list[str] = []
     seen: set[str] = set()
     for entry in include:
         for f in resolve_include(root, entry):
-            rel = f.relative_to(root).as_posix()
+            try:
+                resolved = f.resolve(strict=False)
+            except OSError:
+                continue
+            if not resolved.is_relative_to(root_res):
+                continue
+            rel = resolved.relative_to(root_res).as_posix()
             if rel not in seen:
                 seen.add(rel)
                 rels.append(rel)

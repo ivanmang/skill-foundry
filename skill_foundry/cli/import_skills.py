@@ -417,6 +417,12 @@ def _promote(args) -> int:
             c["action"] = "promoted"
     importer.write_manifest(args.source, candidates)
 
+    # Refresh the catalog/index so --apply keeps the tree consistent and --pr
+    # commits a publish whose guards (skills --check) pass.
+    from skill_foundry.cli import skills as _skills_cli
+
+    _skills_cli.refresh()
+
     print(f"✓ promoted {len(bodies)} skill(s) from '{args.source}'")
     for name, _body in bodies:
         print(f"  ✓ {name}")
@@ -439,7 +445,19 @@ def _promote(args) -> int:
     live_rel = str(live.relative_to(ROOT))
     inbox_rel = str(inbox.relative_to(ROOT))
     subprocess.run(
-        ["git", "-C", str(ROOT), "add", "-A", live_rel, inbox_rel, "hub/imports"],
+        [
+            "git",
+            "-C",
+            str(ROOT),
+            "add",
+            "-A",
+            live_rel,
+            inbox_rel,
+            "hub/imports",
+            "hub/catalog.json",
+            "docs/SKILLS_INDEX.md",
+            "README.md",
+        ],
         check=True,
     )
     subprocess.run(
