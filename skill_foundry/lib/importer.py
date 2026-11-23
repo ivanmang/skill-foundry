@@ -296,7 +296,8 @@ def resolve_include(root: Path, entry: str) -> list[Path]:
         base = root / entry.rstrip("/")
         return [f for f in sorted(base.rglob("*")) if _keep(f)]
     if any(ch in entry for ch in "*?["):
-        return [f for f in sorted(root.glob(entry)) if _keep(f)]
+        pattern = entry + "/*" if entry.endswith("**") else entry
+        return [f for f in sorted(root.glob(pattern)) if _keep(f)]
     p = root / entry
     return [p] if _keep(p) else []
 
@@ -754,26 +755,19 @@ def closest_existing(c: Candidate, existing: list[dict]) -> tuple[str, float]:
     return best_name, best_score
 
 
-def _self_containment_issues(c: Candidate, src: SourceConfig) -> list[str]:
+def _content_issues(c: Candidate, src: SourceConfig) -> tuple[list[str], list[str]]:
+    """(self-containment, secret) issues — reads each file once."""
     root = src.root
-    issues: list[str] = []
+    sc: list[str] = []
+    secret: list[str] = []
     for rel in c.files:
         text = (root / rel).read_text(encoding="utf-8", errors="replace")
         for m in _ABS_PATH_RE.finditer(text):
-            issues.append(f"{rel}: machine-specific path '{m.group(0)}'")
-            if len(issues) >= 5:
-                return issues
-    return issues
-
-
-def _secret_issues(c: Candidate, src: SourceConfig) -> list[str]:
-    issues: list[str] = []
-    for rel in c.files:
-        text = (src.root / rel).read_text(encoding="utf-8", errors="replace")
-        issues.extend(f"{rel}: {v}" for v in gates.check_secrets(text))
-        if len(issues) >= 5:
+            sc.append(f"{rel}: machine-specific path '{m.group(0)}'")
+        secret.extend(f"{rel}: {v}" for v in gates.check_secrets(text))
+        if len(sc) >= 5 and len(secret) >= 5:
             break
-    return issues
+    return sc, secret
 
 
 _SCOPE_STOPWORDS = {
@@ -904,10 +898,9 @@ def relevance(
     if c.entry_file and c.entry_file not in c.files:
         return IRRELEVANT, [f"entry_file '{c.entry_file}' not among resolved files"]
 
-    # self-containment + secrets
-    sc_issues = _self_containment_issues(c, src)
+    # self-containment + secrets (one read pass)
+    sc_issues, secret_issues = _content_issues(c, src)
     reasons.extend(sc_issues)
-    secret_issues = _secret_issues(c, src)
     reasons.extend(secret_issues)
 
     # dedupe

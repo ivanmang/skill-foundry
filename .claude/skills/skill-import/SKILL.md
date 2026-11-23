@@ -66,7 +66,8 @@ A source is declared in `config/imports.json` with a `type` (adapter) and a
 - `knowledge-library` needs a mapping manifest. `--add` writes a stub at
   `config/imports/<name>.json` — edit its `skills` list (`name`, `category`,
   `entry`, `description`, `include`, `entry_file`) before scanning. `include`
-  entries are directory (trailing `/`) / file / glob; resolved files skip
+  entries are directory (trailing `/`) / file / glob (`pathlib.glob` — use
+  `**/*` to recurse); resolved files skip
   `.git`, `.gitignore`, `__pycache__`, `*.pyc`.
 - `agent-skills` / `local-dir` need no manifest — discovery is one candidate per
   `<name>/SKILL.md` folder.

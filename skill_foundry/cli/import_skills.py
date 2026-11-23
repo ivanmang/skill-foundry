@@ -28,6 +28,7 @@ import shutil
 import subprocess
 import sys
 from collections import Counter
+from concurrent.futures import ThreadPoolExecutor
 
 from skill_foundry.lib import importer
 from skill_foundry.paths import ROOT
@@ -102,22 +103,24 @@ def _assess(src, adapter):
     existing = importer.existing_skills()
     results: list[dict] = []
     any_llm = False
-    for c in candidates:
-        verdict, reasons, rel_llm, used = importer.assess(c, src, existing)
-        if used:
-            any_llm = True
-        results.append(
-            {
-                "name": c.name,
-                "category": c.category,
-                "entry": c.entry,
-                "verdict": verdict,
-                "reasons": reasons,
-                "llm_verdict": rel_llm,
-                "fingerprint": c.fingerprint,
-                "files": c.files,
-            }
-        )
+    with ThreadPoolExecutor(max_workers=4) as pool:
+        futures = [pool.submit(importer.assess, c, src, existing) for c in candidates]
+        for c, fut in zip(candidates, futures):
+            verdict, reasons, rel_llm, used = fut.result()
+            if used:
+                any_llm = True
+            results.append(
+                {
+                    "name": c.name,
+                    "category": c.category,
+                    "entry": c.entry,
+                    "verdict": verdict,
+                    "reasons": reasons,
+                    "llm_verdict": rel_llm,
+                    "fingerprint": c.fingerprint,
+                    "files": c.files,
+                }
+            )
     return candidates, results, any_llm
 
 

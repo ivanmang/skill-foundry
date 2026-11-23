@@ -115,6 +115,10 @@ class ResolveIncludeTest(unittest.TestCase):
         rels = importer.resolve_includes(self.root, ["a/*.md"])
         self.assertEqual(sorted(rels), ["a/a.md", "a/b.md"])
 
+    def test_double_star_glob_is_recursive(self):
+        rels = importer.resolve_includes(self.root, ["a/**"])
+        self.assertEqual(sorted(rels), ["a/a.md", "a/b.md"])
+
     def test_build_artifacts_are_skipped(self):
         _write(self.root / "a/__pycache__/x.pyc", "")
         _write(self.root / "a/.gitignore", "")

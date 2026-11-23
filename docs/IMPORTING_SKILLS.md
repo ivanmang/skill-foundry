@@ -36,7 +36,7 @@ unchanged.
 | command | what happens |
 |---|---|
 | `--add` | writes an entry to `config/imports.json`. For a `knowledge-library` it also creates a mapping stub `config/imports/<name>.json` (edit its `skills` list before scanning). |
-| `--scan` | discovers candidates, runs the **relevance gate**, and writes `hub/imports/<source>/manifest.json` (fingerprints + verdicts). Read-only. |
+| `--scan` | discovers candidates, runs the **relevance gate**, and writes `hub/imports/<source>/manifest.json` (fingerprints + verdicts). Writes only that manifest — not drafts or skills. |
 | `--draft` | for each `relevant` candidate, snapshots the source into `hub/inbox/<name>/` and synthesizes a router `SKILL.md`. |
 | `--validate` | runs `validate_skills --strict` (spec + repo metadata) on the produced drafts. |
 | `--apply` / `--pr` | runs the mechanical gates + the builtin and `SKILL_REVIEWER` judges, then copies drafts into `.claude/skills/` (`--apply` = local; `--pr` = + commit, push, open a PR). |
