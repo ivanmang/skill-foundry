@@ -215,6 +215,26 @@ class RelevanceTest(unittest.TestCase):
         self.assertEqual(verdict, importer.HOLD)
         self.assertTrue(any("/home/" in r for r in reasons))
 
+    def test_secret_in_content_is_hold(self):
+        _write(self.tmp / "src" / "x.md", "token glpat-abcdefgh12345678\n")
+        c = _candidate(files=["x.md"])
+        verdict, reasons = importer.relevance(c, self.src, [])
+        self.assertEqual(verdict, importer.HOLD)
+        self.assertTrue(any("secret" in r for r in reasons))
+
+    def test_drafted_candidates(self):
+        inbox = Path(tempfile.mkdtemp())
+        cands = [
+            {"name": "a", "verdict": importer.RELEVANT},
+            {"name": "b", "verdict": importer.HOLD},
+            {"name": "c", "verdict": importer.EXTEND},
+            {"name": "d", "verdict": importer.RELEVANT},
+        ]
+        (inbox / "a" / "SKILL.md").parent.mkdir(parents=True)
+        (inbox / "a" / "SKILL.md").write_text("x")
+        names = [c["name"] for c in importer.drafted_candidates(cands, inbox)]
+        self.assertEqual(names, ["a"])
+
     def test_duplicate_and_extend(self):
         _write(self.tmp / "src" / "x.md")
         dup = _candidate(name="stage-model", files=["x.md"])

@@ -25,7 +25,7 @@ from pathlib import Path
 from typing import Protocol
 
 from skill_foundry.paths import IMPORTS_CACHE, IMPORTS_HUB, INBOX, ROOT, SKILLS
-from skill_foundry.lib import validate_skills
+from skill_foundry.lib import gates, validate_skills
 
 # ── verdicts ────────────────────────────────────────────────────────────────
 RELEVANT = "relevant"
@@ -766,6 +766,16 @@ def _self_containment_issues(c: Candidate, src: SourceConfig) -> list[str]:
     return issues
 
 
+def _secret_issues(c: Candidate, src: SourceConfig) -> list[str]:
+    issues: list[str] = []
+    for rel in c.files:
+        text = (src.root / rel).read_text(encoding="utf-8", errors="replace")
+        issues.extend(f"{rel}: {v}" for v in gates.check_secrets(text))
+        if len(issues) >= 5:
+            break
+    return issues
+
+
 _SCOPE_STOPWORDS = {
     "and",
     "for",
@@ -894,9 +904,11 @@ def relevance(
     if c.entry_file and c.entry_file not in c.files:
         return IRRELEVANT, [f"entry_file '{c.entry_file}' not among resolved files"]
 
-    # self-containment
+    # self-containment + secrets
     sc_issues = _self_containment_issues(c, src)
     reasons.extend(sc_issues)
+    secret_issues = _secret_issues(c, src)
+    reasons.extend(secret_issues)
 
     # dedupe
     best, score = closest_existing(c, existing)
@@ -912,7 +924,7 @@ def relevance(
     elif best and score >= CLOSEST_HINT_THRESHOLD:
         reasons.append(f"closest existing: '{best}' (score {score:.2f})")
 
-    if sc_issues:
+    if sc_issues or secret_issues:
         verdict = combine_verdicts(verdict, HOLD)
 
     return verdict, reasons
@@ -921,6 +933,15 @@ def relevance(
 def combine_verdicts(a: str, b: str) -> str:
     """Return the more restrictive of two verdicts."""
     return a if _VERDICT_PRIORITY.get(a, 0) >= _VERDICT_PRIORITY.get(b, 0) else b
+
+
+def drafted_candidates(candidates: list[dict], inbox: Path) -> list[dict]:
+    """Candidates that have a draft on disk and a `relevant` verdict."""
+    return [
+        c
+        for c in candidates
+        if (inbox / c["name"] / "SKILL.md").exists() and c.get("verdict") == RELEVANT
+    ]
 
 
 # ── LLM semantic judge (optional; mirrors reviewer.SKILL_REVIEWER contract) ──
@@ -970,7 +991,7 @@ def llm_verdicts(
         )
     except Exception as exc:  # pragma: no cover - environmental
         print(f"import reviewer error: {exc}", file=sys.stderr)
-        return None, None, True
+        return None, None, False
     out = ((r.stdout or "") + " " + (r.stderr or "")).upper()
     scope = None
     m = re.search(r"\b(IN_SCOPE|OUT_OF_SCOPE)\b", out)
