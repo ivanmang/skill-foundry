@@ -115,11 +115,26 @@ class ResolveIncludeTest(unittest.TestCase):
         rels = importer.resolve_includes(self.root, ["a/*.md"])
         self.assertEqual(sorted(rels), ["a/a.md", "a/b.md"])
 
+    def test_double_star_glob_is_recursive(self):
+        rels = importer.resolve_includes(self.root, ["a/**"])
+        self.assertEqual(sorted(rels), ["a/a.md", "a/b.md"])
+
     def test_build_artifacts_are_skipped(self):
         _write(self.root / "a/__pycache__/x.pyc", "")
         _write(self.root / "a/.gitignore", "")
         rels = importer.resolve_includes(self.root, ["a/"])
         self.assertEqual(sorted(rels), ["a/a.md", "a/b.md"])
+
+    def test_include_escaping_root_is_skipped(self):
+        _write(self.root.parent / "outside.txt", "secret\n")
+        rels = importer.resolve_includes(self.root, ["../outside.txt"])
+        self.assertEqual(rels, [])
+
+    def test_symlink_to_outside_is_skipped(self):
+        outside = _write(self.root.parent / "secret.txt", "secret\n")
+        (self.root / "link.txt").symlink_to(outside)
+        rels = importer.resolve_includes(self.root, ["link.txt"])
+        self.assertEqual(rels, [])
 
 
 class FingerprintTest(unittest.TestCase):
@@ -203,6 +218,26 @@ class RelevanceTest(unittest.TestCase):
         verdict, reasons = importer.relevance(c, self.src, [])
         self.assertEqual(verdict, importer.HOLD)
         self.assertTrue(any("/home/" in r for r in reasons))
+
+    def test_secret_in_content_is_hold(self):
+        _write(self.tmp / "src" / "x.md", "token glpat-abcdefgh12345678\n")
+        c = _candidate(files=["x.md"])
+        verdict, reasons = importer.relevance(c, self.src, [])
+        self.assertEqual(verdict, importer.HOLD)
+        self.assertTrue(any("secret" in r for r in reasons))
+
+    def test_drafted_candidates(self):
+        inbox = Path(tempfile.mkdtemp())
+        cands = [
+            {"name": "a", "verdict": importer.RELEVANT},
+            {"name": "b", "verdict": importer.HOLD},
+            {"name": "c", "verdict": importer.EXTEND},
+            {"name": "d", "verdict": importer.RELEVANT},
+        ]
+        (inbox / "a" / "SKILL.md").parent.mkdir(parents=True)
+        (inbox / "a" / "SKILL.md").write_text("x")
+        names = [c["name"] for c in importer.drafted_candidates(cands, inbox)]
+        self.assertEqual(names, ["a"])
 
     def test_duplicate_and_extend(self):
         _write(self.tmp / "src" / "x.md")

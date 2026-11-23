@@ -28,6 +28,7 @@ import shutil
 import subprocess
 import sys
 from collections import Counter
+from concurrent.futures import ThreadPoolExecutor
 
 from skill_foundry.lib import importer
 from skill_foundry.paths import ROOT
@@ -102,22 +103,24 @@ def _assess(src, adapter):
     existing = importer.existing_skills()
     results: list[dict] = []
     any_llm = False
-    for c in candidates:
-        verdict, reasons, rel_llm, used = importer.assess(c, src, existing)
-        if used:
-            any_llm = True
-        results.append(
-            {
-                "name": c.name,
-                "category": c.category,
-                "entry": c.entry,
-                "verdict": verdict,
-                "reasons": reasons,
-                "llm_verdict": rel_llm,
-                "fingerprint": c.fingerprint,
-                "files": c.files,
-            }
-        )
+    with ThreadPoolExecutor(max_workers=4) as pool:
+        futures = [pool.submit(importer.assess, c, src, existing) for c in candidates]
+        for c, fut in zip(candidates, futures):
+            verdict, reasons, rel_llm, used = fut.result()
+            if used:
+                any_llm = True
+            results.append(
+                {
+                    "name": c.name,
+                    "category": c.category,
+                    "entry": c.entry,
+                    "verdict": verdict,
+                    "reasons": reasons,
+                    "llm_verdict": rel_llm,
+                    "fingerprint": c.fingerprint,
+                    "files": c.files,
+                }
+            )
     return candidates, results, any_llm
 
 
@@ -304,9 +307,7 @@ def _validate(args) -> int:
         )
         return 2
     candidates = manifest.get("candidates", [])
-    drafted = [c for c in candidates if c.get("action") == "drafted"]
-    if not drafted:
-        drafted = [c for c in candidates if c.get("verdict") == importer.RELEVANT]
+    drafted = importer.drafted_candidates(candidates, INBOX)
     if not drafted:
         print(f"validate: {args.source} — no drafts to validate (run --draft first)")
         return 0
@@ -365,12 +366,7 @@ def _promote(args) -> int:
     candidates = manifest.get("candidates", [])
     inbox = ROOT / "hub" / "inbox"
     live = ROOT / ".claude" / "skills"
-    drafted = [
-        c
-        for c in candidates
-        if (inbox / c["name"] / "SKILL.md").exists()
-        and c.get("verdict") == importer.RELEVANT
-    ]
+    drafted = importer.drafted_candidates(candidates, inbox)
     if not drafted:
         print(f"promote: {args.source} — no drafts to promote (run --draft first)")
         return 0
@@ -417,6 +413,12 @@ def _promote(args) -> int:
             c["action"] = "promoted"
     importer.write_manifest(args.source, candidates)
 
+    # Refresh the catalog/index so --apply keeps the tree consistent and --pr
+    # commits a publish whose guards (skills --check) pass.
+    from skill_foundry.cli import skills as _skills_cli
+
+    _skills_cli.refresh()
+
     print(f"✓ promoted {len(bodies)} skill(s) from '{args.source}'")
     for name, _body in bodies:
         print(f"  ✓ {name}")
@@ -435,11 +437,23 @@ def _promote(args) -> int:
             file=sys.stderr,
         )
 
-    branch = f"feat/import-{args.source}-{_dt.datetime.now():%Y%m%d}"
+    branch = f"feat/import-{args.source}-{_dt.datetime.now():%Y%m%d%H%M%S}"
     live_rel = str(live.relative_to(ROOT))
     inbox_rel = str(inbox.relative_to(ROOT))
     subprocess.run(
-        ["git", "-C", str(ROOT), "add", "-A", live_rel, inbox_rel, "hub/imports"],
+        [
+            "git",
+            "-C",
+            str(ROOT),
+            "add",
+            "-A",
+            live_rel,
+            inbox_rel,
+            "hub/imports",
+            "hub/catalog.json",
+            "docs/SKILLS_INDEX.md",
+            "README.md",
+        ],
         check=True,
     )
     subprocess.run(
@@ -526,16 +540,11 @@ def _sync(args) -> int:
         if name not in {c.name for c in candidates}:
             removed.append(name)
 
-    # Re-assess (deterministic) and write a fresh manifest, preserving prior
-    # LLM verdicts and promoted actions.
+    # Re-assess and write a fresh manifest, preserving promoted actions.
     existing = importer.existing_skills()
     results: list[dict] = []
     for c in candidates:
-        verdict, reasons = importer.relevance(c, src, existing)
-        status, reason = importer.scope_check(c, src)
-        if status == "uncertain":
-            verdict = importer.combine_verdicts(verdict, importer.HOLD)
-            reasons.append(reason)
+        verdict, reasons, rel_llm, _used = importer.assess(c, src, existing)
         prev = old.get(c.name, {})
         action = None
         if (inbox / c.name / "SKILL.md").exists() and verdict == importer.RELEVANT:
@@ -549,7 +558,7 @@ def _sync(args) -> int:
                 "entry": c.entry,
                 "verdict": verdict,
                 "reasons": reasons,
-                "llm_verdict": prev.get("llm_verdict"),
+                "llm_verdict": rel_llm,
                 "fingerprint": c.fingerprint,
                 "files": c.files,
                 "action": action,

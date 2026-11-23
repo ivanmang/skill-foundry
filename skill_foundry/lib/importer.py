@@ -25,7 +25,7 @@ from pathlib import Path
 from typing import Protocol
 
 from skill_foundry.paths import IMPORTS_CACHE, IMPORTS_HUB, INBOX, ROOT, SKILLS
-from skill_foundry.lib import validate_skills
+from skill_foundry.lib import gates, validate_skills
 
 # ── verdicts ────────────────────────────────────────────────────────────────
 RELEVANT = "relevant"
@@ -281,6 +281,8 @@ def load_mapping(src: SourceConfig) -> dict:
 
 # ── file resolution + fingerprint ───────────────────────────────────────────
 def _keep(path: Path) -> bool:
+    if path.is_symlink():
+        return False
     if not path.is_file():
         return False
     if path.name in SKIP_NAMES or "__pycache__" in path.parts:
@@ -294,18 +296,30 @@ def resolve_include(root: Path, entry: str) -> list[Path]:
         base = root / entry.rstrip("/")
         return [f for f in sorted(base.rglob("*")) if _keep(f)]
     if any(ch in entry for ch in "*?["):
-        return [f for f in sorted(root.glob(entry)) if _keep(f)]
+        pattern = entry + "/*" if entry.endswith("**") else entry
+        return [f for f in sorted(root.glob(pattern)) if _keep(f)]
     p = root / entry
     return [p] if _keep(p) else []
 
 
 def resolve_includes(root: Path, include: list[str]) -> list[str]:
-    """Resolve a list of include entries to deduped source-relative file paths."""
+    """Resolve include entries to deduped source-relative file paths.
+
+    Only files that stay inside `root` are kept — `..` escapes and symlinks out
+    of the source are skipped rather than read/copied.
+    """
+    root_res = root.resolve()
     rels: list[str] = []
     seen: set[str] = set()
     for entry in include:
         for f in resolve_include(root, entry):
-            rel = f.relative_to(root).as_posix()
+            try:
+                resolved = f.resolve(strict=False)
+            except OSError:
+                continue
+            if not resolved.is_relative_to(root_res):
+                continue
+            rel = resolved.relative_to(root_res).as_posix()
             if rel not in seen:
                 seen.add(rel)
                 rels.append(rel)
@@ -741,16 +755,19 @@ def closest_existing(c: Candidate, existing: list[dict]) -> tuple[str, float]:
     return best_name, best_score
 
 
-def _self_containment_issues(c: Candidate, src: SourceConfig) -> list[str]:
+def _content_issues(c: Candidate, src: SourceConfig) -> tuple[list[str], list[str]]:
+    """(self-containment, secret) issues — reads each file once."""
     root = src.root
-    issues: list[str] = []
+    sc: list[str] = []
+    secret: list[str] = []
     for rel in c.files:
         text = (root / rel).read_text(encoding="utf-8", errors="replace")
         for m in _ABS_PATH_RE.finditer(text):
-            issues.append(f"{rel}: machine-specific path '{m.group(0)}'")
-            if len(issues) >= 5:
-                return issues
-    return issues
+            sc.append(f"{rel}: machine-specific path '{m.group(0)}'")
+        secret.extend(f"{rel}: {v}" for v in gates.check_secrets(text))
+        if len(sc) >= 5 and len(secret) >= 5:
+            break
+    return sc, secret
 
 
 _SCOPE_STOPWORDS = {
@@ -881,9 +898,10 @@ def relevance(
     if c.entry_file and c.entry_file not in c.files:
         return IRRELEVANT, [f"entry_file '{c.entry_file}' not among resolved files"]
 
-    # self-containment
-    sc_issues = _self_containment_issues(c, src)
+    # self-containment + secrets (one read pass)
+    sc_issues, secret_issues = _content_issues(c, src)
     reasons.extend(sc_issues)
+    reasons.extend(secret_issues)
 
     # dedupe
     best, score = closest_existing(c, existing)
@@ -899,7 +917,7 @@ def relevance(
     elif best and score >= CLOSEST_HINT_THRESHOLD:
         reasons.append(f"closest existing: '{best}' (score {score:.2f})")
 
-    if sc_issues:
+    if sc_issues or secret_issues:
         verdict = combine_verdicts(verdict, HOLD)
 
     return verdict, reasons
@@ -908,6 +926,15 @@ def relevance(
 def combine_verdicts(a: str, b: str) -> str:
     """Return the more restrictive of two verdicts."""
     return a if _VERDICT_PRIORITY.get(a, 0) >= _VERDICT_PRIORITY.get(b, 0) else b
+
+
+def drafted_candidates(candidates: list[dict], inbox: Path) -> list[dict]:
+    """Candidates that have a draft on disk and a `relevant` verdict."""
+    return [
+        c
+        for c in candidates
+        if (inbox / c["name"] / "SKILL.md").exists() and c.get("verdict") == RELEVANT
+    ]
 
 
 # ── LLM semantic judge (optional; mirrors reviewer.SKILL_REVIEWER contract) ──
@@ -957,7 +984,7 @@ def llm_verdicts(
         )
     except Exception as exc:  # pragma: no cover - environmental
         print(f"import reviewer error: {exc}", file=sys.stderr)
-        return None, None, True
+        return None, None, False
     out = ((r.stdout or "") + " " + (r.stderr or "")).upper()
     scope = None
     m = re.search(r"\b(IN_SCOPE|OUT_OF_SCOPE)\b", out)
