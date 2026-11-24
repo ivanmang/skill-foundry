@@ -62,10 +62,9 @@ for the full roles & interaction model.
 # THE PRODUCT — the skill-ops loop (the only harness verbs)
 ./harness capture-skill <name>           # draft a NEW skill
 ./harness promote-skill <name> --pr      # publish a draft (open a PR)
-./harness import <src> --scan --draft --pr  # integrate external skills/libraries (see skill-import)
+./harness import <src> --scan            # integrate external skills/libraries (then --draft → --pr; see skill-import)
 ./harness teach "wrong -> correct -> action"
 ./harness promote --pr                   # publish learnings (open a PR)
-./harness promote-skill <name> --pr      # publish a draft (open a PR)
 ./harness learnings [status | clear | rotate]  # ledger: counts / reset / archive
 ./harness skills [--search q] [--category c] [--origin o] [--entry] [--check]  # discover skills (map: docs/SKILLS_INDEX.md)
 
