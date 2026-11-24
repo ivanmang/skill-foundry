@@ -79,7 +79,7 @@ through the same gated, human-merged path:
 
 ```bash
 ./harness import --add <name> --type knowledge-library|agent-skills|local-dir --path <loc>
-./harness import <name> --scan --draft --validate --pr   # discover → relevance → draft → publish
+./harness import <name> --scan --draft --validate --pr   # the whole loop, chained (or run each flag alone)
 ./harness import <name> --sync                            # refresh after the source changes
 ```
 

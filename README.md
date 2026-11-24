@@ -101,7 +101,7 @@ python3 -m skill_foundry.workflow.status
 ./harness skills                                   # what skills exist?
 ./harness capture-skill code-review                # draft a new skill (then add category/origin/owner)
 ./harness promote-skill code-review --pr           # publish the draft (see docs/CREATING_SKILLS.md)
-./harness import <src> --scan --draft --pr         # integrate external skills/libraries
+./harness import <src> --scan --draft --pr         # integrate external skills/libraries (chained)
 ./harness teach "symptom -> correct -> action"     # log a correction
 ./harness promote --pr                             # publish learnings (open a PR; human merges)
 
@@ -154,7 +154,7 @@ Make every skill available in every project (<!-- SKILL_COUNT -->131<!-- /SKILL_
 It symlinks each selected skill into `~/.claude/skills/`, `~/.pi/skills/` and
 `~/.agents/skills/`, auto-detects which agents are installed, and prints the
 reload hint for each. `--uninstall` removes them and respects the same filters
-(`./harness skills --uninstall --origin cannbot` removes only the imported ones).
+(`./harness skills --uninstall --origin library` removes only the imported skills-library skills).
 
 ### 3. Tools — MCP (optional, typed calls)
 

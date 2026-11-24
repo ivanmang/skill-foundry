@@ -8,7 +8,6 @@ origin: library
 owner: skills-library
 maturity: ready
 metadata:
-  status: draft
   source: skills-library
   location: ~/skills-library
   fingerprint: 5df4f5b5c994e1e0073a80e4434292d610b6753c84d98143e6b351e67b527f66

@@ -395,6 +395,20 @@ class FrontmatterTest(unittest.TestCase):
         self.assertTrue(out.startswith("---\ncategory: c\n---"))
         self.assertIn("# Just body", out)
 
+    def test_vendor_frontmatter_omits_redundant_status(self):
+        tmp = Path(tempfile.mkdtemp())
+        src = importer.SourceConfig(
+            name="lib", type="knowledge-library", location=str(tmp)
+        )
+        c = importer.Candidate(
+            name="alpha", description="desc", category="cat", fingerprint="fp"
+        )
+        adapter = importer.KnowledgeLibraryAdapter()
+        fm = adapter._frontmatter(c, src)
+        self.assertNotIn("status: draft", fm)
+        self.assertIn("  source: lib", fm)
+        self.assertIn("  fingerprint: fp", fm)
+
 
 class ManifestTest(unittest.TestCase):
     def setUp(self):
@@ -493,6 +507,84 @@ class RejectTest(unittest.TestCase):
         results = [{"name": "alpha", "verdict": "relevant"}]
         cli._overlay_rejected(results, "lib")
         self.assertTrue(results[0]["rejected"])
+
+
+class ChainingTest(unittest.TestCase):
+    def _args(self, **kw):
+        defaults = dict(
+            source="lib",
+            scan=False,
+            draft=False,
+            validate=False,
+            pr=False,
+            apply=False,
+            reject=None,
+            sync=False,
+            json=False,
+            rescan=False,
+        )
+        defaults.update(kw)
+        return mock.Mock(**defaults)
+
+    def test_pipeline_runs_in_order_and_stops_on_failure(self):
+        from skill_foundry.cli import import_skills as cli
+
+        calls = []
+
+        def mk(name, rc):
+            def f(args):
+                calls.append(name)
+                return rc
+
+            return f
+
+        with (
+            mock.patch.object(cli, "_scan", mk("scan", 0)),
+            mock.patch.object(cli, "_draft", mk("draft", 0)),
+            mock.patch.object(cli, "_validate", mk("validate", 1)),
+            mock.patch.object(cli, "_promote", mk("promote", 0)),
+        ):
+            rc = cli._pipeline(
+                self._args(scan=True, draft=True, validate=True, pr=True)
+            )
+        self.assertEqual(rc, 1)
+        self.assertEqual(calls, ["scan", "draft", "validate"])
+
+    def test_pipeline_skips_unrequested_stages(self):
+        from skill_foundry.cli import import_skills as cli
+
+        calls = []
+
+        def mk(name):
+            def f(args):
+                calls.append(name)
+                return 0
+
+            return f
+
+        with (
+            mock.patch.object(cli, "_scan", mk("scan")),
+            mock.patch.object(cli, "_draft", mk("draft")),
+            mock.patch.object(cli, "_validate", mk("validate")),
+            mock.patch.object(cli, "_promote", mk("promote")),
+        ):
+            rc = cli._pipeline(self._args(scan=True, draft=True))
+        self.assertEqual(rc, 0)
+        self.assertEqual(calls, ["scan", "draft"])
+
+    def test_sync_and_reject_excluded_from_pipeline(self):
+        from skill_foundry.cli import import_skills as cli
+
+        with (
+            mock.patch.object(cli, "_scan") as scan,
+            mock.patch.object(cli, "_sync") as sync,
+            mock.patch.object(cli, "_reject") as reject,
+        ):
+            rc = cli.main(["lib", "--scan", "--sync"])
+        self.assertEqual(rc, 2)
+        scan.assert_not_called()
+        sync.assert_not_called()
+        reject.assert_not_called()
 
 
 if __name__ == "__main__":

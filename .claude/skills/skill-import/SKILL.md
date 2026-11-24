@@ -51,6 +51,9 @@ A source is declared in `config/imports.json` with a `type` (adapter) and a
 
 ## Procedure
 
+Flags chain in order: `--scan --draft --validate --pr` runs the whole loop in
+one go (stops at the first error). `--reject` and `--sync` stay standalone.
+
 ```text
 1. register   ./harness import --add <name> --type <t> --path <loc> [--origin o] [--owner o]
 2. relevance  ./harness import <name> --scan

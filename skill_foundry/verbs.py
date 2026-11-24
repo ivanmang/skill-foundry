@@ -137,6 +137,8 @@ Examples: ./harness skills --search review      ./harness skills --install --sco
     "import": """\
 ./harness import [<source>] [--add | --list | --remove | --scan | --draft | --validate | --apply | --pr | --reject | --undo | --sync] [--json]
 Integrate external skills/libraries into the harness (discover → relevance → draft → promote).
+Flags chain in order — `--scan --draft --validate --pr` runs the whole loop in one go
+(a single flag still works alone; `--sync` / `--reject` stay standalone).
 
   --add <name> --type <t> --path <loc> | --git <url> [--origin <o>] [--owner <o>] [--mode vendor|reference|passthrough]
                       register an external source (writes config/imports.json)
