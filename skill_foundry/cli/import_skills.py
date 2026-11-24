@@ -16,6 +16,7 @@ Usage:
   ./harness import <source> --validate
   ./harness import <source> --pr
   ./harness import <source> --sync
+  ./harness import <source> --reject <name> [--undo]
 """
 
 from __future__ import annotations
@@ -48,7 +49,10 @@ _SKIP_HINT = {
     importer.EXTEND: "merge into the existing skill (./harness teach), don't fork",
     importer.DUPLICATE: "already covered by an existing skill",
     importer.IRRELEVANT: "out of scope",
-    importer.HOLD: "needs human review (self-containment / ambiguity)",
+    importer.HOLD: "needs human review — check paths/secrets, then --rescan or ./harness teach",
+    "rejected": "marked rejected — undo: ./harness import <source> --reject <name> --undo",
+    "already-exists": "draft already on disk — delete hub/inbox/<name>/ to re-draft",
+    "already-published": "already live in .claude/skills",
 }
 
 
@@ -124,6 +128,19 @@ def _assess(src, adapter):
     return candidates, results, any_llm
 
 
+def _overlay_rejected(results: list[dict], source_name: str) -> None:
+    """Persist human `--reject` decisions across re-assessments."""
+    manifest = importer.read_manifest(source_name)
+    if not manifest:
+        return
+    rejected = {
+        c["name"]: bool(c.get("rejected")) for c in manifest.get("candidates", [])
+    }
+    for r in results:
+        if rejected.get(r["name"]):
+            r["rejected"] = True
+
+
 def _print_scan(args, results, any_llm, manifest) -> None:
     if args.json:
         print(json.dumps({"source": args.source, "candidates": results}, indent=2))
@@ -147,6 +164,11 @@ def _print_scan(args, results, any_llm, manifest) -> None:
             print(f"      · {reason}")
         if r.get("llm_verdict"):
             print(f"      · LLM judge: {r['llm_verdict']}")
+        if r.get("rejected"):
+            print(
+                f"      · rejected — undo: ./harness import {args.source} "
+                f"--reject {r['name']} --undo"
+            )
     print()
     print(f"manifest → {manifest.relative_to(ROOT)}")
     print(f"next: ./harness import {args.source} --draft")
@@ -159,6 +181,7 @@ def _scan(args) -> int:
     candidates, results, any_llm = _assess(src, adapter)
     if candidates is None:
         return 1
+    _overlay_rejected(results, args.source)
     manifest = importer.write_manifest(args.source, results)
     _print_scan(args, results, any_llm, manifest)
     return 0
@@ -208,6 +231,7 @@ def _draft(args) -> int:
         candidates, results, any_llm = _assess(src, adapter)
         if candidates is None:
             return 1
+        _overlay_rejected(results, args.source)
     else:
         # Reuse the last scan's verdicts — a non-deterministic judge must not
         # change what a preview said. Re-discover for current files, don't re-judge.
@@ -230,6 +254,7 @@ def _draft(args) -> int:
                     "llm_verdict": prev.get("llm_verdict"),
                     "fingerprint": c.fingerprint,
                     "files": c.files,
+                    "rejected": prev.get("rejected", False),
                 }
             )
         any_llm = any(r.get("llm_verdict") for r in results)
@@ -238,6 +263,10 @@ def _draft(args) -> int:
     skipped: list[tuple[str, str]] = []
     live = ROOT / ".claude" / "skills"
     for c, r in zip(candidates, results):
+        if r.get("rejected"):
+            skipped.append((c.name, "rejected"))
+            r["action"] = "skipped:rejected"
+            continue
         if (live / c.name).exists():
             skipped.append((c.name, "already-published"))
             r["action"] = "skipped:published"
@@ -330,6 +359,65 @@ def _remove(args) -> int:
                 print(f"  ✓ removed empty mapping stub {mapping}")
             else:
                 print(f"  (kept mapping {mapping} — it has authored skills)")
+    return 0
+
+
+def _reject(args) -> int:
+    """Mark candidate(s) rejected (or --undo) so --draft/--sync skip them."""
+    names = list(args.reject or [])
+    if importer.source_from_registry(args.source) is None:
+        print(
+            f"error: source '{args.source}' not registered (./harness import --list)",
+            file=sys.stderr,
+        )
+        return 2
+    manifest = importer.read_manifest(args.source)
+    if manifest is None:
+        print(
+            f"error: no manifest for '{args.source}' — run --scan first",
+            file=sys.stderr,
+        )
+        return 2
+    candidates = manifest.get("candidates", [])
+    by_name = {c["name"]: c for c in candidates}
+    unknown = [n for n in names if n not in by_name]
+    if unknown:
+        print(
+            f"error: not candidate(s) of '{args.source}': {', '.join(unknown)}",
+            file=sys.stderr,
+        )
+        if by_name:
+            print(f"  candidates: {', '.join(sorted(by_name))}", file=sys.stderr)
+        return 2
+
+    inbox = ROOT / "hub" / "inbox"
+    now = _dt.datetime.now(_dt.timezone.utc).isoformat()
+    changed = False
+    for n in names:
+        c = by_name[n]
+        if args.undo:
+            if c.get("rejected"):
+                c["rejected"] = False
+                c.pop("rejected_at", None)
+                changed = True
+                print(f"  ↻ {n}: re-enabled (back in scope for --scan/--draft)")
+            else:
+                print(f"  · {n}: was not rejected")
+            continue
+        if c.get("rejected"):
+            print(f"  · {n}: already rejected (--undo to restore)")
+            continue
+        c["rejected"] = True
+        c["rejected_at"] = now
+        changed = True
+        if (inbox / n / "SKILL.md").exists():
+            shutil.rmtree(inbox / n)
+            c["action"] = "rejected"
+            print(f"  ✗ {n}: rejected (draft removed)")
+        else:
+            print(f"  ✗ {n}: rejected")
+    if changed:
+        importer.write_manifest(args.source, candidates)
     return 0
 
 
@@ -603,6 +691,7 @@ def _sync(args) -> int:
                 "action": action,
             }
         )
+    _overlay_rejected(results, args.source)
     importer.write_manifest(args.source, results)
 
     if args.json:
@@ -677,12 +766,23 @@ def _parser() -> argparse.ArgumentParser:
         "--validate", action="store_true", help="Run the spec gate over the drafts."
     )
     ap.add_argument(
-        "--pr", action="store_true", help="Promote the drafts (gated + reviewed)."
+        "--pr",
+        action="store_true",
+        help="Promote the drafts, then commit + push + open a PR (gated + reviewed).",
     )
     ap.add_argument(
         "--apply",
         action="store_true",
-        help="Promote drafts locally (no commit / no PR).",
+        help="Promote the drafts locally (gated + reviewed, no commit / no PR).",
+    )
+    ap.add_argument(
+        "--reject",
+        nargs="+",
+        metavar="NAME",
+        help="Mark candidate(s) rejected — skipped by --draft / --sync.",
+    )
+    ap.add_argument(
+        "--undo", action="store_true", help="With --reject: re-enable the candidate(s)."
     )
     ap.add_argument(
         "--sync",
@@ -699,8 +799,18 @@ def main(argv: list[str] | None = None) -> int:
     if args.list:
         return _list(args)
 
+    if args.undo and not args.reject:
+        print("error: --undo only applies to --reject", file=sys.stderr)
+        return 2
+
     needs_source = (
-        args.scan or args.draft or args.validate or args.pr or args.apply or args.sync
+        args.scan
+        or args.draft
+        or args.validate
+        or args.pr
+        or args.apply
+        or args.sync
+        or args.reject
     )
     if needs_source and not args.source:
         print("error: this action needs a <source> argument", file=sys.stderr)
@@ -718,6 +828,9 @@ def main(argv: list[str] | None = None) -> int:
     if args.source and (args.pr or args.apply):
         return _promote(args)
 
+    if args.source and args.reject:
+        return _reject(args)
+
     if args.add:
         return _add(args)
 
@@ -730,7 +843,7 @@ def main(argv: list[str] | None = None) -> int:
     if args.source:
         print(
             f"error: no action flag for source '{args.source}' "
-            "(use --scan/--draft/--validate/--apply/--pr/--sync)",
+            "(use --scan/--draft/--validate/--apply/--pr/--reject/--sync)",
             file=sys.stderr,
         )
         return 2
@@ -741,6 +854,11 @@ def main(argv: list[str] | None = None) -> int:
         print()
         print("flow: --add → --scan → --draft → --validate → --apply/--pr → --sync")
         print("guide: docs/IMPORTING_SKILLS.md  (./harness help import for flags)")
+        print()
+        print(
+            "setup:  IMPORT_REVIEWER (scope+relevance) · SKILL_REVIEWER (promotion)\n"
+            "        a PR token (GH_TOKEN / GITHUB_TOKEN) so --pr can open the PR automatically"
+        )
     return 0
 
 
