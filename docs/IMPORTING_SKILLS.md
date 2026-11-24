@@ -9,6 +9,20 @@ It is the **front half of the capture loop**: it *discovers* candidates,
 into `hub/inbox/`. The existing `promote-skill` gate then publishes them
 unchanged.
 
+## Prerequisites
+
+Two judge commands (each reads a payload on stdin, prints a verdict) and a PR
+token, so the loop can run unattended:
+
+```bash
+export IMPORT_REVIEWER='…'   # scope + relevance, one call per candidate
+# export SKILL_REVIEWER='…'  # promotion APPROVE/HOLD/REJECT (required for --pr)
+export GH_TOKEN='…'          # so --pr can open the PR automatically
+```
+
+Without `IMPORT_REVIEWER`, `--scan` falls back to a lexical scope check;
+without `SKILL_REVIEWER`, `--pr` fails closed.
+
 ## Quick start
 
 ```bash
@@ -24,6 +38,9 @@ unchanged.
 # 4. check the drafts against the spec
 ./harness import skills-library --validate
 
+# 4b. (optional) record the candidates you've decided against — they stay dropped
+./harness import skills-library --reject <name> [<name> …]
+
 # 5. publish (gated + LLM-reviewed → PR; a human merges)
 ./harness import skills-library --pr
 
@@ -37,7 +54,8 @@ unchanged.
 |---|---|
 | `--add` | writes an entry to `config/imports.json`. For a `knowledge-library` it also creates a mapping stub `config/imports/<name>.json` (edit its `skills` list before scanning). |
 | `--scan` | discovers candidates, runs the **relevance gate**, and writes `hub/imports/<source>/manifest.json` (fingerprints + verdicts). Writes only that manifest — not drafts or skills. |
-| `--draft` | for each `relevant` candidate, snapshots the source into `hub/inbox/<name>/` and synthesizes a router `SKILL.md`. |
+| `--draft` | for each `relevant` candidate, snapshots the source into `hub/inbox/<name>/` and synthesizes a router `SKILL.md`. Reuses the last `--scan` verdicts (`--rescan` to re-judge); skips already-published skills. |
+| `--reject <name> [--undo]` | records a human "skip this one" decision in the manifest; `--draft`/`--sync` then skip it. `--undo` restores. |
 | `--validate` | runs `validate_skills --strict` (spec + repo metadata) on the produced drafts. |
 | `--apply` / `--pr` | runs the mechanical gates + the builtin and `SKILL_REVIEWER` judges, then copies drafts into `.claude/skills/` (`--apply` = local; `--pr` = + commit, push, open a PR). |
 | `--sync` | re-fingerprints the source, diffs against the manifest, and refreshes drifted snapshots (`unchanged / changed / added / removed`). |
@@ -85,6 +103,10 @@ Verdicts and what they mean:
 | `irrelevant` | out of scope (judge said `OUT_OF_SCOPE`) | skip |
 | `hold` | self-containment issue, or the LLM disagreed with a deterministic `relevant` | a human decides |
 
+A human decision to drop a candidate is recorded with `--reject <name>` — that
+mark lives in the manifest (not in the verdict), survives re-scans, and is
+cleared only with `--reject <name> --undo`.
+
 The LLM relevance verdict is **advisory**: it can escalate a deterministic
 `relevant` to `hold` for human review, but never silently overrides the
 deterministic dedupe (which has the actual skill list).
@@ -110,7 +132,7 @@ source config), `maturity`, `license` (auto-detected, e.g. `Apache-2.0`), and
 (dangling refs, placeholders, contradictions), and the `SKILL_REVIEWER` judge —
 then copies the skills into `.claude/skills/`, commits on a branch, and opens a
 PR. **A human merges.** Non-interactive sessions fail closed without
-`SKILL_REVIEWER`.
+`SKILL_REVIEWER`. `--apply` is the same gate, minus the commit/PR.
 
 ## Judges
 
@@ -137,4 +159,5 @@ Importing the skills-library reference layer produced 12 candidates. The
 relevance gate kept the 5 genuinely-new formula/run skills, flagged 3 as
 `extend` (already covered by `npu-*` skills), and routed 3 to `hold` (LLM
 claimed overlap) for a human decision — which dropped them in favour of the
-existing `npu-op-burst` / `npu-single-opcode-rate` / `tilelanggym-st-*` skills.
+existing `npu-op-burst` / `npu-single-opcode-rate` / `tilelanggym-st-*` skills
+(now recordable with `./harness import skills-library --reject <name>`).

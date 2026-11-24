@@ -54,11 +54,12 @@ A source is declared in `config/imports.json` with a `type` (adapter) and a
 ```text
 1. register   ./harness import --add <name> --type <t> --path <loc> [--origin o] [--owner o]
 2. relevance  ./harness import <name> --scan
-3. draft      ./harness import <name> --draft
-4. validate   ./harness import <name> --validate
-5. publish    ./harness import <name> --pr        # (--apply for local-only)
-6. discover   ./harness skills --refresh && ./harness selfcheck
-7. refresh    ./harness import <name> --sync
+3. draft      ./harness import <name> --draft      # reuses --scan verdicts; --rescan re-judges
+4. drop       ./harness import <name> --reject <candidate> ...   # (optional) record rejected candidates
+5. validate   ./harness import <name> --validate
+6. publish    ./harness import <name> --pr        # (--apply for local-only)
+7. discover   ./harness skills --refresh && ./harness selfcheck
+8. refresh    ./harness import <name> --sync
 ```
 
 ### 1. Register
@@ -97,28 +98,36 @@ The LLM relevance verdict is **advisory** — it escalates a deterministic
 
 Drafts only `relevant` candidates into `hub/inbox/<name>/` (a `references/`
 snapshot for libraries). `--draft` is capture, so it does not hard-require
-`IMPORT_REVIEWER` — it warns when the judge is absent. Re-running is idempotent
-(existing drafts are skipped).
+`IMPORT_REVIEWER` — it warns when the judge is absent. It **reuses the last
+`--scan` verdicts** so the preview matches the draft; add `--rescan` to re-judge.
+Re-running is idempotent (existing drafts and already-published skills are skipped).
 
-### 4. Validate
+### 4. Reject (optional)
+
+`./harness import <name> --reject <candidate> [--undo]` records a human "skip
+this one" decision in the manifest, so `--draft` and `--sync` keep skipping it
+even though it looked `relevant`. `--undo` re-enables it. The decision survives
+`--scan` / `--rescan` (a re-judge doesn't un-reject — you must `--undo`).
+
+### 5. Validate
 
 Runs the spec + repo-metadata gate on the produced drafts
 (`validate_skills --strict`): `name` matches the folder, `description` present,
 `category` / `origin` / `owner` set.
 
-### 5. Publish
+### 6. Publish
 
 `--pr` runs the mechanical gates on every draft, then one `SKILL_REVIEWER`
 review over the batch, copies drafts into `.claude/skills/`, commits on a
 branch, and opens a PR a human merges. `--apply` is the local-only variant (no
 commit). Non-interactive sessions fail closed without `SKILL_REVIEWER`.
 
-### 6. Discover
+### 7. Discover
 
 After promotion (or after any draft), refresh the catalog/index so
 `./harness skills --check` stays green.
 
-### 7. Sync
+### 8. Sync
 
 Re-fingerprints the source and diffs against the manifest —
 `unchanged / changed / added / removed`. Changed drafts are refreshed (snapshots
@@ -131,6 +140,7 @@ are reported, not auto-drafted.
 ./harness import --add skills-library --type knowledge-library --path ~/skills-library
 ./harness import skills-library --scan        # per-candidate verdict
 ./harness import skills-library --draft       # → hub/inbox/<name>/
+./harness import skills-library --reject <candidate>   # (optional) record a drop
 ./harness import skills-library --validate    # spec + metadata
 ./harness import skills-library --pr          # gated + SKILL_REVIEWER → PR
 ./harness import skills-library --sync        # drift refresh
@@ -143,6 +153,8 @@ are reported, not auto-drafted.
   needs one.
 - `hub/imports/<source>/manifest.json` is a generated record, not a hand-edited
   file — `--scan` / `--draft` / `--sync` rewrite it.
+- `--reject` writes the decision into that manifest (not a separate file); it
+  survives `--scan`/`--rescan` and is cleared only by `--reject <name> --undo`.
 - `--remove` deregisters the registry entry only; it never deletes drafts,
   skills, or the manifest.
 - `--pr` reads the actual `hub/inbox/` folders, not the manifest `action` field

@@ -442,10 +442,57 @@ class CliSurfaceTest(unittest.TestCase):
             "--validate",
             "--apply",
             "--pr",
+            "--reject",
+            "--undo",
             "--sync",
             "--json",
         ):
             self.assertIn(flag, help_text, f"missing {flag}")
+
+
+class RejectTest(unittest.TestCase):
+    def setUp(self):
+        self.tmp = Path(tempfile.mkdtemp())
+        self.patch_hub = mock.patch.object(importer, "IMPORTS_HUB", self.tmp)
+        self.patch_hub.start()
+        importer.write_manifest(
+            "lib", [{"name": "alpha", "verdict": "relevant", "fingerprint": "abc"}]
+        )
+        self.patch_src = mock.patch.object(
+            importer, "source_from_registry", return_value=mock.Mock()
+        )
+        self.patch_src.start()
+
+    def tearDown(self):
+        self.patch_src.stop()
+        self.patch_hub.stop()
+
+    def _reject(self, names: list[str], undo: bool = False) -> int:
+        from skill_foundry.cli import import_skills as cli
+
+        return cli._reject(mock.Mock(source="lib", reject=names, undo=undo))
+
+    def test_reject_marks_candidate(self):
+        self.assertEqual(self._reject(["alpha"]), 0)
+        self.assertTrue(importer.read_manifest("lib")["candidates"][0]["rejected"])
+
+    def test_reject_unknown_name_fails(self):
+        self.assertEqual(self._reject(["nope"]), 2)
+
+    def test_undo_re_enables(self):
+        self._reject(["alpha"])
+        self.assertEqual(self._reject(["alpha"], undo=True), 0)
+        self.assertFalse(
+            importer.read_manifest("lib")["candidates"][0].get("rejected", False)
+        )
+
+    def test_overlay_persists_rejected_across_reassessment(self):
+        from skill_foundry.cli import import_skills as cli
+
+        self._reject(["alpha"])
+        results = [{"name": "alpha", "verdict": "relevant"}]
+        cli._overlay_rejected(results, "lib")
+        self.assertTrue(results[0]["rejected"])
 
 
 if __name__ == "__main__":
