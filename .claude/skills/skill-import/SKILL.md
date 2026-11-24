@@ -65,6 +65,9 @@ one go (stops at the first error). `--reject` and `--sync` stay standalone.
 8. refresh    ./harness import <name> --sync
 ```
 
+Deregister with `./harness import --remove <name>` (registry entry only — it
+leaves drafts, skills, and the manifest in place). `--list` prints the registry.
+
 ### 1. Register
 
 - `knowledge-library` needs a mapping manifest. `--add` writes a stub at
@@ -99,8 +102,9 @@ The LLM relevance verdict is **advisory** — it escalates a deterministic
 
 ### 3. Draft
 
-Drafts only `relevant` candidates into `hub/inbox/<name>/` (a `references/`
-snapshot for libraries). `--draft` is capture, so it does not hard-require
+Drafts only `relevant` candidates into `hub/inbox/<name>/` — a `references/`
+snapshot for `knowledge-library`; a flat copy of the source folder for
+`agent-skills`/`local-dir`. `--draft` is capture, so it does not hard-require
 `IMPORT_REVIEWER` — it warns when the judge is absent. It **reuses the last
 `--scan` verdicts** so the preview matches the draft; add `--rescan` to re-judge.
 Re-running is idempotent (existing drafts and already-published skills are skipped).
@@ -123,7 +127,9 @@ Runs the spec + repo-metadata gate on the produced drafts
 `--pr` runs the mechanical gates on every draft, then one `SKILL_REVIEWER`
 review over the batch, copies drafts into `.claude/skills/`, commits on a
 branch, and opens a PR a human merges. `--apply` is the local-only variant (no
-commit). Non-interactive sessions fail closed without `SKILL_REVIEWER`.
+commit). Non-interactive sessions fail closed without `SKILL_REVIEWER` — and
+the command exits `1` when the reviewer doesn't approve. `--pr` leaves you on
+the new `feat/import-<src>-<ts>` branch.
 
 ### 7. Discover
 
@@ -133,9 +139,12 @@ After promotion (or after any draft), refresh the catalog/index so
 ### 8. Sync
 
 Re-fingerprints the source and diffs against the manifest —
-`unchanged / changed / added / removed`. Changed drafts are refreshed (snapshots
-re-copied, stale files removed, `SKILL.md` fingerprint updated). New candidates
-are reported, not auto-drafted.
+`unchanged / changed / added / removed`. Changed *drafts* are refreshed
+(snapshots re-copied, stale files removed, `SKILL.md` fingerprint updated). A
+promoted skill's draft is consumed by promotion, so later drift reports
+`changed (no draft)` rather than re-applying — update `.claude/skills/<name>/`
+directly (or re-import under a new source). New candidates are reported, not
+auto-drafted.
 
 ## Accelerator
 
@@ -168,6 +177,7 @@ are reported, not auto-drafted.
 ## Output
 
 - `config/imports.json` + `config/imports/<source>.json` — the source registry.
-- `hub/inbox/<name>/` — drafts (SKILL.md + `references/` snapshots) awaiting promotion.
+- `hub/inbox/<name>/` — drafts awaiting promotion (a `references/` snapshot for
+  `knowledge-library`; a flat copy of the source folder for `agent-skills`/`local-dir`).
 - `hub/imports/<source>/manifest.json` — import record (fingerprints, verdicts, actions).
 - `.claude/skills/<name>/` — the promoted skills (after the PR merges).
