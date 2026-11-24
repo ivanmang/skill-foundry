@@ -458,7 +458,6 @@ class KnowledgeLibraryAdapter:
             f"owner: {prov.get('owner', src.owner)}",
             f"maturity: {prov.get('maturity', 'ready')}",
             "metadata:",
-            "  status: draft",
             f"  source: {md.get('source', src.name)}",
             f"  location: {md.get('location', src.location)}",
             f"  fingerprint: {md.get('fingerprint', c.fingerprint)}",
@@ -646,7 +645,6 @@ class AgentSkillsAdapter:
             f"owner: {src.owner}\n"
             "maturity: draft\n"
             "metadata:\n"
-            "  status: draft\n"
             f"  source: {src.name}\n"
             f"  location: {src.location}\n"
             "---\n"

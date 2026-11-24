@@ -395,6 +395,20 @@ class FrontmatterTest(unittest.TestCase):
         self.assertTrue(out.startswith("---\ncategory: c\n---"))
         self.assertIn("# Just body", out)
 
+    def test_vendor_frontmatter_omits_redundant_status(self):
+        tmp = Path(tempfile.mkdtemp())
+        src = importer.SourceConfig(
+            name="lib", type="knowledge-library", location=str(tmp)
+        )
+        c = importer.Candidate(
+            name="alpha", description="desc", category="cat", fingerprint="fp"
+        )
+        adapter = importer.KnowledgeLibraryAdapter()
+        fm = adapter._frontmatter(c, src)
+        self.assertNotIn("status: draft", fm)
+        self.assertIn("  source: lib", fm)
+        self.assertIn("  fingerprint: fp", fm)
+
 
 class ManifestTest(unittest.TestCase):
     def setUp(self):
