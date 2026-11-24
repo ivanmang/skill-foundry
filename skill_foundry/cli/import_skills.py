@@ -15,6 +15,7 @@ Usage:
   ./harness import <source> --draft
   ./harness import <source> --validate
   ./harness import <source> --pr
+  ./harness import <source> --scan --draft --validate --pr   # stages chain, in order
   ./harness import <source> --sync
   ./harness import <source> --reject <name> [--undo]
 """
@@ -22,7 +23,9 @@ Usage:
 from __future__ import annotations
 
 import argparse
+import contextlib
 import datetime as _dt
+import io
 import json
 import os
 import shutil
@@ -725,6 +728,47 @@ def _sync(args) -> int:
     return 0
 
 
+def _pipeline(args) -> int:
+    """Run the requested stages in fixed order, stopping at the first failure.
+
+    Order: scan → draft → validate → apply/pr. `--sync` and `--reject` are
+    standalone actions and are rejected upstream when mixed in.
+    """
+    stages = []
+    if args.scan:
+        stages.append(("scan", _scan))
+    if args.draft:
+        stages.append(("draft", _draft))
+    if args.validate:
+        stages.append(("validate", _validate))
+    if args.pr or args.apply:
+        stages.append(("promote", _promote))
+
+    if args.json:
+        payload: dict = {"source": args.source, "stages": {}}
+        rc = 0
+        for key, stage in stages:
+            buf = io.StringIO()
+            with contextlib.redirect_stdout(buf):
+                rc = stage(args)
+            text = buf.getvalue().strip()
+            try:
+                payload["stages"][key] = json.loads(text)
+            except ValueError:
+                payload["stages"][key] = {"exit": rc, "output": text}
+            if rc != 0:
+                break
+        print(json.dumps(payload, indent=2))
+        return rc
+
+    for key, stage in stages:
+        print(f"\n── {key} ──")
+        rc = stage(args)
+        if rc != 0:
+            return rc
+    return 0
+
+
 def _parser() -> argparse.ArgumentParser:
     ap = argparse.ArgumentParser(
         description="Integrate external skills/libraries into the harness."
@@ -816,37 +860,53 @@ def main(argv: list[str] | None = None) -> int:
         print("error: this action needs a <source> argument", file=sys.stderr)
         return 2
 
-    if args.source and args.scan:
-        return _scan(args)
-
-    if args.source and args.draft:
-        return _draft(args)
-
-    if args.source and args.validate:
-        return _validate(args)
-
-    if args.source and (args.pr or args.apply):
-        return _promote(args)
-
-    if args.source and args.reject:
-        return _reject(args)
-
-    if args.add:
-        return _add(args)
-
-    if args.remove:
-        return _remove(args)
-
-    if args.source and args.sync:
-        return _sync(args)
-
     if args.source:
+        pipeline = args.scan or args.draft or args.validate or args.pr or args.apply
+        if (args.sync or args.reject) and pipeline:
+            print(
+                "error: --sync / --reject can't be combined with "
+                "--scan/--draft/--validate/--apply/--pr",
+                file=sys.stderr,
+            )
+            return 2
+        if args.reject and args.sync:
+            print(
+                "error: --reject and --sync are standalone actions — pick one",
+                file=sys.stderr,
+            )
+            return 2
+
+        n_stages = sum(
+            bool(f)
+            for f in (args.scan, args.draft, args.validate, args.pr or args.apply)
+        )
+        if n_stages == 1:
+            if args.scan:
+                return _scan(args)
+            if args.draft:
+                return _draft(args)
+            if args.validate:
+                return _validate(args)
+            return _promote(args)
+        if pipeline:
+            return _pipeline(args)
+        if args.reject:
+            return _reject(args)
+        if args.sync:
+            return _sync(args)
+
         print(
             f"error: no action flag for source '{args.source}' "
             "(use --scan/--draft/--validate/--apply/--pr/--reject/--sync)",
             file=sys.stderr,
         )
         return 2
+
+    if args.add:
+        return _add(args)
+
+    if args.remove:
+        return _remove(args)
 
     # bare `./harness import` → show status + the flow (not an error)
     _list(args)

@@ -79,11 +79,8 @@ through the same gated, human-merged path:
 
 ```bash
 ./harness import --add <name> --type knowledge-library|agent-skills|local-dir --path <loc>
-./harness import <name> --scan      # discover + relevance
-./harness import <name> --draft     # draft the relevant ones
-./harness import <name> --validate  # spec + metadata gate
-./harness import <name> --pr        # publish (gated + LLM-reviewed → PR)
-./harness import <name> --sync      # refresh after the source changes
+./harness import <name> --scan --draft --validate --pr   # the whole loop, chained (or run each flag alone)
+./harness import <name> --sync                            # refresh after the source changes
 ```
 
 Full guide: [Importing Skills](IMPORTING_SKILLS.md). The agent-facing procedure

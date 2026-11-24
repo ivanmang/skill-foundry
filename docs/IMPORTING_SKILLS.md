@@ -48,6 +48,10 @@ without `SKILL_REVIEWER`, `--pr` fails closed.
 ./harness import skills-library --sync
 ```
 
+Steps 2–5 chain in one command:
+`./harness import skills-library --scan --draft --validate --pr` — stages run in
+order and stop at the first error (a single flag still works alone).
+
 ## What it does, stage by stage
 
 | command | what happens |

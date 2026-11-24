@@ -101,7 +101,7 @@ python3 -m skill_foundry.workflow.status
 ./harness skills                                   # what skills exist?
 ./harness capture-skill code-review                # draft a new skill (then add category/origin/owner)
 ./harness promote-skill code-review --pr           # publish the draft (see docs/CREATING_SKILLS.md)
-./harness import <src> --scan                      # integrate external skills/libraries (then --draft → --pr)
+./harness import <src> --scan --draft --pr         # integrate external skills/libraries (chained)
 ./harness teach "symptom -> correct -> action"     # log a correction
 ./harness promote --pr                             # publish learnings (open a PR; human merges)
 
