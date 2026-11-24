@@ -56,13 +56,15 @@ order and stop at the first error (a single flag still works alone).
 
 | command | what happens |
 |---|---|
+| `--list` | prints the registered sources (same as bare `./harness import`). |
 | `--add` | writes an entry to `config/imports.json`. For a `knowledge-library` it also creates a mapping stub `config/imports/<name>.json` (edit its `skills` list before scanning). |
+| `--remove` | deregisters a source — registry entry only; never deletes drafts, skills, or the manifest. |
 | `--scan` | discovers candidates, runs the **relevance gate**, and writes `hub/imports/<source>/manifest.json` (fingerprints + verdicts). Writes only that manifest — not drafts or skills. |
 | `--draft` | for each `relevant` candidate, snapshots the source into `hub/inbox/<name>/` and synthesizes a router `SKILL.md`. Reuses the last `--scan` verdicts (`--rescan` to re-judge); skips already-published skills. |
 | `--reject <name> [--undo]` | records a human "skip this one" decision in the manifest; `--draft`/`--sync` then skip it. `--undo` restores. |
 | `--validate` | runs `validate_skills --strict` (spec + repo metadata) on the produced drafts. |
 | `--apply` / `--pr` | runs the mechanical gates + the builtin and `SKILL_REVIEWER` judges, then copies drafts into `.claude/skills/` (`--apply` = local; `--pr` = + commit, push, open a PR). |
-| `--sync` | re-fingerprints the source, diffs against the manifest, and refreshes drifted snapshots (`unchanged / changed / added / removed`). |
+| `--sync` | re-fingerprints the source, diffs against the manifest, and refreshes drifted *draft* snapshots (`unchanged / changed / added / removed`). Once a skill is promoted its draft is consumed, so later drift is reported as `changed (no draft)` and is **not** auto-applied to `.claude/skills/`. |
 
 ## Source types
 
@@ -117,7 +119,10 @@ deterministic dedupe (which has the actual skill list).
 
 ## What a draft contains
 
-For `vendor` mode, each `relevant` candidate becomes:
+For `vendor` mode, each `relevant` candidate becomes a draft under
+`hub/inbox/<name>/`. The shape depends on the source type:
+
+`knowledge-library` — a synthesized router + snapshots:
 
 ```text
 hub/inbox/<name>/
@@ -126,9 +131,12 @@ hub/inbox/<name>/
     └── …
 ```
 
-The `SKILL.md` frontmatter carries provenance: `origin`/`owner` (from the
-source config), `maturity`, `license` (auto-detected, e.g. `Apache-2.0`), and
-`metadata.source`/`location`/`fingerprint`.
+`agent-skills` / `local-dir` — a flat copy of the source folder (the original
+`SKILL.md` and its content, no `references/`).
+
+The `SKILL.md` frontmatter carries provenance either way: `origin`/`owner`
+(from the source config), `maturity`, `license` (auto-detected, e.g.
+`Apache-2.0`), and `metadata.source`/`location`/`fingerprint`.
 
 ## Publishing is gated and human-merged
 
@@ -137,6 +145,10 @@ source config), `maturity`, `license` (auto-detected, e.g. `Apache-2.0`), and
 then copies the skills into `.claude/skills/`, commits on a branch, and opens a
 PR. **A human merges.** Non-interactive sessions fail closed without
 `SKILL_REVIEWER`. `--apply` is the same gate, minus the commit/PR.
+
+If the reviewer does not approve, the command exits `1` (nothing is promoted).
+`--pr` leaves you on the new `feat/import-<src>-<ts>` branch — the skills stay
+committed there until the PR merges (`git checkout main` to go back).
 
 ## Judges
 
