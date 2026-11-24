@@ -1,18 +1,18 @@
 {
   "version": 1,
   "source": "skills-library",
-  "scanned_at": "2026-11-20T10:05:56.470293+00:00",
+  "scanned_at": "2026-11-24T10:04:13.523963+00:00",
   "candidates": [
     {
       "name": "skills-library-router",
       "category": "routing",
       "entry": true,
-      "verdict": "hold",
+      "verdict": "irrelevant",
       "reasons": [
-        "LLM judge: duplicate (deterministic: relevant) \u2014 human review"
+        "scope: IMPORT_REVIEWER judged it out of scope"
       ],
-      "llm_verdict": "duplicate",
-      "fingerprint": "4cd07791a8bbf1e4b030694519867cc0eeb9914c105ca2a313b7f62b64877968",
+      "llm_verdict": "irrelevant",
+      "fingerprint": "b8b62df463e3bb35d58b16f731d749ace9c25b30fe64619a3695cc029474a792",
       "files": [
         "AGENTS.md",
         "HOW-TO-READ.md",
@@ -20,6 +20,7 @@
         "CONTRIBUTING.md",
         "ADDING-A-SKILL.md"
       ],
+      "rejected": false,
       "action": "skipped"
     },
     {
@@ -31,7 +32,7 @@
         "LLM judge: duplicate (deterministic: relevant) \u2014 human review"
       ],
       "llm_verdict": "duplicate",
-      "fingerprint": "495c627b7ec8ab7e2b090a6876c33a150553cf3dd050b1ae9ec5451bd8cf8c7c",
+      "fingerprint": "cb7c9e279dd9575443ea52ad745b2daeaaf49fefb0024934e50da1bb2a080945",
       "files": [
         "analyze/st-analysis/README.md",
         "analyze/st-analysis/claims.md",
@@ -40,17 +41,18 @@
         "analyze/st-analysis/procedure.md",
         "analyze/st-analysis/spine.md"
       ],
+      "rejected": false,
       "action": "skipped"
     },
     {
       "name": "formula-block-scale",
       "category": "formula",
       "entry": false,
-      "verdict": "relevant",
+      "verdict": "duplicate",
       "reasons": [
-        "closest existing: 'tilelanggym-block-scale' (score 0.50)"
+        "duplicate of existing skill 'formula-block-scale' (score 1.00)"
       ],
-      "llm_verdict": null,
+      "llm_verdict": "duplicate",
       "fingerprint": "2974dec11c8959147428235a1acc5036ac133d1789394f2b1888a1285b40ad83",
       "files": [
         "tilelang/formulas/block-scale/analyze.md",
@@ -58,17 +60,18 @@
         "tilelang/formulas/block-scale/measure.md",
         "tilelang/formulas/block-scale/simt.md"
       ],
-      "action": "promoted"
+      "rejected": false,
+      "action": "skipped:published"
     },
     {
       "name": "formula-column-scale",
       "category": "formula",
       "entry": false,
-      "verdict": "relevant",
+      "verdict": "duplicate",
       "reasons": [
-        "closest existing: 'tilelanggym-column-scale' (score 0.50)"
+        "duplicate of existing skill 'formula-column-scale' (score 1.00)"
       ],
-      "llm_verdict": null,
+      "llm_verdict": "duplicate",
       "fingerprint": "39eb8e6db90b7ee7d1cd6064e74935b38b3210764a01f7ac5f75b2fbb5e64b62",
       "files": [
         "tilelang/formulas/column-scale/analyze.md",
@@ -76,15 +79,18 @@
         "tilelang/formulas/column-scale/measure.md",
         "tilelang/formulas/column-scale/simt.md"
       ],
-      "action": "promoted"
+      "rejected": false,
+      "action": "skipped:published"
     },
     {
       "name": "formula-group-scale-broadcast",
       "category": "formula",
       "entry": false,
-      "verdict": "relevant",
-      "reasons": [],
-      "llm_verdict": null,
+      "verdict": "duplicate",
+      "reasons": [
+        "duplicate of existing skill 'formula-group-scale-broadcast' (score 1.00)"
+      ],
+      "llm_verdict": "duplicate",
       "fingerprint": "2f964f6a2121efec13647dd464f1abf9863f8429d042d7b0c8002cd969c0d4c6",
       "files": [
         "tilelang/formulas/group-scale-broadcast/analyze.md",
@@ -92,17 +98,18 @@
         "tilelang/formulas/group-scale-broadcast/measure.md",
         "tilelang/formulas/group-scale-broadcast/simt.md"
       ],
-      "action": "promoted"
+      "rejected": false,
+      "action": "skipped:published"
     },
     {
       "name": "formula-dot-product",
       "category": "formula",
       "entry": false,
-      "verdict": "relevant",
+      "verdict": "duplicate",
       "reasons": [
-        "closest existing: 'tilelanggym-dot-product' (score 0.50)"
+        "duplicate of existing skill 'formula-dot-product' (score 1.00)"
       ],
-      "llm_verdict": null,
+      "llm_verdict": "duplicate",
       "fingerprint": "b28a2ca605406c2db20b92105fea88465dd3cc1136a1862b2264b31ab14517ab",
       "files": [
         "tilelang/formulas/dot-product/analyze.md",
@@ -114,22 +121,26 @@
         "cce/formulas/dot-product/measure.md",
         "cce/formulas/dot-product/simt.md"
       ],
-      "action": "promoted"
+      "rejected": false,
+      "action": "skipped:published"
     },
     {
       "name": "tilelang-run",
       "category": "run",
       "entry": false,
-      "verdict": "relevant",
-      "reasons": [],
-      "llm_verdict": null,
+      "verdict": "duplicate",
+      "reasons": [
+        "duplicate of existing skill 'tilelang-run' (score 1.00)"
+      ],
+      "llm_verdict": "duplicate",
       "fingerprint": "5df4f5b5c994e1e0073a80e4434292d610b6753c84d98143e6b351e67b527f66",
       "files": [
         "tilelang/run/ascend.md",
         "tilelang/examples/README.md",
         "tilelang/examples/contiguous-load.md"
       ],
-      "action": "promoted"
+      "rejected": false,
+      "action": "skipped:published"
     },
     {
       "name": "cce-run",
@@ -139,12 +150,13 @@
       "reasons": [
         "overlaps existing skill 'npu-cce-run' (score 0.67) \u2014 extend, don't fork"
       ],
-      "llm_verdict": null,
-      "fingerprint": "7211ab8b78d1a755fe5db5548299f559665ffbf70ef9e95172343eed4a612b0a",
+      "llm_verdict": "duplicate",
+      "fingerprint": "65a981728ae78a1a047008ac154afac8ee776b0b7fbf21f63068e0e13bf74b4c",
       "files": [
         "cce/run/ascend.md",
         "cce/examples/simt-vf.md"
       ],
+      "rejected": false,
       "action": "skipped"
     },
     {
@@ -155,11 +167,12 @@
       "reasons": [
         "overlaps existing skill 'npu-single-opcode-rate' (score 0.75) \u2014 extend, don't fork"
       ],
-      "llm_verdict": null,
+      "llm_verdict": "duplicate",
       "fingerprint": "9f4ca3d6a2465045d651264ec239922b09330050270ee1aff10eb9c9621807e8",
       "files": [
         "tilelang/techniques/single-opcode-rate.md"
       ],
+      "rejected": false,
       "action": "skipped"
     },
     {
@@ -171,7 +184,7 @@
         "LLM judge: duplicate (deterministic: relevant) \u2014 human review"
       ],
       "llm_verdict": "duplicate",
-      "fingerprint": "f461d5d89a936c7b04e0728e18879d31e80d655f216cd355776278d9cabe6a4a",
+      "fingerprint": "3739d55d6cb353a569686f3a1b7e0d2e0f679ed2645e5ed02898a076124109df",
       "files": [
         "cce/techniques/README.md",
         "cce/techniques/op-bursts.md",
@@ -195,6 +208,7 @@
         "cce/examples/sts/README.md",
         "cce/examples/sts/schedule-1.asc"
       ],
+      "rejected": false,
       "action": "skipped"
     },
     {
@@ -206,13 +220,14 @@
         "overlaps existing skill 'npu-stage-model' (score 0.67) \u2014 extend, don't fork"
       ],
       "llm_verdict": "duplicate",
-      "fingerprint": "f2e20a2766034428a1b7dbe8dc8a8019fa5ebd135c55478d943df49eddef91ee",
+      "fingerprint": "4e7118d42bade1aef8dc72f2f2baf01393c30af106e22e76bc36c0805ef3c8f8",
       "files": [
         "tilelang/techniques/stage-model.md",
         "tilelang/techniques/schedule-patterns.md",
         "tilelang/techniques/roof-model.md",
         "tilelang/techniques/i-cache-stall.md"
       ],
+      "rejected": false,
       "action": "skipped"
     },
     {
@@ -221,8 +236,8 @@
       "entry": false,
       "verdict": "relevant",
       "reasons": [],
-      "llm_verdict": null,
-      "fingerprint": "b6c1f9156cda57f306a729fcd0e8e901dbc037ede77b514be39cc50e618cb11c",
+      "llm_verdict": "relevant",
+      "fingerprint": "9e1fd9caf691a2675fbb9184aafb3e960bf99872f4ee80c98313164d7c4f4d3b",
       "files": [
         "tools/op-busy-cycles.py",
         "tools/instr-ipc-plot.py",
@@ -235,7 +250,9 @@
         "visualization/instr-ipc.md",
         "visualization/tables.md"
       ],
-      "action": "promoted"
+      "rejected": true,
+      "action": "rejected",
+      "rejected_at": "2026-11-24T10:04:13.516523+00:00"
     }
   ]
 }
