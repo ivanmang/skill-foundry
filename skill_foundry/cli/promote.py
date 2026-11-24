@@ -664,7 +664,7 @@ def apply_all(
                 )
             else:
                 print("✗ review did not APPROVE — nothing applied.")
-            return 0
+            return 1
 
     metrics.record("promote", count=sum(len(es) for _, _, _, es in plan))
 

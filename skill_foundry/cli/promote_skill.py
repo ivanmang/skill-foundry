@@ -167,7 +167,7 @@ def main(argv: list[str] | None = None) -> int:
             )
         else:
             print("✗ review did not APPROVE — nothing applied.")
-        return 0
+        return 1
 
     shutil.copytree(src, dst)
     metrics.record("promote_skill", name=name)

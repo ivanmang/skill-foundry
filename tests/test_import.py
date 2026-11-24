@@ -409,6 +409,36 @@ class FrontmatterTest(unittest.TestCase):
         self.assertIn("  source: lib", fm)
         self.assertIn("  fingerprint: fp", fm)
 
+    def test_inject_metadata_preserves_existing(self):
+        text = "---\nname: a\nmetadata:\n  source: x\n---\n\n# B\n"
+        out = importer._inject_metadata(text, {"source": "y", "location": "z"})
+        self.assertEqual(out, text)
+
+    def test_agent_skills_build_injects_provenance_metadata(self):
+        tmp = Path(tempfile.mkdtemp())
+        root = tmp / "src"
+        (root / "alpha").mkdir(parents=True)
+        (root / "alpha" / "SKILL.md").write_text(
+            "---\nname: alpha\ndescription: desc\n---\n# Alpha\n",
+            encoding="utf-8",
+        )
+        src = importer.SourceConfig(
+            name="lib",
+            type="agent-skills",
+            location=str(root),
+            origin="cannbot",
+            owner="cannbot",
+        )
+        adapter = importer.AgentSkillsAdapter()
+        inbox = Path(tempfile.mkdtemp())
+        with mock.patch.object(importer, "INBOX", inbox):
+            cands = adapter.discover(src)
+            adapter.build_skill(cands[0], src)
+        draft = (inbox / "alpha" / "SKILL.md").read_text(encoding="utf-8")
+        self.assertIn("metadata:", draft)
+        self.assertIn("  source: lib", draft)
+        self.assertIn("  fingerprint:", draft)
+
 
 class ManifestTest(unittest.TestCase):
     def setUp(self):
