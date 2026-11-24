@@ -174,7 +174,8 @@ def _print_scan(args, results, any_llm, manifest) -> None:
             )
     print()
     print(f"manifest → {manifest.relative_to(ROOT)}")
-    print(f"next: ./harness import {args.source} --draft")
+    if not getattr(args, "_chained", False):
+        print(f"next: ./harness import {args.source} --draft")
 
 
 def _scan(args) -> int:
@@ -219,7 +220,8 @@ def _print_draft(args, drafted, skipped, any_llm) -> None:
             line += f"  ({hint})"
         print(line)
     print()
-    print("next: ./harness import <source> --validate")
+    if not getattr(args, "_chained", False):
+        print("next: ./harness import <source> --validate")
 
 
 def _draft(args) -> int:
@@ -477,7 +479,7 @@ def _validate(args) -> int:
         f"validate: {args.source} — {len(errors)} issue(s) "
         f"across {len(drafted)} draft(s)"
     )
-    if not errors:
+    if not errors and not getattr(args, "_chained", False):
         print(f"next: ./harness import {args.source} --pr  (or --apply for local)")
     return 0 if not errors else 1
 
@@ -533,7 +535,7 @@ def _promote(args) -> int:
         local_skills=local_skills,
     ):
         print("✗ review did not APPROVE — nothing promoted.")
-        return 0
+        return 1
 
     for name, _body in bodies:
         shutil.copytree(inbox / name, live / name)
@@ -615,6 +617,12 @@ def _promote(args) -> int:
             f"feat: import {args.source} skills",
         ],
         check=True,
+    )
+    print(
+        f"⚠  Committed on branch '{branch}' — you are now on it. "
+        "Run `git checkout main` to go back; the skills stay on that branch "
+        "until the PR merges.",
+        file=sys.stderr,
     )
     pushed = subprocess.run(["git", "-C", str(ROOT), "push", "-u", "origin", branch])
     if pushed.returncode == 0:
@@ -734,6 +742,7 @@ def _pipeline(args) -> int:
     Order: scan → draft → validate → apply/pr. `--sync` and `--reject` are
     standalone actions and are rejected upstream when mixed in.
     """
+    args._chained = True
     stages = []
     if args.scan:
         stages.append(("scan", _scan))
@@ -771,7 +780,8 @@ def _pipeline(args) -> int:
 
 def _parser() -> argparse.ArgumentParser:
     ap = argparse.ArgumentParser(
-        description="Integrate external skills/libraries into the harness."
+        prog="import",
+        description="Integrate external skills/libraries into the harness.",
     )
     ap.add_argument("source", nargs="?", help="Registered source name.")
     ap.add_argument("--add", metavar="NAME", help="Register an external source.")

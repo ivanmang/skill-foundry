@@ -388,6 +388,18 @@ def _inject_frontmatter(text: str, fields: dict[str, str]) -> str:
     return "---\n" + "\n".join(additions) + "\n---\n\n" + text
 
 
+def _inject_metadata(text: str, fields: dict[str, str]) -> str:
+    """Append a nested `metadata:` block if the frontmatter has none."""
+    fm, body = _split_skill_md(text)
+    existing, _ = validate_skills.parse_frontmatter(text)
+    if "metadata" in existing:
+        return text
+    block = ["metadata:"] + [f"  {k}: {v}" for k, v in fields.items()]
+    if fm:
+        return "---\n" + fm.rstrip("\n") + "\n" + "\n".join(block) + "\n---\n" + body
+    return "---\n" + "\n".join(block) + "\n---\n\n" + text
+
+
 class KnowledgeLibraryAdapter:
     """A self-contained knowledge library with no SKILL.md files: a mapping
     manifest groups its leaves into skill candidates."""
@@ -622,7 +634,9 @@ class AgentSkillsAdapter:
         if not (fm.get("maturity") or "").strip():
             fields["maturity"] = "ready"
         if fields:
-            sm.write_text(_inject_frontmatter(text, fields), encoding="utf-8")
+            text = _inject_frontmatter(text, fields)
+        text = _inject_metadata(text, self.provenance(c, src).get("metadata", {}))
+        sm.write_text(text, encoding="utf-8")
 
     def _build_reference(self, c: Candidate, src: SourceConfig, dest: Path) -> None:
         dest.mkdir(parents=True)
