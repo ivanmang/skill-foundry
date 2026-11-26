@@ -69,7 +69,7 @@ def render_markdown(h: dict) -> str:
         lines.append("")
         for q in missing:
             lines.append(
-                f"- `{q}` → `./harness capture-skill <name> --description \"…\"`"
+                f'- `{q}` → `./harness capture-skill <name> --description "…"`'
             )
         lines.append("")
 
