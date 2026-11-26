@@ -12,6 +12,7 @@ import subprocess
 import unittest
 
 from skill_foundry.paths import ROOT
+from skill_foundry.cli import skills as skills_cli
 from skill_foundry.lib import install_skills, validate_skills
 
 
@@ -83,6 +84,34 @@ class InstallSelectionTest(unittest.TestCase):
     def test_name_selects_single_skill(self):
         dirs = install_skills.select_dirs(self._args(name=["pto-isa"]))
         self.assertEqual([d.name for d in dirs], ["pto-isa"])
+
+
+class KeywordsSearchTest(unittest.TestCase):
+    def _skill(self, **kw):
+        base = {
+            "name": "scale-kernel",
+            "description": "compute one scale for a tile",
+            "category": "perf-analysis",
+            "keywords": ["quantization", "calibration", "absmax"],
+        }
+        base.update(kw)
+        return base
+
+    def test_search_matches_keywords(self):
+        s = self._skill()
+        self.assertTrue(skills_cli._skill_filter(s, "quantization", None, False))
+        self.assertTrue(skills_cli._skill_filter(s, "calibration", None, False))
+        self.assertTrue(skills_cli._skill_filter(s, "absmax", None, False))
+
+    def test_search_misses_unknown_term(self):
+        self.assertFalse(
+            skills_cli._skill_filter(self._skill(), "attention", None, False)
+        )
+
+    def test_name_description_category_still_searched_without_keywords(self):
+        s = self._skill(keywords=[])
+        self.assertTrue(skills_cli._skill_filter(s, "scale", None, False))
+        self.assertFalse(skills_cli._skill_filter(s, "quantization", None, False))
 
 
 if __name__ == "__main__":

@@ -30,7 +30,9 @@ from skill_foundry import verbs as verb_registry  # noqa: E402
 from skill_foundry.paths import ROOT as HARNESS  # noqa: E402
 from skill_foundry.lib import loader  # noqa: E402
 from skill_foundry.lib import metrics  # noqa: E402
-from skill_foundry.lib import validate_skills  # noqa: E402 — reuse its frontmatter parser
+from skill_foundry.lib import (
+    validate_skills,
+)  # noqa: E402 — reuse its frontmatter parser
 
 LIVE = HARNESS / ".claude" / "skills"
 INBOX = HARNESS / "hub" / "inbox"
@@ -72,6 +74,11 @@ def collect() -> list[dict]:
                         for s in (fm.get("stages") or "").split(",")
                         if s.strip()
                     ],
+                    "keywords": [
+                        k.strip()
+                        for k in (fm.get("keywords") or "").split(",")
+                        if k.strip()
+                    ],
                     "origin": (fm.get("origin") or "").strip(),
                     "owner": (fm.get("owner") or "").strip(),
                     "maturity": (fm.get("maturity") or "ready").strip(),
@@ -96,6 +103,7 @@ def _catalog_payload(skills: list[dict]) -> dict:
                     "license",
                     "entry",
                     "stages",
+                    "keywords",
                     "origin",
                     "owner",
                     "maturity",
@@ -192,7 +200,12 @@ def _skill_filter(
         return False
     if q:
         hay = " ".join(
-            [s["name"].lower(), s["description"].lower(), (s["category"] or "").lower()]
+            [
+                s["name"].lower(),
+                s["description"].lower(),
+                (s["category"] or "").lower(),
+                " ".join(s.get("keywords") or []).lower(),
+            ]
         )
         if q.lower() not in hay:
             return False

@@ -14,6 +14,7 @@ category: perf-analysis
 origin: native
 maturity: ready
 owner: skill-foundry
+keywords: quantization, calibration, quantize, absmax, per-channel scale, per-column scale, column scale
 ---
 
 # tilelangGym column scale
