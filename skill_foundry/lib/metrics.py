@@ -20,13 +20,19 @@ of calibrated judges where `(verdict == approve) == (outcome == approve)`.
 from __future__ import annotations
 
 import json
+import os
 import time
 import uuid
+from pathlib import Path
 from typing import Any
 
 from skill_foundry.paths import ROOT  # noqa: E402
 
-METRICS_FILE = ROOT / ".cache" / "metrics.jsonl"
+# Overridable so tests/CI can redirect telemetry away from the real store
+# (SKILL_FOUNDRY_METRICS=<path>). Defaults to the gitignored operational store.
+METRICS_FILE = Path(
+    os.environ.get("SKILL_FOUNDRY_METRICS") or ROOT / ".cache" / "metrics.jsonl"
+)
 
 
 def _ensure_dir() -> None:
@@ -111,9 +117,9 @@ def summarize() -> dict[str, Any]:
             and str(e.get("event_id"))
             not in {str(c.get("ref")) for c in evs if c["event"] == "calibrate"}
         ),
-        "judge_agreement_pct": round(agree / len(outcomes) * 100.0, 1)
-        if outcomes
-        else None,
+        "judge_agreement_pct": (
+            round(agree / len(outcomes) * 100.0, 1) if outcomes else None
+        ),
     }
 
 

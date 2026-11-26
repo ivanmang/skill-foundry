@@ -5,10 +5,32 @@ from __future__ import annotations
 
 import os
 import sys
+import tempfile
 import unittest
+from pathlib import Path
 from unittest import mock
 
+from skill_foundry.lib import metrics
 from skill_foundry.lib import reviewer
+
+_tmp = None
+_patch = None
+
+
+def setUpModule():
+    # Isolate telemetry: reviewer.approve records a judge event; keep it out of
+    # the real .cache/metrics.jsonl.
+    global _tmp, _patch
+    _tmp = tempfile.TemporaryDirectory()
+    _patch = mock.patch.object(
+        metrics, "METRICS_FILE", Path(_tmp.name) / "metrics.jsonl"
+    )
+    _patch.start()
+
+
+def tearDownModule():
+    _patch.stop()
+    _tmp.cleanup()
 
 
 class BuiltinReviewTest(unittest.TestCase):

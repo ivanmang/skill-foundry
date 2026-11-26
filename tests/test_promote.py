@@ -13,8 +13,29 @@ import os
 import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
 
 from skill_foundry.cli import promote
+from skill_foundry.lib import metrics
+
+_tmp = None
+_patch = None
+
+
+def setUpModule():
+    # Isolate telemetry: promote.main reaches metrics.record / reviewer.approve;
+    # keep those side effects out of the real .cache/metrics.jsonl.
+    global _tmp, _patch
+    _tmp = tempfile.TemporaryDirectory()
+    _patch = mock.patch.object(
+        metrics, "METRICS_FILE", Path(_tmp.name) / "metrics.jsonl"
+    )
+    _patch.start()
+
+
+def tearDownModule():
+    _patch.stop()
+    _tmp.cleanup()
 
 
 def _entry(eid: str, skill: str, wrong: str, action: str) -> dict:
