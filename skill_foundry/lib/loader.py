@@ -10,8 +10,6 @@ Returns (body, [reference filenames]) or None; callers attach their own telemetr
 
 from __future__ import annotations
 
-from pathlib import Path
-
 from skill_foundry.paths import ROOT as HARNESS  # noqa: E402
 
 LIVE = HARNESS / ".claude" / "skills"
