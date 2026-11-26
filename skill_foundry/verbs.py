@@ -41,10 +41,10 @@ PRODUCT_VERBS: list[tuple[str, str, str]] = [
     ("promote", "Publish learnings into skills", "[--propose | --apply | --pr]"),
     (
         "skills",
-        "List/search skills · install · refresh",
-        "[--search, --category, --origin, --owner, --maturity, --scope, --entry, "
-        "--name, --inbox, --install, --uninstall, --dry-run, --mine, --refresh, "
-        "--check, --json]",
+        "List/search/load skills · install · refresh",
+        "[load <name>] [--search, --category, --origin, --owner, --maturity, --scope, "
+        "--entry, --name, --inbox, --install, --uninstall, --dry-run, --mine, "
+        "--refresh, --check, --json]",
     ),
     (
         "import",
@@ -116,8 +116,9 @@ Examples:
   ./harness promote --pr        # apply + push a branch + open a PR
 """,
     "skills": """\
-./harness skills [--search <q>] [--category <c>] [--origin <o>] [--scope core|all] [--entry] [--inbox] [--install | --uninstall] [--dry-run] [--mine] [--refresh] [--check] [--json]
+./harness skills [load <name>] [--search <q>] [--category <c>] [--origin <o>] [--scope core|all] [--entry] [--inbox] [--install | --uninstall] [--dry-run] [--mine] [--refresh] [--check] [--json]
 List/search skills (published .claude/skills/ + drafts hub/inbox/).
+  load <name> print a skill's SKILL.md (+ references); published first, then hub/inbox drafts
   --search    filter by name/description/category substring
   --category  filter by exact category
   --origin    filter by exact origin (native | cannbot)
@@ -132,7 +133,7 @@ List/search skills (published .claude/skills/ + drafts hub/inbox/).
   --uninstall remove the harness skill symlinks (respects filters)
   --dry-run   with --install/--uninstall: show what would change (no writes)
   --mine      show what each detected agent can see vs the hub
-Examples: ./harness skills --search review      ./harness skills --install --scope core      ./harness skills --mine
+Examples: ./harness skills --search review      ./harness skills --install --scope core      ./harness skills --mine      ./harness skills load pto-isa
 """,
     "import": """\
 ./harness import [<source>] [--add | --list | --remove | --scan | --draft | --validate | --apply | --pr | --reject | --undo | --sync] [--json]
