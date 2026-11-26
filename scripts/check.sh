@@ -14,6 +14,8 @@ echo "== catalog + skills index fresh =="
 ./harness skills --check
 
 echo "== unit tests =="
+# Isolate product-loop telemetry so tests never touch the real .cache/metrics.jsonl.
+export SKILL_FOUNDRY_METRICS="${SKILL_FOUNDRY_METRICS:-$(mktemp -d)/metrics.jsonl}"
 if [ -d tests ]; then
   python3 -m unittest discover -s tests -q
 else

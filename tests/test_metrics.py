@@ -4,20 +4,32 @@
 from __future__ import annotations
 
 import json
+import tempfile
 import unittest
+from pathlib import Path
+from unittest import mock
 
 from skill_foundry.lib import metrics
 
 
 class MetricsTest(unittest.TestCase):
+    def setUp(self) -> None:
+        # Isolate telemetry: never touch the real .cache/metrics.jsonl.
+        self._tmp = tempfile.TemporaryDirectory()
+        self._patch = mock.patch.object(
+            metrics, "METRICS_FILE", Path(self._tmp.name) / "metrics.jsonl"
+        )
+        self._patch.start()
+
+    def tearDown(self) -> None:
+        self._patch.stop()
+        self._tmp.cleanup()
+
     def _write(self, events: list[dict]) -> None:
         metrics.METRICS_FILE.parent.mkdir(parents=True, exist_ok=True)
         metrics.METRICS_FILE.write_text(
             "".join(json.dumps(e) + "\n" for e in events), encoding="utf-8"
         )
-
-    def tearDown(self) -> None:
-        metrics.METRICS_FILE.unlink(missing_ok=True)
 
     def test_summarize_agreement(self):
         self._write(
