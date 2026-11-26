@@ -13,6 +13,7 @@ category: perf-analysis
 origin: native
 maturity: ready
 owner: skill-foundry
+keywords: quantization, calibration, quantize, absmax, per-tensor scale, block scale
 ---
 
 # tilelangGym block scale
