@@ -11,6 +11,7 @@ Usage:
   ./harness skills --search <q>         # filter by name/description/category substring
   ./harness skills --category <c>       # filter by exact category
   ./harness skills --entry              # entry points only
+  ./harness skills load <name>         # print a skill's SKILL.md (+ references)
   ./harness skills --refresh            # rewrite hub/catalog.json + docs/SKILLS_INDEX.md
   ./harness skills --check              # exit 1 if catalog/index are stale (no writes)
   ./harness skills --json
@@ -27,6 +28,8 @@ from collections import Counter
 
 from skill_foundry import verbs as verb_registry  # noqa: E402
 from skill_foundry.paths import ROOT as HARNESS  # noqa: E402
+from skill_foundry.lib import loader  # noqa: E402
+from skill_foundry.lib import metrics  # noqa: E402
 from skill_foundry.lib import validate_skills  # noqa: E402 — reuse its frontmatter parser
 
 LIVE = HARNESS / ".claude" / "skills"
@@ -410,6 +413,19 @@ def _browse_interactive(skills: list[dict]) -> int:
             return 0
 
 
+def load_skill(name: str) -> int:
+    """`skills load <name>` — print a SKILL.md (+ references) and record the load."""
+    found = loader.skill_body(name)
+    if found is None:
+        metrics.skill_load(name, via="cli", found=False)
+        print(f"skill '{name}' not found", file=sys.stderr)
+        return 1
+    body, refs = found
+    metrics.skill_load(name, via="cli", found=True)
+    print(loader.render_loaded(body, refs))
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(
         description="List/search skills, refresh catalog + index."
@@ -470,7 +486,25 @@ def main(argv: list[str] | None = None) -> int:
         help="Show what each detected agent can see vs the hub (discoverability check).",
     )
     ap.add_argument("--json", action="store_true")
+    ap.add_argument(
+        "sub",
+        nargs="?",
+        default=None,
+        help="Subcommand: 'load <name>' prints a skill's SKILL.md (published → drafts).",
+    )
+    ap.add_argument(
+        "skill_name", nargs="?", default=None, help="Skill name for 'load'."
+    )
     args = ap.parse_args(argv)
+
+    if args.sub == "load":
+        if not args.skill_name:
+            print("usage: ./harness skills load <name>", file=sys.stderr)
+            return 2
+        return load_skill(args.skill_name)
+    if args.sub is not None:
+        print(f"unknown subcommand: {args.sub}", file=sys.stderr)
+        return 2
 
     if args.install or args.uninstall:
         from skill_foundry.lib import install_skills
@@ -520,6 +554,12 @@ def main(argv: list[str] | None = None) -> int:
     ]
     if args.inbox:
         skills = [s for s in skills if s["status"] == "draft"]
+
+    # Agent-agnostic telemetry: record every skill search (hits==0 = a gap).
+    # Covers both `./harness skills --search` (shell agents) and the MCP
+    # `skills_list` tool (which routes through this same main()).
+    if args.search:
+        metrics.skill_search(args.search, via="cli", hits=len(skills))
 
     if args.json:
         print(json.dumps({"skills": skills}, indent=2))

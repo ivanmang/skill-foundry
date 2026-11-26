@@ -17,6 +17,7 @@ import argparse
 import sys
 
 from skill_foundry.cli import promote, teach  # noqa: E402
+from skill_foundry.lib import metrics  # noqa: E402
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -32,6 +33,12 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--skill", default=None)
     ap.add_argument("--context", default=None)
     ap.add_argument("--category", default=None)
+    ap.add_argument(
+        "--attribution",
+        default=None,
+        choices=metrics.ATTRIBUTIONS,
+        help="Why this needed a human (recorded as an intervention event).",
+    )
     ap.add_argument("--branch", default=None)
     ap.add_argument(
         "--file",
@@ -71,6 +78,7 @@ def main(argv: list[str] | None = None) -> int:
         ("--skill", "skill"),
         ("--context", "context"),
         ("--category", "category"),
+        ("--attribution", "attribution"),
     ):
         val = getattr(args, attr)
         if val is not None:

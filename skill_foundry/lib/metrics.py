@@ -115,3 +115,116 @@ def summarize() -> dict[str, Any]:
         if outcomes
         else None,
     }
+
+
+# ── Agent-agnostic skill telemetry ─────────────────────────────────────────
+#
+# These answer "which skills did the agent use / search for and miss" for ANY
+# agent (pi / Claude Code / Cowork / any MCP client), because they are recorded
+# at the two shared in-process boundaries rather than from a transcript:
+#   - mcp/server.py::skills_load / skills_list   (any MCP-capable agent)
+#   - skill_foundry.cli.skills (./harness skills --search — shell agents)
+#
+# They are deliberately NOT transcript-derived — transcript formats are
+# agent-specific (pi's .jsonl is not Claude Code's or Cowork's).
+
+
+def skill_load(skill: str, via: str = "mcp", found: bool = True) -> str | None:
+    """Record a skill load (agent read a SKILL.md via the canonical channel).
+
+    `found=False` marks a load-miss: the agent asked for a skill that does not
+    exist — a direct missing-skill (gap) signal.
+    """
+    return record("skill.load", skill=skill, via=via, found=found)
+
+
+def skill_search(query: str, via: str = "cli", hits: int | None = None) -> str | None:
+    """Record a skill search; `hits == 0` is a missing-skill (gap) signal."""
+    fields: dict[str, Any] = {"query": query, "via": via}
+    if hits is not None:
+        fields["hits"] = hits
+    return record("skill.search", **fields)
+
+
+# Attribution taxonomy for human interventions (why a task step needed a human).
+# These are telemetry tags on `intervention` events — NOT fields on LRN entries,
+# so the learnings format + promote logic stay untouched.
+ATTRIBUTIONS = (
+    "missing_skill",  # no skill covered this
+    "wrong_skill",  # skill exists but wrong/outdated
+    "not_followed",  # skill correct but agent skipped it
+    "env_changed",  # tool/env/CANN/simulator changed
+    "new_knowledge",  # nothing was wrong; genuinely new fact
+)
+
+
+def intervention(
+    attribution: str,
+    skill: str | None = None,
+    note: str | None = None,
+    lrn: str | None = None,
+) -> str | None:
+    """Record a human intervention with its attribution (why the step needed a human)."""
+    if attribution not in ATTRIBUTIONS:
+        return None
+    fields: dict[str, Any] = {"attribution": attribution}
+    if skill:
+        fields["skill"] = skill
+    if note:
+        fields["note"] = note
+    if lrn:
+        fields["lrn"] = lrn
+    return record("intervention", **fields)
+
+
+def skill_health() -> dict[str, Any]:
+    """Aggregate skill telemetry: loads, searches, interventions, daily trend."""
+    evs = events()
+    loads: dict[str, int] = {}
+    load_misses: list[str] = []
+    searches: dict[str, dict[str, Any]] = {}
+    by_attribution: dict[str, int] = {}
+    by_skill: dict[str, int] = {}
+    trend: dict[str, dict[str, int]] = {}
+    for e in evs:
+        ev = e.get("event")
+        ts = str(e.get("ts") or "")
+        day = ts[:10] or "?"
+        d = trend.setdefault(day, {})
+        if ev == "skill.load":
+            sk = str(e.get("skill") or "?")
+            if e.get("found") is False:
+                load_misses.append(sk)
+            loads[sk] = loads.get(sk, 0) + 1
+            d["loads"] = d.get("loads", 0) + 1
+        elif ev == "skill.search":
+            q = str(e.get("query") or "").strip()
+            if q:
+                cur = searches.setdefault(q, {"count": 0, "zero_hit": 0})
+                cur["count"] += 1
+                if e.get("hits") == 0:
+                    cur["zero_hit"] += 1
+            d["searches"] = d.get("searches", 0) + 1
+        elif ev == "intervention":
+            a = str(e.get("attribution") or "new_knowledge")
+            sk = str(e.get("skill") or "?")
+            by_attribution[a] = by_attribution.get(a, 0) + 1
+            by_skill[sk] = by_skill.get(sk, 0) + 1
+            d["interventions"] = d.get("interventions", 0) + 1
+        elif ev == "capture":
+            d["captures"] = d.get("captures", 0) + 1
+        elif ev in ("promote", "promote_skill"):
+            d["promotes"] = d.get("promotes", 0) + 1
+    missing = [q for q, s in searches.items() if s["zero_hit"] > 0]
+    return {
+        "skill_loads": loads,
+        "skill_load_misses": load_misses,
+        "skill_searches": searches,
+        "missing_skill_queries": missing,
+        "interventions": {
+            "total": sum(by_attribution.values()),
+            "by_attribution": by_attribution,
+            "by_skill": by_skill,
+        },
+        "trend": {"by_day": trend},
+    }

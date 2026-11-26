@@ -14,6 +14,9 @@ for the full roles & interaction model.
    self-contained knowledge: each one tells you *what to run* and *how to
    triage*, using real test commands and thin helper scripts
    (`python3 -m skill_foundry.workflow.*`, `skill_foundry.lib.*`).
+   **Load every skill via `./harness skills load <name>` (never a bare `read`)
+   and search via `./harness skills --search <intent>` when nothing matches** —
+   this records usage/misses for the coverage report (see `task-observe`).
 2. **Use `./harness` ONLY for the skill-ops loop** — `capture-skill`,
    `promote-skill`, `teach`, `promote`, `skills`. Never route the regression
    workflow through the harness; run its scripts directly per the skills.

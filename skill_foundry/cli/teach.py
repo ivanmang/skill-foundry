@@ -155,6 +155,12 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--action", default=None)
     ap.add_argument("--file", default=str(log_correction.DEFAULT_FILE))
     ap.add_argument("--id", default=None)
+    ap.add_argument(
+        "--attribution",
+        default=None,
+        choices=metrics.ATTRIBUTIONS,
+        help="Why this needed a human (recorded as an intervention event).",
+    )
     ap.add_argument("--dry-run", action="store_true")
     ap.add_argument("--json", action="store_true", help="Emit machine-readable JSON.")
     args = ap.parse_args(argv)
@@ -239,6 +245,8 @@ def main(argv: list[str] | None = None) -> int:
     eid = log_correction.append_entry(args.file, entry)
     entry["id"] = eid
     metrics.record("capture", id=eid, skill=entry.get("skill"))
+    if args.attribution:
+        metrics.intervention(args.attribution, skill=entry.get("skill"), lrn=eid)
     if args.json:
         print(
             json.dumps(

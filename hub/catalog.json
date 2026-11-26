@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated": "2026-11-20T10:06:05.871753+00:00",
+  "generated": "2026-11-26T07:53:14.996989+00:00",
   "skills": [
     {
       "name": "aclnn-doc-gen",
@@ -1158,6 +1158,18 @@
       "stages": [],
       "origin": "cannbot",
       "owner": "cannbot",
+      "maturity": "ready",
+      "status": "published"
+    },
+    {
+      "name": "task-observe",
+      "description": "Record skill usage and human interventions so the skill-health loop can see which skills were used, which were missing, and why a human had to step in. MUST use at task start and whenever loading a skill, searching for a skill, or logging a correction: load skills via `./harness skills load <name>` (never a bare file read) and search via `./harness skills --search <intent>` so the usage lands in .cache/metrics.jsonl and shows up in docs/SKILL_HEALTH.md.",
+      "category": "regression",
+      "license": "CANN Open Software License Agreement Version 2.0",
+      "entry": false,
+      "stages": [],
+      "origin": "native",
+      "owner": "skill-foundry",
       "maturity": "ready",
       "status": "published"
     },

@@ -23,3 +23,6 @@ dist/
 
 # machine-local env (copy env.example.sh -> env.sh)
 /env.sh
+
+# Operational skill-health report (generated from gitignored .cache/metrics.jsonl)
+docs/SKILL_HEALTH.md

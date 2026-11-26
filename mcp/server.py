@@ -31,8 +31,6 @@ import sys
 from pathlib import Path
 
 HARNESS = Path(__file__).resolve().parent.parent
-LIVE = HARNESS / ".claude" / "skills"
-INBOX = HARNESS / "hub" / "inbox"
 
 try:
     from fastmcp import FastMCP
@@ -44,6 +42,8 @@ sys.path.insert(
     0, str(HARNESS)
 )  # in case the server is launched from a cwd other than the repo
 from skill_foundry import dispatch  # noqa: E402
+from skill_foundry.lib import loader  # noqa: E402
+from skill_foundry.lib import metrics  # noqa: E402
 
 mcp = FastMCP("harness-mcp")
 
@@ -73,19 +73,13 @@ def skills_list(search: str = "", inbox: bool = False) -> str:
 @mcp.tool()
 def skills_load(name: str) -> str:
     """Return a skill's SKILL.md (published first, then inbox drafts)."""
-    for base in (LIVE, INBOX):
-        p = base / name / "SKILL.md"
-        if p.exists():
-            refs = [
-                f.relative_to(p.parent).as_posix()
-                for f in p.parent.rglob("*")
-                if f.is_file() and f.name != "SKILL.md"
-            ]
-            body = p.read_text(encoding="utf-8")
-            return f"{body}\n\n# references\n" + (
-                "\n".join(f"- {r}" for r in refs) or "- (none)"
-            )
-    return f"skill '{name}' not found"
+    found = loader.skill_body(name)
+    if found is None:
+        metrics.skill_load(name, via="mcp", found=False)
+        return f"skill '{name}' not found"
+    body, refs = found
+    metrics.skill_load(name, via="mcp", found=True)
+    return loader.render_loaded(body, refs)
 
 
 @mcp.tool()
@@ -95,9 +89,16 @@ def capture_skill(name: str, description: str, body: str = "") -> str:
 
 
 @mcp.tool()
-def teach(wrong: str, correct: str, action: str) -> str:
-    """Log a correction (a lesson about an existing skill) as a pending LRN entry."""
-    return _run("teach", "--wrong", wrong, "--correct", correct, "--action", action)
+def teach(wrong: str, correct: str, action: str, attribution: str = "") -> str:
+    """Log a correction (a lesson about an existing skill) as a pending LRN entry.
+
+    attribution (optional): why this needed a human — missing_skill | wrong_skill |
+    not_followed | env_changed | new_knowledge. Records an intervention event.
+    """
+    args = ["teach", "--wrong", wrong, "--correct", correct, "--action", action]
+    if attribution:
+        args += ["--attribution", attribution]
+    return _run(*args)
 
 
 @mcp.tool()
